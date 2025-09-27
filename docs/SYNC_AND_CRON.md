@@ -1,32 +1,11 @@
-# Data Sync & Cron Jobs
+> Moved to `docs/operations/SYNC_AND_CRON.md`.
 
-## Sync Systems
-- Courts: `lib/sync/court-sync.ts` (batching, change detection, retry)
-- Judges: `lib/sync/judge-sync.ts` (profiles, assignments, slugs)
-- Decisions: `lib/sync/decision-sync.ts` (text extraction, feed to AI)
-- Queue: `lib/sync/queue-manager.ts` (priorities, retry, metrics)
+See: `docs/operations/SYNC_AND_CRON.md`
 
-Typical usage:
-```ts
-await courtSyncManager.syncCourts({ batchSize: 20, jurisdiction: 'CA', forceRefresh: false })
-```
+## Vercel Deployment Guidance
 
-## Cron Routes
-- Daily: `app/api/cron/daily-sync/route.ts`
-  - Twice daily judge/decision updates
-  - Auth: `Authorization: Bearer ${CRON_SECRET}`
-- Weekly: `app/api/cron/weekly-sync/route.ts`
-  - Courts refresh, judge refresh, federal maintenance, decisions, cleanup
-  - Staggered scheduling with backoff
-
-## Admin & Health APIs
-- Health: `GET /api/health`
-- Sync status: `GET /api/admin/sync-status`
-- Sync control: `POST /api/admin/sync-status` with header `x-api-key: ${SYNC_API_KEY}`
-
-Actions supported by `POST /api/admin/sync-status`:
-- `queue_job` (type: decision|judge|court)
-- `cancel_jobs`
-- `cleanup`
-- `restart_queue`
+- Set `maxDuration` ≤ 300 on all API routes; use 60 seconds on queuing endpoints such as `/api/sync/decisions` so they only enqueue work.
+- Route `/api/sync/queue/process` remains the long-running worker; keep `maxDuration = 300` and invoke it via Vercel Cron (or external scheduler) with `CRON_SECRET` so queued jobs are processed.
+- Ensure the following environment variables exist in Vercel: `SYNC_API_KEY`, `CRON_SECRET`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `COURTLISTENER_API_KEY`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
+- For large sync batches, prefer smaller `batchSize` (<10) so each job finishes within the limit.
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SyncQueueManager } from '@/lib/sync/queue-manager'
+import { DecisionSyncOptionsSchema } from '@/lib/sync/decision-sync'
 import { logger } from '@/lib/utils/logger'
 
 export const dynamic = 'force-dynamic'
@@ -19,14 +20,17 @@ export async function POST(request: NextRequest) {
 
     // Parse request options
     const body = await request.json().catch(() => ({}))
-    const options = {
-      batchSize: body.batchSize || 5,
-      jurisdiction: body.jurisdiction || 'CA',
-      daysSinceLast: body.daysSinceLast || undefined,
-      judgeIds: body.judgeIds || undefined,
-      maxDecisionsPerJudge: body.maxDecisionsPerJudge || 50,
-      ...body
-    }
+    const options = DecisionSyncOptionsSchema.parse({
+      batchSize: body.batchSize,
+      jurisdiction: body.jurisdiction,
+      daysSinceLast: body.daysSinceLast,
+      judgeIds: body.judgeIds,
+      maxDecisionsPerJudge: body.maxDecisionsPerJudge,
+      includeDockets: body.includeDockets,
+      maxFilingsPerJudge: body.maxFilingsPerJudge,
+      filingYearsBack: body.filingYearsBack,
+      filingDaysSinceLast: body.filingDaysSinceLast
+    })
 
     logger.info('Starting decision sync via API', { 
       options: {

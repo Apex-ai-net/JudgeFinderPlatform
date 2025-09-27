@@ -4,6 +4,7 @@
  */
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { z } from 'zod'
 import { CourtListenerClient, type CourtListenerDocket } from '@/lib/courtlistener/client'
 import { logger } from '@/lib/utils/logger'
 import { sleep } from '@/lib/utils/helpers'
@@ -19,18 +20,20 @@ import { syncJudgeFilings as syncJudgeFilingsExternal } from '@/lib/sync/decisio
 import { DecisionRepository } from '@/lib/sync/decision-repository'
 import { ensureOpinionForCase as ensureOpinionForCaseExternal } from '@/lib/sync/decision-opinions'
 
-interface DecisionSyncOptions {
-  batchSize?: number
-  jurisdiction?: string
-  daysSinceLast?: number
-  judgeIds?: string[]
-  maxDecisionsPerJudge?: number
-  yearsBack?: number
-  includeDockets?: boolean
-  maxFilingsPerJudge?: number
-  filingYearsBack?: number
-  filingDaysSinceLast?: number
-}
+export const DecisionSyncOptionsSchema = z.object({
+  batchSize: z.number().int().min(1).max(10).optional(),
+  jurisdiction: z.string().min(1).max(5).optional(),
+  daysSinceLast: z.number().int().min(1).max(365).optional(),
+  judgeIds: z.array(z.string()).min(1).max(50).optional(),
+  maxDecisionsPerJudge: z.number().int().min(1).max(200).optional(),
+  yearsBack: z.number().int().min(1).max(10).optional(),
+  includeDockets: z.boolean().optional(),
+  maxFilingsPerJudge: z.number().int().min(1).max(400).optional(),
+  filingYearsBack: z.number().int().min(1).max(10).optional(),
+  filingDaysSinceLast: z.number().int().min(1).max(365).optional()
+})
+
+export type DecisionSyncOptions = z.infer<typeof DecisionSyncOptionsSchema>
 
 interface DecisionSyncResult {
   success: boolean
@@ -104,6 +107,7 @@ export class DecisionSyncManager {
    */
   async syncDecisions(options: DecisionSyncOptions = {}): Promise<DecisionSyncResult> {
     const startTime = Date.now()
+    const safeOptions = DecisionSyncOptionsSchema.parse(options)
     const result: DecisionSyncResult = {
       success: false,
       judgesProcessed: 0,
@@ -120,12 +124,12 @@ export class DecisionSyncManager {
     }
 
     try {
-      logger.info('Starting decision data sync', { syncId: this.syncId, options })
+      logger.info('Starting decision data sync', { syncId: this.syncId, options: safeOptions })
 
-      await this.logSyncStart('decision', options)
+      await this.logSyncStart('decision', safeOptions)
 
       // Get judges to sync decisions for
-      const judgesToSync = await this.getJudgesForDecisionSync(options)
+      const judgesToSync = await this.getJudgesForDecisionSync(safeOptions)
       result.judgesProcessed = judgesToSync.length
 
       if (judgesToSync.length === 0) {
@@ -136,13 +140,13 @@ export class DecisionSyncManager {
       }
 
       // Process judges in batches to respect rate limits
-      const batchSize = options.batchSize || 5 // Smaller batches for decisions
+      const batchSize = safeOptions.batchSize || 5 // Smaller batches for decisions
       
       for (let i = 0; i < judgesToSync.length; i += batchSize) {
         const batch = judgesToSync.slice(i, i + batchSize)
         
         try {
-          const batchResult = await this.processBatch(batch, options)
+          const batchResult = await this.processBatch(batch, safeOptions)
           result.decisionsProcessed += batchResult.decisionsProcessed
           result.decisionsCreated += batchResult.decisionsCreated
           result.decisionsUpdated += batchResult.decisionsUpdated
