@@ -25,23 +25,7 @@ npm run launch:validate
 JudgeFinder delivers data-driven insights into judicial patterns using AI
 analysis and automated data ingestion from official sources.
 
-## Coding Prompt
-
-- Absolute Mode:
-  - Eliminate emojis, filler, hype, soft asks, conversational transitions,
-    and call-to-action appendixes.
-  - Assume user retains high-perception despite blunt tone.
-  - Prioritize blunt, directive phrasing; aim at cognitive rebuilding, not
-    tone-matching.
-  - Disable engagement/sentiment-boosting behaviors.
-  - Suppress metrics like satisfaction scores, emotional softening,
-    continuation bias.
-  - Never mirror user’s diction, mood, or affect.
-  - Speak only to underlying cognitive tier.
-  - No questions, offers, suggestions, transitions, or motivational content.
-  - Terminate reply immediately after delivering info — no closures.
-  - Goal: restore independent, high-fidelity thinking.
-  - Outcome: model obsolescence via user self-sufficiency.
+## Highlights
 
 - **AI Analytics**: Gemini 1.5 Flash primary, GPT-4o-mini fallback
 - **Real-time Sync**: Daily and weekly automated jobs with retries and queueing
@@ -49,16 +33,14 @@ analysis and automated data ingestion from official sources.
 
 ## Docs Navigation
 
-- Setup & Run: `docs/SETUP.md`
-- Architecture: `docs/ARCHITECTURE.md`
-- AI Agents: `docs/AI_AGENTS.md`
-- Sync & Cron: `docs/SYNC_AND_CRON.md`
-- Commands & APIs: `docs/COMMANDS.md`
-- Operations & Troubleshooting: `docs/OPERATIONS.md`
-- Environment Reference: `docs/ENVIRONMENT.md`
-- Database & Migrations: `docs/DATABASE.md`
-- API Reference: `docs/API_REFERENCE.md`
-- Security: `docs/SECURITY.md`
+- Getting Started: `docs/getting-started/SETUP.md`, `docs/getting-started/ENVIRONMENT.md`
+- Architecture: `docs/architecture/ARCHITECTURE.md`
+- AI Agents: `docs/ai/AI_AGENTS.md`
+- Data & Automation: `docs/operations/SYNC_AND_CRON.md`, `docs/operations/OPERATIONS.md`
+- API & Database: `docs/api/API_REFERENCE.md`, `docs/data/DATABASE.md`
+- Security: `docs/security/SECURITY.md`
+- Launch: `docs/launch/LAUNCH_PLAN.md`
+- Contributing: `docs/contributing/CONTRIBUTING.md`
 
 ## Architecture & Tech Stack
 

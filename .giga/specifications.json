@@ -1,0 +1,26 @@
+[
+  {
+    "fileName": "main-overview.mdc",
+    "description": "Complete system overview documenting the judicial analytics platform architecture, key components, and high-level data flows between major subsystems"
+  },
+  {
+    "fileName": "judicial-data-models.mdc",
+    "description": "Comprehensive documentation of the core data models including judges, courts, cases, jurisdictions, and their relationships, with ERD diagrams and field specifications"
+  },
+  {
+    "fileName": "bias-analytics-algorithms.mdc",
+    "description": "Detailed documentation of the judicial bias detection algorithms, including the 6-category pattern analysis system, confidence scoring, and normalization methods"
+  },
+  {
+    "fileName": "case-distribution-algorithms.mdc",
+    "description": "Technical specifications for the case distribution and redistribution algorithms, including workload balancing, jurisdiction rules, and assignment optimization"
+  },
+  {
+    "fileName": "legal-advertising-system.mdc",
+    "description": "Documentation of the legal advertising system including slot management, tiered pricing models, rotation rules, and compliance requirements"
+  },
+  {
+    "fileName": "data-synchronization.mdc",
+    "description": "Detailed documentation of the multi-source data synchronization system, including CourtListener integration, update prioritization, and consistency management"
+  }
+]

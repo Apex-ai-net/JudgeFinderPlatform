@@ -3,6 +3,8 @@ import { ensureCurrentAppUser } from '@/lib/auth/user-mapping'
 import { NextResponse } from 'next/server'
 import type { NextFetchEvent, NextRequest } from 'next/server'
 import { handleJudgeRedirects } from '@/lib/middleware/judge-redirects'
+import { createSecurityConfig, getSecurityHeaders, getCacheHeaders } from '@/lib/security/headers'
+import { logger } from '@/lib/utils/logger'
 
 const isProtectedRoute = createRouteMatcher([
   '/profile(.*)',
@@ -29,9 +31,8 @@ const hasConfiguredClerkKeys = Boolean(
   !clerkKeys.publishable.includes('CONFIGURE')
 )
 
-if (isProduction && !hasConfiguredClerkKeys) {
-  throw new Error('Clerk keys are missing or invalid in production environment')
-}
+// Do not hard fail production if Clerk keys are missing; fall back to public mode
+// Authentication for protected/admin routes will be disabled when keys are not configured
 
 const hasValidClerkKeys = hasConfiguredClerkKeys
   ? clerkKeys.publishable &&
@@ -42,7 +43,7 @@ const hasValidClerkKeys = hasConfiguredClerkKeys
   : null
 
 if (!hasValidClerkKeys) {
-  console.warn('[middleware] Clerk keys missing or invalid; authentication disabled for public routes', {
+  logger.warn('[middleware] Clerk keys missing or invalid; authentication disabled for public routes', {
     publishableConfigured: Boolean(clerkKeys.publishable),
     environment: process.env.NODE_ENV
   })
@@ -80,7 +81,7 @@ const middlewareHandler = clerkWrappedHandler
       try {
         return await clerkWrappedHandler(request, event)
       } catch (error) {
-        console.warn('[middleware] Clerk middleware failed; falling back to base handler', error)
+        logger.warn('[middleware] Clerk middleware failed; falling back to base handler', undefined, error as Error)
         return baseMiddleware(request)
       }
     }
@@ -99,62 +100,19 @@ export default function handler(request: NextRequest, event: NextFetchEvent) {
 
 function baseMiddleware(request: NextRequest) {
   const response = NextResponse.next()
-  
-  // Basic Security Headers
-  response.headers.set('X-Frame-Options', 'DENY')
-  response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('X-XSS-Protection', '1; mode=block')
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  
-  // HSTS for HTTPS enforcement (production only)
-  if (process.env.NODE_ENV === 'production') {
-    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
-  }
-  
-  // Basic CSP for essential services only
-  const isDevelopment = process.env.NODE_ENV === 'development'
-  
-  const reportEndpoint = `${request.nextUrl.origin}/api/security/csp-report`
 
-  const csp = [
-    "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' ${isDevelopment ? "'unsafe-eval'" : ""} *.supabase.co *.clerk.com *.clerk.accounts.dev https://www.googletagmanager.com https://www.google-analytics.com https://browser.sentry-cdn.com`,
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "img-src 'self' blob: data: *.supabase.co https://img.clerk.com https://images.clerk.dev https://www.courtlistener.com",
-    "font-src 'self' data: https://fonts.gstatic.com",
-    "connect-src 'self' *.supabase.co wss://*.supabase.co *.clerk.com *.clerk.accounts.dev https://api.openai.com https://www.courtlistener.com https://www.google-analytics.com https://www.googletagmanager.com https://generativelanguage.googleapis.com https://o.sentry.io https://*.ingest.sentry.io https://*.sentry.io",
-    "frame-src *.clerk.com *.clerk.accounts.dev",
-    "frame-ancestors 'none'",
-    "base-uri 'self'",
-    "form-action 'self' *.clerk.com *.clerk.accounts.dev",
-    "object-src 'none'",
-    'report-to csp-endpoint'
-  ].join('; ')
-  
-  response.headers.set('Content-Security-Policy', csp)
-  response.headers.set('Report-To', JSON.stringify({
-    group: 'csp-endpoint',
-    max_age: 10886400,
-    endpoints: [
-      { url: reportEndpoint }
-    ]
-  }))
-  response.headers.set('Reporting-Endpoints', `csp-endpoint="${reportEndpoint}"`)
-  
-  // Basic cache control
-  const { pathname } = request.nextUrl
-  if (pathname.startsWith('/api/')) {
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
-  } else if (pathname.includes('/_next/static/')) {
-    response.headers.set('Cache-Control', 'public, max-age=31536000, immutable')
-  } else if (pathname.startsWith('/judges') || pathname.startsWith('/courts')) {
-    // Never cache SSR HTML for dynamic pages that include asset hashes in output
-    response.headers.set('Cache-Control', 'no-store')
-  } else {
-    // Default: do not cache HTML documents to avoid stale pages referencing old asset hashes
-    response.headers.set('Cache-Control', 'no-store')
+  // Centralized security headers (CSP/HSTS/etc.)
+  const securityHeaders = getSecurityHeaders(createSecurityConfig())
+  for (const [key, value] of Object.entries(securityHeaders)) {
+    response.headers.set(key, value)
   }
-  
+
+  // Cache control based on path
+  const cacheHeaders = getCacheHeaders(request.nextUrl.pathname)
+  for (const [key, value] of Object.entries(cacheHeaders)) {
+    response.headers.set(key, value)
+  }
+
   return response
 }
 

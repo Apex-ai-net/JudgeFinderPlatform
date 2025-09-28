@@ -153,6 +153,174 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
     )
   }
 
+  function SlotCard({
+    slot,
+    maxRotations,
+    judgeId,
+    judgeName,
+    onTrackClick,
+  }: {
+    slot: AdSlot
+    maxRotations: number
+    judgeId: string
+    judgeName: string
+    onTrackClick: (slotId: string, url: string) => void
+  }) {
+    const advertiser = slot.advertiser || undefined
+    const barNumber = advertiser?.bar_number?.trim()
+    const barVerificationUrl = barNumber
+      ? `https://apps.calbar.ca.gov/attorney/Licensee/Detail/${barNumber}`
+      : undefined
+    const available = slot.status === 'available' && !advertiser
+
+    const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true })
+
+    useEffect(() => {
+      if (!inView) return
+      if (!slot.id) return
+      if (!(advertiser || !available)) return
+      fetch('/api/advertising/track-impression', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slot_id: slot.id, judge_id: judgeId }),
+      }).catch(() => {})
+    }, [inView, advertiser, available, slot.id, judgeId])
+
+    return (
+      <article
+        key={slot.id}
+        ref={ref}
+        className="overflow-hidden rounded-2xl border border-border/60 bg-[hsl(var(--bg-2))] transition-shadow hover:shadow-lg"
+      >
+        <header className="flex items-center justify-between border-b border-border/50 bg-[hsl(var(--bg-1))] px-5 py-3 text-xs font-semibold text-[color:hsl(var(--text-3))]">
+          <span>{rotationLabel(slot.position, maxRotations)}</span>
+          {!available && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-[rgba(110,168,254,0.45)] bg-[rgba(110,168,254,0.14)] px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-[color:hsl(var(--accent))]">
+              Ad
+            </span>
+          )}
+        </header>
+
+        {advertiser ? (
+          <div className="space-y-4 p-5">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1">
+                  <h4 className="text-lg font-semibold text-[color:hsl(var(--text-1))]">{advertiser.firm_name}</h4>
+                  <p className="mt-1 text-sm text-[color:hsl(var(--text-2))]">{advertiser.description}</p>
+                </div>
+                {advertiser.logo_url && (
+                  <Image
+                    src={advertiser.logo_url}
+                    alt={advertiser.firm_name}
+                    width={52}
+                    height={52}
+                    className="h-12 w-12 rounded-lg border border-border/40 bg-[hsl(var(--bg-1))] object-contain p-2"
+                  />
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-[11px] text-[color:hsl(var(--text-3))]">
+                {barVerificationUrl && (
+                  <a
+                    href={barVerificationUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[color:hsl(var(--accent))] underline-offset-4 hover:text-[color:hsl(var(--text-1))]"
+                  >
+                    <Shield className="h-3 w-3" aria-hidden />
+                    CA Bar #{barNumber}
+                  </a>
+                )}
+                <span>Verified by JudgeFinder</span>
+              </div>
+            </div>
+
+            {slot.creative && (
+              <div className="rounded-xl border border-border/60 bg-[hsl(var(--bg-1))] p-4">
+                <h5 className="mb-1 text-sm font-semibold text-[color:hsl(var(--text-1))]">{slot.creative.headline}</h5>
+                <p className="text-sm text-[color:hsl(var(--text-2))]">{slot.creative.description}</p>
+              </div>
+            )}
+
+            {advertiser.specializations && advertiser.specializations.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {advertiser.specializations.map((spec) => (
+                  <span
+                    key={spec}
+                    className="inline-flex items-center rounded-full border border-border/50 bg-[hsl(var(--bg-1))] px-3 py-1 text-xs text-[color:hsl(var(--text-3))]"
+                  >
+                    {spec}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="space-y-2 text-sm text-[color:hsl(var(--text-2))]">
+              {advertiser.phone && (
+                <div className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" aria-hidden />
+                  <span>{advertiser.phone}</span>
+                </div>
+              )}
+              {advertiser.email && (
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" aria-hidden />
+                  <a
+                    href={`mailto:${advertiser.email}`}
+                    className="text-[color:hsl(var(--accent))] transition-colors hover:text-[color:hsl(var(--text-1))]"
+                  >
+                    {advertiser.email}
+                  </a>
+                </div>
+              )}
+              {advertiser.website && (
+                <div className="flex items-center gap-2">
+                  <ExternalLink className="h-4 w-4" aria-hidden />
+                  <a
+                    href={advertiser.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[color:hsl(var(--accent))] transition-colors hover:text-[color:hsl(var(--text-1))]"
+                    onClick={(event) => {
+                      event.preventDefault()
+                      onTrackClick(slot.id, advertiser.website!)
+                    }}
+                  >
+                    Visit website
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {slot.creative?.cta_text && slot.creative?.cta_url && (
+              <button
+                type="button"
+                onClick={() => onTrackClick(slot.id, slot.creative!.cta_url)}
+                className="w-full rounded-full border border-[rgba(110,168,254,0.45)] bg-[rgba(110,168,254,0.15)] px-4 py-2 text-sm font-semibold text-[color:hsl(var(--accent))] transition-colors hover:bg-[rgba(110,168,254,0.25)]"
+              >
+                {slot.creative.cta_text}
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3 border border-dashed border-border/50 bg-[hsl(var(--bg-1))] p-6 text-center">
+            <Briefcase className="h-8 w-8 text-[color:hsl(var(--text-3))]" aria-hidden />
+            <p className="text-sm font-semibold text-[color:hsl(var(--text-1))]">Rotation available</p>
+            <p className="text-xs text-[color:hsl(var(--text-3))]">
+              High-intent visibility for attorneys appearing before Judge {judgeName}.
+            </p>
+            <Link
+              href={`/dashboard/advertiser/ad-spots?preselected=true&entityType=judge&entityId=${encodeURIComponent(judgeId)}&position=${encodeURIComponent(String(slot.position))}`}
+              className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-[hsl(var(--bg-2))] px-4 py-2 text-sm font-semibold text-[color:hsl(var(--text-2))] transition-colors hover:border-[rgba(110,168,254,0.45)] hover:text-[color:hsl(var(--text-1))]"
+            >
+              Book this rotation
+            </Link>
+          </div>
+        )}
+      </article>
+    )
+  }
+
   return (
     <div className="space-y-5" id="attorney-slots" aria-label="Verified legal sponsors">
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
@@ -194,158 +362,16 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
         </div>
       )}
 
-      {slots.map((slot) => {
-        const advertiser = slot.advertiser || undefined
-        const barNumber = advertiser?.bar_number?.trim()
-        const barVerificationUrl = barNumber
-          ? `https://apps.calbar.ca.gov/attorney/Licensee/Detail/${barNumber}`
-          : undefined
-        const available = slot.status === 'available' && !advertiser
-
-        const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true })
-
-        if (inView && slot.id && (advertiser || !available)) {
-          fetch('/api/advertising/track-impression', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ slot_id: slot.id, judge_id: judgeId }),
-          }).catch(() => {})
-        }
-
-        return (
-          <article
-            key={slot.id}
-            ref={ref}
-            className="overflow-hidden rounded-2xl border border-border/60 bg-[hsl(var(--bg-2))] transition-shadow hover:shadow-lg"
-          >
-            <header className="flex items-center justify-between border-b border-border/50 bg-[hsl(var(--bg-1))] px-5 py-3 text-xs font-semibold text-[color:hsl(var(--text-3))]">
-              <span>{rotationLabel(slot.position, maxRotations)}</span>
-              {!available && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-[rgba(110,168,254,0.45)] bg-[rgba(110,168,254,0.14)] px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-[color:hsl(var(--accent))]">
-                  Ad
-                </span>
-              )}
-            </header>
-
-            {advertiser ? (
-              <div className="space-y-4 p-5">
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <h4 className="text-lg font-semibold text-[color:hsl(var(--text-1))]">{advertiser.firm_name}</h4>
-                      <p className="mt-1 text-sm text-[color:hsl(var(--text-2))]">{advertiser.description}</p>
-                    </div>
-                    {advertiser.logo_url && (
-                      <Image
-                        src={advertiser.logo_url}
-                        alt={advertiser.firm_name}
-                        width={52}
-                        height={52}
-                        className="h-12 w-12 rounded-lg border border-border/40 bg-[hsl(var(--bg-1))] object-contain p-2"
-                      />
-                    )}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3 text-[11px] text-[color:hsl(var(--text-3))]">
-                    {barVerificationUrl && (
-                      <a
-                        href={barVerificationUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-[color:hsl(var(--accent))] underline-offset-4 hover:text-[color:hsl(var(--text-1))]"
-                      >
-                        <Shield className="h-3 w-3" aria-hidden />
-                        CA Bar #{barNumber}
-                      </a>
-                    )}
-                    <span>Verified by JudgeFinder</span>
-                  </div>
-                </div>
-
-                {slot.creative && (
-                  <div className="rounded-xl border border-border/60 bg-[hsl(var(--bg-1))] p-4">
-                    <h5 className="mb-1 text-sm font-semibold text-[color:hsl(var(--text-1))]">{slot.creative.headline}</h5>
-                    <p className="text-sm text-[color:hsl(var(--text-2))]">{slot.creative.description}</p>
-                  </div>
-                )}
-
-                {advertiser.specializations && advertiser.specializations.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {advertiser.specializations.map((spec) => (
-                      <span
-                        key={spec}
-                        className="inline-flex items-center rounded-full border border-border/50 bg-[hsl(var(--bg-1))] px-3 py-1 text-xs text-[color:hsl(var(--text-3))]"
-                      >
-                        {spec}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <div className="space-y-2 text-sm text-[color:hsl(var(--text-2))]">
-                  {advertiser.phone && (
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4" aria-hidden />
-                      <span>{advertiser.phone}</span>
-                    </div>
-                  )}
-                  {advertiser.email && (
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4" aria-hidden />
-                      <a
-                        href={`mailto:${advertiser.email}`}
-                        className="text-[color:hsl(var(--accent))] transition-colors hover:text-[color:hsl(var(--text-1))]"
-                      >
-                        {advertiser.email}
-                      </a>
-                    </div>
-                  )}
-                  {advertiser.website && (
-                    <div className="flex items-center gap-2">
-                      <ExternalLink className="h-4 w-4" aria-hidden />
-                      <a
-                        href={advertiser.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[color:hsl(var(--accent))] transition-colors hover:text-[color:hsl(var(--text-1))]"
-                        onClick={(event) => {
-                          event.preventDefault()
-                          trackClick(slot.id, advertiser.website!)
-                        }}
-                      >
-                        Visit website
-                      </a>
-                    </div>
-                  )}
-                </div>
-
-                {slot.creative?.cta_text && slot.creative?.cta_url && (
-                  <button
-                    type="button"
-                    onClick={() => trackClick(slot.id, slot.creative!.cta_url)}
-                    className="w-full rounded-full border border-[rgba(110,168,254,0.45)] bg-[rgba(110,168,254,0.15)] px-4 py-2 text-sm font-semibold text-[color:hsl(var(--accent))] transition-colors hover:bg-[rgba(110,168,254,0.25)]"
-                  >
-                    {slot.creative.cta_text}
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-3 border border-dashed border-border/50 bg-[hsl(var(--bg-1))] p-6 text-center">
-                <Briefcase className="h-8 w-8 text-[color:hsl(var(--text-3))]" aria-hidden />
-                <p className="text-sm font-semibold text-[color:hsl(var(--text-1))]">Rotation available</p>
-                <p className="text-xs text-[color:hsl(var(--text-3))]">
-                  High-intent visibility for attorneys appearing before Judge {judgeName}.
-                </p>
-                <Link
-                  href={`/dashboard/advertiser/ad-spots?preselected=true&entityType=judge&entityId=${encodeURIComponent(judgeId)}&position=${encodeURIComponent(String(slot.position))}`}
-                  className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-[hsl(var(--bg-2))] px-4 py-2 text-sm font-semibold text-[color:hsl(var(--text-2))] transition-colors hover:border-[rgba(110,168,254,0.45)] hover:text-[color:hsl(var(--text-1))]"
-                >
-                  Book this rotation
-                </Link>
-              </div>
-            )}
-          </article>
-        )
-      })}
+      {slots.map((slot) => (
+        <SlotCard
+          key={slot.id}
+          slot={slot}
+          maxRotations={maxRotations}
+          judgeId={judgeId}
+          judgeName={judgeName}
+          onTrackClick={trackClick}
+        />
+      ))}
 
       <div className="rounded-2xl border border-border/60 bg-[hsl(var(--bg-2))] p-4">
         <div className="flex items-start gap-2 text-xs text-[color:hsl(var(--text-3))]">

@@ -34,7 +34,10 @@
     "stripe:sync-catalog": "ts-node --project tsconfig.json scripts/stripe/sync-catalog.ts",
     "template:api": "node scripts/template-copy.mjs api",
     "template:component": "node scripts/template-copy.mjs component",
-    "template:sync": "node scripts/template-copy.mjs sync"
+    "template:sync": "node scripts/template-copy.mjs sync",
+    "test:mcp": "node scripts/test-mcp.js",
+    "test:analytics:modules": "ts-node --transpile-only scripts/test-analytics-modules.ts",
+    "test:analytics:endpoints": "node scripts/test-analytics-endpoints.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.31.3",

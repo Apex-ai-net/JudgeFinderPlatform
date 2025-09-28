@@ -1,11 +1,12 @@
 import { CustomSignUp } from '@/components/auth/CustomSignUp'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export default function Page() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       <div className="flex min-h-screen">
-        {/* Left side - Branding */}
         <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:px-8">
           <div className="mx-auto max-w-md text-center">
             <div className="flex items-center justify-center mb-8">
@@ -41,34 +42,33 @@ export default function Page() {
                 </div>
               </div>
             </div>
-            
+
             <h1 className="text-3xl font-bold mb-4">
               Legal Professionals
               <span className="bg-gradient-to-r from-blue-400 to-blue-700 bg-clip-text text-transparent">
-                {" "}Registration
+                {' '}Registration
               </span>
             </h1>
-            
+
             <p className="text-lg text-gray-300 mb-8">
               Exclusive access for law firms and legal professionals to unlock advanced judicial analytics and professional features.
             </p>
 
             <div className="space-y-4 text-left mb-8">
               <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-blue-400 rounded-full" />
                 <span className="text-gray-300">Priority access to advanced analytics</span>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full" />
                 <span className="text-gray-300">Export reports and case summaries</span>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-green-400 rounded-full" />
                 <span className="text-gray-300">Professional collaboration tools</span>
               </div>
             </div>
 
-            {/* Professional Benefits Section */}
             <div className="bg-gray-800/30 rounded-lg p-6 border border-gray-700/50">
               <h3 className="text-lg font-semibold mb-4 text-blue-400">Professional Features:</h3>
               <div className="space-y-3 text-sm text-gray-300">
@@ -98,21 +98,18 @@ export default function Page() {
                 </div>
               </div>
             </div>
-            
-            {/* Note about public access */}
+
             <div className="mt-4 p-4 bg-blue-900/20 rounded-lg border border-blue-700/30">
               <p className="text-sm text-blue-300">
-                <strong>Note:</strong> Basic judge analytics are available to the public without registration. 
+                <strong>Note:</strong> Basic judge analytics are available to the public without registration.
                 Professional registration unlocks advanced features for law firms.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Right side - Sign Up Form */}
         <div className="flex flex-1 flex-col justify-center px-6 py-12 lg:px-8">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
-            {/* Mobile logo */}
             <div className="lg:hidden text-center mb-8">
               <div className="inline-flex items-center gap-2">
                 <div className="w-8 h-8 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm rounded-lg border border-slate-700/50">
@@ -134,10 +131,7 @@ export default function Page() {
             </div>
 
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-8 shadow-xl">
-              <CustomSignUp 
-                fallbackRedirectUrl="/dashboard"
-                forceRedirectUrl="/welcome"
-              />
+              <CustomSignUp fallbackRedirectUrl="/dashboard" forceRedirectUrl="/welcome" />
             </div>
 
             <div className="mt-6 text-center">
@@ -159,6 +153,7 @@ export default function Page() {
                 <a href="/privacy" className="text-blue-400 hover:text-blue-300">
                   Privacy Policy
                 </a>
+                .
               </p>
             </div>
           </div>
@@ -167,3 +162,9 @@ export default function Page() {
     </div>
   )
 }
+
+export const metadata = {
+  title: 'Sign Up - JudgeFinder.io',
+  description: 'Create your JudgeFinder account'
+}
+

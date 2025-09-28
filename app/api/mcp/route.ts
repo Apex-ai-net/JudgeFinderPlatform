@@ -1,20 +1,78 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createSecurityConfig, getCORSHeaders } from '@/lib/security/headers'
+import { enforceRateLimit, getClientKey } from '@/lib/security/rate-limit'
+import { logger } from '@/lib/utils/logger'
+import { getBaseUrl } from '@/lib/utils/baseUrl'
+import { ssrFetch } from '@/lib/utils/baseFetch'
 
 // Add dynamic export for Vercel deployment
 export const dynamic = 'force-dynamic';
 
+function withCors(response: NextResponse) {
+  const cors = getCORSHeaders(createSecurityConfig())
+  Object.entries(cors).forEach(([k, v]) => response.headers.set(k, v))
+  response.headers.set('Vary', 'Origin')
+  return response
+}
+
+function forwardHeaders(req: NextRequest): HeadersInit {
+  const src = req.headers
+  const headers: Record<string, string> = {
+    Accept: 'application/json'
+  }
+  const passThrough = [
+    'x-forwarded-for',
+    'x-real-ip',
+    'accept-language',
+    'user-agent'
+  ]
+  for (const key of passThrough) {
+    const val = src.get(key)
+    if (val) headers[key] = val
+  }
+  return headers
+}
+
+export async function OPTIONS() {
+  const res = new NextResponse(null, { status: 204 })
+  return withCors(res)
+}
+
 // Basic MCP (Model Context Protocol) server endpoint
 export async function POST(request: NextRequest) {
   try {
-    // Verify Bearer token if provided
-    const authHeader = request.headers.get('authorization');
-    const expectedToken = process.env.VERCEL_MCP_TOKEN || 'wtkAmuv4WFAGx1Aierbpt4PA';
-    
-    if (authHeader && !authHeader.includes(expectedToken)) {
-      return NextResponse.json(
-        { error: 'Invalid authorization token' },
+    // Rate limit first
+    const clientKey = getClientKey(request.headers)
+    const rl = await enforceRateLimit(`mcp:${clientKey}`)
+    if (!rl.allowed) {
+      const retryAfter = rl.reset ? Math.max(1, Math.ceil((rl.reset - Date.now()) / 1000)) : 60
+      const res = NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+      res.headers.set('Retry-After', String(retryAfter))
+      return withCors(res)
+    }
+
+    // Enforce secure Bearer token (no hardcoded fallback)
+    const expectedToken = process.env.VERCEL_MCP_TOKEN
+    if (!expectedToken) {
+      logger.error('MCP token not configured in environment')
+      const res = NextResponse.json(
+        { error: 'Server misconfiguration: MCP token missing' },
+        { status: 500 }
+      )
+      return withCors(res)
+    }
+
+    const authHeader = request.headers.get('authorization') || ''
+    const providedToken = authHeader.toLowerCase().startsWith('bearer ')
+      ? authHeader.slice(7).trim()
+      : null
+
+    if (!providedToken || providedToken !== expectedToken) {
+      const res = NextResponse.json(
+        { error: 'Missing or invalid authorization token' },
         { status: 401 }
-      );
+      )
+      return withCors(res)
     }
 
     const body = await request.json();
@@ -22,7 +80,7 @@ export async function POST(request: NextRequest) {
     // Handle MCP protocol methods
     switch (body.method) {
       case 'initialize':
-        return NextResponse.json({
+        return withCors(NextResponse.json({
           jsonrpc: '2.0',
           id: body.id,
           result: {
@@ -45,17 +103,17 @@ export async function POST(request: NextRequest) {
               version: '1.0.0'
             }
           }
-        });
+        }))
 
       case 'notifications/initialized':
-        return NextResponse.json({
+        return withCors(NextResponse.json({
           jsonrpc: '2.0',
           id: body.id,
           result: {}
-        });
+        }))
 
       case 'ping':
-        return NextResponse.json({
+        return withCors(NextResponse.json({
           jsonrpc: '2.0',
           id: body.id,
           result: {
@@ -63,10 +121,10 @@ export async function POST(request: NextRequest) {
             timestamp: new Date().toISOString(),
             server: 'JudgeFinder Platform'
           }
-        });
+        }))
 
       case 'tools/list':
-        return NextResponse.json({
+        return withCors(NextResponse.json({
           jsonrpc: '2.0',
           id: body.id,
           result: {
@@ -103,68 +161,142 @@ export async function POST(request: NextRequest) {
                   },
                   required: ['judge_id']
                 }
+              },
+              {
+                name: 'get_bias_analysis',
+                description: 'Get bias analysis metrics for a judge',
+                inputSchema: {
+                  type: 'object',
+                  properties: {
+                    judge_id: {
+                      type: 'string',
+                      description: 'Unique judge identifier'
+                    }
+                  },
+                  required: ['judge_id']
+                }
               }
             ]
           }
-        });
+        }))
 
       case 'tools/call':
         const toolName = body.params?.name;
         const toolArgs = body.params?.arguments;
 
         if (toolName === 'search_judges') {
-          // Mock response for now - you can integrate with your actual API
-          return NextResponse.json({
-            jsonrpc: '2.0',
-            id: body.id,
-            result: {
-              content: [
-                {
-                  type: 'text',
-                  text: `Searched for judges matching "${toolArgs?.query}". This is a demo response from the JudgeFinder Platform MCP server.`
-                }
-              ]
+          const baseUrl = getBaseUrl()
+          const query = String(toolArgs?.query || '').trim()
+          const limit = Math.max(1, Math.min(50, Number(toolArgs?.limit ?? 10)))
+          const url = `${baseUrl}/api/judges/search?q=${encodeURIComponent(query)}&limit=${limit}`
+
+          try {
+            const res = await ssrFetch(url, { method: 'GET', headers: forwardHeaders(request) })
+            const data = await res.json()
+            if (!res.ok) {
+              throw new Error(`Upstream ${res.status}`)
             }
-          });
+            return withCors(NextResponse.json({
+              jsonrpc: '2.0',
+              id: body.id,
+              result: {
+                content: [
+                  { type: 'json', json: data }
+                ]
+              }
+            }))
+          } catch (err) {
+            logger.error('search_judges tool failed', { scope: 'mcp', tool: 'search_judges' }, err as Error)
+            return withCors(NextResponse.json({
+              jsonrpc: '2.0',
+              id: body.id,
+              error: { code: -32001, message: 'search_judges failed' }
+            }, { status: 502 }))
+          }
         }
 
         if (toolName === 'get_judge_analytics') {
-          return NextResponse.json({
-            jsonrpc: '2.0',
-            id: body.id,
-            result: {
-              content: [
-                {
-                  type: 'text',
-                  text: `Analytics for judge ID ${toolArgs?.judge_id} would be returned here. This is a demo response from the JudgeFinder Platform MCP server.`
-                }
-              ]
+          const baseUrl = getBaseUrl()
+          const judgeId = String(toolArgs?.judge_id || '').trim()
+          const url = `${baseUrl}/api/judges/${encodeURIComponent(judgeId)}/analytics`
+
+          try {
+            const res = await ssrFetch(url, { method: 'GET', headers: forwardHeaders(request) })
+            const data = await res.json()
+            if (!res.ok) {
+              throw new Error(`Upstream ${res.status}`)
             }
-          });
+            return withCors(NextResponse.json({
+              jsonrpc: '2.0',
+              id: body.id,
+              result: {
+                content: [
+                  { type: 'json', json: data }
+                ]
+              }
+            }))
+          } catch (err) {
+            logger.error('get_judge_analytics tool failed', { scope: 'mcp', tool: 'get_judge_analytics' }, err as Error)
+            return withCors(NextResponse.json({
+              jsonrpc: '2.0',
+              id: body.id,
+              error: { code: -32002, message: 'get_judge_analytics failed' }
+            }, { status: 502 }))
+          }
         }
 
-        return NextResponse.json({
+        if (toolName === 'get_bias_analysis') {
+          const baseUrl = getBaseUrl()
+          const judgeId = String(toolArgs?.judge_id || '').trim()
+          const url = `${baseUrl}/api/judges/${encodeURIComponent(judgeId)}/bias-analysis`
+
+          try {
+            const res = await ssrFetch(url, { method: 'GET', headers: forwardHeaders(request) })
+            const data = await res.json()
+            if (!res.ok) {
+              throw new Error(`Upstream ${res.status}`)
+            }
+            return withCors(NextResponse.json({
+              jsonrpc: '2.0',
+              id: body.id,
+              result: {
+                content: [
+                  { type: 'json', json: data }
+                ]
+              }
+            }))
+          } catch (err) {
+            logger.error('get_bias_analysis tool failed', { scope: 'mcp', tool: 'get_bias_analysis' }, err as Error)
+            return withCors(NextResponse.json({
+              jsonrpc: '2.0',
+              id: body.id,
+              error: { code: -32003, message: 'get_bias_analysis failed' }
+            }, { status: 502 }))
+          }
+        }
+
+        return withCors(NextResponse.json({
           jsonrpc: '2.0',
           id: body.id,
           error: {
             code: -32601,
             message: `Unknown tool: ${toolName}`
           }
-        });
+        }))
 
       default:
-        return NextResponse.json({
+        return withCors(NextResponse.json({
           jsonrpc: '2.0',
           id: body.id,
           error: {
             code: -32601,
             message: `Method not found: ${body.method}`
           }
-        });
+        }))
     }
   } catch (error) {
-    console.error('MCP endpoint error:', error);
-    return NextResponse.json(
+    logger.error('MCP endpoint error', { scope: 'mcp' }, error as Error)
+    return withCors(NextResponse.json(
       {
         jsonrpc: '2.0',
         error: {
@@ -174,17 +306,18 @@ export async function POST(request: NextRequest) {
         }
       },
       { status: 500 }
-    );
+    ))
   }
 }
 
 // Handle GET requests for health check
 export async function GET() {
-  return NextResponse.json({
+  const res = NextResponse.json({
     status: 'ok',
     service: 'JudgeFinder Platform MCP Server',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
     capabilities: ['initialize', 'ping', 'tools/list', 'tools/call']
-  });
+  })
+  return withCors(res)
 }

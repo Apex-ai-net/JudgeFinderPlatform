@@ -1,11 +1,46 @@
-import { SignIn } from '@clerk/nextjs'
+'use client'
+
+import dynamicImport from 'next/dynamic'
 import Link from 'next/link'
+
+const hasValidClerkKeys = () => {
+  const pubKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || ''
+
+  if (process.env.SKIP_AUTH_BUILD === 'true') {
+    return false
+  }
+
+  return pubKey.startsWith('pk_') && !pubKey.includes('YOUR') && !pubKey.includes('CONFIGURE')
+}
+
+const SignIn = hasValidClerkKeys()
+  ? dynamicImport(() => import('@clerk/nextjs').then(mod => mod.SignIn), {
+      ssr: false,
+      loading: () => (
+        <div className="text-center py-8">
+          <span className="text-gray-400">Loading...</span>
+        </div>
+      )
+    })
+  : () => (
+      <div className="text-center py-8">
+        <h2 className="text-2xl font-bold text-white mb-4">Sign In</h2>
+        <p className="text-gray-400 mb-6">Authentication is currently disabled</p>
+        <Link
+          href="/dashboard"
+          className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium rounded-lg transition-all shadow-lg"
+        >
+          Continue to Dashboard
+        </Link>
+      </div>
+    )
+
+export const dynamic = 'force-dynamic'
 
 export default function Page() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       <div className="flex min-h-screen">
-        {/* Left side - Branding */}
         <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:px-8">
           <div className="mx-auto max-w-md text-center">
             <div className="flex items-center justify-center mb-8">
@@ -41,39 +76,37 @@ export default function Page() {
                 </div>
               </div>
             </div>
-            
+
             <h1 className="text-3xl font-bold mb-4">
-              Welcome Back to 
+              Welcome Back to
               <span className="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-                {" "}JudgeFinder
+                {' '}JudgeFinder
               </span>
             </h1>
-            
+
             <p className="text-lg text-gray-300 mb-8">
               Access comprehensive analytics on judges' ruling patterns, decision trends, and case outcomes.
             </p>
 
             <div className="space-y-4 text-left">
               <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-blue-400 rounded-full" />
                 <span className="text-gray-300">Statewide California judge directory</span>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-purple-400 rounded-full" />
                 <span className="text-gray-300">Extensive case history research</span>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-green-400 rounded-full" />
                 <span className="text-gray-300">Court coverage across California</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right side - Sign In Form */}
         <div className="flex flex-1 flex-col justify-center px-6 py-12 lg:px-8">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
-            {/* Mobile logo */}
             <div className="lg:hidden text-center mb-8">
               <div className="inline-flex items-center gap-2">
                 <div className="w-8 h-8 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm rounded-lg border border-slate-700/50">
@@ -95,7 +128,7 @@ export default function Page() {
             </div>
 
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-8 shadow-xl">
-              <SignIn 
+              <SignIn
                 appearance={{
                   elements: {
                     rootBox: 'w-full',
@@ -112,7 +145,7 @@ export default function Page() {
                     footerActionText: 'text-gray-400',
                     footerActionLink: 'text-blue-400 hover:text-blue-300',
                     identityPreviewText: 'text-gray-300',
-                    identityPreviewEditButton: 'text-blue-400 hover:text-blue-300',
+                    identityPreviewEditButton: 'text-blue-400 hover:text-blue-300'
                   }
                 }}
                 fallbackRedirectUrl="/dashboard"
@@ -122,7 +155,7 @@ export default function Page() {
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-400">
-                New to JudgeFinder?{' '}
+                Need an account?{' '}
                 <Link href="/sign-up" className="text-blue-400 hover:text-blue-300 font-medium">
                   Create your free account
                 </Link>
@@ -134,3 +167,4 @@ export default function Page() {
     </div>
   )
 }
+

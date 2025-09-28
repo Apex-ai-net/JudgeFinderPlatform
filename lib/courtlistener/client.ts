@@ -1,4 +1,5 @@
 import { sleep } from '@/lib/utils/helpers'
+import { logger } from '@/lib/utils/logger'
 
 export interface CourtListenerOpinion {
   id: number
@@ -139,7 +140,7 @@ export class CourtListenerClient {
 
     const headers: Record<string, string> = {
       'Accept': 'application/json',
-      'User-Agent': 'JudgeFinder/1.0 (https://judgefinder.com; contact@judgefinder.com)'
+      'User-Agent': 'JudgeFinder/1.0 (https://judgefinder.io; contact@judgefinder.io)'
     }
 
     // Add authorization header
@@ -156,7 +157,7 @@ export class CourtListenerClient {
 
     while (attempt <= maxRetries) {
       try {
-        console.log(`Making request to: ${url.toString()} (attempt ${attempt + 1}/${maxRetries + 1})`)
+        logger.info('CourtListener request', { url: url.toString(), attempt: attempt + 1, retries: maxRetries + 1 })
         const controller = new AbortController()
         const timeoutMs = this.requestTimeoutMs
         const timeout = setTimeout(() => controller.abort(), timeoutMs)
@@ -203,7 +204,7 @@ export class CourtListenerClient {
       attempt += 1
       if (attempt > maxRetries) break
       const backoff = this.computeBackoffDelay(attempt, lastStatus, lastRetryAfterMs)
-      console.warn(`CourtListener backoff attempt ${attempt}/${maxRetries} for ${backoff}ms (status=${lastStatus ?? 'n/a'})`)
+      logger.warn('CourtListener backoff', { attempt, maxRetries, delayMs: backoff, status: lastStatus ?? 'n/a' })
       try { await this.metricsReporter?.('courtlistener_retry', 1, { attempt, status: lastStatus, delayMs: backoff }) } catch {}
       await sleep(backoff)
     }
@@ -212,12 +213,12 @@ export class CourtListenerClient {
     this.circuitFailures += 1
     if (this.circuitFailures >= this.circuitThreshold) {
       this.circuitOpenUntil = Date.now() + this.circuitCooldownMs
-      console.warn(`CourtListener circuit opened for ${this.circuitCooldownMs}ms after ${this.circuitFailures} failures`)
+      logger.warn('CourtListener circuit opened', { cooldownMs: this.circuitCooldownMs, failures: this.circuitFailures })
       try { await this.metricsReporter?.('courtlistener_circuit_open', 1, { cooldownMs: this.circuitCooldownMs }) } catch {}
       this.circuitFailures = 0
     }
 
-    console.error('CourtListener API request failed after retries:', lastError)
+    logger.error('CourtListener API request failed after retries', { url: url.toString() }, lastError as Error)
     throw lastError || new Error('CourtListener API request failed')
   }
 
@@ -331,7 +332,7 @@ export class CourtListenerClient {
               
               allCases.push(caseData)
             } catch (clusterError) {
-              console.error(`Error fetching cluster ${opinion.cluster}:`, clusterError)
+              logger.warn('Error fetching cluster', { cluster: opinion.cluster }, clusterError as Error)
               // Add opinion without cluster details
               allCases.push({
                 id: opinion.id,
@@ -354,7 +355,7 @@ export class CourtListenerClient {
         console.log(`  Fetched ${response.results.length} opinions, total cases: ${allCases.length}`)
         
       } catch (error) {
-        console.error(`Error fetching opinions for judge ${judgeId} at offset ${offset}:`, error)
+        logger.error('Error fetching opinions for judge at offset', { judgeId, offset }, error as Error)
         break
       }
     }
@@ -434,7 +435,7 @@ export class CourtListenerClient {
         offset += pageSize
 
       } catch (error) {
-        console.error(`Error fetching dockets for judge ${judgeId} at offset ${offset}:`, error)
+        logger.error('Error fetching dockets for judge at offset', { judgeId, offset }, error as Error)
         break
       }
 
@@ -543,7 +544,7 @@ export class CourtListenerClient {
       const response = await this.getOpinionsByJudge(judgeId, { limit: 1 })
       return response.count > 0
     } catch (error) {
-      console.error(`Error validating judge ${judgeId}:`, error)
+      logger.error('Error validating judge', { judgeId }, error as Error)
       return false
     }
   }
@@ -565,7 +566,7 @@ export async function withRateLimit<T>(
         await sleep(delayMs)
       }
     } catch (error) {
-      console.error('Rate-limited request failed:', error)
+      logger.error('Rate-limited request failed', undefined, error as Error)
       throw error
     }
   }

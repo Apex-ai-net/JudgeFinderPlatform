@@ -5,6 +5,18 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
+    // Ensure required env is present; mirror judges/list behavior
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      return NextResponse.json({
+        courts: [],
+        total_count: 0,
+        page: 1,
+        per_page: 20,
+        has_more: false,
+        error: 'Database configuration pending'
+      })
+    }
+
     const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
     const rl = buildRateLimiter({ tokens: 180, window: '1 m', prefix: 'api:courts:list' })
     const { success, remaining } = await rl.limit(`${getClientIp(request)}:global`)
