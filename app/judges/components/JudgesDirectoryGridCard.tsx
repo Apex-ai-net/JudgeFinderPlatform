@@ -1,23 +1,28 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Calendar, Gavel, Scale } from 'lucide-react'
-import GlassCard from '@/components/ui/GlassCard'
+import { ArrowRight, Calendar, Gavel, Scale, FileText, CheckCircle2, TrendingUp } from 'lucide-react'
 import { SharedTransitionLink } from '@/components/ui/SharedTransitionLink'
 import { generateSlug } from '@/lib/utils/slug'
+import { cardHover } from '@/lib/animations/presets'
 import type { JudgeWithDecisions } from '@/lib/judges/directory/types'
 
 interface JudgesDirectoryGridCardProps {
   judge?: JudgeWithDecisions
   recentYears: number
+  onCompareToggle?: (judgeId: string, selected: boolean) => void
+  isSelected?: boolean
 }
 
 const cardVariants = {
-  hidden: { opacity: 0, scale: 0.95 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.25 } },
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
 }
 
-export function JudgesDirectoryGridCard({ judge, recentYears }: JudgesDirectoryGridCardProps) {
+export function JudgesDirectoryGridCard({ judge, recentYears, onCompareToggle, isSelected = false }: JudgesDirectoryGridCardProps) {
+  const [isHovered, setIsHovered] = useState(false)
+
   if (!judge) {
     return null
   }
@@ -25,45 +30,151 @@ export function JudgesDirectoryGridCard({ judge, recentYears }: JudgesDirectoryG
   const summary = judge.decision_summary
   const currentYear = new Date().getFullYear()
   const recentWindowStart = currentYear - (recentYears - 1)
-  const decisionsLabel = summary?.total_recent
-    ? `Recent decisions (${recentWindowStart}-${currentYear}) • ${summary.total_recent}`
-    : 'No recent decisions'
+  const hasRecentDecisions = summary?.total_recent && summary.total_recent > 0
+  const decisionCount = summary?.total_recent || 0
+
+  // Calculate years of service
+  const yearsOfService = judge.appointed_date
+    ? currentYear - new Date(judge.appointed_date).getFullYear()
+    : null
+
+  const handleCompareClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onCompareToggle?.(judge.id, !isSelected)
+  }
 
   return (
-    <motion.div variants={cardVariants} initial="hidden" animate="visible" className="h-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+    <motion.div
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      className="h-full"
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+    >
       <SharedTransitionLink
         href={`/judges/${generateSlug(judge.name)}`}
-        className="block h-full group relative overflow-hidden"
+        className="block h-full group"
         viewTransitionName={`judge-title-${judge.id}`}
       >
-        <GlassCard className="h-full p-6">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-blue-800/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="relative flex h-full flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <Gavel className="h-8 w-8 text-primary group-hover:text-primary/80 transition-colors" />
-              <span className="text-sm font-medium text-white bg-gradient-to-r from-enterprise-primary to-enterprise-deep px-3 py-1 rounded-full capitalize">
-                {judge.jurisdiction || 'Jurisdiction'}
-              </span>
+        <motion.div
+          className="relative h-full rounded-xl border border-border bg-card overflow-hidden"
+          variants={cardHover}
+          initial="initial"
+          whileHover="hover"
+        >
+          {/* Gradient overlay on hover */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isHovered ? 1 : 0 }}
+            transition={{ duration: 0.3 }}
+          />
+
+          {/* Selection checkbox */}
+          {onCompareToggle && (
+            <motion.button
+              onClick={handleCompareClick}
+              className={`absolute top-3 right-3 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
+                isSelected
+                  ? 'bg-primary text-primary-foreground shadow-lg scale-110'
+                  : 'bg-muted/80 backdrop-blur-sm text-muted-foreground hover:bg-primary/20 hover:text-primary'
+              }`}
+              whileHover={{ scale: isSelected ? 1.15 : 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label={isSelected ? 'Remove from comparison' : 'Add to comparison'}
+            >
+              <CheckCircle2 className={`w-4 h-4 transition-all ${isSelected ? 'fill-current' : ''}`} />
+            </motion.button>
+          )}
+
+          <div className="relative p-6 flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-start justify-between mb-4">
+              <motion.div
+                className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center"
+                whileHover={{ rotate: 360, scale: 1.1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Gavel className="h-6 w-6 text-primary" />
+              </motion.div>
+
+              <div className="flex flex-col items-end gap-1.5">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary capitalize">
+                  {judge.jurisdiction || 'CA'}
+                </span>
+                {hasRecentDecisions && (
+                  <motion.span
+                    className="text-xs font-medium px-2.5 py-1 rounded-full bg-success/10 text-success flex items-center gap-1"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <TrendingUp className="w-3 h-3" />
+                    Active
+                  </motion.span>
+                )}
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+
+            {/* Name */}
+            <h3 className="text-lg font-bold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
               {judge.name}
             </h3>
-            <div className="space-y-2 text-sm text-muted-foreground flex-1">
-              <div className="flex items-center">
-                <Scale className="h-4 w-4 mr-2 text-muted-foreground/70 flex-shrink-0" />
-                <span className="truncate">{judge.court_name || 'Court not specified'}</span>
+
+            {/* Court */}
+            <div className="flex items-start gap-2 mb-4">
+              <Scale className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+              <span className="text-sm text-muted-foreground line-clamp-2">
+                {judge.court_name || 'Court not specified'}
+              </span>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-border">
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <FileText className="h-3 w-3" />
+                  <span>Decisions</span>
+                </div>
+                <p className="text-lg font-bold text-foreground">
+                  {decisionCount > 0 ? decisionCount : '—'}
+                </p>
+                {decisionCount > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {recentWindowStart}-{currentYear}
+                  </p>
+                )}
               </div>
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-2 text-muted-foreground/70" />
-                <span className="text-xs">{decisionsLabel}</span>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Calendar className="h-3 w-3" />
+                  <span>Experience</span>
+                </div>
+                <p className="text-lg font-bold text-foreground">
+                  {yearsOfService ? `${yearsOfService}y` : '—'}
+                </p>
+                {yearsOfService && (
+                  <p className="text-xs text-muted-foreground">
+                    Since {currentYear - yearsOfService}
+                  </p>
+                )}
               </div>
             </div>
-            <motion.div className="pt-3 flex items-center text-primary font-medium" whileHover={{ x: 5 }}>
-              <span className="text-sm">View profile</span>
-              <ArrowRight className="w-4 h-4 ml-1" />
+
+            {/* CTA */}
+            <motion.div
+              className="pt-4 flex items-center text-primary font-semibold text-sm"
+              animate={{ x: isHovered ? 5 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <span>View full profile</span>
+              <ArrowRight className="w-4 h-4 ml-1.5" />
             </motion.div>
           </div>
-        </GlassCard>
+        </motion.div>
       </SharedTransitionLink>
     </motion.div>
   )
