@@ -10,6 +10,7 @@ import { GlobalErrorBoundary } from '@/components/error/GlobalErrorBoundary'
 import { getBaseUrl } from '@/lib/utils/baseUrl'
 import { DonationButton } from '@/components/fundraising/DonationButton'
 import PageTransition from '@/components/transitions/PageTransition'
+import { IOSAppInitializer } from '@/components/ios/IOSAppInitializer'
 
 const BASE_URL = getBaseUrl()
 
@@ -107,6 +108,7 @@ export default function RootLayout({
         </a>
         <GlobalErrorBoundary>
           <Providers>
+            <IOSAppInitializer />
             <ServiceWorkerRegistration />
             <div className="relative flex min-h-screen flex-col">
               <Header />

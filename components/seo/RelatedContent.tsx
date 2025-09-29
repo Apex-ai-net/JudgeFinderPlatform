@@ -131,10 +131,10 @@ export function RelatedContent({
       {/* Legal Resources Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">
+          <CardTitle className="text-lg font-semibold text-foreground">
             Legal Resources
           </CardTitle>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             Additional resources for legal professionals and litigants
           </p>
         </CardHeader>
@@ -143,30 +143,30 @@ export function RelatedContent({
             <div className="grid grid-cols-1 gap-2">
               <Link 
                 href={`/attorneys/${jurisdiction.toLowerCase().replace(/\s+/g, '-')}`}
-                className="p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                className="p-3 border border-border rounded-lg hover:border-primary/60 hover:bg-primary/5 transition-colors"
               >
-                <h4 className="font-medium text-gray-900">Attorney Directory</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-medium text-foreground">Attorney Directory</h4>
+                <p className="text-sm text-muted-foreground">
                   Find experienced attorneys in {jurisdiction}
                 </p>
               </Link>
               
               <Link 
                 href={`/case-analytics/${jurisdiction.toLowerCase().replace(/\s+/g, '-')}`}
-                className="p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                className="p-3 border border-border rounded-lg hover:border-primary/60 hover:bg-primary/5 transition-colors"
               >
-                <h4 className="font-medium text-gray-900">Case Analytics</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-medium text-foreground">Case Analytics</h4>
+                <p className="text-sm text-muted-foreground">
                   Research case patterns and outcomes
                 </p>
               </Link>
               
               <Link 
                 href="/legal-research-tools"
-                className="p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                className="p-3 border border-border rounded-lg hover:border-primary/60 hover:bg-primary/5 transition-colors"
               >
-                <h4 className="font-medium text-gray-900">Research Tools</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-medium text-foreground">Research Tools</h4>
+                <p className="text-sm text-muted-foreground">
                   Advanced legal research and analytics
                 </p>
               </Link>

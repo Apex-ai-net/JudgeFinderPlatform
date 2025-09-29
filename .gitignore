@@ -215,3 +215,57 @@ dist
 .env.local
 .env.production.local
 .env.development.local
+
+# ============================================================================
+# iOS App - CRITICAL: Never commit these sensitive files!
+# ============================================================================
+
+# APNs Certificates and Keys
+*.p8
+*.p12
+*.pem
+*.cer
+*.certSigningRequest
+AuthKey_*.p8
+APNsAuthKey_*.p8
+
+# iOS Provisioning Profiles
+*.mobileprovision
+*.provisionprofile
+
+# iOS Build Artifacts
+ios/App/App.xcodeproj/xcuserdata/
+ios/App/App.xcodeproj/project.xcworkspace/xcuserdata/
+ios/App/Pods/
+ios/App/build/
+ios/App/*.xcworkspace/xcuserdata/
+ios/App/DerivedData/
+
+# Xcode User Settings
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+
+# iOS Environment Config
+.env.ios
+.env.ios.local
+ios/.env
+
+# CocoaPods
+ios/App/Podfile.lock
+
+# Fastlane (if used for deployment)
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/.env
+
+# App Store Connect API Keys
+AuthKey_*.json
+api_key.json
+asc_key.json
+
+# TestFlight Credentials
+testflight_credentials.json

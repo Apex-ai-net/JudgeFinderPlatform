@@ -20,6 +20,7 @@ import { generateJudgeStructuredData } from '@/lib/seo/structured-data'
 import type { Judge, JudgeLookupResult } from '@/types'
 import { getBaseUrl } from '@/lib/utils/baseUrl'
 import { DonationButton } from '@/components/fundraising/DonationButton'
+import { JudgeDetailTOC } from '@/components/judges/JudgeDetailTOC'
 
 export const dynamic = 'force-dynamic'
 
@@ -307,53 +308,58 @@ export default async function JudgePage({ params }: JudgePageProps) {
 
 
       {/* Main Content */}
-      <div className="mx-auto max-w-7xl px-4 pb-12">
-        <div className="grid gap-8 lg:grid-cols-3">
+      <div className="mx-auto max-w-7xl px-4 py-8 pb-12">
+        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
           {/* Left Column - Profile and Analytics */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="space-y-8">
             {/* Clean Profile Card */}
-            <JudgeProfile judge={judge} />
-            
+            <section id="profile" className="scroll-mt-24">
+              <JudgeProfile judge={judge} />
+            </section>
+
             {/* Professional Background Section */}
-            <section id="professional-background" className="scroll-mt-32">
+            <section id="professional-background" className="scroll-mt-24">
               <ProfessionalBackground judge={judge} />
             </section>
-            
+
             {/* AI Analytics Section */}
-            <section id="analytics" className="scroll-mt-32">
+            <section id="analytics" className="scroll-mt-24">
               <AnalyticsSlidersShell judgeId={judge.id} judgeName={safeName} />
             </section>
-            
+
             {/* Recent Decisions */}
-            <section id="recent-decisions" className="scroll-mt-32">
+            <section id="recent-decisions" className="scroll-mt-24">
               <RecentDecisions judgeId={judge.id} />
             </section>
           </div>
 
-          {/* Right Column - Sidebar Content */}
-          <div className="space-y-8">
+          {/* Right Column - Sidebar with TOC and Content */}
+          <div className="space-y-6">
+            {/* Table of Contents - Sticky Navigation */}
+            <JudgeDetailTOC />
+
             {/* Legal Professionals Section */}
             <div id="advertiser-slots">
               <AdvertiserSlots judgeId={judge.id} judgeName={safeName} />
             </div>
 
-            <div className="rounded-2xl border border-border/60 bg-[hsl(var(--bg-2))] p-4">
-              <h3 className="text-sm font-semibold text-[color:hsl(var(--text-1))]">Keep research free</h3>
-              <p className="mt-1 text-xs text-[color:hsl(var(--text-3))]">
+            <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+              <h3 className="text-sm font-semibold text-foreground mb-2">Keep research free</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Support our mission to keep every California judge profile open to the public.
               </p>
-              <DonationButton amount={25} className="mt-3" />
+              <DonationButton amount={25} className="mt-4 w-full" />
             </div>
 
             {/* Related Content System for Internal Linking */}
-            <RelatedContent 
+            <RelatedContent
               currentJudge={judge}
               relatedJudges={relatedJudges}
               jurisdiction={safeJurisdiction}
               courtName={safeCourtName}
               courtSlug={courtSlug}
             />
-            
+
             <JudgeFAQ judgeName={safeName} />
           </div>
         </div>

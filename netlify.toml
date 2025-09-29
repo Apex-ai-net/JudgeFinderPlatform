@@ -39,6 +39,13 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Apple App Site Association for Universal Links
+[[headers]]
+  for = "/.well-known/apple-app-site-association"
+  [headers.values]
+    Content-Type = "application/json"
+    Cache-Control = "public, max-age=3600"
+
 [functions]
   node_bundler = "esbuild"
 

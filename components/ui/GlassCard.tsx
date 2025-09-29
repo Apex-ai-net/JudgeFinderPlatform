@@ -3,7 +3,7 @@
 import { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { motionPresets, scaleIn } from '@/lib/animations/config'
+import { scaleIn, transitions } from '@/lib/animations/presets'
 
 type GlassCardProps = {
   children: ReactNode
@@ -24,7 +24,7 @@ export default function GlassCard({ children, className, hover = true }: GlassCa
       whileInView={scaleIn.animate}
       viewport={{ once: true, margin: '-10% 0px -10% 0px' }}
       whileHover={hover ? { scale: 1.01 } : undefined}
-      transition={motionPresets.smooth}
+      transition={transitions.smooth}
     >
       {/* Subtle internal gradient tint */}
       <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-white/6 to-transparent" />

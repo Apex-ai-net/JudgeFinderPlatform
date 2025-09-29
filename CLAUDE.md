@@ -8,7 +8,6 @@
 - **Stripe Payments** - Payment processing and subscription management  
 - **Supabase Database** - Real-time database and storage
 - **Netlify Deployment** - Continuous deployment and hosting
-- **Convex** - Backend infrastructure
 - **GitHub** - Version control and collaboration
 - **Docker** - Containerization
 - **Playwright/Puppeteer** - Browser automation and testing

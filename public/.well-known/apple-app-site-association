@@ -1,0 +1,49 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "TEAM_ID.com.judgefinder.ios"
+        ],
+        "components": [
+          {
+            "/": "/judges/*",
+            "comment": "Deep link to judge profile pages"
+          },
+          {
+            "/": "/compare",
+            "?": {
+              "judges": "*"
+            },
+            "comment": "Deep link to judge comparison with query params"
+          },
+          {
+            "/": "/jurisdictions/*",
+            "comment": "Deep link to jurisdiction/county pages"
+          },
+          {
+            "/": "/courts/*",
+            "comment": "Deep link to court profile pages"
+          },
+          {
+            "/": "/search",
+            "?": {
+              "q": "*"
+            },
+            "comment": "Deep link to search with query"
+          },
+          {
+            "/": "/",
+            "exclude": true,
+            "comment": "Exclude paths that should open in browser"
+          }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "TEAM_ID.com.judgefinder.ios"
+    ]
+  }
+}

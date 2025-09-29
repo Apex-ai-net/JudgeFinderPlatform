@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import GlassCard from '@/components/ui/GlassCard'
-import { Search, X, Scale, Users, TrendingUp, BarChart, Calendar, MapPin, Gavel, Loader2 } from 'lucide-react'
+import { Search, X, Scale, Users, TrendingUp, BarChart, Calendar, MapPin, Gavel, Loader2, Award, Activity } from 'lucide-react'
 import { useSearchDebounce } from '@/lib/hooks/useDebounce'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { fadeInUp, staggerContainer, staggerItem, cardHover } from '@/lib/animations/presets'
+import { colors, spacing, borderRadius, shadows } from '@/lib/design-system/tokens'
 import type { Judge } from '@/types'
 
 interface ComparisonContentProps {
@@ -119,38 +122,52 @@ export function ComparisonContent({ initialJudges = [] }: ComparisonContentProps
 
   return (
     <div className="max-w-7xl mx-auto">
-      {/* Add Judge Section */}
-      <div className="mb-8">
-        {selectedJudges.length < 3 && (
-          <GlassCard className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Select Judges to Compare</h2>
-            <p className="text-muted-foreground mb-4">
-              You can compare up to 3 judges. Currently comparing {selectedJudges.length} judge{selectedJudges.length !== 1 ? 's' : ''}.
-            </p>
-            
-            {!showSearch ? (
-              <motion.button
+      {/* Add Judge Search Section */}
+      {selectedJudges.length < 3 && (
+        <motion.div
+          className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">Select Judges to Compare</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Compare up to 3 judges • Currently comparing {selectedJudges.length}
+              </p>
+            </div>
+            {!showSearch && (
+              <Button
                 onClick={() => setShowSearch(true)}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+                variant="gradient"
+                size="default"
               >
+                <Search className="w-4 h-4" />
                 Add Judge
-              </motion.button>
-            ) : (
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search for a judge..."
-                  className="w-full pl-10 pr-10 py-2 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  autoFocus
-                />
-                {isSearching && (
-                  <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
-                )}
+              </Button>
+            )}
+          </div>
+
+          {showSearch && (
+            <motion.div
+              className="relative"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for a judge by name..."
+                className="w-full pl-10 pr-10 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                autoFocus
+              />
+              {isSearching && (
+                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
+              )}
+              {!isSearching && (
                 <button
                   onClick={() => {
                     setShowSearch(false)
@@ -158,235 +175,226 @@ export function ComparisonContent({ initialJudges = [] }: ComparisonContentProps
                     setSearchResults([])
                     setSearchError(null)
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
                 >
                   <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
                 </button>
-              </div>
-            )}
+              )}
+            </motion.div>
+          )}
 
-            {/* Search Results */}
+          {/* Search Results */}
+          <AnimatePresence>
             {searchResults.length > 0 && (
-              <motion.div 
-                className="mt-4 border border-border rounded-lg divide-y divide-border max-h-60 overflow-y-auto"
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
+              <motion.div
+                className="mt-4 border border-border rounded-lg divide-y divide-border max-h-64 overflow-y-auto bg-background"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
               >
-                {searchResults.map(judge => (
+                {searchResults.map((judge, index) => (
                   <motion.button
                     key={judge.id}
                     onClick={() => addJudge(judge)}
                     disabled={selectedJudges.find(j => j.id === judge.id) !== undefined}
-                    className="w-full px-4 py-3 text-left hover:bg-accent/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
+                    className="w-full px-4 py-3 text-left hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
                   >
-                    <div className="font-medium">{judge.name}</div>
+                    <div className="font-medium text-foreground group-hover:text-primary transition-colors">{judge.name}</div>
                     <div className="text-sm text-muted-foreground">{judge.court_name}</div>
                   </motion.button>
                 ))}
               </motion.div>
             )}
-            {searchError && !isSearching && (
-              <div className="mt-4 text-sm text-destructive/80 bg-destructive/10 border border-destructive/20 rounded-lg p-3">
-                {searchError}
-              </div>
-            )}
-          </GlassCard>
-        )}
-      </div>
+          </AnimatePresence>
 
-      {/* Comparison Table */}
+          {searchError && !isSearching && (
+            <motion.div
+              className="mt-4 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              {searchError}
+            </motion.div>
+          )}
+        </motion.div>
+      )}
+
+      {/* Side-by-Side Judge Comparison Cards */}
       {selectedJudges.length > 0 ? (
-        <GlassCard className="overflow-hidden p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-muted/50 border-b border-border">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Attribute</th>
-                  {selectedJudges.map(judge => (
-                    <th key={judge.id} className="px-6 py-4 text-left">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-semibold text-foreground">{judge.name}</div>
-                          <div className="text-sm text-muted-foreground mt-1">{judge.court_name}</div>
-                        </div>
-                        <motion.button
-                          onClick={() => removeJudge(judge.id)}
-                          className="ml-2 p-1 hover:bg-destructive/10 rounded transition-colors"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                        </motion.button>
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {/* Basic Information */}
-                <tr>
-                  <td className="px-6 py-4 text-sm font-medium text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      Jurisdiction
+        <motion.div
+          className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          {selectedJudges.map((judge, index) => {
+            const judgeAnalytics = analytics[judge.id]
+            const isLoading = loadingAnalytics[judge.id]
+
+            return (
+              <motion.div
+                key={judge.id}
+                className="relative rounded-xl border border-border bg-card shadow-md hover:shadow-lg transition-all"
+                variants={cardHover}
+                initial="initial"
+                whileHover="hover"
+              >
+                {/* Remove Button */}
+                <button
+                  onClick={() => removeJudge(judge.id)}
+                  className="absolute top-4 right-4 z-10 p-2 rounded-full bg-background/80 hover:bg-destructive/10 border border-border hover:border-destructive/20 transition-all group"
+                  aria-label={`Remove ${judge.name}`}
+                >
+                  <X className="h-4 w-4 text-muted-foreground group-hover:text-destructive" />
+                </button>
+
+                {/* Judge Header */}
+                <div className="p-6 border-b border-border bg-gradient-to-br from-primary/5 to-transparent">
+                  <div className="flex items-start gap-3">
+                    <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+                      <Gavel className="w-6 h-6 text-primary" />
                     </div>
-                  </td>
-                  {selectedJudges.map(judge => (
-                    <td key={judge.id} className="px-6 py-4">
-                      {judge.jurisdiction || 'Not specified'}
-                    </td>
-                  ))}
-                </tr>
-                
-                <tr className="bg-muted/30">
-                  <td className="px-6 py-4 text-sm font-medium text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      Appointed Date
+                    <div className="flex-1 pr-8">
+                      <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-2">{judge.name}</h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{judge.court_name}</p>
                     </div>
-                  </td>
-                  {selectedJudges.map(judge => (
-                    <td key={judge.id} className="px-6 py-4">
-                      {formatDate(judge.appointed_date)}
-                    </td>
-                  ))}
-                </tr>
-                
-                <tr>
-                  <td className="px-6 py-4 text-sm font-medium text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      Experience
-                    </div>
-                  </td>
-                  {selectedJudges.map(judge => (
-                    <td key={judge.id} className="px-6 py-4">
-                      {getExperience(judge.appointed_date)}
-                    </td>
-                  ))}
-                </tr>
-                
-                <tr className="bg-muted/30">
-                  <td className="px-6 py-4 text-sm font-medium text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Gavel className="h-4 w-4" />
-                      Total Cases
-                    </div>
-                  </td>
-                  {selectedJudges.map(judge => (
-                    <td key={judge.id} className="px-6 py-4">
+                  </div>
+                </div>
+
+                {/* Basic Info Section */}
+                <div className="p-6 space-y-4">
+                  <div className="flex items-center gap-3 text-sm">
+                    <MapPin className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-muted-foreground">Jurisdiction:</span>
+                    <span className="font-medium text-foreground ml-auto text-right">{judge.jurisdiction || 'N/A'}</span>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-sm">
+                    <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-muted-foreground">Appointed:</span>
+                    <span className="font-medium text-foreground ml-auto text-right">{formatDate(judge.appointed_date)}</span>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-sm">
+                    <Users className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-muted-foreground">Experience:</span>
+                    <span className="font-medium text-foreground ml-auto text-right">{getExperience(judge.appointed_date)}</span>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-sm">
+                    <Activity className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-muted-foreground">Total Cases:</span>
+                    <span className="font-medium text-foreground ml-auto text-right">
                       {judge.total_cases ? judge.total_cases.toLocaleString() : 'N/A'}
-                    </td>
-                  ))}
-                </tr>
+                    </span>
+                  </div>
+                </div>
 
                 {/* Analytics Section */}
-                <tr className="bg-primary/5">
-                  <td colSpan={selectedJudges.length + 1} className="px-6 py-3 text-sm font-semibold">
-                    AI Analytics & Bias Detection
-                  </td>
-                </tr>
+                <div className="p-6 pt-0 space-y-4 border-t border-border mt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Award className="w-4 h-4 text-primary" />
+                    <h4 className="text-sm font-semibold text-foreground">AI Analytics</h4>
+                  </div>
 
-                <tr>
-                  <td className="px-6 py-4 text-sm font-medium text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4" />
-                      Consistency Score
+                  {isLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     </div>
-                  </td>
-                  {selectedJudges.map(judge => (
-                    <td key={judge.id} className="px-6 py-4">
-                      {loadingAnalytics[judge.id] ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                      ) : analytics[judge.id]?.metrics?.consistency ? (
-                        <div className="flex items-center gap-2">
-                          <div className="text-lg font-semibold">{analytics[judge.id].metrics.consistency}%</div>
-                          <div className="h-2 w-20 bg-muted rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-primary transition-all"
-                              style={{ width: `${analytics[judge.id].metrics.consistency}%` }}
+                  ) : judgeAnalytics ? (
+                    <div className="space-y-4">
+                      {/* Consistency Score */}
+                      {judgeAnalytics.metrics?.consistency && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground flex items-center gap-2">
+                              <TrendingUp className="w-3.5 h-3.5" />
+                              Consistency
+                            </span>
+                            <span className="font-bold text-lg text-foreground">{judgeAnalytics.metrics.consistency}%</span>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <motion.div
+                              className="h-full bg-primary rounded-full"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${judgeAnalytics.metrics.consistency}%` }}
+                              transition={{ duration: 0.8, delay: index * 0.2 }}
                             />
                           </div>
                         </div>
-                      ) : (
-                        'N/A'
                       )}
-                    </td>
-                  ))}
-                </tr>
 
-                <tr className="bg-muted/30">
-                  <td className="px-6 py-4 text-sm font-medium text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <BarChart className="h-4 w-4" />
-                      Speed Score
-                    </div>
-                  </td>
-                  {selectedJudges.map(judge => (
-                    <td key={judge.id} className="px-6 py-4">
-                      {loadingAnalytics[judge.id] ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                      ) : analytics[judge.id]?.metrics?.speed ? (
-                        <div className="flex items-center gap-2">
-                          <div className="text-lg font-semibold">{analytics[judge.id].metrics.speed}%</div>
-                          <div className="h-2 w-20 bg-muted rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-primary transition-all"
-                              style={{ width: `${analytics[judge.id].metrics.speed}%` }}
+                      {/* Speed Score */}
+                      {judgeAnalytics.metrics?.speed && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground flex items-center gap-2">
+                              <BarChart className="w-3.5 h-3.5" />
+                              Speed
+                            </span>
+                            <span className="font-bold text-lg text-foreground">{judgeAnalytics.metrics.speed}%</span>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <motion.div
+                              className="h-full bg-success rounded-full"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${judgeAnalytics.metrics.speed}%` }}
+                              transition={{ duration: 0.8, delay: index * 0.2 + 0.1 }}
                             />
                           </div>
                         </div>
-                      ) : (
-                        'N/A'
                       )}
-                    </td>
-                  ))}
-                </tr>
 
-                <tr>
-                  <td className="px-6 py-4 text-sm font-medium text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Scale className="h-4 w-4" />
-                      Overall Bias Score
-                    </div>
-                  </td>
-                  {selectedJudges.map(judge => (
-                    <td key={judge.id} className="px-6 py-4">
-                      {loadingAnalytics[judge.id] ? (
-                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                      ) : analytics[judge.id]?.overall_bias_score ? (
-                        <div className="flex items-center gap-2">
-                          <div className="text-lg font-semibold">{analytics[judge.id].overall_bias_score}</div>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            analytics[judge.id].overall_bias_score >= 80 ? 'bg-green-100 text-green-800' :
-                            analytics[judge.id].overall_bias_score >= 60 ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {analytics[judge.id].overall_bias_score >= 80 ? 'Low Bias' :
-                             analytics[judge.id].overall_bias_score >= 60 ? 'Moderate' : 'High Bias'}
-                          </span>
+                      {/* Overall Bias Score */}
+                      {judgeAnalytics.overall_bias_score && (
+                        <div className="mt-4 pt-4 border-t border-border">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground flex items-center gap-2">
+                              <Scale className="w-3.5 h-3.5" />
+                              Bias Score
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl font-bold text-foreground">{judgeAnalytics.overall_bias_score}</span>
+                              <span className={cn(
+                                "px-2.5 py-1 rounded-full text-xs font-semibold",
+                                judgeAnalytics.overall_bias_score >= 80 ? "bg-success/20 text-success" :
+                                judgeAnalytics.overall_bias_score >= 60 ? "bg-warning/20 text-warning" :
+                                "bg-danger/20 text-danger"
+                              )}>
+                                {judgeAnalytics.overall_bias_score >= 80 ? 'Low' :
+                                 judgeAnalytics.overall_bias_score >= 60 ? 'Moderate' : 'High'}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      ) : (
-                        'N/A'
                       )}
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </GlassCard>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-sm text-muted-foreground">
+                      No analytics available
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )
+          })}
+        </motion.div>
       ) : (
-        <GlassCard className="p-12 text-center">
-          <Scale className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-xl font-semibold mb-2">No Judges Selected</h3>
-          <p className="text-muted-foreground">
-            Start by adding judges to compare their profiles and analytics side-by-side.
+        <motion.div
+          className="rounded-xl border-2 border-dashed border-border bg-card/50 p-12 text-center"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+        >
+          <Scale className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
+          <h3 className="text-2xl font-bold text-foreground mb-2">No Judges Selected</h3>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            Start by searching and adding judges to compare their profiles, decision patterns, and AI-powered analytics side-by-side.
           </p>
-        </GlassCard>
+        </motion.div>
       )}
     </div>
   )
