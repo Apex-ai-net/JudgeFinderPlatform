@@ -13,6 +13,85 @@
 
 const { createClient } = require('@supabase/supabase-js');
 const cron = require('node-cron');
+const fetchFn = typeof fetch === 'function' ? fetch.bind(global) : require('node-fetch');
+
+function normalizeCourtListenerPosition(position) {
+  if (!position || typeof position !== 'object') {
+    return null;
+  }
+
+  const raw = position.raw && typeof position.raw === 'object' ? position.raw : position;
+
+  const normalizeDate = (value) => {
+    if (!value || typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    const date = new Date(trimmed);
+    return Number.isNaN(date.getTime()) ? trimmed : trimmed.slice(0, 10);
+  };
+
+  const resolvedCourtName = (() => {
+    if (typeof position.court === 'string') return position.court;
+    if (typeof raw.court === 'string') return raw.court;
+    if (position.court_name) return position.court_name;
+    if (raw.court_name) return raw.court_name;
+    if (position.court_full_name) return position.court_full_name;
+    if (raw.court_full_name) return raw.court_full_name;
+    const courtObj = position.court && typeof position.court === 'object' ? position.court : raw.court;
+    if (courtObj && typeof courtObj === 'object') {
+      return courtObj.full_name || courtObj.name || courtObj.short_name || null;
+    }
+    return position.court_id || raw.court_id || null;
+  })();
+
+  const resolvedCourtId = (() => {
+    if (position.court_id) return position.court_id;
+    if (raw.court_id) return raw.court_id;
+    const courtObj = position.court && typeof position.court === 'object' ? position.court : raw.court;
+    if (courtObj && typeof courtObj === 'object' && courtObj.id) {
+      return courtObj.id;
+    }
+    return null;
+  })();
+
+  const resolvedPositionType =
+    position.position_type ||
+    raw.position_type ||
+    position.position ||
+    raw.position ||
+    position.position_name ||
+    raw.position_name ||
+    position.title ||
+    raw.title ||
+    'Judge';
+
+  const startDate =
+    normalizeDate(position.date_start) ||
+    normalizeDate(raw.date_start) ||
+    normalizeDate(position.start_date) ||
+    normalizeDate(raw.start_date) ||
+    normalizeDate(position.date_started) ||
+    normalizeDate(raw.date_started) ||
+    null;
+
+  const endDate =
+    normalizeDate(position.date_termination) ||
+    normalizeDate(raw.date_termination) ||
+    normalizeDate(position.end_date) ||
+    normalizeDate(raw.end_date) ||
+    normalizeDate(position.date_terminated) ||
+    normalizeDate(raw.date_terminated) ||
+    null;
+
+  return {
+    court: resolvedCourtName,
+    court_id: resolvedCourtId,
+    position_type: resolvedPositionType,
+    date_start: startDate,
+    date_termination: endDate,
+    raw
+  };
+}
 // Prefer .env.local to align with project conventions
 require('dotenv').config({ path: '.env.local' });
 
@@ -78,28 +157,83 @@ class AutomatedAssignmentUpdater {
     }
   }
 
-  async fetchCourtListenerData(judgeId) {
+  async fetchCourtListenerData(judgeRecord) {
+    if (!judgeRecord) {
+      return null;
+    }
+
+    const cachedPositions = Array.isArray(judgeRecord.courtlistener_data?.positions)
+      ? judgeRecord.courtlistener_data.positions
+      : [];
+
+    const fallbackPositions = cachedPositions
+      .map(normalizeCourtListenerPosition)
+      .filter(Boolean);
+
+    const fallback = fallbackPositions.length
+      ? {
+          positions: fallbackPositions,
+          last_updated: judgeRecord.courtlistener_data?.last_updated || null,
+          source: 'cached_courtlistener_data'
+        }
+      : null;
+
+    const courtlistenerId = judgeRecord.courtlistener_id;
+    const apiKey = process.env.COURTLISTENER_API_KEY || process.env.COURTLISTENER_API_TOKEN;
+
+    if (!courtlistenerId) {
+      console.warn('⚠️  Missing CourtListener ID for judge; using cached assignment data.');
+      return fallback;
+    }
+
+    if (!apiKey) {
+      console.warn('⚠️  COURTLISTENER_API_KEY not configured; skipping live fetch.');
+      return fallback;
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+
     try {
-      // This would integrate with CourtListener API to fetch fresh judge data
-      // For now, we'll simulate this with existing data enhancement
-      const { data: judge, error } = await supabase
-        .from('judges')
-        .select('courtlistener_id, courtlistener_data')
-        .eq('id', judgeId)
-        .single();
+      const url = new URL(`https://www.courtlistener.com/api/rest/v4/people/${courtlistenerId}/`);
+      url.searchParams.set('format', 'json');
 
-      if (error) throw error;
+      const response = await fetchFn(url.toString(), {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Token ${apiKey}`,
+          'User-Agent': 'JudgeFinder Assignment Updater/1.0 (https://judgefinder.io)'
+        },
+        signal: controller.signal
+      });
 
-      // In a real implementation, this would make an API call to CourtListener
-      // For demonstration, we'll return the existing data with a timestamp
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      const positions = Array.isArray(data.positions)
+        ? data.positions.map(normalizeCourtListenerPosition).filter(Boolean)
+        : [];
+
+      if (!positions.length && fallbackPositions.length) {
+        console.warn(`⚠️  CourtListener returned no positions for judge ${courtlistenerId}; using cached data.`);
+        return fallback;
+      }
+
       return {
-        positions: judge.courtlistener_data?.positions || [],
-        last_updated: new Date().toISOString(),
-        source: 'courtlistener_api'
+        positions,
+        last_updated: data.date_modified || new Date().toISOString(),
+        source: 'courtlistener_api',
+        raw: { id: data.id, name: data.name, positions: data.positions }
       };
     } catch (error) {
-      console.error(`❌ Error fetching CourtListener data for judge ${judgeId}:`, error.message);
-      return null;
+      clearTimeout(timeout);
+      console.error(`❌ Error fetching CourtListener data for judge ${judgeRecord.id}:`, error.message);
+      return fallback;
     }
   }
 
@@ -111,8 +245,11 @@ class AutomatedAssignmentUpdater {
     }
 
     // Analyze positions from CourtListener for changes
-    const currentPositions = freshData.positions.filter(pos => !pos.date_termination);
-    
+    const currentPositions = freshData.positions
+      .map(normalizeCourtListenerPosition)
+      .filter(Boolean)
+      .filter(pos => !pos.date_termination);
+
     if (currentPositions.length === 0) {
       changes.push({
         type: 'position_ended',
@@ -125,7 +262,11 @@ class AutomatedAssignmentUpdater {
 
     // Check for new court assignments
     const assignmentMetadata = assignment.metadata || {};
-    const lastKnownPositions = assignmentMetadata.courtlistener_positions || [];
+    const lastKnownPositions = Array.isArray(assignmentMetadata.courtlistener_positions)
+      ? assignmentMetadata.courtlistener_positions
+          .map(normalizeCourtListenerPosition)
+          .filter(Boolean)
+      : [];
 
     for (const position of currentPositions) {
       const existingPosition = lastKnownPositions.find(p => 
@@ -212,7 +353,7 @@ class AutomatedAssignmentUpdater {
       console.log(`🔄 Processing ${assignment.judges?.name} at ${assignment.courts?.name}`);
 
       // Fetch fresh data from external sources
-      const freshData = await this.fetchCourtListenerData(assignment.judge_id);
+      const freshData = await this.fetchCourtListenerData(assignment.judges);
 
       // Detect changes
       const changes = await this.detectAssignmentChanges(assignment, freshData);
@@ -372,9 +513,13 @@ class AutomatedAssignmentUpdater {
     // Schedule weekly comprehensive validation
     cron.schedule('0 3 * * 1', async () => {
       console.log('\n📋 Running weekly comprehensive validation...');
-      const validator = require('./validate-court-assignments');
-      const validatorInstance = new validator();
-      await validatorInstance.run({ autoApplyRecommendations: true });
+      try {
+        const { CourtJudgeValidator } = require('./validate-court-judge-relationships');
+        const validatorInstance = new CourtJudgeValidator();
+        await validatorInstance.runFullValidation();
+      } catch (error) {
+        console.error('❌ Weekly validation failed to run:', error.message);
+      }
     });
 
     console.log('✅ Scheduled updates are now active');

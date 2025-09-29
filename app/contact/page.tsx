@@ -73,7 +73,7 @@ export default function ContactPage() {
             <h3 className="font-semibold text-gray-800 mb-2">For Attorneys & Legal Professionals</h3>
             <p className="text-gray-600 text-sm">
               Interested in advanced analytics or bulk data access? Contact us at{' '}
-              <a href="mailto:tanner@thefiredev.com" className="text-blue-600 hover:underline">
+              <a href="mailto:tanner@thefiredev.com" className="text-blue-600">
                 tanner@thefiredev.com
               </a>
             </p>

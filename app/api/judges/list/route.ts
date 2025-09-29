@@ -121,7 +121,9 @@ export async function GET(request: NextRequest) {
       }
 
       if (jurisdiction) {
-        queryBuilder = queryBuilder.eq('jurisdiction', jurisdiction)
+        // Normalize common aliases (e.g., 'California' -> 'CA')
+        const normalizedJurisdiction = jurisdiction === 'California' ? 'CA' : jurisdiction
+        queryBuilder = queryBuilder.eq('jurisdiction', normalizedJurisdiction)
       }
 
       if (court_id) {
@@ -157,6 +159,27 @@ export async function GET(request: NextRequest) {
 
       const totalCount = count || 0
       const hasMore = from + (judges.length || 0) < totalCount
+
+      // Optionally hydrate decision summaries when requested
+      if (includeDecisions && judges.length > 0) {
+        try {
+          const summaries = await fetchDecisionSummaries(supabase, judges.map(j => j.id), recentYears)
+          const withSummaries = judges.map((j: any) => ({
+            ...j,
+            decision_summary: summaries.get(j.id) || undefined,
+          }))
+          return {
+            judges: withSummaries,
+            total_count: totalCount,
+            page,
+            per_page: limit,
+            has_more: hasMore,
+            rate_limit_remaining: remaining,
+          }
+        } catch {
+          // Fallback to plain list if summaries fail
+        }
+      }
 
       return {
         judges,

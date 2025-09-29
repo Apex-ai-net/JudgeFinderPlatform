@@ -376,7 +376,7 @@ export function RecentDecisions({ judgeId }: RecentDecisionsProps) {
           <span className="font-semibold text-[color:hsl(var(--accent))]">{topCaseType || 'various'}</span> filings.{' '}
           <a
             href="#attorney-slots"
-            className="text-[color:hsl(var(--accent))] underline-offset-2 transition-colors hover:text-[rgba(110,168,254,0.8)]"
+            className="text-[color:hsl(var(--accent))] transition-colors hover:text-[rgba(110,168,254,0.8)]"
           >
             Advertise your expertise here →
           </a>

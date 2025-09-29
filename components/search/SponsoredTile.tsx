@@ -33,7 +33,7 @@ export function SponsoredTile({ tile }: SponsoredTileProps) {
                 href={barUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 underline-offset-4 hover:text-yellow-50"
+                className="inline-flex items-center gap-1 hover:text-yellow-50"
               >
                 <Shield className="h-3 w-3" /> CA Bar #{tile.bar_number}
               </Link>
@@ -46,7 +46,7 @@ export function SponsoredTile({ tile }: SponsoredTileProps) {
           {tile.contact_email && (
             <a
               href={`mailto:${tile.contact_email}`}
-              className="text-sm text-yellow-100 underline-offset-4 hover:text-yellow-50"
+              className="text-sm text-yellow-100 hover:text-yellow-50"
             >
               {tile.contact_email}
             </a>

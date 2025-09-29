@@ -107,8 +107,36 @@ class CourtJudgeValidator {
     }
   }
   generateRecommendations() {
-    // No-op: simple placeholder to satisfy caller
-    return []
+    const recommendations = []
+
+    const failedTests = this.reporter.tests.filter((test) => test.status === 'failed')
+    for (const test of failedTests) {
+      const severity = test.details?.severity || 'medium'
+      recommendations.push({
+        area: test.category,
+        message: `Investigate failure: ${test.name}`,
+        severity,
+        context: test.details || {}
+      })
+    }
+
+    for (const issue of this.reporter.issues) {
+      recommendations.push({
+        area: issue.area || 'system',
+        message: issue.message,
+        severity: 'high'
+      })
+    }
+
+    if (recommendations.length === 0) {
+      recommendations.push({
+        area: 'general',
+        message: 'No action required. All tests passed.',
+        severity: 'info'
+      })
+    }
+
+    return recommendations
   }
 }
 

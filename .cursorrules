@@ -10,51 +10,63 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-Core Business Logic Organization:
+The legal analytics platform implements a sophisticated judicial analysis system with several interconnected components:
 
-1. Judicial Analytics Engine
-- Multi-dimensional bias detection algorithms analyzing case outcomes, timing, and patterns
-- 6-category pattern analysis covering civil litigation, custody, alimony, contracts, criminal cases
-- Custom confidence scoring system (60-95%) with fallback analytics
-- Located in: lib/ai/judicial-analytics.js, components/judges/BiasPatternAnalysis.tsx
+1. Judicial Analytics Core (95/100)
+Path: lib/analytics/bias-calculations.ts
+- Multi-dimensional bias detection across case types
+- Settlement pattern analysis with confidence scoring
+- Timeline-based decision pattern recognition
+- Court assignment tracking and relationship mapping
 
-2. Case Distribution System
-- Advanced case distribution algorithm ensuring even allocation across judges
-- Target distribution of ~232 cases per judge with 1,903 total judges
-- Real-time judicial workload balancing with error recovery
-- Located in: scripts/final-production-redistribute.js
+2. Court Jurisdiction Engine (90/100)
+Path: app/jurisdictions/[county]/ClientPage.tsx
+- Hierarchical court system modeling
+- Judge-court relationship management
+- Case distribution analysis by jurisdiction
+- Specialized WCAB court handling
 
-3. Legal Advertising Framework 
-- Four-tier pricing model (A-D) with monthly/annual variations
-- Exclusive rotation pricing using 1.75x multiplier
-- Jurisdiction-based price adjustments
-- Located in: scripts/stripe/sync-catalog.ts
+3. Legal Advertising System (85/100)
+Path: lib/ads/service.ts
+- Tiered pricing based on court hierarchy
+- Judge profile exclusive placement logic
+- Court-level rotation rules
+- Legal professional verification workflow
 
-4. Judge-Case Relationship Engine
-- Complex relationship mapping with multi-stage validation
-- Hierarchical name matching system for judicial records
-- Specialized title handling and name variations
-- Located in: scripts/comprehensive-case-judge-linking.js
+4. AI-Enhanced Legal Search (85/100)
+Path: lib/ai/judicial-analytics.js
+- Judge-specific intent classification
+- Court relationship context injection
+- Legal domain prompt engineering
+- Multi-factor relevance scoring
 
-5. Court System Management
-- Hierarchical jurisdiction mapping between courts
-- Court-judge relationship validation
-- Specialized handling of WCAB and administrative courts
-- Located in: scripts/import-all-ca-courts.js
+5. Profile Issue Management (80/100)
+Path: app/api/report-profile-issue/route.ts
+- SLA-driven correction workflow
+- Issue severity classification
+- Verification requirements by correction type
+- Professional credential validation
 
-Integration Points:
-- AI analytics pipeline feeds bias detection results to profile displays
-- Case distribution system interfaces with advertising placement logic
-- Judge relationship engine provides data for analytics processing
-- Court hierarchy informs advertising pricing tiers
+Core Data Models:
+1. Judge Analytics Model
+- Bias metrics (civil, criminal, family law)
+- Settlement preference scoring
+- Timeline-based pattern detection
+- Court assignment history
 
-Revenue Model Integration:
-- Advertising slots priced based on court hierarchy level
-- Premium pricing for exclusive judge profile placement
-- Jurisdiction-specific rate adjustments
-- Integrated bar verification for legal advertisers
+2. Court Hierarchy Model
+- Jurisdiction-based relationships
+- Case type specialization
+- Judge assignment tracking
+- Court performance metrics
 
-The system implements a comprehensive judicial analytics platform focused on bias detection, case distribution, and legal advertising, with tight integration between components to maintain data consistency across the judicial hierarchy.
+3. Legal Advertising Model
+- Court-level pricing tiers
+- Placement exclusivity rules
+- Professional verification requirements
+- Performance tracking metrics
+
+The system uniquely combines judicial analytics with professional advertising, implementing California-specific court hierarchies and judicial bias detection algorithms. Core workflows focus on legal professional access, court relationship management, and automated bias detection.
 
 $END$
 

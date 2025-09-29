@@ -124,13 +124,21 @@
   }
 
   a[href]:not(.link-reset) {
-    @apply underline underline-offset-4 font-medium;
     color: hsl(var(--accent));
+    text-decoration: none;
+    text-underline-offset: 4px;
     transition: color 0.2s ease;
   }
 
   a[href]:not(.link-reset):hover {
     color: hsl(var(--accent-foreground));
+    text-decoration: none;
+  }
+
+  /* Opt-in underline when explicitly desired */
+  a[href].allow-underline,
+  a[href].allow-underline:hover {
+    text-decoration: underline;
   }
 }
 

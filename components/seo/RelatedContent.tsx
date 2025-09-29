@@ -187,33 +187,33 @@ export function RelatedContent({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-2 text-sm">
-            <Link 
-              href={`/judges?jurisdiction=${encodeURIComponent(jurisdiction)}`}
-              className="text-blue-600 hover:text-blue-800 hover:underline"
-            >
+              <Link 
+                href={`/judges?jurisdiction=${encodeURIComponent(jurisdiction)}`}
+                className="text-blue-600 hover:text-blue-800"
+              >
               All {jurisdiction} Judges
             </Link>
             <Link 
               href={`/judges?court=${encodeURIComponent(courtName)}`}
-              className="text-blue-600 hover:text-blue-800 hover:underline"
+                className="text-blue-600 hover:text-blue-800"
             >
               {getCourtType(courtName)} Judges
             </Link>
             <Link 
               href="/judges?experience=veteran"
-              className="text-blue-600 hover:text-blue-800 hover:underline"
+                className="text-blue-600 hover:text-blue-800"
             >
               Veteran Judges (15+ Years)
             </Link>
             <Link 
               href="/judges?recently-appointed=true"
-              className="text-blue-600 hover:text-blue-800 hover:underline"
+                className="text-blue-600 hover:text-blue-800"
             >
               Recently Appointed Judges
             </Link>
             <Link 
               href="/judicial-analytics"
-              className="text-blue-600 hover:text-blue-800 hover:underline"
+                className="text-blue-600 hover:text-blue-800"
             >
               Judicial Analytics Dashboard
             </Link>

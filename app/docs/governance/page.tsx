@@ -120,11 +120,11 @@ export default function GovernancePage() {
           </p>
           <p className="mt-4 text-sm text-muted-foreground">
             Want to understand the technical controls behind our metrics? Visit the{' '}
-            <Link href="/docs/methodology" className="text-primary underline underline-offset-4">
+            <Link href="/docs/methodology" className="text-primary">
               methodology guide
             </Link>{' '}
             or follow recent updates in the{' '}
-            <Link href="/docs/changelog" className="text-primary underline underline-offset-4">
+            <Link href="/docs/changelog" className="text-primary">
               public changelog
             </Link>
             .

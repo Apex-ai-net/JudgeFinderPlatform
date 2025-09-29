@@ -7,7 +7,7 @@ import type {
   JudgesDirectoryDataManagerOptions,
 } from './types'
 
-const DEFAULT_LIMIT = 20
+const DEFAULT_LIMIT = 24
 
 export class JudgesDirectoryDataManager {
   private readonly baseUrl: string

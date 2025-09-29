@@ -16,7 +16,9 @@ export async function POST(request: NextRequest) {
   try {
     const { requireApiKey } = await import('@/lib/security/api-auth')
     const auth = requireApiKey(request, { allow: ['SYNC_API_KEY'] })
-    if ('ok' in auth === false) return auth
+    if (!('ok' in auth && auth.ok === true)) {
+      return auth
+    }
 
     // Parse request options
     const body = await request.json().catch(() => ({}))

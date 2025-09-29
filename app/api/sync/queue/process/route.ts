@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const auth = requireApiKey(request, { allow: ['CRON_SECRET'] })
-    if ('ok' in auth === false) {
+    if (!('ok' in auth && auth.ok === true)) {
       return auth
     }
 
@@ -65,4 +65,3 @@ export async function GET(request: NextRequest) {
     }, { status: 500 })
   }
 }
-

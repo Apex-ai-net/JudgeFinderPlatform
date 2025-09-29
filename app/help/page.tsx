@@ -124,7 +124,7 @@ export default function HelpPage() {
                 <div className="space-y-2 text-sm">
                   <p>
                     <strong>Email:</strong>{' '}
-                    <a href="mailto:support@judgefinder.io" className="text-blue-600 hover:underline">
+                    <a href="mailto:support@judgefinder.io" className="text-blue-600">
                       support@judgefinder.io
                     </a>
                   </p>

@@ -31,11 +31,11 @@ export default function AnalyticsPage(): JSX.Element {
           <OperationalMetricsSection stats={stats} />
           <p className="mt-4 text-xs text-muted-foreground">
             Need more context? Review our{' '}
-            <Link href="/docs/methodology" className="text-primary underline-offset-4 hover:text-foreground">
+            <Link href="/docs/methodology" className="text-primary hover:text-foreground">
               methodology
             </Link>{' '}
             and{' '}
-            <Link href="/docs/governance" className="text-primary underline-offset-4 hover:text-foreground">
+            <Link href="/docs/governance" className="text-primary hover:text-foreground">
               governance
             </Link>{' '}
             guides.

@@ -139,7 +139,7 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
               </div>
               <button
                 onClick={() => window.history.back()}
-                className="text-sm text-blue-600 hover:text-blue-700 underline"
+                className="text-sm text-blue-600 hover:text-blue-700"
               >
                 Change Plan
               </button>

@@ -109,11 +109,38 @@ export function EnhancedJudgeSearch() {
     performSearch(searchQuery, null, 1)
   }
 
-  const loadMore = () => {
-    if (searchResults?.has_more) {
-      const nextPage = currentPage + 1
-      setCurrentPage(nextPage)
-      performSearch(searchQuery, filters, nextPage)
+  const loadMore = async () => {
+    if (!searchResults?.has_more || loading) return
+    const nextPage = currentPage + 1
+    setCurrentPage(nextPage)
+
+    // Fetch next page then append
+    try {
+      setLoading(true)
+      const params = new URLSearchParams({ page: nextPage.toString(), limit: '20' })
+      if (searchQuery.trim()) params.append('q', searchQuery.trim())
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== '' && value !== 0 && value !== 100 && value !== 50) {
+            if (Array.isArray(value) && value.length > 0) params.append(key, value.join(','))
+            else if (!Array.isArray(value) && value !== null) params.append(key, value.toString())
+          }
+        })
+      }
+
+      const res = await fetch(`/api/judges/advanced-search?${params.toString()}`)
+      if (!res.ok) return
+      const data: AdvancedJudgeSearchResponse = await res.json()
+      setSearchResults(prev => prev ? {
+        ...prev,
+        judges: [...prev.judges, ...data.judges],
+        page: data.page,
+        per_page: data.per_page,
+        has_more: data.has_more,
+        total_count: data.total_count
+      } : data)
+    } finally {
+      setLoading(false)
     }
   }
 

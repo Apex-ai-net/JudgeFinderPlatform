@@ -15,6 +15,17 @@ const courtIdParamsSchema = z.object({
 interface JudgeWithPosition extends Judge {
   position_type: string
   status: string
+  assignment_start_date: string | null
+  assignment_end_date: string | null
+}
+
+interface JudgePositionRow {
+  id?: string
+  status: string
+  position_type: string | null
+  start_date: string | null
+  end_date: string | null
+  judge: Judge | Judge[] | null
 }
 
 interface CourtJudgesResponse {
@@ -84,62 +95,153 @@ export async function GET(
       )
     }
 
-    // Build judges query
-    let queryBuilder = supabase
-      .from('judges')
-      .select('*', { count: 'exact' })
+    const inactiveStatuses: string[] = ['inactive', 'resigned', 'transferred', 'deceased']
+
+    let positionQuery = supabase
+      .from('judge_court_positions')
+      .select(
+        `
+          id,
+          status,
+          position_type,
+          start_date,
+          end_date,
+          judge:judges!inner(*)
+        `,
+        { count: 'exact' }
+      )
       .eq('court_id', courtId)
-      .order('name')
+      .order('position_type', { ascending: true })
+      .order('start_date', { ascending: false, nullsFirst: false })
       .range(from, to)
 
-    // Apply status filter if not 'all'
     if (status && status !== 'all') {
-      // Since we don't have a status field in judges table yet, we'll infer status
-      // For now, we'll treat all judges as 'active' unless they have specific indicators
-      if (status === 'retired') {
-        // Filter for judges that might be retired (this is a placeholder - adjust based on your data)
-        queryBuilder = queryBuilder.or('name.ilike.%retired%,name.ilike.%emeritus%')
-      } else if (status === 'inactive') {
-        // This would need actual status tracking in the database
-        // For now, return empty results for inactive status
-        queryBuilder = queryBuilder.eq('id', '00000000-0000-0000-0000-000000000000') // Non-existent ID
+      if (status === 'inactive') {
+        positionQuery = positionQuery.in('status', inactiveStatuses)
+      } else {
+        positionQuery = positionQuery.eq('status', status)
       }
-      // 'active' status doesn't need additional filtering for now
     }
 
-    // Apply position type filter if provided
     if (position_type) {
-      // Since we don't have position_type in judges table, we'll use name matching
-      // This is a temporary solution until proper position tracking is implemented
-      queryBuilder = queryBuilder.ilike('name', `%${position_type}%`)
+      positionQuery = positionQuery.ilike('position_type', `%${position_type}%`)
     }
 
-    // Execute the query
-    const { data: judgesData, error: judgesError, count } = await queryBuilder
+    const { data: positionRows, error: positionError, count } = await positionQuery
 
-    if (judgesError) {
-      logger.error('Supabase error fetching court judges', { 
+    if (positionError && positionError.code !== 'PGRST116') {
+      logger.error('Supabase error fetching judge positions', {
         courtId,
-        error: judgesError.message 
+        error: positionError.message
       })
-      
+
       return NextResponse.json(
-        { error: 'Failed to fetch judges for court' }, 
+        { error: 'Failed to fetch judges for court' },
         { status: 500 }
       )
     }
 
-    const judges = (judgesData || []) as Judge[]
+    const rows = (positionRows || []) as unknown as JudgePositionRow[]
 
-    // Transform judges to include position information
-    const judgesWithPosition: JudgeWithPosition[] = judges.map(judge => ({
-      ...judge,
-      position_type: inferPositionType(judge.name),
-      status: inferStatus(judge)
-    }))
+    let judgesWithPosition: JudgeWithPosition[] = []
+    let totalCount = count || rows.length
 
-    const totalCount = count || 0
-    const hasMore = from + (judges.length || 0) < totalCount
+    if (rows.length > 0) {
+      const statusPriority: Record<string, number> = {
+        active: 3,
+        presiding: 2,
+        retired: 1,
+        inactive: 0,
+      }
+
+      const deduped = new Map<string, JudgeWithPosition>()
+
+      for (const row of rows) {
+        const judgeData = Array.isArray(row.judge) ? row.judge[0] : row.judge
+        if (!judgeData) {
+          continue
+        }
+
+        const judge = judgeData as Judge
+        const normalizedStatus = (row.status || inferStatus(judge)).toLowerCase()
+        const effectiveStatus = normalizedStatus === 'presiding' ? 'active' : normalizedStatus
+        const weight = statusPriority[effectiveStatus] ?? (effectiveStatus === 'active' ? 3 : 1)
+
+        const existing = deduped.get(judge.id)
+        const statusLabel = effectiveStatus || 'active'
+        const candidate: JudgeWithPosition = {
+          ...judge,
+          position_type: row.position_type || judge.position_type || inferPositionType(judge.name),
+          status: statusLabel,
+          assignment_start_date: row.start_date,
+          assignment_end_date: row.end_date
+        }
+
+        if (!existing) {
+          deduped.set(judge.id, candidate)
+          continue
+        }
+
+        const existingWeight = statusPriority[existing.status?.toLowerCase() ?? ''] ?? (existing.status === 'active' ? 3 : 1)
+
+        const existingStart = existing.assignment_start_date ? new Date(existing.assignment_start_date).getTime() : 0
+        const candidateStart = candidate.assignment_start_date ? new Date(candidate.assignment_start_date).getTime() : 0
+
+        if (weight > existingWeight || (weight === existingWeight && candidateStart > existingStart)) {
+          deduped.set(judge.id, candidate)
+        }
+      }
+
+      judgesWithPosition = Array.from(deduped.values())
+      totalCount = count || judgesWithPosition.length
+    } else {
+      // Fallback to legacy judge query if junction data unavailable
+      let fallbackQuery = supabase
+        .from('judges')
+        .select('*', { count: 'exact' })
+        .eq('court_id', courtId)
+        .order('name')
+        .range(from, to)
+
+      if (status && status !== 'all') {
+        if (status === 'retired') {
+          fallbackQuery = fallbackQuery.or('name.ilike.%retired%,name.ilike.%emeritus%')
+        } else if (status === 'inactive') {
+          fallbackQuery = fallbackQuery.eq('id', '00000000-0000-0000-0000-000000000000')
+        }
+      }
+
+      if (position_type) {
+        fallbackQuery = fallbackQuery.ilike('name', `%${position_type}%`)
+      }
+
+      const { data: fallbackData, error: fallbackError, count: fallbackCount } = await fallbackQuery
+
+      if (fallbackError) {
+        logger.error('Supabase fallback error fetching court judges', {
+          courtId,
+          error: fallbackError.message
+        })
+
+        return NextResponse.json(
+          { error: 'Failed to fetch judges for court' },
+          { status: 500 }
+        )
+      }
+
+      const judges = (fallbackData || []) as Judge[]
+      judgesWithPosition = judges.map((judge) => ({
+        ...judge,
+        position_type: judge.position_type || inferPositionType(judge.name),
+        status: inferStatus(judge),
+        assignment_start_date: null,
+        assignment_end_date: null
+      }))
+
+      totalCount = fallbackCount || judges.length
+    }
+
+    const hasMore = from + (judgesWithPosition.length || 0) < totalCount
 
     const result: CourtJudgesResponse = {
       judges: judgesWithPosition,
@@ -164,7 +266,7 @@ export async function GET(
     
     const duration = Date.now() - startTime
     logger.apiResponse('GET', `/api/courts/${courtId}/judges`, 200, duration, {
-      resultsCount: judges.length,
+      resultsCount: judgesWithPosition.length,
       totalCount,
       courtName: courtData.name
     })

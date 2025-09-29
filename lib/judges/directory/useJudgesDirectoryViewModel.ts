@@ -22,6 +22,11 @@ export function useJudgesDirectoryViewModel(options: UseJudgesDirectoryViewModel
       manager,
       initialState: options.initialData,
     })
+  } else if (options.initialData && !viewModelRef.current.state.initialized) {
+    viewModelRef.current = new JudgesDirectoryViewModel({
+      manager,
+      initialState: options.initialData,
+    })
   }
 
   const viewModel = viewModelRef.current

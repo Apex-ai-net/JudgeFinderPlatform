@@ -258,7 +258,7 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
                   setPositionFilter('')
                   setSearchQuery('')
                 }}
-                className="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 underline"
+                className="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
               >
                 Clear all
               </button>

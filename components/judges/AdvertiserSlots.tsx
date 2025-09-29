@@ -225,7 +225,7 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
                     href={barVerificationUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-[color:hsl(var(--accent))] underline-offset-4 hover:text-[color:hsl(var(--text-1))]"
+                    className="inline-flex items-center gap-1 text-[color:hsl(var(--accent))] hover:text-[color:hsl(var(--text-1))]"
                   >
                     <Shield className="h-3 w-3" aria-hidden />
                     CA Bar #{barNumber}

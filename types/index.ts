@@ -7,6 +7,7 @@ export interface Judge {
   court_slug?: string | null
   jurisdiction: string
   appointed_date: string | null
+  position_type?: string | null
   education: string | null
   profile_image_url?: string | null
   bio: string | null
