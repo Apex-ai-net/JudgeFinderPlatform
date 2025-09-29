@@ -52,7 +52,7 @@ class CourtJudgeValidator {
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.SUPABASE_SERVICE_ROLE_KEY
     )
-    this.baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.NODE_ENV === 'production' ? 'https://judgefinder.io' : 'http://localhost:3005')
+    this.baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.NODE_ENV === 'production' ? 'https://judgefinder.io' : 'http://localhost:3000')
   }
   async runFullValidation() {
     const overallStart = Date.now()

@@ -6,7 +6,7 @@ const pLimit = require('p-limit')
 function parseArgs() {
   const args = process.argv.slice(2)
   const config = {
-    baseUrl: process.env.TEST_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3005',
+    baseUrl: process.env.TEST_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     limit: process.env.ANALYTICS_LIMIT ? Number(process.env.ANALYTICS_LIMIT) : undefined,
     concurrency: process.env.ANALYTICS_CONCURRENCY ? Number(process.env.ANALYTICS_CONCURRENCY) : 2,
     delayMs: process.env.ANALYTICS_BATCH_DELAY_MS ? Number(process.env.ANALYTICS_BATCH_DELAY_MS) : 2000,

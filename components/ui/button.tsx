@@ -1,5 +1,6 @@
+"use client";
+
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils/index';
@@ -49,23 +50,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, animated = true, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
 
-    if (animated && !asChild) {
-      return (
-        // @ts-expect-error - Framer Motion types conflict with React button types
-        <motion.button
-          className={cn(buttonVariants({ variant, size, className }))}
-          ref={ref}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          transition={{ duration: 0.15 }}
-          {...props}
-        />
-      );
-    }
+    const animatedClasses = animated && !asChild
+      ? "transform-gpu transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]"
+      : "";
 
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(buttonVariants({ variant, size, className }), animatedClasses)}
         ref={ref}
         {...props}
       />
