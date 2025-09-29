@@ -70,7 +70,7 @@ export function JudgesDirectoryGridCard({ judge, recentYears, onCompareToggle, i
         >
           {/* Gradient overlay on hover */}
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10"
+            className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 pointer-events-none z-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.3 }}
@@ -80,7 +80,7 @@ export function JudgesDirectoryGridCard({ judge, recentYears, onCompareToggle, i
           {onCompareToggle && (
             <motion.button
               onClick={handleCompareClick}
-              className={`absolute top-3 right-3 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
+              className={`absolute top-3 right-3 z-20 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
                 isSelected
                   ? 'bg-primary text-primary-foreground shadow-lg scale-110'
                   : 'bg-muted/80 backdrop-blur-sm text-muted-foreground hover:bg-primary/20 hover:text-primary'
@@ -93,7 +93,7 @@ export function JudgesDirectoryGridCard({ judge, recentYears, onCompareToggle, i
             </motion.button>
           )}
 
-          <div className="relative p-6 flex flex-col h-full">
+          <div className="relative z-10 p-6 flex flex-col h-full">
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
               <motion.div
@@ -123,7 +123,7 @@ export function JudgesDirectoryGridCard({ judge, recentYears, onCompareToggle, i
             </div>
 
             {/* Name */}
-            <h3 className="text-lg font-bold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+            <h3 className={`text-lg font-bold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors ${onCompareToggle ? 'pr-10' : ''}`}>
               {judge.name}
             </h3>
 
