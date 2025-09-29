@@ -35,6 +35,10 @@ export class AppBridge {
       if (isNative) {
         await this.setupDeepLinkHandlers()
         await this.setupAppStateListeners()
+        
+        // Check for URLs shared from Share Extension
+        await this.checkForSharedURL()
+        
         console.log('[AppBridge] iOS bridge initialized successfully')
       } else {
         console.log('[AppBridge] Running in web mode, native features disabled')
@@ -210,6 +214,53 @@ export class AppBridge {
     const isNative = await this.isNativeApp()
     if (isNative) {
       await App.exitApp()
+    }
+  }
+  
+  /**
+   * Check for URLs shared from Share Extension
+   * Called on app launch to handle shared content
+   */
+  async checkForSharedURL() {
+    try {
+      console.log('[AppBridge] Checking for shared URL from extension...')
+      
+      // Check App Group preferences for shared URL
+      const sharedURL = await this.getPreference('sharedURL')
+      const sharedDate = await this.getPreference('sharedURLDate')
+      
+      if (sharedURL) {
+        console.log('[AppBridge] Found shared URL:', sharedURL)
+        
+        // Check if it's recent (within last 5 minutes)
+        const shareDate = sharedDate ? new Date(sharedDate) : new Date(0)
+        const now = new Date()
+        const timeDiff = now.getTime() - shareDate.getTime()
+        
+        if (timeDiff < 5 * 60 * 1000) { // 5 minutes
+          // Navigate to the shared URL
+          try {
+            const url = new URL(sharedURL)
+            const path = url.pathname + url.search + url.hash
+            
+            console.log('[AppBridge] Navigating to shared path:', path)
+            
+            if (typeof window !== 'undefined') {
+              window.location.href = path
+            }
+          } catch (urlError) {
+            console.error('[AppBridge] Invalid shared URL:', urlError)
+          }
+          
+          // Clear the shared URL so we don't process it again
+          await this.removePreference('sharedURL')
+          await this.removePreference('sharedURLDate')
+        } else {
+          console.log('[AppBridge] Shared URL is too old, ignoring')
+        }
+      }
+    } catch (error) {
+      console.error('[AppBridge] Error checking shared URL:', error)
     }
   }
 }

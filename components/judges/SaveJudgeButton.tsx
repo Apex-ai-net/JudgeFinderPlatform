@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { usePushNotifications, useIsNativeIOS } from '@/hooks/useIOSApp'
 import { BookmarkIcon, BellIcon, CheckIcon } from 'lucide-react'
 import { createBrowserClient } from '@/lib/supabase/client'
+import { widgetManager } from '@/lib/ios/WidgetManager'
 
 interface SaveJudgeButtonProps {
   judgeId: string
@@ -80,6 +81,11 @@ export function SaveJudgeButton({
         
         if (!error) {
           setIsSaved(false)
+          
+          // Update iOS widgets after unsaving
+          if (isNative) {
+            widgetManager.updateWidgetData().catch(console.error)
+          }
         }
       } else {
         // Save
@@ -94,6 +100,11 @@ export function SaveJudgeButton({
         
         if (!error) {
           setIsSaved(true)
+          
+          // Update iOS widgets with new saved judge
+          if (isNative) {
+            widgetManager.updateWidgetData().catch(console.error)
+          }
           
           // Show notification prompt if in native iOS and not enabled
           if (isNative && !pushEnabled) {

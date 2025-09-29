@@ -13,13 +13,13 @@ export const duration = {
   slower: 0.7,
 } as const
 
-// Easing curves
+// Easing curves (cubic bezier curves)
 export const easing = {
-  easeInOut: [0.4, 0, 0.2, 1],
-  easeOut: [0, 0, 0.2, 1],
-  easeIn: [0.4, 0, 1, 1],
-  spring: [0.34, 1.56, 0.64, 1],
-} as const
+  easeInOut: [0.4, 0, 0.2, 1] as [number, number, number, number],
+  easeOut: [0, 0, 0.2, 1] as [number, number, number, number],
+  easeIn: [0.4, 0, 1, 1] as [number, number, number, number],
+  spring: [0.34, 1.56, 0.64, 1] as [number, number, number, number],
+}
 
 // Fade Animations
 export const fadeIn: Variants = {
@@ -274,7 +274,7 @@ export const counter = {
 // Utility function to create custom transition
 export const createTransition = (
   durationValue: number = duration.normal,
-  easingValue: number[] = easing.easeInOut,
+  easingValue: [number, number, number, number] | string = easing.easeInOut,
   delay: number = 0
 ) => ({
   duration: durationValue,
@@ -294,14 +294,35 @@ export const createSpring = (
   mass,
 })
 
+// Stagger Item (child variant for staggerContainer)
+export const staggerItem: Variants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: 20 },
+}
+
+// Tap variant for touch interactions
+export const tap: Variants = {
+  initial: {},
+  whileTap: { scale: 0.98 },
+}
+
+// Common transition presets
+export const transitions = {
+  fast: { duration: duration.fast, ease: easing.easeOut },
+  smooth: { duration: duration.normal, ease: easing.easeInOut },
+  spring: { type: 'spring' as const, stiffness: 300, damping: 20 },
+  bounce: { type: 'spring' as const, stiffness: 400, damping: 10 },
+}
+
 // Export preset groups
 export const animationPresets = {
   fade: { fadeIn, fadeInUp, fadeInDown, fadeInLeft, fadeInRight },
   scale: { scaleIn, scaleInSpring },
   slide: { slideInUp, slideInDown, slideInLeft, slideInRight },
-  stagger: { staggerContainer, staggerContainerFast },
+  stagger: { staggerContainer, staggerContainerFast, staggerItem },
   hover: { hoverScale, hoverLift, hoverGlow },
-  tap: { tapScale, tapPress },
+  tap: { tapScale, tapPress, tap },
   card: { cardHover },
   loading: { pulse, shimmer },
   page: { pageTransition },
@@ -309,6 +330,7 @@ export const animationPresets = {
   dropdown,
   toast,
   counter,
+  transitions,
 } as const
 
 export type AnimationPresets = typeof animationPresets

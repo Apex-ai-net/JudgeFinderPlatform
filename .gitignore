@@ -241,6 +241,11 @@ ios/App/build/
 ios/App/*.xcworkspace/xcuserdata/
 ios/App/DerivedData/
 
+# Capacitor Build Output - CRITICAL: Never commit Next.js build artifacts
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/App/config.xml
+
 # Xcode User Settings
 *.xcuserstate
 *.xcscmblueprint
