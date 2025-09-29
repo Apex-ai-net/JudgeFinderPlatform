@@ -1,0 +1,35 @@
+import { useEffect, useMemo, useRef } from 'react'
+import { JudgesDirectoryDataManager } from './JudgesDirectoryDataManager'
+import { JudgesDirectoryViewModel } from './JudgesDirectoryViewModel'
+import type { JudgeDirectoryApiResponse } from './types'
+
+interface UseJudgesDirectoryViewModelOptions {
+  initialData?: JudgeDirectoryApiResponse
+}
+
+export function useJudgesDirectoryViewModel(options: UseJudgesDirectoryViewModelOptions = {}) {
+  const managerRef = useRef<JudgesDirectoryDataManager>()
+  const viewModelRef = useRef<JudgesDirectoryViewModel>()
+
+  if (!managerRef.current) {
+    managerRef.current = new JudgesDirectoryDataManager()
+  }
+
+  const manager = managerRef.current
+
+  if (!viewModelRef.current) {
+    viewModelRef.current = new JudgesDirectoryViewModel({
+      manager,
+      initialState: options.initialData,
+    })
+  }
+
+  const viewModel = viewModelRef.current
+
+  useEffect(() => {
+    void viewModel.loadInitial()
+  }, [viewModel])
+
+  return useMemo(() => viewModel, [viewModel])
+}
+

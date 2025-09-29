@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import JudgesContent from './JudgesContent'
+import { JudgesView } from './JudgesView'
 import { JudgeCardSkeleton, SearchSkeleton } from '@/components/ui/Skeleton'
 import { ParticleBackground } from '@/components/ui/ParticleBackground'
 import { TypewriterText } from '@/components/ui/TypewriterText'
@@ -103,7 +103,7 @@ export default async function JudgesPage() {
   const initialData = await getInitialJudges()
   return (
     <Suspense fallback={<JudgesLoading />}>
-      <JudgesContent initialData={initialData || undefined} />
+      <JudgesView initialData={initialData || undefined} />
     </Suspense>
   )
 }
