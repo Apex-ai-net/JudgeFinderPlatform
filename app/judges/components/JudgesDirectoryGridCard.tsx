@@ -123,7 +123,7 @@ export function JudgesDirectoryGridCard({ judge, recentYears, onCompareToggle, i
             </div>
 
             {/* Name */}
-            <h3 className={`text-lg font-bold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors ${onCompareToggle ? 'pr-10' : ''}`}>
+            <h3 className={`text-lg font-bold text-foreground mb-2 line-clamp-3 min-h-[3.5rem] group-hover:text-primary transition-colors ${onCompareToggle ? 'pr-10' : ''}`}>
               {judge.name}
             </h3>
 
