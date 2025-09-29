@@ -2,9 +2,11 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { Home, Search, BarChart3, Bookmark, User } from 'lucide-react'
 import { useSafeUser } from '@/lib/auth/safe-clerk-components'
 import { cn } from '@/lib/utils'
+import { tap, transitions } from '@/lib/animations/presets'
 
 const BottomNavigation = () => {
   const pathname = usePathname()
@@ -45,10 +47,10 @@ const BottomNavigation = () => {
 
   return (
     <nav
-      className="safe-area-pb md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/90 backdrop-blur"
+      className="safe-area-pb md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-lg shadow-lg"
       aria-label="Primary"
     >
-      <div className="mx-auto flex h-16 w-full max-w-md items-center justify-between px-3">
+      <div className="mx-auto flex h-20 w-full max-w-md items-center justify-around px-2">
         {navItems.map((item) => {
           const active = isActive(item.href)
           return (
@@ -56,25 +58,60 @@ const BottomNavigation = () => {
               key={item.name}
               href={item.href}
               aria-label={item.name}
-              className="flex flex-1 items-center justify-center"
+              className="flex flex-1 items-center justify-center touch-manipulation"
             >
-              <div
+              <motion.div
                 className={cn(
-                  'flex w-[64px] flex-col items-center gap-1 rounded-2xl px-2 py-2.5 transition-all duration-200',
+                  'relative flex min-w-[72px] flex-col items-center gap-1.5 rounded-2xl px-3 py-3 transition-colors duration-200',
                   active
-                    ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/40'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-primary/15 text-primary'
+                    : 'text-muted-foreground active:bg-accent'
                 )}
+                variants={tap}
+                whileTap="whileTap"
+                transition={transitions.fast}
               >
-                <item.icon
+                {/* Active Indicator */}
+                {active && (
+                  <motion.div
+                    className="absolute -top-1 left-1/2 h-1 w-8 -translate-x-1/2 rounded-full bg-primary"
+                    layoutId="activeTab"
+                    transition={transitions.spring}
+                  />
+                )}
+
+                <motion.div
+                  animate={active ? { scale: 1.1 } : { scale: 1 }}
+                  transition={transitions.smooth}
+                >
+                  <item.icon
+                    className={cn(
+                      'h-6 w-6 transition-colors',
+                      active ? 'text-primary' : 'text-muted-foreground'
+                    )}
+                    strokeWidth={active ? 2.5 : 2}
+                  />
+                </motion.div>
+
+                <span
                   className={cn(
-                    'h-5 w-5 transition-transform duration-200',
-                    active ? 'scale-105 text-primary' : 'text-muted-foreground'
+                    "text-[11px] font-semibold tracking-tight",
+                    active ? "text-primary" : "text-muted-foreground"
                   )}
-                  strokeWidth={active ? 2.5 : 2}
-                />
-                <span className="text-xs font-medium">{item.name}</span>
-              </div>
+                >
+                  {item.name}
+                </span>
+
+                {/* Ripple effect on tap */}
+                {active && (
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl bg-primary/10"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={transitions.smooth}
+                  />
+                )}
+              </motion.div>
             </Link>
           )
         })}

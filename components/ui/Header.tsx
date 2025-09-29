@@ -9,7 +9,8 @@ import NavLogo from './NavLogo'
 import { ThemeToggle } from './ThemeToggle'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import { fadeInDown, staggerContainer, staggerItem, tap, transitions } from '@/lib/animations/presets'
 
 const NAV_LINKS = [
   { href: '/judges', label: 'Judges' },
@@ -103,87 +104,143 @@ export function Header() {
           )}
         </div>
 
-        <button
+        <motion.button
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:text-foreground md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:text-foreground hover:bg-accent active:bg-accent/80 md:hidden touch-manipulation"
           onClick={() => setIsMenuOpen((prev) => !prev)}
           aria-expanded={isMenuOpen}
           aria-controls="mobile-navigation"
+          variants={tap}
+          whileTap="whileTap"
         >
-          {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={isMenuOpen ? 'close' : 'open'}
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              exit={{ rotate: 90, opacity: 0 }}
+              transition={transitions.fast}
+            >
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </motion.div>
+          </AnimatePresence>
           <span className="sr-only">Toggle navigation</span>
-        </button>
+        </motion.button>
       </div>
 
       {/* Mobile Navigation */}
-      <div
-        className={cn(
-          'md:hidden',
-          isMenuOpen ? 'visible opacity-100' : 'invisible opacity-0'
-        )}
-      >
-        <div
-          className="fixed inset-0 z-40 bg-background/70 backdrop-blur-sm transition-opacity"
-          aria-hidden="true"
-          onClick={closeMenu}
-        />
-        <div
-          id="mobile-navigation"
-          className="fixed inset-x-0 top-16 z-50 max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-border bg-background px-4 pb-10 shadow-xl"
-        >
-          <nav className="mx-auto flex w-full max-w-6xl flex-col gap-6 py-6" aria-label="Mobile navigation">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-sm font-semibold text-muted-foreground">Quick actions</span>
-              <ThemeToggle />
-            </div>
-            <Link
-              href="/search"
+      <AnimatePresence>
+        {isMenuOpen && (
+          <>
+            <motion.div
+              className="fixed inset-0 z-40 bg-background/80 backdrop-blur-md md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={transitions.fast}
               onClick={closeMenu}
-              className={cn(
-                buttonVariants({ variant: 'secondary', size: 'lg' }),
-                'justify-between text-base'
-              )}
+              aria-hidden="true"
+            />
+            <motion.div
+              id="mobile-navigation"
+              className="fixed inset-x-0 top-16 z-50 max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-border bg-background px-4 pb-10 shadow-2xl md:hidden"
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={transitions.smooth}
             >
-              Start a search
-              <Search className="h-4 w-4" />
-            </Link>
-            <div className="flex flex-col gap-3">
-              {NAV_LINKS.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={closeMenu}
-                  className={cn(
-                    'rounded-xl border border-border px-4 py-3 text-sm font-medium transition-colors',
-                    isActive(href) ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground'
-                  )}
+              <motion.nav
+                className="mx-auto flex w-full max-w-6xl flex-col gap-6 py-6"
+                aria-label="Mobile navigation"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                <motion.div
+                  className="flex items-center justify-between gap-3"
+                  variants={staggerItem}
                 >
-                  {label}
-                </Link>
-              ))}
-            </div>
-            <div className="mt-2 flex flex-col gap-3 border-t border-border pt-6">
-              {isSignedIn ? (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Account</span>
-                  <SafeUserButton afterSignOutUrl="/" appearance={{ elements: { userButtonAvatarBox: { width: '36px', height: '36px' } } }} />
-                </div>
-              ) : (
-                <SafeSignInButton mode="modal" fallbackRedirectUrl="/dashboard" forceRedirectUrl="/dashboard">
-                  <span
+                  <span className="text-sm font-semibold text-muted-foreground">Quick actions</span>
+                  <ThemeToggle />
+                </motion.div>
+
+                <motion.div variants={staggerItem}>
+                  <Link
+                    href="/search"
+                    onClick={closeMenu}
                     className={cn(
-                      buttonVariants({ size: 'lg' }),
-                      'cursor-pointer'
+                      buttonVariants({ variant: 'secondary', size: 'lg' }),
+                      'w-full justify-between text-base touch-manipulation min-h-[48px]'
                     )}
                   >
-                    Sign in to personalize
-                  </span>
-                </SafeSignInButton>
-              )}
-            </div>
-          </nav>
-        </div>
-      </div>
+                    Start a search
+                    <Search className="h-5 w-5" />
+                  </Link>
+                </motion.div>
+
+                <motion.div className="flex flex-col gap-3" variants={staggerItem}>
+                  {NAV_LINKS.map(({ href, label }, index) => (
+                    <motion.div
+                      key={href}
+                      variants={staggerItem}
+                      custom={index}
+                    >
+                      <Link
+                        href={href}
+                        onClick={closeMenu}
+                        className={cn(
+                          'block rounded-xl border border-border px-5 py-4 text-base font-medium transition-all touch-manipulation min-h-[52px] flex items-center',
+                          isActive(href)
+                            ? 'bg-primary/10 text-primary border-primary/20 shadow-sm'
+                            : 'text-foreground hover:bg-accent active:bg-accent/80'
+                        )}
+                      >
+                        {label}
+                        {isActive(href) && (
+                          <motion.div
+                            className="ml-auto h-2 w-2 rounded-full bg-primary"
+                            layoutId="activeDot"
+                          />
+                        )}
+                      </Link>
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+                <motion.div
+                  className="mt-2 flex flex-col gap-3 border-t border-border pt-6"
+                  variants={staggerItem}
+                >
+                  {isSignedIn ? (
+                    <div className="flex items-center justify-between min-h-[44px]">
+                      <span className="text-sm font-medium text-muted-foreground">Account</span>
+                      <SafeUserButton
+                        afterSignOutUrl="/"
+                        appearance={{
+                          elements: {
+                            userButtonAvatarBox: { width: '40px', height: '40px' }
+                          }
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <SafeSignInButton mode="modal" fallbackRedirectUrl="/dashboard" forceRedirectUrl="/dashboard">
+                      <span
+                        className={cn(
+                          buttonVariants({ size: 'lg' }),
+                          'cursor-pointer w-full touch-manipulation min-h-[48px]'
+                        )}
+                      >
+                        Sign in to personalize
+                      </span>
+                    </SafeSignInButton>
+                  )}
+                </motion.div>
+              </motion.nav>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </motion.header>
   )
 }
