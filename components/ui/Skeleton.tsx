@@ -11,6 +11,7 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 export function Skeleton({ className, shimmerEffect = true, ...props }: SkeletonProps) {
   if (shimmerEffect) {
     return (
+      // @ts-expect-error - Framer Motion types conflict with React div types
       <motion.div
         variants={shimmer}
         initial="initial"

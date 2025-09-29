@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { usePushNotifications, useIsNativeIOS } from '@/hooks/useIOSApp'
 import { BookmarkIcon, BellIcon, CheckIcon } from 'lucide-react'
-import { createBrowserClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/client'
 import { widgetManager } from '@/lib/ios/WidgetManager'
 
 interface SaveJudgeButtonProps {
@@ -31,8 +31,8 @@ export function SaveJudgeButton({
   
   const isNative = useIsNativeIOS()
   const { isEnabled: pushEnabled, enableNotifications } = usePushNotifications()
-  
-  const supabase = createBrowserClient()
+
+  const supabase = createClient()
   
   // Check if judge is already saved on mount
   useEffect(() => {

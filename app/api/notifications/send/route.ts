@@ -117,10 +117,7 @@ export async function POST(request: NextRequest) {
         )
     }
     
-    return NextResponse.json({
-      success: result.success,
-      ...result
-    })
+    return NextResponse.json(result)
     
   } catch (error) {
     console.error('[Notifications] Error:', error)

@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, type Variants } from 'framer-motion'
 import { ArrowRight, Calendar, Gavel, Scale, FileText, CheckCircle2, TrendingUp } from 'lucide-react'
 import { SharedTransitionLink } from '@/components/ui/SharedTransitionLink'
 import { generateSlug } from '@/lib/utils/slug'
-import { cardHover } from '@/lib/animations/presets'
+import { cardHover, transitions } from '@/lib/animations/presets'
 import type { JudgeWithDecisions } from '@/lib/judges/directory/types'
 
 interface JudgesDirectoryGridCardProps {
@@ -15,9 +15,13 @@ interface JudgesDirectoryGridCardProps {
   isSelected?: boolean
 }
 
-const cardVariants = {
+const cardVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: transitions.smooth
+  },
 }
 
 export function JudgesDirectoryGridCard({ judge, recentYears, onCompareToggle, isSelected = false }: JudgesDirectoryGridCardProps) {

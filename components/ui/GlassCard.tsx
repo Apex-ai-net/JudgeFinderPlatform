@@ -3,7 +3,7 @@
 import { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { scaleIn, transitions } from '@/lib/animations/presets'
+import { transitions } from '@/lib/animations/presets'
 
 type GlassCardProps = {
   children: ReactNode
@@ -20,8 +20,8 @@ export default function GlassCard({ children, className, hover = true }: GlassCa
         'transition-colors duration-300',
         className
       )}
-      initial={scaleIn.initial}
-      whileInView={scaleIn.animate}
+      initial={{ opacity: 0, scale: 0.9 }}
+      whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true, margin: '-10% 0px -10% 0px' }}
       whileHover={hover ? { scale: 1.01 } : undefined}
       transition={transitions.smooth}

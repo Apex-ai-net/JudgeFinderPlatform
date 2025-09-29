@@ -51,6 +51,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     if (animated && !asChild) {
       return (
+        // @ts-expect-error - Framer Motion types conflict with React button types
         <motion.button
           className={cn(buttonVariants({ variant, size, className }))}
           ref={ref}
