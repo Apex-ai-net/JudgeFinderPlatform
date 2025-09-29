@@ -20,7 +20,7 @@ export function JudgesDirectoryHeader({ showSkeleton = false }: JudgesDirectoryH
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.3])
 
   return (
-    <section className="relative min-h-[60vh] flex items-center justify-center">
+    <section className="relative min-h-[45vh] md:min-h-[60vh] flex items-center justify-center">
       <ParticleBackground particleCount={showSkeleton ? 30 : 20} />
       <div className="absolute inset-0 bg-gradient-to-br from-enterprise-primary/10 via-enterprise-deep/10 to-background" />
 
@@ -51,7 +51,7 @@ export function JudgesDirectoryHeader({ showSkeleton = false }: JudgesDirectoryH
         </motion.div>
 
         <motion.p
-          className="mx-auto mb-12 max-w-2xl text-lg md:text-xl text-muted-foreground"
+          className="mx-auto mb-8 md:mb-12 max-w-2xl text-base md:text-xl text-muted-foreground"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.8 }}

@@ -22,6 +22,8 @@ export const JudgesDirectorySummary = observer(function JudgesDirectorySummary({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.3 }}
       className="mt-6 p-4 rounded-lg border border-primary/30 bg-primary/5"
+      role="status"
+      aria-live="polite"
     >
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="text-sm font-medium text-primary">

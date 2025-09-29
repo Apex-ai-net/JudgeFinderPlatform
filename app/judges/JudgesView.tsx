@@ -10,6 +10,7 @@ import { JudgesDirectorySummary } from './components/JudgesDirectorySummary'
 import { JudgesDirectoryResultsGrid } from './components/JudgesDirectoryResultsGrid'
 import { JudgesDirectoryEmptyState } from './components/JudgesDirectoryEmptyState'
 import { JudgesDirectoryMetrics } from './components/JudgesDirectoryMetrics'
+import { JudgesDirectoryTopBar } from './components/JudgesDirectoryTopBar'
 import { useJudgesDirectoryViewModel } from '@/lib/judges/directory/useJudgesDirectoryViewModel'
 import type { JudgeDirectoryApiResponse } from '@/lib/judges/directory/types'
 
@@ -71,6 +72,7 @@ export const JudgesView = observer(function JudgesView({ initialData }: JudgesVi
       summary={<JudgesDirectorySummary viewModel={viewModel} />}
       results={<ResultsSection />}
       metrics={<JudgesDirectoryMetrics viewModel={viewModel} />}
+      topbar={<JudgesDirectoryTopBar viewModel={viewModel} />}
     />
   )
 })

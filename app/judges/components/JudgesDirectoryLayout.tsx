@@ -9,12 +9,14 @@ interface JudgesDirectoryLayoutProps {
   summary: ReactNode
   results: ReactNode
   metrics?: ReactNode
+  topbar?: ReactNode
 }
 
-export function JudgesDirectoryLayout({ header, search, summary, results, metrics }: JudgesDirectoryLayoutProps) {
+export function JudgesDirectoryLayout({ header, search, summary, results, metrics, topbar }: JudgesDirectoryLayoutProps) {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
       {header}
+      {topbar}
 
       <motion.section
         className="px-4 py-16"

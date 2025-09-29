@@ -1,8 +1,8 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { FixedSizeGrid as Grid, type GridChildComponentProps } from 'react-window'
+import { FixedSizeGrid as Grid, type GridChildComponentProps, type GridOnItemsRenderedProps } from 'react-window'
 import { JudgeCardSkeleton } from '@/components/ui/Skeleton'
 import type { JudgesDirectoryViewModel } from '@/lib/judges/directory/JudgesDirectoryViewModel'
 import { JudgesDirectoryGridCard } from './JudgesDirectoryGridCard'
@@ -21,6 +21,25 @@ export function JudgesDirectoryResultsGrid({ viewModel }: JudgesDirectoryResults
   const count = judges.length
   const loading = viewModel.state.loading
   const hasMore = viewModel.state.has_more
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+
+  // Infinite scroll sentinel
+  useEffect(() => {
+    if (!sentinelRef.current) return
+    if (!hasMore) return
+    const el = sentinelRef.current
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        if (entry.isIntersecting && !viewModel.state.loading) {
+          void viewModel.loadMore()
+        }
+      },
+      { root: null, rootMargin: '200px', threshold: 0 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasMore, viewModel])
 
   const itemData = useMemo(
     () => ({
@@ -35,22 +54,34 @@ export function JudgesDirectoryResultsGrid({ viewModel }: JudgesDirectoryResults
   }
 
   return (
-    <div className="relative">
+    <div className="relative" aria-busy={loading}>
       <AutoSizer disableHeight>
         {({ width }) => {
-          const gridColumnCount = Math.max(1, Math.floor((width + GRID_COLUMN_GAP) / (CARD_WIDTH + GRID_COLUMN_GAP)))
+          // Responsive column calculation with a smaller minimum card width on mobile
+          const MIN_CARD_WIDTH = 280
+          const gridColumnCount = Math.max(1, Math.floor((width + GRID_COLUMN_GAP) / (MIN_CARD_WIDTH + GRID_COLUMN_GAP)))
           const rowCount = Math.ceil(count / gridColumnCount)
+          const perColumnWidth = Math.floor(
+            (width - GRID_COLUMN_GAP * (gridColumnCount + 1)) / gridColumnCount,
+          )
+
+          const handleItemsRendered = ({ visibleRowStopIndex }: GridOnItemsRenderedProps) => {
+            if (visibleRowStopIndex >= rowCount - 2 && hasMore && !loading) {
+              void viewModel.loadMore()
+            }
+          }
 
           return (
             <Grid
               columnCount={gridColumnCount}
-              columnWidth={CARD_WIDTH + GRID_COLUMN_GAP}
+              columnWidth={perColumnWidth + GRID_COLUMN_GAP}
               height={Math.min(900, rowCount * (CARD_HEIGHT + GRID_ROW_GAP))}
               rowCount={rowCount}
               rowHeight={CARD_HEIGHT + GRID_ROW_GAP}
               width={width}
               itemData={itemData}
               itemKey={({ columnIndex, rowIndex }) => `${rowIndex}-${columnIndex}-${viewModel.state.recentYears}`}
+              onItemsRendered={handleItemsRendered}
             >
               {({ columnIndex, rowIndex, style }: GridChildComponentProps) => {
                 const index = rowIndex * gridColumnCount + columnIndex
@@ -64,7 +95,7 @@ export function JudgesDirectoryResultsGrid({ viewModel }: JudgesDirectoryResults
                   <div
                     style={{
                       ...style,
-                      width: CARD_WIDTH,
+                      width: perColumnWidth,
                       height: CARD_HEIGHT,
                       left: Number(style.left) + GRID_COLUMN_GAP,
                       top: Number(style.top) + GRID_ROW_GAP,
@@ -84,6 +115,21 @@ export function JudgesDirectoryResultsGrid({ viewModel }: JudgesDirectoryResults
           {Array.from({ length: Math.min(3, count) }).map((_, index) => (
             <JudgeCardSkeleton key={index} />
           ))}
+        </div>
+      )}
+
+      {/* Infinite scroll sentinel */}
+      <div ref={sentinelRef} className="h-8" />
+
+      {/* Manual fallback for accessibility and older browsers */}
+      {hasMore && !loading && (
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={() => void viewModel.loadMore()}
+            className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors"
+          >
+            Load more
+          </button>
         </div>
       )}
     </div>

@@ -59,7 +59,9 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
   return (
     <motion.div
       whileHover={{ scale: 1.01 }}
-      className="rounded-2xl border border-border ring-1 ring-border/60 p-8 backdrop-blur-sm bg-card/90 shadow-sm"
+      className="sticky md:static top-0 z-20 rounded-none md:rounded-2xl border border-border ring-1 ring-border/60 p-4 md:p-8 backdrop-blur-sm bg-card/95 md:bg-card/90 shadow-sm -mx-4 md:mx-0"
+      role="search"
+      aria-label="Find judges"
     >
       <motion.h2
         initial={{ opacity: 0, x: -20 }}
@@ -69,7 +71,7 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
         Find judges
       </motion.h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
           <label className="block text-sm font-medium text-muted-foreground mb-2">Search judges</label>
           <motion.div whileHover={{ scale: 1.02 }} className="relative">
@@ -80,6 +82,7 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
               onChange={(event) => setSearchInput(event.target.value)}
               placeholder="Search by judge name..."
               className="w-full pl-10 pr-4 py-3 border border-input bg-background text-foreground placeholder:text-muted-foreground/70 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 hover:border-primary/50"
+              aria-label="Search by judge name"
             />
             <AnimatePresence>
               {isSearching && (
@@ -107,6 +110,7 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
               void viewModel.refresh()
             }}
             className="w-full px-4 py-3 border border-input bg-background text-foreground rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 hover:border-primary/50"
+            aria-label="Filter by jurisdiction"
           >
             {JURISDICTION_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -121,7 +125,7 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        className="mt-4 md:mt-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
       >
         <motion.label whileHover={{ scale: 1.02 }} className="flex items-center cursor-pointer gap-2">
           <input
@@ -133,6 +137,7 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
               void viewModel.refresh()
             }}
             className="h-4 w-4 text-primary focus:ring-primary border-input bg-background rounded transition-all duration-200"
+            aria-checked={state.onlyWithDecisions}
           />
           <span className="text-sm text-muted-foreground">
             Show only judges with recent decisions ({decisionWindowLabel})
@@ -148,7 +153,7 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
                 transition={{ duration: 0.2 }}
-                className="flex flex-col gap-4 md:flex-row md:items-center"
+                className="flex flex-col gap-2 md:gap-4 md:flex-row md:items-center"
               >
                 <div>
                   <label className="block text-xs font-medium text-muted-foreground mb-1">Decision window</label>
@@ -159,6 +164,7 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
                       void viewModel.refresh()
                     }}
                     className="px-3 py-2 border border-input bg-background text-foreground rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                    aria-label="Select decision window"
                   >
                     {RECENT_YEAR_OPTIONS.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -189,6 +195,28 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
                     )
                   })}
                 </div>
+
+                {/* Mobile quick chips */}
+                <div className="flex md:hidden items-center gap-2">
+                  {RECENT_YEAR_CHIPS.map((option) => {
+                    const isActive = state.recentYears === option.value
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                          viewModel.setRecentYears(option.value)
+                          void viewModel.refresh()
+                        }}
+                        className={`px-2.5 py-1 text-xs font-medium rounded-full border ${isActive ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted text-muted-foreground border-input'}`}
+                        aria-pressed={isActive}
+                        aria-label={`Set recent window to ${option.label}`}
+                      >
+                        {option.label}
+                      </button>
+                    )
+                  })}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -198,6 +226,7 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
             whileTap={{ scale: 0.95 }}
             onClick={() => void viewModel.refresh()}
             className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors"
+            aria-label="Refresh results"
           >
             <RefreshCcw className="h-4 w-4" />
             Refresh results
@@ -207,6 +236,7 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
             <Link
               href="/judges/advanced-search"
               className="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-enterprise-primary to-enterprise-deep rounded-lg hover:from-enterprise-accent hover:to-enterprise-primary transition-all duration-200 shadow-lg hover:shadow-xl"
+              aria-label="Open advanced search"
             >
               <Search className="w-4 h-4 mr-2" />
               Advanced search
