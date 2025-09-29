@@ -32,7 +32,7 @@ export function useIOSApp() {
           isNative: true,
           version: info?.version,
           build: info?.build,
-          platform: info?.platform
+          platform: 'ios' // Always iOS when Capacitor is available
         })
         
         // Check push notification status

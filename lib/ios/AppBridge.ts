@@ -53,8 +53,9 @@ export class AppBridge {
    */
   async isNativeApp(): Promise<boolean> {
     try {
-      const info = await App.getInfo()
-      return info.platform === 'ios'
+      await App.getInfo()
+      // If App.getInfo() succeeds, we're in a Capacitor app
+      return true
     } catch {
       return false
     }

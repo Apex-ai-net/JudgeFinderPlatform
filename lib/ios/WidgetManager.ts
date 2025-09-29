@@ -6,7 +6,7 @@
  */
 
 import { Preferences } from '@capacitor/preferences'
-import { createBrowserClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/client'
 
 interface JudgeWidgetData {
   id: string
@@ -42,7 +42,7 @@ export class WidgetManager {
     try {
       console.log('[WidgetManager] Updating widget data...')
       
-      const supabase = createBrowserClient()
+      const supabase = createClient()
       
       // Get current user
       const { data: { user } } = await supabase.auth.getUser()
@@ -171,11 +171,12 @@ export class WidgetManager {
     try {
       // Check if running on iOS
       if (typeof window === 'undefined') return false
-      
+
       const { App } = await import('@capacitor/app')
-      const info = await App.getInfo()
-      
-      return info.platform === 'ios'
+      await App.getInfo()
+
+      // If App.getInfo() succeeds, we're in a Capacitor app (iOS)
+      return true
     } catch {
       return false
     }

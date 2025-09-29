@@ -1,15 +1,18 @@
-import { createBrowserClient } from '@supabase/ssr'
+import { createBrowserClient as createSupabaseBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@clerk/nextjs'
 
+// Re-export for backwards compatibility
+export { createSupabaseBrowserClient as createBrowserClient }
+
 export function createClient() {
-  return createBrowserClient(
+  return createSupabaseBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 }
 
 export function createClerkSupabaseClient() {
-  return createBrowserClient(
+  return createSupabaseBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
