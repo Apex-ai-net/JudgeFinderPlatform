@@ -21,6 +21,7 @@ import type { Judge, JudgeLookupResult } from '@/types'
 import { getBaseUrl } from '@/lib/utils/baseUrl'
 import { DonationButton } from '@/components/fundraising/DonationButton'
 import { JudgeDetailTOC } from '@/components/judges/JudgeDetailTOC'
+import { JudgeStructuredData } from '@/components/seo/JudgeStructuredData'
 
 export const dynamic = 'force-dynamic'
 
@@ -263,13 +264,21 @@ export default async function JudgePage({ params }: JudgePageProps) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* SEO Monitoring and Analytics */}
-      <SEOMonitoring 
+      <SEOMonitoring
         judgeName={safeName}
         jurisdiction={safeJurisdiction}
         slug={slug}
       />
-      
-      {/* Enhanced Comprehensive Structured Data for Maximum SEO Dominance */}
+
+      {/* AEO-Optimized Structured Data (2025) - ChatGPT, Claude, Perplexity */}
+      <JudgeStructuredData
+        judge={judge}
+        caseCount={0}
+        avgDecisionTime={null}
+        courtAddress={null}
+      />
+
+      {/* Legacy Structured Data - Keeping for backward compatibility */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

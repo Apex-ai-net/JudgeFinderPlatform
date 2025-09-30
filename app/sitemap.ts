@@ -9,21 +9,25 @@ export const dynamic = 'force-dynamic'
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getBaseUrl()
   const supabase = await createServerClient()
+
+  // Fetch ALL judges (no limit) for complete AEO coverage
+  // Priority: Higher for judges with more cases
   const { data: judges } = await supabase
     .from('judges')
-    .select('name, slug, updated_at')
-    .limit(2000)
+    .select('name, slug, updated_at, jurisdiction')
+    .order('name', { ascending: true })
 
   const judgeEntries = (judges || []).map((j) => {
     // Use canonical slug - either from database or generate one
     const canonicalSlug = j.slug || createCanonicalSlug(j.name)
     const lastModified = j.updated_at ? new Date(j.updated_at) : new Date()
-    
+
+    // Higher priority for judges (AEO focus)
     return {
       url: `${siteUrl}/judges/${canonicalSlug}`,
       lastModified,
-      changeFrequency: 'monthly' as const,
-      priority: 0.8,
+      changeFrequency: 'weekly' as const, // Changed from monthly for better freshness signals
+      priority: 0.9, // Increased from 0.8 - judge pages are our primary content
     }
   })
 

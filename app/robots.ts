@@ -14,11 +14,14 @@ const DEFAULT_DISALLOWED_PATHS = [
 const QUERY_PARAM_PATTERNS = ['utm_', 'session']
 
 const AI_CRAWLERS = [
-  'GPTBot',
-  'ChatGPT-User',
-  'CCBot',
-  'anthropic-ai',
-  'Claude-Web',
+  'GPTBot',           // OpenAI ChatGPT
+  'ChatGPT-User',     // ChatGPT browsing
+  'CCBot',            // Common Crawl (used by many AIs)
+  'anthropic-ai',     // Anthropic Claude
+  'Claude-Web',       // Claude web browsing
+  'PerplexityBot',    // Perplexity AI
+  'Google-Extended',  // Google Bard/Gemini
+  'cohere-ai',        // Cohere AI
 ]
 
 export default function robots(): MetadataRoute.Robots {
@@ -34,9 +37,16 @@ export default function robots(): MetadataRoute.Robots {
       ],
       crawlDelay: 1,
     },
+    // ALLOW AI crawlers for AEO (Answer Engine Optimization)
+    // Critical for discoverability in ChatGPT, Claude, Perplexity, etc.
     ...AI_CRAWLERS.map((crawler) => ({
       userAgent: crawler,
-      disallow: ['/'],
+      allow: '/',
+      disallow: [
+        ...DEFAULT_DISALLOWED_PATHS,
+        '/private/',
+      ],
+      crawlDelay: 0.5, // Faster crawling for AI systems
     })),
     {
       userAgent: 'facebookexternalhit',
