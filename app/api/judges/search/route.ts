@@ -51,7 +51,8 @@ export async function GET(request: NextRequest) {
         .select('id, name, court_name, jurisdiction, total_cases, slug')
 
       if (isSearchQuery) {
-        queryBuilder = queryBuilder.ilike('name', `%${normalizedQuery}%`).order('name')
+        // Search both judge name and court name for better results
+        queryBuilder = queryBuilder.or(`name.ilike.%${normalizedQuery}%,court_name.ilike.%${normalizedQuery}%`).order('name')
       } else {
         queryBuilder = queryBuilder.order('total_cases', { ascending: false, nullsFirst: false })
       }
@@ -126,8 +127,8 @@ export async function POST(request: NextRequest) {
       .select('id, name, court_name, jurisdiction, total_cases, slug')
 
     if (query?.trim()) {
-      // Search by name if query provided
-      queryBuilder = queryBuilder.ilike('name', `%${query}%`)
+      // Search by name and court name if query provided
+      queryBuilder = queryBuilder.or(`name.ilike.%${query}%,court_name.ilike.%${query}%`)
         .order('name')
     } else {
       // Show judges with most cases if no query

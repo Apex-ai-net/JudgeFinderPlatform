@@ -199,7 +199,15 @@
       "mcp__memory__read_graph",
       "mcp__memory__search_nodes",
       "mcp__memory__create_entities",
-      "mcp__memory__create_relations"
+      "mcp__memory__create_relations",
+      "Bash(cat:*)",
+      "Bash(psql:*)",
+      "Bash(awk:*)",
+      "Bash(python3:*)",
+      "mcp__Memory__create_entities",
+      "Bash(pkill:*)",
+      "Bash(tee:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": [],

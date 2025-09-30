@@ -1,4 +1,14 @@
 export function getBaseUrl(): string {
+  // In development (server-side), use localhost
+  if (typeof window === 'undefined' && process.env.NODE_ENV === 'development') {
+    return `http://localhost:${process.env.PORT || 3005}`
+  }
+
+  // In browser (client-side) during development, use window.location.origin
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    return window.location.origin
+  }
+
   // Prefer explicit public site URL
   let url =
     process.env.NEXT_PUBLIC_SITE_URL ||
@@ -11,10 +21,10 @@ export function getBaseUrl(): string {
   // Normalize: trim whitespace and trailing slash
   url = url.trim().replace(/\/$/, '')
 
-  // Enforce https scheme if missing or using http
+  // Enforce https scheme if missing or using http (only in production)
   try {
     const parsed = new URL(url.startsWith('http') ? url : `https://${url}`)
-    if (parsed.protocol !== 'https:') {
+    if (parsed.protocol !== 'https:' && process.env.NODE_ENV !== 'development') {
       parsed.protocol = 'https:'
     }
     return `${parsed.protocol}//${parsed.host}`

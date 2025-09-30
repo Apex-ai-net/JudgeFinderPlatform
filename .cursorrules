@@ -10,63 +10,62 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The legal analytics platform implements a sophisticated judicial analysis system with several interconnected components:
+JUDICIAL ANALYTICS PLATFORM
+Importance Score: 90/100
 
-1. Judicial Analytics Core (95/100)
-Path: lib/analytics/bias-calculations.ts
-- Multi-dimensional bias detection across case types
-- Settlement pattern analysis with confidence scoring
-- Timeline-based decision pattern recognition
-- Court assignment tracking and relationship mapping
+Core Domain Components:
 
-2. Court Jurisdiction Engine (90/100)
-Path: app/jurisdictions/[county]/ClientPage.tsx
-- Hierarchical court system modeling
-- Judge-court relationship management
-- Case distribution analysis by jurisdiction
-- Specialized WCAB court handling
+1. Judicial Analysis Pipeline
+- AI-powered bias detection system analyzing 50+ documents per judge
+- Multi-factor scoring across civil litigation, custody, alimony, contracts
+- Confidence scoring (60-95%) with data quality validation
+- Custom fallback analytics for insufficient data scenarios
 
-3. Legal Advertising System (85/100)
-Path: lib/ads/service.ts
-- Tiered pricing based on court hierarchy
-- Judge profile exclusive placement logic
-- Court-level rotation rules
-- Legal professional verification workflow
+Key files:
+- lib/ai/judicial-analytics.js
+- lib/analytics/bias-calculations.ts
+- components/judges/BiasPatternAnalysis.tsx
 
-4. AI-Enhanced Legal Search (85/100)
-Path: lib/ai/judicial-analytics.js
-- Judge-specific intent classification
-- Court relationship context injection
-- Legal domain prompt engineering
-- Multi-factor relevance scoring
+2. Court System Management 
+- Hierarchical jurisdiction modeling for California courts
+- Judge assignment tracking with temporal analysis
+- Complex court relationship validation rules
+- Custom synchronization for CourtListener integration
 
-5. Profile Issue Management (80/100)
-Path: app/api/report-profile-issue/route.ts
-- SLA-driven correction workflow
-- Issue severity classification
-- Verification requirements by correction type
-- Professional credential validation
+Key files:
+- lib/courts/service.ts
+- lib/sync/court-sync.ts
+- lib/middleware/judge-redirects.ts
 
-Core Data Models:
-1. Judge Analytics Model
-- Bias metrics (civil, criminal, family law)
-- Settlement preference scoring
-- Timeline-based pattern detection
-- Court assignment history
+3. Legal Advertising Platform
+- Tiered pricing model for judicial profile sponsorships
+- Court hierarchy-based ad slot allocation
+- Law firm size-based role assignment system
+- Professional verification workflow
 
-2. Court Hierarchy Model
-- Jurisdiction-based relationships
-- Case type specialization
-- Judge assignment tracking
-- Court performance metrics
+Key files:
+- lib/ads/service.ts
+- components/dashboard/AdPurchaseModal.tsx
+- app/api/advertising/advertiser/create/route.ts
 
-3. Legal Advertising Model
-- Court-level pricing tiers
-- Placement exclusivity rules
-- Professional verification requirements
-- Performance tracking metrics
+4. Legal Search Intelligence
+- Domain-specific query understanding for judicial searches
+- Multi-entity result categorization (judges, courts, jurisdictions)
+- Practice area correlation analysis
+- Settlement pattern detection algorithms
 
-The system uniquely combines judicial analytics with professional advertising, implementing California-specific court hierarchies and judicial bias detection algorithms. Core workflows focus on legal professional access, court relationship management, and automated bias detection.
+Key files:
+- lib/ai/search-intelligence.ts
+- lib/judges/directory/JudgesDirectoryDataManager.ts
+- components/chat/AILegalAssistant.tsx
+
+Domain Architecture:
+- Core analytics engine processing judicial behavior patterns
+- Court hierarchy management with jurisdiction validation
+- Legal professional advertising platform
+- Specialized legal search and research tools
+
+The system implements sophisticated judicial analytics with emphasis on bias detection, court relationship modeling, and legal professional targeting. Business logic focuses on California court system requirements and legal domain expertise.
 
 $END$
 
