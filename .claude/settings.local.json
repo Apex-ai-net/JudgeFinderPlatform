@@ -207,7 +207,8 @@
       "mcp__Memory__create_entities",
       "Bash(pkill:*)",
       "Bash(tee:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Read(//private/tmp/**)"
     ],
     "deny": [],
     "ask": [],
