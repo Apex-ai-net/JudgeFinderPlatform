@@ -9,15 +9,15 @@ export const revalidate = 300
 
 const BASE_URL = getBaseUrl()
 
-// Server-side metadata generation for SEO
+// Server-side metadata generation for SEO & AEO (2025)
 export const metadata: Metadata = {
-  title: 'JudgeFinder.io - California Judicial Transparency Platform | Free Legal Research',
-  description: 'Research California judges instantly with AI-powered analytics, bias detection, ruling patterns, and case outcomes. Free access to comprehensive court data for attorneys, litigants, and citizens.',
-  keywords: 'california judges, find my judge, court appearance preparation, judicial analytics, judge bias detection, california courts, legal research, judge profiles, court analytics, judicial transparency, california superior court judges, judge ruling patterns, legal intelligence, court preparation, judge information, california judicial directory, court case research, judge decision history, legal transparency platform, free judge lookup',
-  
+  title: 'JudgeFinder.io - California Judicial Transparency Platform 2025 | Free Legal Research',
+  description: 'Research California judges instantly with comprehensive judicial analytics, pattern analysis, ruling insights, and case outcomes. Free access to complete court data for attorneys, litigants, and citizens. Updated 2025.',
+  keywords: 'california judges, find my judge, court appearance preparation, judicial analytics, judge patterns, california courts, legal research, judge profiles, court analytics, judicial transparency, california superior court judges, judge ruling patterns, legal intelligence, court preparation, judge information, california judicial directory, court case research, judge decision history, legal transparency platform, free judge lookup, 2025',
+
   openGraph: {
-    title: 'JudgeFinder.io - California Judicial Analytics Platform',
-    description: 'Instant access to California judge profiles with AI-powered analytics. Research ruling patterns, bias indicators, and case outcomes. 100% free for attorneys and citizens.',
+    title: 'JudgeFinder.io - California Judicial Research Platform 2025',
+    description: 'Instant access to California judge profiles with comprehensive analytics. Research ruling patterns, judicial tendencies, and case outcomes. 100% free for attorneys and citizens.',
     type: 'website',
     url: BASE_URL,
     siteName: 'JudgeFinder.io',
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
   
   twitter: {
     card: 'summary_large_image',
-    title: 'Find Your California Judge - Free Judicial Analytics',
-    description: 'Research California judges with AI-powered analytics. Ruling patterns, bias detection, case outcomes. 100% free access.',
+    title: 'Find Your California Judge - Free Judicial Research 2025',
+    description: 'Research California judges with comprehensive data analytics. Ruling patterns, judicial insights, case outcomes. 100% free access.',
     images: ['/twitter-image'],
     creator: '@judgefinder',
     site: '@judgefinder',

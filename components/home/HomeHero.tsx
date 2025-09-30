@@ -63,7 +63,7 @@ export default function HomeHero(): JSX.Element {
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg text-muted-foreground leading-relaxed">
-              Search any California judge to see ruling patterns, bias indicators, and case history instantly. Free, private, and updated daily.
+              Search any California judge to see ruling patterns, judicial tendencies, and case history instantly. Free, private, and updated daily with official court records.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
