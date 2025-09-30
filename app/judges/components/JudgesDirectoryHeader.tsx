@@ -56,7 +56,7 @@ export function JudgesDirectoryHeader({ showSkeleton = false }: JudgesDirectoryH
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.8 }}
         >
-          Research judicial profiles, decision patterns, and case histories for bias detection and transparency
+          Research judicial profiles, decision patterns, and case histories for pattern analysis and transparency
         </motion.p>
 
         <motion.div

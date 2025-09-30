@@ -8,7 +8,7 @@ import Link from 'next/link'
 const faqData = [
   {
     question: "What is JudgeFinder.io?",
-    answer: "JudgeFinder.io is California's most comprehensive judicial analytics platform, providing free access to statewide judge profiles with AI-powered bias detection, ruling patterns, and case outcome analysis. We help attorneys, litigants, and citizens research judges before court appearances."
+    answer: "JudgeFinder.io is California's most comprehensive judicial analytics platform, providing free access to statewide judge profiles with data-driven pattern analysis, ruling insights, and case outcome analytics. We help attorneys, litigants, and citizens research judges before court appearances."
   },
   {
     question: "How do I find information about my judge?",
@@ -20,15 +20,15 @@ const faqData = [
   },
   {
     question: "What information is available for each judge?",
-    answer: "Each judge profile includes: professional background, court assignments, appointment history, AI-powered bias analysis, ruling patterns, recent case decisions, reversal rates, case type specializations, and comparative analytics with other judges in the same jurisdiction."
+    answer: "Each judge profile includes: professional background, court assignments, appointment history, data-driven judicial tendency analysis, ruling patterns, recent case decisions, reversal rates, case type specializations, and comparative analytics with other judges in the same jurisdiction."
   },
   {
-    question: "How accurate is the AI bias detection?",
-    answer: "Our AI bias detection system analyzes patterns across thousands of cases with confidence scoring between 60-95% depending on data quality. We use advanced machine learning models to identify consistency patterns, decision speed, settlement preferences, and risk tolerance. All analytics are based on publicly available court records."
+    question: "How accurate is the judicial pattern analysis?",
+    answer: "Our pattern analysis system examines thousands of cases with confidence scoring between 60-95% depending on data quality. We use advanced analytics to identify consistency patterns, decision speed, settlement preferences, and risk tolerance. All analytics are based on publicly available court records."
   },
   {
     question: "Can I compare multiple judges?",
-    answer: "Yes! Our comparison tool allows you to analyze up to 3 judges side-by-side. Compare their ruling patterns, case outcomes, reversal rates, and bias indicators to make informed decisions about your legal strategy."
+    answer: "Yes! Our comparison tool allows you to analyze up to 3 judges side-by-side. Compare their ruling patterns, case outcomes, reversal rates, and judicial tendencies to make informed decisions about your legal strategy."
   },
   {
     question: "How often is the data updated?",
@@ -44,7 +44,7 @@ const faqData = [
   },
   {
     question: "Can attorneys use this for case preparation?",
-    answer: "Yes, JudgeFinder.io is an essential tool for legal professionals. Attorneys use our platform to research judicial tendencies, prepare case strategies, understand ruling patterns, and identify potential biases that might affect their cases."
+    answer: "Yes, JudgeFinder.io is an essential tool for legal professionals. Attorneys use our platform to research judicial tendencies, prepare case strategies, understand ruling patterns, and identify decision-making patterns that might affect their cases."
   }
 ]
 

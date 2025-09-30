@@ -7,7 +7,7 @@ import { useState } from 'react'
 const faqs = [
   {
     question: "What is JudgeFinder.io?",
-    answer: "JudgeFinder.io is a free judicial transparency platform that provides information about California judges, including their backgrounds, case statistics, and AI-powered analysis of judicial patterns."
+    answer: "JudgeFinder.io is a free judicial transparency platform that provides information about California judges, including their backgrounds, case statistics, and data-driven analysis of judicial patterns."
   },
   {
     question: "How do I search for a judge?",

@@ -138,7 +138,7 @@ function generateHomepageStructuredData() {
         },
         featureList: [
           'Comprehensive California Judge Profiles',
-          'AI-Powered Bias Detection',
+          'Data-Driven Pattern Analysis',
           'Real-time Case Analytics',
           'Extensive Court Decision Library',
           'Ruling Pattern Analysis',
@@ -176,8 +176,8 @@ function generateHomepageStructuredData() {
               '@type': 'Offer',
               itemOffered: {
                 '@type': 'Service',
-                name: 'Bias Detection Analysis',
-                description: 'AI-powered judicial bias pattern detection'
+                name: 'Judicial Pattern Analysis',
+                description: 'Data-driven judicial tendency detection'
               }
             },
             {

@@ -32,7 +32,7 @@ export default function TermsPage() {
               <li>Biographical and professional information</li>
               <li>Court assignments and jurisdictions</li>
               <li>Case statistics and decision patterns</li>
-              <li>AI-powered analysis of judicial tendencies</li>
+              <li>Data-driven analysis of judicial tendencies</li>
             </ul>
             <p className="mt-4">
               This information is derived from public court records and official databases.

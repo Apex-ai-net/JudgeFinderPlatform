@@ -19,12 +19,12 @@ import { getBaseUrl } from '@/lib/utils/baseUrl'
 interface Judge {
   id: string
   name: string
-  slug: string
+  slug?: string // Optional to match global Judge type
   court_name: string | null
   court_id: string | null
   jurisdiction: string
   appointed_date: string | null
-  position: string | null
+  position_type?: string | null // Matches global Judge type
   bio: string | null
 }
 
@@ -40,15 +40,15 @@ export function generateJudgeMetadata({
   avgDecisionTime = null,
 }: GenerateJudgeMetadataProps): Metadata {
   const baseUrl = getBaseUrl()
-  const judgeUrl = `${baseUrl}/judges/${judge.slug}`
+  const judgeUrl = `${baseUrl}/judges/${judge.slug || judge.id}`
 
   // Title optimized for SEO & AEO (includes 2025 for recency)
-  const title = `${judge.name} - ${judge.position || 'California Judge'} | JudgeFinder 2025`
+  const title = `${judge.name} - ${judge.position_type || 'California Judge'} | JudgeFinder 2025`
 
   // Description: 40-60 words optimized for LLM extraction
   const description =
     judge.bio ||
-    `${judge.name} serves as ${judge.position || 'a judge'} at ${judge.court_name || 'California courts'} in ${judge.jurisdiction}. View comprehensive judicial profile including ${caseCount > 0 ? `${caseCount} cases, ` : ''}analytics, bias patterns, and case outcomes. Updated 2025.`
+    `${judge.name} serves as ${judge.position_type || 'a judge'} at ${judge.court_name || 'California courts'} in ${judge.jurisdiction}. View comprehensive judicial profile including ${caseCount > 0 ? `${caseCount} cases, ` : ''}analytics, judicial patterns, and case outcomes. Updated 2025.`
 
   // Keywords for traditional SEO
   const keywords = [
@@ -60,7 +60,7 @@ export function generateJudgeMetadata({
     'judicial profile',
     'court records',
     'case analytics',
-    judge.position,
+    judge.position_type,
     '2025',
   ]
     .filter(Boolean)
@@ -115,7 +115,7 @@ export function generateJudgeMetadata({
       // Additional metadata for rich results
       'profile:first_name': judge.name.split(' ')[0],
       'profile:last_name': judge.name.split(' ').slice(1).join(' '),
-      'profile:username': judge.slug,
+      'profile:username': judge.slug || judge.id,
       // AEO-specific hints
       'article:published_time': judge.appointed_date || new Date().toISOString(),
       'article:modified_time': new Date().toISOString(),

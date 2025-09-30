@@ -21,12 +21,12 @@ import { getBaseUrl } from '@/lib/utils/baseUrl'
 interface Judge {
   id: string
   name: string
-  slug: string
+  slug?: string // Optional to match global Judge type
   court_name: string | null
   court_id: string | null
   jurisdiction: string
   appointed_date: string | null
-  position: string | null
+  position_type?: string | null // Matches global Judge type
   bio: string | null
   education: string | null
 }
@@ -45,7 +45,7 @@ export function JudgeStructuredData({
   courtAddress = null,
 }: JudgeStructuredDataProps) {
   const baseUrl = getBaseUrl()
-  const judgeUrl = `${baseUrl}/judges/${judge.slug}`
+  const judgeUrl = `${baseUrl}/judges/${judge.slug || judge.id}`
 
   // Person Schema - Core judge information
   const personSchema = {
@@ -53,13 +53,13 @@ export function JudgeStructuredData({
     '@type': 'Person',
     '@id': judgeUrl,
     name: judge.name,
-    jobTitle: judge.position || 'Judge',
+    jobTitle: judge.position_type || 'Judge',
     worksFor: {
       '@type': 'Organization',
       name: judge.court_name || 'California Courts',
       ...(courtAddress && { address: courtAddress }),
     },
-    description: judge.bio || `${judge.name} is a ${judge.position || 'judge'} serving in ${judge.court_name || 'California courts'}. View comprehensive profile, case statistics, and judicial analytics.`,
+    description: judge.bio || `${judge.name} is a ${judge.position_type || 'judge'} serving in ${judge.court_name || 'California courts'}. View comprehensive profile, case statistics, and judicial analytics.`,
     ...(judge.education && { alumniOf: judge.education }),
     ...(judge.appointed_date && {
       award: `Appointed ${new Date(judge.appointed_date).getFullYear()}`
@@ -110,7 +110,7 @@ export function JudgeStructuredData({
         name: `Who is ${judge.name}?`,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: `${judge.name} is ${judge.position || 'a judge'} serving in ${judge.court_name || 'California courts'}. ${judge.name} presides over legal proceedings and makes judicial decisions in ${judge.jurisdiction}.`,
+          text: `${judge.name} is ${judge.position_type || 'a judge'} serving in ${judge.court_name || 'California courts'}. ${judge.name} presides over legal proceedings and makes judicial decisions in ${judge.jurisdiction}.`,
         },
       },
       {
@@ -161,7 +161,7 @@ export function JudgeStructuredData({
         employee: {
           '@type': 'Person',
           name: judge.name,
-          jobTitle: judge.position || 'Judge',
+          jobTitle: judge.position_type || 'Judge',
         },
       }
     : null

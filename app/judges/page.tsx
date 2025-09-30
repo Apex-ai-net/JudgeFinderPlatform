@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'California Judges Directory | JudgeFinder',
-    description: 'Explore detailed judge profiles, court assignments, and AI-powered analytics for California courts.',
+    description: 'Explore detailed judge profiles, court assignments, and comprehensive analytics for California courts.',
     url: `${BASE_URL}/judges`,
     type: 'website',
     siteName: 'JudgeFinder',

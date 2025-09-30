@@ -45,7 +45,7 @@ export default function ComparePage() {
               transition={{ delay: 0.1 }}
             >
               <BarChart3 className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">AI-Powered Analytics</span>
+              <span className="text-sm font-medium text-primary">Data-Driven Analytics</span>
             </motion.div>
 
             <motion.h1
@@ -65,7 +65,7 @@ export default function ComparePage() {
               animate="animate"
               transition={{ delay: 0.3 }}
             >
-              Compare up to 3 judges side-by-side. Analyze judicial profiles, decision patterns, consistency scores, and comprehensive AI-powered bias detection.
+              Compare up to 3 judges side-by-side. Analyze judicial profiles, decision patterns, consistency scores, and comprehensive judicial tendency analysis.
             </motion.p>
 
             {/* Stats Row */}
