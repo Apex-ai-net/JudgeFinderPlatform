@@ -238,7 +238,9 @@
       "Bash(/Users/tannerosterkamp/JudgeFinderPlatform-1/components/profile/ProfileSettings.tsx)",
       "Bash(/Users/tannerosterkamp/JudgeFinderPlatform-1/components/dashboard/AdSpotsExplorer.tsx)",
       "Bash(xargs -I {} sh -c 'echo \"\"\"\"$(grep -c \"\"\"\"blue-[0-9]\"\"\"\" {}) {}\"\"\"\"')",
-      "Bash(time curl:*)"
+      "Bash(time curl:*)",
+      "Bash(supabase migration repair:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": [],
     "ask": [],

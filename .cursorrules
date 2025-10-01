@@ -10,58 +10,58 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The system implements a judicial analytics and legal data management platform with several key business components:
+The judicial analytics platform implements specialized business logic across several core domains:
 
-## Core Analytics Engine
-`lib/ai/judicial-analytics.js` (95/100)
-- 6-category bias detection across case types
-- Confidence scoring (60-95% range)
-- Pattern analysis for civil litigation, custody cases, criminal sentencing
-- Fallback analytics for incomplete data scenarios
+## Judicial Analytics Engine
+Importance Score: 95/100
+- Multi-factor bias detection system analyzing 6 key metrics:
+  - Civil litigation favor rates
+  - Child custody patterns
+  - Contract enforcement trends
+  - Criminal sentencing severity
+  - Motion grant patterns
+  - Settlement preferences
+- Confidence scoring (60-95%) for analytics reliability
+- AI-augmented pattern detection using dual model architecture
+- Jurisdiction-specific benchmarking
 
-## Judge Directory Management
-`lib/judges/directory/JudgesDirectoryDataManager.ts` (85/100)
-- Multi-tier filtering system for active judges
-- Court hierarchy-based organization
-- Decision tracking with confidence scoring
-- California jurisdiction specialization
+## Court Data Management
+Importance Score: 85/100
+- Hierarchical court system modeling 
+- Judge assignment tracking with retirement detection
+- Multi-source data reconciliation
+- California-specific jurisdiction validation
+- Case outcome pattern analysis
 
 ## Legal Advertising System
-`components/dashboard/AdSpotBookingModal.tsx` (80/100)
-- Tiered pricing based on court hierarchy
-- Court-specific placement valuation
-- Bundle pricing with volume discounts
-- Annual commitment incentives
+Importance Score: 80/100
+- Court/judge-specific ad slot allocation
+- Tiered pricing based on jurisdiction level:
+  - Federal courts (Tier A)
+  - State appellate courts (Tier B) 
+  - Trial courts (Tier C)
+  - Specialized courts (Tier D)
+- Law firm verification workflow
+- Bar number validation
+- Geographic targeting by jurisdiction
 
-## Court Relationship Engine
-`lib/courts/service.ts` (75/100)
-- Court ranking by case volume
-- Jurisdiction filtering logic
-- Judge-to-case ratio analysis
-- Filing rate calculations
+## Professional Directory
+Importance Score: 75/100
+- Role-based access control for legal professionals
+- Judge profile verification system
+- Court relationship mapping
+- Position history tracking
+- SLA-driven issue management
 
-## Bias Detection Pipeline
-`components/judges/BiasPatternAnalysis.tsx` (85/100)
-- Multi-metric judicial scoring:
-  - Consistency in rulings
-  - Decision timing patterns
-  - Settlement preferences
-  - Risk tolerance levels
-  - Outcome predictability
+Core file structure for business logic:
+```
+/lib/analytics/ - Judicial analytics engine
+/lib/sync/ - Court data synchronization
+/lib/ads/ - Legal advertising system
+/lib/judges/ - Judge profile management
+```
 
-## Data Synchronization
-`scripts/comprehensive-case-judge-linking.js` (80/100)
-- Judge matching with multiple fallback strategies
-- Court jurisdiction validation
-- Case distribution algorithms
-- Data freshness tracking
-
-The system prioritizes:
-- Judicial analytics accuracy
-- California court system specialization
-- Legal professional targeting
-- Data freshness maintenance
-- Jurisdiction-aware operations
+The system emphasizes judicial transparency through sophisticated analytics while maintaining compliance with legal industry requirements for advertising and professional verification.
 
 $END$
 
