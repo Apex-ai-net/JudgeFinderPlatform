@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Loader2, RefreshCcw, Search } from 'lucide-react'
 import type { JudgesDirectoryViewModel } from '@/lib/judges/directory/JudgesDirectoryViewModel'
 import { useSearchDebounce } from '@/lib/hooks/useDebounce'
+import { AnimatedInput } from '@/components/micro-interactions'
 
 const RECENT_YEAR_OPTIONS = [
   { value: 1, label: 'Last 12 months' },
@@ -74,29 +75,16 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
           <label className="block text-sm font-medium text-muted-foreground mb-2">Search judges</label>
-          <motion.div whileHover={{ scale: 1.02 }} className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
-            <input
-              type="text"
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Search by judge name..."
-              className="w-full pl-10 pr-4 py-3 border border-input bg-background text-foreground placeholder:text-muted-foreground/70 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 hover:border-primary/50"
-              aria-label="Search by judge name"
-            />
-            <AnimatePresence>
-              {isSearching && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0 }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                >
-                  <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+          <AnimatedInput
+            type="text"
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+            placeholder="Search by judge name..."
+            icon={<Search className="h-4 w-4" />}
+            loading={isSearching}
+            intensity="medium"
+            aria-label="Search by judge name"
+          />
         </motion.div>
 
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>

@@ -7,6 +7,7 @@ import { SharedTransitionLink } from '@/components/ui/SharedTransitionLink'
 import { generateSlug } from '@/lib/utils/slug'
 import { cardHover, transitions } from '@/lib/animations/presets'
 import type { JudgeWithDecisions } from '@/lib/judges/directory/types'
+import { AnimatedBadge } from '@/components/micro-interactions'
 
 interface JudgesDirectoryGridCardProps {
   judge?: JudgeWithDecisions
@@ -105,19 +106,14 @@ export function JudgesDirectoryGridCard({ judge, recentYears, onCompareToggle, i
               </motion.div>
 
               <div className="flex flex-col items-end gap-1.5">
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary capitalize">
+                <AnimatedBadge variant="info" className="capitalize">
                   {judge.jurisdiction || 'CA'}
-                </span>
+                </AnimatedBadge>
                 {hasRecentDecisions && (
-                  <motion.span
-                    className="text-xs font-medium px-2.5 py-1 rounded-full bg-success/10 text-success flex items-center gap-1"
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
+                  <AnimatedBadge variant="success" pulse>
                     <TrendingUp className="w-3 h-3" />
                     Active
-                  </motion.span>
+                  </AnimatedBadge>
                 )}
               </div>
             </div>
