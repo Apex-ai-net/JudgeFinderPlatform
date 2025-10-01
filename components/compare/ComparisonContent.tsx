@@ -38,11 +38,19 @@ export function ComparisonContent({ initialJudges = [] }: ComparisonContentProps
       setIsSearching(true)
       setSearchError(null)
       try {
-        const response = await fetch(`/api/judges/list?q=${encodeURIComponent(debouncedSearchQuery)}&limit=10`)
+        const response = await fetch(`/api/judges/search?q=${encodeURIComponent(debouncedSearchQuery)}&limit=10`)
         if (response.ok) {
           const data = await response.json()
-          setSearchResults(data.judges || [])
-          if ((data.judges || []).length === 0) {
+          // Transform SearchResult[] to Judge[] format
+          const judges = (data.results || []).map((result: any) => ({
+            id: result.id,
+            name: result.title,
+            court_name: result.subtitle,
+            jurisdiction: result.description?.split('•')[0]?.trim() || 'CA',
+            slug: result.url?.split('/').pop() || result.id
+          }))
+          setSearchResults(judges)
+          if (judges.length === 0) {
             setSearchError('No judges found for your query.')
           }
         }

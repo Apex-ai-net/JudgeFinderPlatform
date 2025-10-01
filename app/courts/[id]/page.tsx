@@ -30,20 +30,45 @@ interface JudgeWithPosition {
   courtlistener_id: string | null
 }
 
-// Fetch court via API by slug to avoid SSR DB client issues
+// Fetch court directly from database (no SSR self-fetch anti-pattern)
 async function getCourt(id: string): Promise<Court | null> {
   try {
-    const baseUrl = getBaseUrl()
+    const supabase = await createServerClient()
     const decodedId = decodeURIComponent(id)
     const { isSlug } = isCourtIdentifier(decodedId)
     const slug = isSlug ? decodedId : generateCourtSlug(decodedId)
-    const res = await fetch(`${baseUrl}/api/courts/by-slug?slug=${encodeURIComponent(slug)}`, { cache: 'no-store' })
-    if (!res.ok) return null
-    const data = await res.json()
-    const court = data?.court as Court | undefined
-    if (!court) return null
-    return JSON.parse(JSON.stringify(court)) as Court
-  } catch {
+
+    // Strategy 1: Try direct slug lookup
+    const { data: slugCourt, error: slugError } = await supabase
+      .from('courts')
+      .select('*')
+      .eq('slug', slug)
+      .maybeSingle()
+
+    if (!slugError && slugCourt) {
+      return JSON.parse(JSON.stringify(slugCourt)) as Court
+    }
+
+    // Strategy 2: Try name-based lookup as fallback
+    const slugToName = slug
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+
+    const { data: nameCourt, error: nameError } = await supabase
+      .from('courts')
+      .select('*')
+      .ilike('name', slugToName)
+      .limit(1)
+      .maybeSingle()
+
+    if (!nameError && nameCourt) {
+      return JSON.parse(JSON.stringify(nameCourt)) as Court
+    }
+
+    return null
+  } catch (error) {
+    console.error('Error fetching court:', error)
     return null
   }
 }
