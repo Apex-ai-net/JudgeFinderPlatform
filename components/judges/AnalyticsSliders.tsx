@@ -14,6 +14,7 @@ import {
   type QualityTier,
 } from '@/lib/analytics/config'
 import { QualityBadge } from '@/components/judges/QualityBadge'
+import { AnimatedProgress, SlideInView } from '@/components/micro-interactions'
 
 interface CaseAnalytics {
   civil_plaintiff_favor: number
@@ -165,10 +166,10 @@ function AnalyticsSlider({
             <span>{rightLabel}</span>
           </div>
 
-          <div className="relative h-3.5 overflow-hidden rounded-full bg-[hsl(var(--bg-1))]">
-            <div
-              className={cn(
-                'absolute left-0 top-0 h-full rounded-full transition-all duration-500',
+          <div className="relative">
+            <AnimatedProgress
+              value={value}
+              color={cn(
                 isLowConfidence && 'opacity-70',
                 value < 30
                   ? 'bg-[rgba(252,165,165,0.8)]'
@@ -180,11 +181,12 @@ function AnalyticsSlider({
                   ? 'bg-[rgba(103,232,169,0.9)]'
                   : 'bg-[color:hsl(var(--accent))]'
               )}
-              style={{ width: `${value}%` }}
+              height="h-3.5"
+              duration={1.2}
             />
-            <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 transform bg-[rgba(180,187,198,0.35)]" />
+            <div className="absolute left-1/2 top-0 h-3.5 w-px -translate-x-1/2 transform bg-[rgba(180,187,198,0.35)]" />
             {isLowConfidence && (
-              <div className="absolute inset-0 flex items-center justify-center bg-[rgba(124,135,152,0.18)]">
+              <div className="absolute inset-0 flex items-center justify-center bg-[rgba(124,135,152,0.18)] rounded-full">
                 <span className="text-xs font-medium text-[color:hsl(var(--text-3))]">Limited data</span>
               </div>
             )}
@@ -627,8 +629,10 @@ export default function AnalyticsSliders({ judgeId, judgeName }: AnalyticsSlider
       )}
 
       <div className="grid gap-6 md:grid-cols-2">
-        {visibleSliders.map(({ hidden: _hidden, ...slider }) => (
-          <AnalyticsSlider key={slider.label} {...slider} />
+        {visibleSliders.map(({ hidden: _hidden, ...slider }, index) => (
+          <SlideInView key={slider.label} direction="up" delay={index * 0.08}>
+            <AnalyticsSlider {...slider} />
+          </SlideInView>
         ))}
       </div>
 
