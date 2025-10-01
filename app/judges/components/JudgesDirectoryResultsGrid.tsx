@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid, type GridChildComponentProps, type GridOnItemsRenderedProps } from 'react-window'
+import { motion } from 'framer-motion'
 import { JudgeCardSkeleton } from '@/components/ui/Skeleton'
 import type { JudgesDirectoryViewModel } from '@/lib/judges/directory/JudgesDirectoryViewModel'
 import { JudgesDirectoryGridCard } from './JudgesDirectoryGridCard'
@@ -111,11 +112,16 @@ export function JudgesDirectoryResultsGrid({ viewModel }: JudgesDirectoryResults
       </AutoSizer>
 
       {loading && hasMore && (
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div
+          className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
           {Array.from({ length: Math.min(3, count) }).map((_, index) => (
             <JudgeCardSkeleton key={index} />
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* Infinite scroll sentinel */}
@@ -123,14 +129,21 @@ export function JudgesDirectoryResultsGrid({ viewModel }: JudgesDirectoryResults
 
       {/* Manual fallback for accessibility and older browsers */}
       {hasMore && !loading && (
-        <div className="mt-4 flex justify-center">
-          <button
+        <motion.div
+          className="mt-4 flex justify-center"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <motion.button
             onClick={() => void viewModel.loadMore()}
             className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Load more
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       )}
     </div>
   )
