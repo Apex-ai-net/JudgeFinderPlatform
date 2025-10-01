@@ -1,7 +1,8 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { AlertCircle, Gavel, RefreshCcw } from 'lucide-react'
+import { AlertCircle, Gavel, RefreshCcw, Wifi } from 'lucide-react'
+import { AnimatedButton } from '@/components/micro-interactions'
 
 interface JudgesDirectoryEmptyStateProps {
   showError?: boolean
@@ -35,17 +36,28 @@ export function JudgesDirectoryEmptyState({
         <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mt-2 max-w-md text-sm text-muted-foreground">
           {description}
         </motion.p>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mt-4 space-y-2">
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Wifi className="h-4 w-4" />
+            <span>Check your internet connection</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Or try refreshing the page if the issue persists
+          </p>
+        </motion.div>
         {onRetry && (
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={onRetry}
-            className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-destructive px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-transform hover:bg-destructive/90"
-          >
-            <RefreshCcw className="h-4 w-4" aria-hidden="true" />
-            Try again
-          </motion.button>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+            <AnimatedButton
+              onClick={onRetry}
+              variant="primary"
+              size="md"
+              icon={<RefreshCcw className="h-4 w-4" />}
+              iconPosition="left"
+              className="mt-6 bg-error hover:bg-error/90 text-white"
+            >
+              Try again
+            </AnimatedButton>
+          </motion.div>
         )}
       </motion.div>
     )
