@@ -394,16 +394,62 @@ export function ComparisonContent({ initialJudges = [] }: ComparisonContentProps
         </motion.div>
       ) : (
         <motion.div
-          className="rounded-xl border-2 border-dashed border-border bg-card/50 p-12 text-center"
+          className="rounded-xl border-2 border-dashed border-border bg-gradient-to-br from-card/50 to-primary/5 p-12 text-center"
           variants={fadeInUp}
           initial="initial"
           animate="animate"
         >
-          <Scale className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
-          <h3 className="text-2xl font-bold text-foreground mb-2">No Judges Selected</h3>
-          <p className="text-muted-foreground max-w-md mx-auto">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
+          >
+            <Scale className="h-16 w-16 mx-auto mb-4 text-primary/40" />
+          </motion.div>
+          <motion.h3
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-2xl font-bold text-foreground mb-2"
+          >
+            No Judges Selected
+          </motion.h3>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-muted-foreground max-w-md mx-auto mb-6"
+          >
             Start by searching and adding judges to compare their profiles, decision patterns, and AI-powered analytics side-by-side.
-          </p>
+          </motion.p>
+
+          {/* Example comparison preview */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-4xl mx-auto"
+          >
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="p-4 rounded-lg border border-dashed border-border/50 bg-background/50"
+              >
+                <div className="h-8 w-8 rounded-full bg-primary/10 mb-3" />
+                <div className="h-3 bg-muted/30 rounded mb-2 w-3/4" />
+                <div className="h-2 bg-muted/20 rounded w-1/2" />
+              </div>
+            ))}
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="text-xs text-muted-foreground mt-6"
+          >
+            Compare up to 3 judges • View side-by-side analytics • Make informed decisions
+          </motion.p>
         </motion.div>
       )}
     </div>

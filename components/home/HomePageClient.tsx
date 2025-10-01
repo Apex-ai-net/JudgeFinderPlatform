@@ -8,6 +8,7 @@ import BuilderStyleChat from '@/components/ai/BuilderStyleChat'
 import AIUnifiedSearch from '@/components/ui/AIUnifiedSearch'
 import Link from 'next/link'
 import { AnimatedCard, SlideInView, AnimatedNumber } from '@/components/micro-interactions'
+import { StatsTicker } from './StatsTicker'
 import {
   BarChart3, Brain,
   MessageSquare, Bot, ArrowRight, Database, Lock,
@@ -203,6 +204,9 @@ export default function HomePageClient() {
           </div>
         </div>
       </section>
+
+      {/* Stats Ticker */}
+      <StatsTicker />
 
       {/* Benefits Grid - Mobile Optimized with Enhanced Animations */}
       <section className="py-8 lg:py-16 px-4 bg-white dark:bg-card">
