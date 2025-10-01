@@ -7,7 +7,8 @@ import { useRouter } from 'next/navigation'
 import BuilderStyleChat from '@/components/ai/BuilderStyleChat'
 import AIUnifiedSearch from '@/components/ui/AIUnifiedSearch'
 import Link from 'next/link'
-import { 
+import { AnimatedCard, SlideInView, AnimatedNumber } from '@/components/micro-interactions'
+import {
   BarChart3, Brain,
   MessageSquare, Bot, ArrowRight, Database, Lock,
   Sparkles
@@ -203,7 +204,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* Benefits Grid - Mobile Optimized */}
+      {/* Benefits Grid - Mobile Optimized with Enhanced Animations */}
       <section className="py-8 lg:py-16 px-4 bg-white dark:bg-card">
         <div className="max-w-7xl mx-auto">
           {/* Mobile: 2x2 Grid, Desktop: 1x4 Grid */}
@@ -215,13 +216,18 @@ export default function HomePageClient() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.05 }}
-                className="p-4 lg:p-5 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border border-border dark:border-border hover:shadow-lg transition-all"
               >
-                <div className={`w-8 h-8 lg:w-10 lg:h-10 mb-2 lg:mb-3 rounded-lg bg-gradient-to-r ${benefit.color} flex items-center justify-center`}>
-                  <benefit.icon className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
-                </div>
-                <h3 className="text-sm lg:text-base font-semibold mb-1">{benefit.title}</h3>
-                <p className="text-xs text-muted-foreground dark:text-muted-foreground leading-relaxed">{benefit.desc}</p>
+                <AnimatedCard
+                  intensity="medium"
+                  glowColor="primary"
+                  className="p-4 lg:p-5 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900"
+                >
+                  <div className={`w-8 h-8 lg:w-10 lg:h-10 mb-2 lg:mb-3 rounded-lg bg-gradient-to-r ${benefit.color} flex items-center justify-center`}>
+                    <benefit.icon className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
+                  </div>
+                  <h3 className="text-sm lg:text-base font-semibold mb-1">{benefit.title}</h3>
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground leading-relaxed">{benefit.desc}</p>
+                </AnimatedCard>
               </motion.div>
             ))}
           </div>
