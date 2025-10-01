@@ -2,10 +2,12 @@
 
 import Link from 'next/link'
 import { useMemo } from 'react'
-import { GraduationCap, MapPin } from 'lucide-react'
+import { GraduationCap, MapPin, TrendingUp, Clock, Scale, Award } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { BookmarkButton } from './BookmarkButton'
 import { JudgeFilters } from './JudgeFilters'
 import { JudgeHeader } from './JudgeHeader'
+import { AnimatedCard, AnimatedNumber } from '@/components/micro-interactions'
 import type { Judge } from '@/types'
 import { useJudgeFilters } from '@/hooks/useJudgeFilters'
 
@@ -85,14 +87,22 @@ export function JudgeProfile({ judge }: JudgeProfileProps) {
     {
       label: 'Total rulings parsed',
       value: judge.total_cases > 0 ? judge.total_cases.toLocaleString() : '—',
+      numericValue: judge.total_cases > 0 ? judge.total_cases : null,
       helper: 'Across all available case types',
       dataType: 'record' as const,
+      icon: Scale,
+      color: 'text-blue-500',
+      bgColor: 'bg-blue-500/10',
     },
     {
       label: 'Reversal rate',
       value: judge.reversal_rate > 0 ? `${(judge.reversal_rate * 100).toFixed(1)}%` : '—',
+      numericValue: judge.reversal_rate > 0 ? judge.reversal_rate * 100 : null,
       helper: 'Share of reviewed decisions reversed on appeal',
       dataType: 'record' as const,
+      icon: TrendingUp,
+      color: 'text-purple-500',
+      bgColor: 'bg-purple-500/10',
     },
     {
       label: 'Average days to decision',
@@ -100,14 +110,22 @@ export function JudgeProfile({ judge }: JudgeProfileProps) {
         judge.average_decision_time !== null && judge.average_decision_time > 0
           ? `${judge.average_decision_time}`
           : '—',
+      numericValue: judge.average_decision_time !== null && judge.average_decision_time > 0 ? judge.average_decision_time : null,
       helper: 'Median elapsed time from filing to decision',
       dataType: 'record' as const,
+      icon: Clock,
+      color: 'text-green-500',
+      bgColor: 'bg-green-500/10',
     },
     {
       label: 'Education highlight',
       value: educationSummary || 'Pending data enrichment',
+      numericValue: null,
       helper: 'Sourced from CourtListener public records',
       dataType: 'record' as const,
+      icon: Award,
+      color: 'text-amber-500',
+      bgColor: 'bg-amber-500/10',
     },
   ]
 
@@ -146,34 +164,72 @@ export function JudgeProfile({ judge }: JudgeProfileProps) {
       </div>
 
       <div id="overview" className="grid gap-4 scroll-mt-32 md:grid-cols-2 xl:grid-cols-4">
-        {metricTiles.map((tile) => {
+        {metricTiles.map((tile, index) => {
           const dataBadge = tile.dataType === 'record' ? 'Court record' : 'AI estimate'
           const longValue = typeof tile.value === 'string' && tile.value.length > 18
           const valueClass = longValue
             ? 'mt-3 text-lg font-semibold text-[color:hsl(var(--text-1))] leading-relaxed break-words'
             : 'mt-3 text-3xl font-semibold leading-none text-[color:hsl(var(--text-1))] break-words'
+          const Icon = tile.icon
 
           return (
-            <article
+            <motion.div
               key={tile.label}
-              className="group relative overflow-hidden rounded-2xl border border-border/50 bg-[hsl(var(--bg-2))] p-5 transition-colors duration-300 hover:border-[rgba(110,168,254,0.45)]"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <div className="text-xs uppercase tracking-[0.24em] text-[color:hsl(var(--text-3))]">
-                {tile.label}
-              </div>
-              <div className={valueClass}>
-                {tile.value}
-              </div>
-              <div className="mt-3 h-[38px] w-full rounded-full bg-[rgba(124,135,152,0.14)]">
-                <div className="h-full w-1/2 rounded-full bg-[rgba(110,168,254,0.22)] transition-all duration-500 group-hover:w-[62%]" />
-              </div>
-              <div className="mt-3 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[color:hsl(var(--text-3))]">
-                <span className="rounded-full border border-border/60 bg-[hsl(var(--bg-1))] px-2 py-1 text-[color:hsl(var(--text-2))]">
-                  {dataBadge}
-                </span>
-              </div>
-              <p className="mt-3 text-xs text-[color:hsl(var(--text-3))] leading-relaxed">{tile.helper}</p>
-            </article>
+              <AnimatedCard
+                intensity="subtle"
+                className="relative overflow-hidden p-5 shadow-card hover:shadow-card-hover"
+              >
+                {/* Icon badge */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-xs uppercase tracking-[0.24em] text-[color:hsl(var(--text-3))]">
+                    {tile.label}
+                  </div>
+                  <motion.div
+                    className={`p-2 rounded-lg ${tile.bgColor}`}
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    transition={{ type: 'spring', stiffness: 400 }}
+                  >
+                    <Icon className={`h-4 w-4 ${tile.color}`} />
+                  </motion.div>
+                </div>
+
+                {/* Value with animation */}
+                <div className={valueClass}>
+                  {tile.numericValue !== null ? (
+                    <AnimatedNumber value={tile.numericValue} decimals={tile.numericValue > 100 ? 0 : 1} />
+                  ) : (
+                    tile.value
+                  )}
+                </div>
+
+                {/* Progress bar */}
+                <div className="mt-3 h-[38px] w-full rounded-full bg-[rgba(124,135,152,0.14)] overflow-hidden">
+                  <motion.div
+                    className={`h-full rounded-full ${tile.bgColor.replace('/10', '/30')} transition-all duration-500`}
+                    initial={{ width: '0%' }}
+                    whileInView={{ width: '50%' }}
+                    whileHover={{ width: '62%' }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1, delay: index * 0.1 + 0.3 }}
+                  />
+                </div>
+
+                {/* Badge */}
+                <div className="mt-3 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[color:hsl(var(--text-3))]">
+                  <span className="rounded-full border border-border/60 bg-[hsl(var(--bg-1))] px-2 py-1 text-[color:hsl(var(--text-2))]">
+                    {dataBadge}
+                  </span>
+                </div>
+
+                {/* Helper text */}
+                <p className="mt-3 text-xs text-[color:hsl(var(--text-3))] leading-relaxed">{tile.helper}</p>
+              </AnimatedCard>
+            </motion.div>
           )
         })}
       </div>
