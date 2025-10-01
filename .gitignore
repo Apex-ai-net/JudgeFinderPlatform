@@ -45,6 +45,9 @@ next-env.d.ts
 *~
 .cursor/
 
+# Documentation (temporary/planning)
+REACTBITS_*.md
+
 # OS
 Thumbs.db
 .DS_Store
@@ -274,3 +277,4 @@ asc_key.json
 
 # TestFlight Credentials
 testflight_credentials.json
+.playwright-mcp/
