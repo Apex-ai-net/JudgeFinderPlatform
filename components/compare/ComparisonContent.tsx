@@ -38,16 +38,16 @@ export function ComparisonContent({ initialJudges = [] }: ComparisonContentProps
       setIsSearching(true)
       setSearchError(null)
       try {
-        const response = await fetch(`/api/judges/search?q=${encodeURIComponent(debouncedSearchQuery)}&limit=10`)
+        const response = await fetch(`/api/judges/list?search=${encodeURIComponent(debouncedSearchQuery)}&limit=10`)
         if (response.ok) {
           const data = await response.json()
-          // Transform SearchResult[] to Judge[] format
-          const judges = (data.results || []).map((result: any) => ({
-            id: result.id,
-            name: result.title,
-            court_name: result.subtitle,
-            jurisdiction: result.description?.split('•')[0]?.trim() || 'CA',
-            slug: result.url?.split('/').pop() || result.id
+          // Use judges from list API directly (already in correct format)
+          const judges = (data.judges || []).map((judge: any) => ({
+            id: judge.id,
+            name: judge.name,
+            court_name: judge.court_name,
+            jurisdiction: judge.jurisdiction || 'CA',
+            slug: judge.slug || judge.id
           }))
           setSearchResults(judges)
           if (judges.length === 0) {
