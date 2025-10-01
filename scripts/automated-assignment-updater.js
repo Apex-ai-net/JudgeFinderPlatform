@@ -110,6 +110,7 @@ class AutomatedAssignmentUpdater {
     this.updateCount = 0;
     this.errorCount = 0;
     this.validationCount = 0;
+    this.assignmentsCreated = 0; // NEW: Track created assignments
     this.lastRunTime = null;
     this.isRunning = false;
   }
@@ -269,7 +270,7 @@ class AutomatedAssignmentUpdater {
       : [];
 
     for (const position of currentPositions) {
-      const existingPosition = lastKnownPositions.find(p => 
+      const existingPosition = lastKnownPositions.find(p =>
         p.court === position.court && p.position_type === position.position_type
       );
 
@@ -279,7 +280,10 @@ class AutomatedAssignmentUpdater {
           message: `New position detected: ${position.position_type} at ${position.court}`,
           severity: 'medium',
           suggested_action: 'create_assignment',
-          position_data: position
+          position_data: position,
+          // NEW: Include necessary data for assignment creation
+          judge_id: assignment.judge_id,
+          court_name: position.court
         });
       }
     }
@@ -368,6 +372,15 @@ class AutomatedAssignmentUpdater {
           console.log(`    - ${change.type}: ${change.message}`);
         });
 
+        // FIX: Actually create new assignments instead of just logging
+        const newPositionChanges = changes.filter(c => c.type === 'new_position' && c.suggested_action === 'create_assignment');
+        if (newPositionChanges.length > 0) {
+          console.log(`  🆕 Creating ${newPositionChanges.length} new assignment(s)...`);
+          for (const change of newPositionChanges) {
+            await this.createCourtAssignment(change);
+          }
+        }
+
         // Handle high-severity changes
         const highSeverityChanges = changes.filter(c => c.severity === 'high');
         if (highSeverityChanges.length > 0) {
@@ -381,6 +394,83 @@ class AutomatedAssignmentUpdater {
       return true;
     } catch (error) {
       console.error(`❌ Error processing assignment for ${assignment.judges?.name}:`, error.message);
+      this.errorCount++;
+      return false;
+    }
+  }
+
+  /**
+   * Create a new court assignment for a detected position
+   * FIX: Actually create assignments instead of just logging suggestions
+   */
+  async createCourtAssignment(change) {
+    try {
+      const { judge_id, court_name, position_data } = change;
+
+      if (!judge_id || !court_name) {
+        console.warn(`  ⚠️  Missing required data for assignment creation`);
+        return false;
+      }
+
+      // Try to find the court by name
+      const { data: court, error: courtError } = await supabase
+        .from('courts')
+        .select('id, name')
+        .ilike('name', `%${court_name}%`)
+        .limit(1)
+        .single();
+
+      if (courtError || !court) {
+        // Court doesn't exist in our database - log and skip
+        console.warn(`  ⚠️  Court not found in database: ${court_name}`);
+        return false;
+      }
+
+      // Check if assignment already exists to avoid duplicates
+      const { data: existingAssignment } = await supabase
+        .from('court_assignments')
+        .select('id')
+        .eq('judge_id', judge_id)
+        .eq('court_id', court.id)
+        .single();
+
+      if (existingAssignment) {
+        console.log(`  ℹ️  Assignment already exists for ${court_name}`);
+        return false;
+      }
+
+      // Create the new assignment
+      const assignmentData = {
+        judge_id,
+        court_id: court.id,
+        assignment_status: 'active',
+        assignment_start_date: position_data.date_start || new Date().toISOString().split('T')[0],
+        metadata: {
+          source: 'automated_detection',
+          courtlistener_position: position_data,
+          created_by: 'automated-assignment-updater',
+          created_at: new Date().toISOString()
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const { data, error } = await supabase
+        .from('court_assignments')
+        .insert(assignmentData)
+        .select('id')
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      console.log(`  ✅ Created new assignment: ${court_name} (ID: ${data.id})`);
+      this.assignmentsCreated++;
+      return true;
+
+    } catch (error) {
+      console.error(`  ❌ Failed to create assignment:`, error.message);
       this.errorCount++;
       return false;
     }
@@ -418,6 +508,7 @@ class AutomatedAssignmentUpdater {
       run_time: new Date().toISOString(),
       assignments_processed: this.validationCount,
       assignments_updated: this.updateCount,
+      assignments_created: this.assignmentsCreated, // NEW: Include created count
       errors_encountered: this.errorCount,
       success_rate: this.validationCount > 0 ? ((this.validationCount - this.errorCount) / this.validationCount * 100).toFixed(2) + '%' : '0%'
     };
@@ -448,6 +539,7 @@ class AutomatedAssignmentUpdater {
     this.updateCount = 0;
     this.errorCount = 0;
     this.validationCount = 0;
+    this.assignmentsCreated = 0; // NEW: Reset created count
 
     const { batchSize = 20 } = options;
 
@@ -486,6 +578,7 @@ class AutomatedAssignmentUpdater {
       console.log('\n📊 Update Summary:');
       console.log(`Assignments processed: ${report.assignments_processed}`);
       console.log(`Assignments updated: ${report.assignments_updated}`);
+      console.log(`Assignments created: ${report.assignments_created}`); // NEW: Show created count
       console.log(`Errors encountered: ${report.errors_encountered}`);
       console.log(`Success rate: ${report.success_rate}`);
 

@@ -65,7 +65,7 @@ export function LiveInsightsSection(): JSX.Element {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.6 }}
-          className="rounded-3xl border border-blue-500/20 bg-black/30 p-4 shadow-xl shadow-blue-500/30 backdrop-blur"
+          className="rounded-3xl border border-primary/20 bg-black/30 p-4 shadow-xl shadow-blue-500/30 backdrop-blur"
         >
           <BuilderStyleChat
             headline="Ask the AI co-pilot"

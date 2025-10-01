@@ -26,7 +26,7 @@ export function WhyJudgeResearch() {
     <div>
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold mb-4">Why Judge Research Matters</h2>
-        <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Data-driven insights that transform legal strategy and improve case outcomes
         </p>
       </div>
@@ -34,9 +34,9 @@ export function WhyJudgeResearch() {
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {benefits.map((benefit, index) => (
           <div key={index} className="text-center">
-            <div className="mb-2 text-4xl font-bold text-blue-400">{benefit.number}</div>
+            <div className="mb-2 text-4xl font-bold text-primary">{benefit.number}</div>
             <h3 className="mb-2 text-lg font-semibold">{benefit.title}</h3>
-            <p className="text-sm text-gray-400">{benefit.description}</p>
+            <p className="text-sm text-muted-foreground">{benefit.description}</p>
           </div>
         ))}
       </div>
@@ -47,7 +47,7 @@ export function WhyJudgeResearch() {
             "JudgeFinder transformed how we approach litigation. Having detailed insights into judicial 
             patterns has given us a significant competitive advantage in the courtroom."
           </p>
-          <footer className="text-sm text-gray-400">
+          <footer className="text-sm text-muted-foreground">
             — Sarah Mitchell, Senior Partner at Mitchell & Associates
           </footer>
         </blockquote>

@@ -43,53 +43,53 @@ class CourtCardView {
     return (
       <Link
         href={`/courts/${slug}`}
-        className="group relative overflow-hidden rounded-2xl border border-white/5 bg-[#0C1528] p-6 transition-transform duration-200 hover:-translate-y-1 hover:border-blue-500/60 hover:shadow-[0_25px_50px_-12px_rgba(37,99,235,0.35)]"
+        className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 transition-transform duration-200 hover:-translate-y-1 hover:border-primary/60 hover:shadow-lg"
       >
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/15 via-transparent to-indigo-500/10" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5" />
         </div>
 
         <div className="relative flex items-start justify-between gap-4 mb-5">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="h-12 w-12 rounded-xl bg-blue-500/20 text-blue-300 flex items-center justify-center">
+              <div className="h-12 w-12 rounded-xl bg-interactive/20 text-primary flex items-center justify-center">
                 <Building className="h-6 w-6" />
               </div>
-              <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-500/80" />
+              <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary/80" />
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-blue-200/60">{this.court.type}</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">{this.court.type}</p>
             </div>
           </div>
-          <ArrowRight className="h-5 w-5 text-blue-200/60 group-hover:text-blue-100 transition" />
+          <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition" />
         </div>
 
-        <h3 className="relative text-xl font-semibold text-white leading-tight mb-4 line-clamp-2 group-hover:text-white">
+        <h3 className="relative text-xl font-semibold text-foreground leading-tight mb-4 line-clamp-2">
           {this.court.name}
         </h3>
 
-        <div className="space-y-3 text-sm text-blue-100/80">
+        <div className="space-y-3 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-blue-200/70 flex-shrink-0" />
+            <MapPin className="h-4 w-4 flex-shrink-0" />
             <span className="truncate">{this.getLocationDisplay()}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-blue-200/70" />
+            <Users className="h-4 w-4" />
             <span>{judgeCount.toLocaleString()} judges</span>
           </div>
           <div className="flex items-center gap-2">
-            <Scale className="h-4 w-4 text-blue-200/70" />
+            <Scale className="h-4 w-4" />
             <span>{this.court.jurisdiction} jurisdiction</span>
           </div>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2 text-xs">
           {this.court.website && (
-            <span className="inline-flex items-center rounded-full bg-blue-500/10 px-3 py-1 text-blue-200/80">
+            <span className="inline-flex items-center rounded-full bg-interactive/10 px-3 py-1 text-primary">
               Official Website
             </span>
           )}
-          <span className="inline-flex items-center rounded-full bg-white/5 px-3 py-1 text-blue-100/70">
+          <span className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-muted-foreground">
             View details →
           </span>
         </div>

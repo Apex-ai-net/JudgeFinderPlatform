@@ -13,7 +13,7 @@ export default function Icon() {
       <div
         style={{
           fontSize: 120,
-          background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+          background: 'linear-gradient(135deg, hsl(216 80% 55%) 0%, hsl(220 90% 50%) 100%)',
           width: '100%',
           height: '100%',
           display: 'flex',
@@ -36,7 +36,7 @@ export default function Icon() {
           />
           <path
             d="M9 12L11 14L15 10"
-            stroke="#2563eb"
+            stroke="hsl(216 80% 55%)"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"

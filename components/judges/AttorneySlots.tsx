@@ -100,10 +100,10 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
     return (
       <div className="rounded-lg bg-white p-6 shadow-md">
         <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
+          <div className="h-6 bg-muted rounded w-3/4 mb-4"></div>
           <div className="space-y-3">
-            <div className="h-32 bg-gray-100 rounded"></div>
-            <div className="h-32 bg-gray-100 rounded"></div>
+            <div className="h-32 bg-muted rounded"></div>
+            <div className="h-32 bg-muted rounded"></div>
           </div>
         </div>
       </div>
@@ -114,10 +114,10 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
   const totalSlots = slots.length
 
   return (
-    <div className="rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 p-6 shadow-lg border border-blue-200">
+    <div className="rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 p-6 shadow-lg border border-primary/20">
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+          <h2 className="text-2xl font-bold text-foreground flex items-center">
             <Sparkles className="h-6 w-6 text-yellow-500 mr-2" />
             Experienced Attorneys
           </h2>
@@ -127,7 +127,7 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
             </span>
           )}
         </div>
-        <p className="text-gray-700">
+        <p className="text-foreground">
           <strong>Find qualified attorneys</strong> with experience before {judgeName}
         </p>
       </div>
@@ -142,7 +142,7 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
               className={`rounded-lg border-2 overflow-hidden transition-all ${
                 isAvailable
                   ? 'border-dashed border-blue-400 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 hover:shadow-lg'
-                  : 'border-gray-200 bg-white shadow-sm'
+                  : 'border-border bg-white shadow-sm'
               }`}
             >
               {isAvailable ? (
@@ -153,30 +153,30 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
                         <User className="h-6 w-6 text-white" />
                       </div>
                       <div className="ml-3">
-        <p className="font-bold text-gray-900">Attorney Listing #{slot.position}</p>
-                        <p className="text-sm text-gray-600">Submit your profile for review</p>
+        <p className="font-bold text-foreground">Attorney Listing #{slot.position}</p>
+                        <p className="text-sm text-muted-foreground">Submit your profile for review</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-green-600">Free</p>
-                      <p className="text-xs text-gray-500">Educational directory</p>
+                      <p className="text-xs text-muted-foreground">Educational directory</p>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="flex items-center text-sm text-gray-700">
+                    <div className="flex items-center text-sm text-foreground">
                       <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
                       <span>Professional profile</span>
                     </div>
-                    <div className="flex items-center text-sm text-gray-700">
-                      <Shield className="h-4 w-4 text-blue-500 mr-1" />
+                    <div className="flex items-center text-sm text-foreground">
+                      <Shield className="h-4 w-4 text-primary mr-1" />
                       <span>Verified credentials</span>
                     </div>
-                    <div className="flex items-center text-sm text-gray-700">
+                    <div className="flex items-center text-sm text-foreground">
                       <Phone className="h-4 w-4 text-purple-500 mr-1" />
                       <span>Contact information</span>
                     </div>
-                    <div className="flex items-center text-sm text-gray-700">
+                    <div className="flex items-center text-sm text-foreground">
                       <Award className="h-4 w-4 text-yellow-500 mr-1" />
                       <span>Legal experience</span>
                     </div>
@@ -198,8 +198,8 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
                         <User className="h-6 w-6 text-white" />
                       </div>
                       <div className="ml-3">
-                        <p className="font-medium text-gray-800">Attorney Listing #{slot.position}</p>
-                        <p className="text-sm text-gray-600">Featured attorney with verified experience</p>
+                        <p className="font-medium text-foreground">Attorney Listing #{slot.position}</p>
+                        <p className="text-sm text-muted-foreground">Featured attorney with verified experience</p>
                       </div>
                     </div>
                     <div className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
@@ -213,12 +213,12 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
         })}
       </div>
 
-      <div className="mt-6 bg-white rounded-lg p-4 border border-gray-200">
-        <h3 className="font-bold text-gray-900 mb-2 flex items-center">
-          <MessageSquare className="h-5 w-5 text-blue-600 mr-2" />
+      <div className="mt-6 bg-white rounded-lg p-4 border border-border">
+        <h3 className="font-bold text-foreground mb-2 flex items-center">
+          <MessageSquare className="h-5 w-5 text-primary mr-2" />
           About Attorney Directory Listings
         </h3>
-        <ul className="space-y-2 text-sm text-gray-700">
+        <ul className="space-y-2 text-sm text-foreground">
           <li className="flex items-start">
             <span className="text-green-500 mr-2">✓</span>
             <span><strong>Educational resource</strong> connecting legal professionals</span>

@@ -44,10 +44,10 @@ export function GoogleAd({
   if (process.env.NODE_ENV === 'development' && !process.env.NEXT_PUBLIC_ENABLE_ADS) {
     return (
       <div 
-        className={`bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center ${className}`}
+        className={`bg-muted border-2 border-dashed border-border rounded-lg p-4 text-center ${className}`}
         style={style}
       >
-        <div className="text-gray-500 text-sm">
+        <div className="text-muted-foreground text-sm">
           <div className="font-medium">Advertisement Placeholder</div>
           <div className="text-xs mt-1">Slot: {slot}</div>
           <div className="text-xs">Format: {format}</div>
@@ -98,7 +98,7 @@ export function LazyGoogleAd(props: GoogleAdProps) {
     <div ref={ref}>
       {isVisible ? <GoogleAd {...props} /> : (
         <div 
-          className={`bg-gray-50 rounded-lg ${props.className || ''}`} 
+          className={`bg-muted rounded-lg ${props.className || ''}`} 
           style={{ minHeight: '250px', ...props.style }}
         />
       )}

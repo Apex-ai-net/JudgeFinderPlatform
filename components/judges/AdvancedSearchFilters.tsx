@@ -137,14 +137,14 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
           onClick={onToggle}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
             hasActiveFilters()
-              ? 'bg-blue-600 border-blue-500 text-white'
-              : 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700'
+              ? 'bg-primary border-primary text-white'
+              : 'bg-card border-border text-muted-foreground hover:bg-card'
           }`}
         >
           <Filter className="h-4 w-4" />
           Advanced Filters
           {hasActiveFilters() && (
-            <span className="ml-2 px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
+            <span className="ml-2 px-2 py-1 bg-interactive/50 text-white text-xs rounded-full">
               {Object.values(filters).flat().filter(v => v && v !== 0 && v !== 100 && v !== 50 && v !== '').length}
             </span>
           )}
@@ -154,24 +154,24 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
   }
 
   return (
-    <div className="mb-6 bg-gray-900 rounded-lg p-6 border border-gray-700">
+    <div className="mb-6 bg-surface-sunken rounded-lg p-6 border border-border">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <Filter className="h-5 w-5 text-blue-400" />
+          <Filter className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold text-white">Advanced Search Filters</h3>
         </div>
         <div className="flex gap-2">
           {hasActiveFilters() && (
             <button
               onClick={clearAllFilters}
-              className="text-sm text-gray-400 hover:text-gray-200"
+              className="text-sm text-muted-foreground hover:text-gray-200"
             >
               Clear All
             </button>
           )}
           <button
             onClick={onToggle}
-            className="text-gray-400 hover:text-gray-200"
+            className="text-muted-foreground hover:text-gray-200"
           >
             <X className="h-5 w-5" />
           </button>
@@ -181,7 +181,7 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Case Types */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
             Case Types
           </label>
           <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -191,9 +191,9 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
                   type="checkbox"
                   checked={filters.case_types.includes(caseType)}
                   onChange={() => toggleArrayFilter('case_types', caseType)}
-                  className="rounded border-gray-600 bg-gray-800 text-blue-600"
+                  className="rounded border-border bg-card text-primary"
                 />
-                <span className="text-gray-300">{caseType}</span>
+                <span className="text-muted-foreground">{caseType}</span>
               </label>
             ))}
           </div>
@@ -201,23 +201,23 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
 
         {/* Experience Range */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
             Years of Experience
           </label>
           <div className="space-y-3">
             <div>
-              <label className="text-xs text-gray-400">Minimum: {filters.min_experience} years</label>
+              <label className="text-xs text-muted-foreground">Minimum: {filters.min_experience} years</label>
               <input
                 type="range"
                 min="0"
                 max="40"
                 value={filters.min_experience}
                 onChange={(e) => updateFilter('min_experience', parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-card rounded-lg appearance-none cursor-pointer"
               />
             </div>
             <div>
-              <label className="text-xs text-gray-400">
+              <label className="text-xs text-muted-foreground">
                 Maximum: {filters.max_experience === 50 ? '50+' : filters.max_experience} years
               </label>
               <input
@@ -226,7 +226,7 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
                 max="50"
                 value={filters.max_experience}
                 onChange={(e) => updateFilter('max_experience', parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-card rounded-lg appearance-none cursor-pointer"
               />
             </div>
           </div>
@@ -234,13 +234,13 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
 
         {/* Case Value Range */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
             Typical Case Value
           </label>
           <select
             value={filters.case_value_range}
             onChange={(e) => updateFilter('case_value_range', e.target.value)}
-            className="w-full p-2 bg-gray-800 border border-gray-600 rounded text-gray-300"
+            className="w-full p-2 bg-card border border-border rounded text-muted-foreground"
           >
             <option value="">Any Value</option>
             {filterOptions.case_value_ranges.map(range => (
@@ -251,30 +251,30 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
 
         {/* Settlement Rate Range */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
             Settlement Rate
           </label>
           <div className="space-y-3">
             <div>
-              <label className="text-xs text-gray-400">Minimum: {filters.settlement_rate_min}%</label>
+              <label className="text-xs text-muted-foreground">Minimum: {filters.settlement_rate_min}%</label>
               <input
                 type="range"
                 min="0"
                 max="100"
                 value={filters.settlement_rate_min}
                 onChange={(e) => updateFilter('settlement_rate_min', parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-card rounded-lg appearance-none cursor-pointer"
               />
             </div>
             <div>
-              <label className="text-xs text-gray-400">Maximum: {filters.settlement_rate_max}%</label>
+              <label className="text-xs text-muted-foreground">Maximum: {filters.settlement_rate_max}%</label>
               <input
                 type="range"
                 min="0"
                 max="100"
                 value={filters.settlement_rate_max}
                 onChange={(e) => updateFilter('settlement_rate_max', parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-2 bg-card rounded-lg appearance-none cursor-pointer"
               />
             </div>
           </div>
@@ -282,13 +282,13 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
 
         {/* Efficiency Level */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
             Case Load Efficiency
           </label>
           <select
             value={filters.efficiency_level}
             onChange={(e) => updateFilter('efficiency_level', e.target.value)}
-            className="w-full p-2 bg-gray-800 border border-gray-600 rounded text-gray-300"
+            className="w-full p-2 bg-card border border-border rounded text-muted-foreground"
           >
             <option value="">Any Level</option>
             {filterOptions.efficiency_levels.map(level => (
@@ -299,13 +299,13 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
 
         {/* Specialization */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
             Primary Specialization
           </label>
           <select
             value={filters.specialization}
             onChange={(e) => updateFilter('specialization', e.target.value)}
-            className="w-full p-2 bg-gray-800 border border-gray-600 rounded text-gray-300"
+            className="w-full p-2 bg-card border border-border rounded text-muted-foreground"
           >
             <option value="">Any Specialization</option>
             {filterOptions.specializations.map(spec => (
@@ -317,11 +317,11 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
 
       {/* Active Filters Summary */}
       {hasActiveFilters() && (
-        <div className="mt-6 pt-4 border-t border-gray-700">
-          <h4 className="text-sm font-medium text-gray-300 mb-2">Active Filters:</h4>
+        <div className="mt-6 pt-4 border-t border-border">
+          <h4 className="text-sm font-medium text-muted-foreground mb-2">Active Filters:</h4>
           <div className="flex flex-wrap gap-2">
             {filters.case_types.map(caseType => (
-              <span key={caseType} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-600 text-white text-xs rounded">
+              <span key={caseType} className="inline-flex items-center gap-1 px-2 py-1 bg-primary text-white text-xs rounded">
                 {caseType}
                 <button onClick={() => toggleArrayFilter('case_types', caseType)}>
                   <X className="h-3 w-3" />

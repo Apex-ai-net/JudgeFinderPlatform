@@ -21,13 +21,13 @@ interface SEOBreadcrumbsProps {
 export function SEOBreadcrumbs({ items, judgeName, jurisdiction }: SEOBreadcrumbsProps) {
   const baseUrl = getBaseUrl()
   return (
-    <nav aria-label="Breadcrumb" className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 py-3">
+    <nav aria-label="Breadcrumb" className="bg-muted dark:bg-surface-sunken border-b border-border dark:border-gray-800 py-3">
       <div className="mx-auto max-w-7xl px-4">
         <ol className="flex items-center flex-wrap gap-2 text-sm">
           <li>
             <Link
               href="/"
-              className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+              className="flex items-center text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-gray-100 transition-colors"
             >
               <Home className="h-4 w-4 mr-1" />
               <span>Home</span>
@@ -36,11 +36,11 @@ export function SEOBreadcrumbs({ items, judgeName, jurisdiction }: SEOBreadcrumb
           
           {items.map((item, index) => (
             <li key={index} className="flex items-center">
-              <ChevronRight className="h-4 w-4 text-gray-400 dark:text-gray-600 mx-1" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground dark:text-muted-foreground mx-1" />
               
               {item.current ? (
                 <span 
-                  className="font-medium text-gray-900 dark:text-gray-100"
+                  className="font-medium text-foreground dark:text-gray-100"
                   aria-current="page"
                 >
                   {item.label}
@@ -48,7 +48,7 @@ export function SEOBreadcrumbs({ items, judgeName, jurisdiction }: SEOBreadcrumb
               ) : (
                 <Link
                   href={item.href}
-                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                  className="text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-gray-100 transition-colors"
                 >
                   {item.label}
                 </Link>

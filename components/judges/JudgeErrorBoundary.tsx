@@ -39,7 +39,7 @@ export class JudgeErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="min-h-screen bg-muted flex items-center justify-center px-4">
           <div className="max-w-2xl w-full">
             <div className="bg-white rounded-xl shadow-lg border border-red-200 p-8 text-center">
               <div className="flex justify-center mb-6">
@@ -48,11 +48,11 @@ export class JudgeErrorBoundary extends React.Component<
                 </div>
               </div>
 
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              <h1 className="text-2xl font-bold text-foreground mb-4">
                 Unable to Load Judge Profile
               </h1>
 
-              <p className="text-gray-600 mb-6">
+              <p className="text-muted-foreground mb-6">
                 {this.props.judgeName 
                   ? `We encountered an error while loading the profile for Judge ${this.props.judgeName}.`
                   : 'We encountered an error while loading this judge profile.'
@@ -60,16 +60,16 @@ export class JudgeErrorBoundary extends React.Component<
               </p>
 
               {process.env.NODE_ENV === 'development' && this.state.error && (
-                <div className="bg-gray-100 rounded-lg p-4 mb-6 text-left">
-                  <h3 className="font-semibold text-gray-900 mb-2">Error Details:</h3>
-                  <pre className="text-sm text-gray-700 whitespace-pre-wrap">
+                <div className="bg-muted rounded-lg p-4 mb-6 text-left">
+                  <h3 className="font-semibold text-foreground mb-2">Error Details:</h3>
+                  <pre className="text-sm text-foreground whitespace-pre-wrap">
                     {this.state.error.message}
                   </pre>
                 </div>
               )}
 
               {this.props.suggestions && this.props.suggestions.length > 0 && (
-                <div className="bg-blue-50 rounded-lg p-4 mb-6">
+                <div className="bg-primary/5 rounded-lg p-4 mb-6">
                   <h3 className="font-semibold text-blue-900 mb-3">
                     Similar Judges You Might Be Looking For:
                   </h3>
@@ -95,7 +95,7 @@ export class JudgeErrorBoundary extends React.Component<
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={() => window.location.reload()}
-                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Try Again
@@ -103,7 +103,7 @@ export class JudgeErrorBoundary extends React.Component<
 
                 <Link
                   href="/judges"
-                  className="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="inline-flex items-center px-6 py-3 bg-muted text-foreground rounded-lg hover:bg-muted transition-colors"
                 >
                   <Search className="h-4 w-4 mr-2" />
                   Browse All Judges
@@ -111,7 +111,7 @@ export class JudgeErrorBoundary extends React.Component<
 
                 <Link
                   href="/"
-                  className="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="inline-flex items-center px-6 py-3 bg-muted text-foreground rounded-lg hover:bg-muted transition-colors"
                 >
                   <Home className="h-4 w-4 mr-2" />
                   Go Home

@@ -7,7 +7,7 @@ import { isJudge, isJudgeArray, validateStringLength } from '@/lib/utils/type-gu
 import type { Judge, JudgeLookupResult } from '@/types'
 
 export const dynamic = 'force-dynamic'
-export const runtime = 'edge'
+// Removed edge runtime - incompatible with cookies() API
 export const revalidate = 120
 
 /**

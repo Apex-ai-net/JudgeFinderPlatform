@@ -1,0 +1,881 @@
+{
+  "info": {
+    "name": "CourtListener API Integration Tests",
+    "description": "Comprehensive test suite for CourtListener API integration in JudgeFinder platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "judgefinder-platform"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://www.courtlistener.com/api/rest/v4",
+      "type": "string"
+    },
+    {
+      "key": "apiToken",
+      "value": "{{COURTLISTENER_API_KEY}}",
+      "type": "string"
+    },
+    {
+      "key": "testJudgeId",
+      "value": "12345",
+      "type": "string"
+    },
+    {
+      "key": "testCourtId",
+      "value": "ca",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "value",
+        "value": "Token {{apiToken}}",
+        "type": "string"
+      },
+      {
+        "key": "key",
+        "value": "Authorization",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Authentication Tests",
+      "item": [
+        {
+          "name": "Test API Key Authentication",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "pm.test(\"Authorization header was accepted\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('results');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/people/?format=json&page_size=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["people", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "page_size",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Test Invalid API Key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 or 403\", function () {",
+                  "    pm.expect([401, 403]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.test(\"Error message present\", function () {",
+                  "    const body = pm.response.text();",
+                  "    pm.expect(body.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "Token invalid-key-12345",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "Authorization",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/people/?format=json&page_size=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["people", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "page_size",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Test Missing Authorization Header",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 or 403\", function () {",
+                  "    pm.expect([401, 403]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/people/?format=json&page_size=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["people", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "page_size",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Judge/People Endpoints",
+      "item": [
+        {
+          "name": "List All Judges",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has pagination fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('count');",
+                  "    pm.expect(jsonData).to.have.property('results');",
+                  "    pm.expect(jsonData.count).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test(\"Results array exists\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.results).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Judge objects have required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.results.length > 0) {",
+                  "        const judge = jsonData.results[0];",
+                  "        pm.expect(judge).to.have.property('id');",
+                  "        pm.expect(judge).to.have.property('name');",
+                  "    }",
+                  "});",
+                  "",
+                  "// Save first judge ID for later tests",
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData.results.length > 0) {",
+                  "    pm.collectionVariables.set('testJudgeId', jsonData.results[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/people/?format=json&page_size=10&ordering=-date_modified",
+              "host": ["{{baseUrl}}"],
+              "path": ["people", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                },
+                {
+                  "key": "ordering",
+                  "value": "-date_modified"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Specific Judge by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Judge object returned\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('object');",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('name');",
+                  "});",
+                  "",
+                  "pm.test(\"Judge has positions array\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('positions');",
+                  "    pm.expect(jsonData.positions).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/people/{{testJudgeId}}/?format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["people", "{{testJudgeId}}", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Judges by State",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Results filtered correctly\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.results).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/people/?format=json&positions__court__state=ca&page_size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["people", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "positions__court__state",
+                  "value": "ca",
+                  "description": "Filter by California state"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Test 404 on Non-Existent Judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/people/999999999/?format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["people", "999999999", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Opinion Endpoints",
+      "item": [
+        {
+          "name": "Search Opinions by Author",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Opinions returned\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('results');",
+                  "    pm.expect(jsonData.results).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Opinion has required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.results.length > 0) {",
+                  "        const opinion = jsonData.results[0];",
+                  "        pm.expect(opinion).to.have.property('id');",
+                  "        pm.expect(opinion).to.have.property('cluster');",
+                  "    }",
+                  "});",
+                  "",
+                  "// Save opinion ID for later tests",
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData.results.length > 0) {",
+                  "    pm.collectionVariables.set('testOpinionId', jsonData.results[0].id);",
+                  "    pm.collectionVariables.set('testClusterId', jsonData.results[0].cluster);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opinions/?format=json&author={{testJudgeId}}&page_size=10&ordering=-date_created",
+              "host": ["{{baseUrl}}"],
+              "path": ["opinions", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "author",
+                  "value": "{{testJudgeId}}"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                },
+                {
+                  "key": "ordering",
+                  "value": "-date_created"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Opinion by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Opinion data returned\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('plain_text');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opinions/{{testOpinionId}}/?format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["opinions", "{{testOpinionId}}", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Opinions by Date Range",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Date filtering works\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.results).to.be.an('array');",
+                  "    ",
+                  "    // Verify dates are within range",
+                  "    jsonData.results.forEach(opinion => {",
+                  "        if (opinion.cluster_obj && opinion.cluster_obj.date_filed) {",
+                  "            const filedDate = new Date(opinion.cluster_obj.date_filed);",
+                  "            pm.expect(filedDate.getFullYear()).to.be.at.least(2023);",
+                  "        }",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opinions/?format=json&cluster__date_filed__gte=2023-01-01&page_size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["opinions", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "cluster__date_filed__gte",
+                  "value": "2023-01-01"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Cluster Endpoints",
+      "item": [
+        {
+          "name": "Get Cluster Details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Cluster has required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "    pm.expect(jsonData).to.have.property('case_name');",
+                  "    pm.expect(jsonData).to.have.property('date_filed');",
+                  "    pm.expect(jsonData).to.have.property('precedential_status');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clusters/{{testClusterId}}/?format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["clusters", "{{testClusterId}}", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Docket Endpoints",
+      "item": [
+        {
+          "name": "Search Dockets by Assigned Judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Dockets returned\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('results');",
+                  "    pm.expect(jsonData.results).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Docket has required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.results.length > 0) {",
+                  "        const docket = jsonData.results[0];",
+                  "        pm.expect(docket).to.have.property('id');",
+                  "        pm.expect(docket).to.have.property('case_name');",
+                  "        pm.expect(docket).to.have.property('docket_number');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dockets/?format=json&assigned_to_id={{testJudgeId}}&page_size=10&ordering=-date_filed",
+              "host": ["{{baseUrl}}"],
+              "path": ["dockets", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "assigned_to_id",
+                  "value": "{{testJudgeId}}"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                },
+                {
+                  "key": "ordering",
+                  "value": "-date_filed"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Court Endpoints",
+      "item": [
+        {
+          "name": "List All Courts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Courts returned\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('results');",
+                  "    pm.expect(jsonData.results).to.be.an('array');",
+                  "    pm.expect(jsonData.results.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "pm.test(\"Court has required fields\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    const court = jsonData.results[0];",
+                  "    pm.expect(court).to.have.property('id');",
+                  "    pm.expect(court).to.have.property('name');",
+                  "    pm.expect(court).to.have.property('jurisdiction');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courts/?format=json&page_size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["courts", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Rate Limiting Tests",
+      "item": [
+        {
+          "name": "Check Rate Limit Headers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Rate limit headers present\", function () {",
+                  "    pm.expect(pm.response.headers.has('x-ratelimit-limit') || ",
+                  "             pm.response.headers.has('X-RateLimit-Limit')).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Rate limit remaining header present\", function () {",
+                  "    pm.expect(pm.response.headers.has('x-ratelimit-remaining') || ",
+                  "             pm.response.headers.has('X-RateLimit-Remaining')).to.be.true;",
+                  "});",
+                  "",
+                  "// Log rate limit info",
+                  "const limit = pm.response.headers.get('X-RateLimit-Limit');",
+                  "const remaining = pm.response.headers.get('X-RateLimit-Remaining');",
+                  "const reset = pm.response.headers.get('X-RateLimit-Reset');",
+                  "",
+                  "console.log('Rate Limit:', limit);",
+                  "console.log('Remaining:', remaining);",
+                  "console.log('Reset At:', reset ? new Date(parseInt(reset) * 1000) : 'Unknown');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/people/?format=json&page_size=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["people", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "page_size",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Pagination Tests",
+      "item": [
+        {
+          "name": "Test Cursor-Based Pagination",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Pagination links present\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('next');",
+                  "    // next can be null if on last page",
+                  "});",
+                  "",
+                  "pm.test(\"Results array size matches page_size\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.next !== null) {",
+                  "        pm.expect(jsonData.results.length).to.equal(5);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/people/?format=json&page_size=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["people", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "page_size",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Error Handling Tests",
+      "item": [
+        {
+          "name": "Test Invalid Endpoint",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/invalid-endpoint/?format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["invalid-endpoint", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Test Invalid Query Parameters",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/opinions/?format=json&invalid_filter=test",
+              "host": ["{{baseUrl}}"],
+              "path": ["opinions", ""],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "invalid_filter",
+                  "value": "test"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

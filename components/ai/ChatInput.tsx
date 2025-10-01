@@ -28,14 +28,14 @@ export default function ChatInput({
   }
 
   return (
-    <form onSubmit={onSubmit} className="p-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+    <form onSubmit={onSubmit} className="p-3 border-t border-border dark:border-border bg-white dark:bg-surface-sunken">
       <div className="flex gap-2">
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Ask about any judge or court..."
-          className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+          className="flex-1 px-3 py-2 bg-muted dark:bg-card border border-border dark:border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm text-foreground dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
           rows={1}
           disabled={isLoading}
           style={{ 
@@ -58,7 +58,7 @@ export default function ChatInput({
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-3 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -69,7 +69,7 @@ export default function ChatInput({
         )}
       </div>
       
-      <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 text-center">
+      <p className="text-[10px] text-muted-foreground dark:text-muted-foreground mt-1 text-center">
         Press Enter to send • Shift+Enter for new line
       </p>
     </form>

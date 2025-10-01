@@ -69,13 +69,13 @@ export default function AdSpotBookingModal({ spot, advertiserId, onClose, onSucc
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="border-b border-border px-6 py-4 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-foreground">
             Book Ad Spot
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-muted-foreground hover:text-muted-foreground"
           >
             <X className="h-5 w-5" />
           </button>
@@ -85,9 +85,9 @@ export default function AdSpotBookingModal({ spot, advertiserId, onClose, onSucc
         <div className="p-6">
           <div className="space-y-6">
               {/* Spot Details */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">{spot.entity_name}</h3>
-                <div className="text-sm text-gray-600 space-y-1">
+              <div className="bg-muted rounded-lg p-4">
+                <h3 className="font-semibold text-foreground mb-2">{spot.entity_name}</h3>
+                <div className="text-sm text-muted-foreground space-y-1">
                   <p>Position: {spot.position}</p>
                   <p>Type: {spot.entity_type === 'judge' ? 'Judge Profile' : 'Court Profile'}</p>
                   {spot.entity_type === 'judge' && spot.court_level && (
@@ -105,7 +105,7 @@ export default function AdSpotBookingModal({ spot, advertiserId, onClose, onSucc
                   {spot.entity_details.jurisdiction && (
                     <p>Jurisdiction: {spot.entity_details.jurisdiction}</p>
                   )}
-                  <p className="font-semibold text-lg text-gray-900 mt-2">
+                  <p className="font-semibold text-lg text-foreground mt-2">
                     ${monthlyPrice.toLocaleString()}/month
                   </p>
                 </div>
@@ -114,7 +114,7 @@ export default function AdSpotBookingModal({ spot, advertiserId, onClose, onSucc
               {/* Booking Form */}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Start Date
                   </label>
                   <input
@@ -122,19 +122,19 @@ export default function AdSpotBookingModal({ spot, advertiserId, onClose, onSucc
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Campaign (Optional)
                   </label>
                   <select
                     value={campaignId}
                     onChange={(e) => setCampaignId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">No campaign selected</option>
                     <option value="campaign-1">Summer 2025 Campaign</option>
@@ -144,14 +144,14 @@ export default function AdSpotBookingModal({ spot, advertiserId, onClose, onSucc
               </div>
 
               {/* Pricing Summary */}
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-900 mb-2">Monthly Subscription</h4>
+              <div className="bg-primary/5 rounded-lg p-4">
+                <h4 className="font-semibold text-foreground mb-2">Monthly Subscription</h4>
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Monthly Rate</span>
+                    <span className="text-muted-foreground">Monthly Rate</span>
                     <span className="font-medium text-lg">${monthlyPrice.toLocaleString()}/month</span>
                   </div>
-                  <div className="mt-2 text-xs text-gray-600">
+                  <div className="mt-2 text-xs text-muted-foreground">
                     • Cancel anytime from your dashboard<br/>
                     • Automatic monthly renewal<br/>
                     • Secure payment via Stripe
@@ -170,14 +170,14 @@ export default function AdSpotBookingModal({ spot, advertiserId, onClose, onSucc
               <div className="flex gap-3">
                 <button
                   onClick={onClose}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="flex-1 px-4 py-2 border border-border rounded-lg hover:bg-muted"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleBooking}
                   disabled={!startDate || loading}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>

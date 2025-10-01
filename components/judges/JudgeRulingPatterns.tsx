@@ -65,14 +65,14 @@ export function JudgeRulingPatterns({ judgeId }: JudgeRulingPatternsProps) {
   return (
     <div className="rounded-lg bg-white p-6 shadow-sm">
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Ruling Patterns</h2>
+        <h2 className="text-2xl font-bold text-foreground">Ruling Patterns</h2>
         <div className="flex space-x-2">
           <button
             onClick={() => setActiveTab('overview')}
             className={`rounded px-3 py-1 text-sm ${
               activeTab === 'overview'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-primary text-white'
+                : 'bg-muted text-muted-foreground hover:bg-muted'
             }`}
           >
             Overview
@@ -81,8 +81,8 @@ export function JudgeRulingPatterns({ judgeId }: JudgeRulingPatternsProps) {
             onClick={() => setActiveTab('trends')}
             className={`rounded px-3 py-1 text-sm ${
               activeTab === 'trends'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-primary text-white'
+                : 'bg-muted text-muted-foreground hover:bg-muted'
             }`}
           >
             Trends
@@ -101,7 +101,7 @@ export function JudgeRulingPatterns({ judgeId }: JudgeRulingPatternsProps) {
           )}
 
           {!isLoading && !hasAnalytics && (
-            <div className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
+            <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
               Analytics for this judge are still being generated. Check back after the next data refresh.
             </div>
           )}
@@ -109,15 +109,15 @@ export function JudgeRulingPatterns({ judgeId }: JudgeRulingPatternsProps) {
           {!isLoading && hasAnalytics && (
             <div className="grid gap-4 sm:grid-cols-2">
               {metrics.map(metric => (
-                <div key={metric.label} className="rounded-lg border border-gray-200 p-4">
+                <div key={metric.label} className="rounded-lg border border-border p-4">
                   <div className="mb-2 flex items-center justify-between">
-                    <span className="text-sm text-gray-600">{metric.label}</span>
-                    <BarChart className="h-4 w-4 text-gray-400" />
+                    <span className="text-sm text-muted-foreground">{metric.label}</span>
+                    <BarChart className="h-4 w-4 text-muted-foreground" />
                   </div>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-2xl font-bold text-foreground">
                     {typeof metric.value === 'number' ? `${metric.value.toFixed(0)}%` : '—'}
                   </p>
-                  <p className="mt-2 text-xs text-gray-500">{metric.tooltip}</p>
+                  <p className="mt-2 text-xs text-muted-foreground">{metric.tooltip}</p>
                 </div>
               ))}
             </div>
@@ -125,11 +125,11 @@ export function JudgeRulingPatterns({ judgeId }: JudgeRulingPatternsProps) {
 
           {!isLoading && Array.isArray(analytics?.notable_patterns) && analytics.notable_patterns.length > 0 && (
             <div>
-              <h3 className="mb-3 font-semibold text-gray-900">Notable Patterns</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
+              <h3 className="mb-3 font-semibold text-foreground">Notable Patterns</h3>
+              <ul className="space-y-2 text-sm text-foreground">
                 {analytics.notable_patterns.map(pattern => (
                   <li key={pattern} className="flex items-start">
-                    <PieChart className="mr-2 h-4 w-4 mt-1 text-gray-400" />
+                    <PieChart className="mr-2 h-4 w-4 mt-1 text-muted-foreground" />
                     <span>{pattern}</span>
                   </li>
                 ))}
@@ -140,8 +140,8 @@ export function JudgeRulingPatterns({ judgeId }: JudgeRulingPatternsProps) {
       )}
 
       {activeTab === 'trends' && (
-        <div className="py-8 text-center text-gray-500">
-          <TrendingUp className="mx-auto mb-4 h-12 w-12 text-gray-300" />
+        <div className="py-8 text-center text-muted-foreground">
+          <TrendingUp className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
           <p>
             Time-series trend visualizations are coming soon. We are aggregating monthly rulings to surface meaningful
             changes over time.

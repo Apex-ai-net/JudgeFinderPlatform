@@ -27,6 +27,7 @@ interface JudgeSyncResult {
   judgesProcessed: number
   judgesUpdated: number
   judgesCreated: number
+  judgesRetired: number // NEW: Track judges marked as retired
   profilesEnhanced: number
   errors: string[]
   duration: number
@@ -36,6 +37,7 @@ interface BatchSyncStats {
   processed: number
   updated: number
   created: number
+  retired: number // NEW: Track judges marked as retired in batch
   enhanced: number
   errors: string[]
 }
@@ -138,6 +140,7 @@ export class JudgeSyncManager {
       judgesProcessed: 0,
       judgesUpdated: 0,
       judgesCreated: 0,
+      judgesRetired: 0, // NEW: Initialize retired count
       profilesEnhanced: 0,
       errors: [],
       duration: 0
@@ -188,13 +191,14 @@ export class JudgeSyncManager {
    * Sync specific judges by their IDs
    */
   private async syncSpecificJudges(
-    judgeIds: string[], 
+    judgeIds: string[],
     options: JudgeSyncOptions
   ): Promise<BatchSyncStats> {
     const stats: BatchSyncStats = {
       processed: 0,
       updated: 0,
       created: 0,
+      retired: 0, // NEW: Initialize retired count
       enhanced: 0,
       errors: []
     }
@@ -222,6 +226,7 @@ export class JudgeSyncManager {
             stats.created++
             this.createdCount++
           }
+          if (processed.retired) stats.retired++ // NEW: Track retired judges
           if (processed.enhanced) stats.enhanced++
           stats.processed++
         }
@@ -253,6 +258,7 @@ export class JudgeSyncManager {
       processed: 0,
       updated: 0,
       created: 0,
+      retired: 0, // NEW: Initialize retired count
       enhanced: 0,
       errors: []
     }
@@ -276,6 +282,7 @@ export class JudgeSyncManager {
           stats.processed += batchResult.processed
           stats.updated += batchResult.updated
           stats.created += batchResult.created
+          stats.retired += batchResult.retired // NEW: Accumulate retired count
           stats.enhanced += batchResult.enhanced
           stats.errors.push(...batchResult.errors)
 
@@ -306,6 +313,7 @@ export class JudgeSyncManager {
         stats.processed += newJudgeStats.processed
         stats.updated += newJudgeStats.updated
         stats.created += newJudgeStats.created
+        stats.retired += newJudgeStats.retired // NEW: Accumulate retired count
         stats.enhanced += newJudgeStats.enhanced
         stats.errors.push(...newJudgeStats.errors)
       }
@@ -351,6 +359,7 @@ export class JudgeSyncManager {
       processed: 0,
       updated: 0,
       created: 0,
+      retired: 0, // NEW: Initialize retired count
       enhanced: 0,
       errors: []
     }
@@ -368,6 +377,7 @@ export class JudgeSyncManager {
           stats.created++
           this.createdCount++
         }
+        if (result.retired) stats.retired++ // NEW: Track retired judges
         if (result.enhanced) stats.enhanced++
         stats.processed++
       } catch (error) {
@@ -480,13 +490,13 @@ export class JudgeSyncManager {
    * Sync a single judge from CourtListener
    */
   private async syncSingleJudge(
-    courtlistenerJudgeId: string, 
+    courtlistenerJudgeId: string,
     options: JudgeSyncOptions
-  ): Promise<{ updated: boolean; created: boolean; enhanced: boolean }> {
+  ): Promise<{ updated: boolean; created: boolean; retired: boolean; enhanced: boolean }> {
     try {
       // Fetch judge data from CourtListener
       const judgeData = await this.fetchJudgeFromCourtListener(courtlistenerJudgeId)
-      
+
       if (!judgeData) {
         throw new Error(`Judge not found: ${courtlistenerJudgeId}`)
       }
@@ -497,18 +507,22 @@ export class JudgeSyncManager {
       if (existingJudge) {
         // Update existing judge
         const updated = await this.updateJudge(existingJudge.id, judgeData)
+
+        // NEW: Check for retirement and update status
+        const retired = await this.detectAndMarkRetirement(existingJudge, judgeData)
+
         const enhanced = await this.enhanceJudgeProfile(existingJudge.id, judgeData)
-        return { updated, created: false, enhanced }
+        return { updated, created: false, retired, enhanced }
       } else {
         // Create new judge
         if (this.shouldAbortSync()) {
-          return { updated: false, created: false, enhanced: false }
+          return { updated: false, created: false, retired: false, enhanced: false }
         }
 
         const judgeId = await this.createJudge(judgeData)
         const enhanced = await this.enhanceJudgeProfile(judgeId, judgeData)
         this.createdCount++
-        return { updated: false, created: true, enhanced }
+        return { updated: false, created: true, retired: false, enhanced }
       }
 
     } catch (error) {
@@ -658,6 +672,60 @@ export class JudgeSyncManager {
   }
 
   /**
+   * Detect judge retirement and mark status accordingly
+   * FIX: Check CourtListener positions for date_termination
+   * If all positions have termination dates, mark judge as retired
+   */
+  private async detectAndMarkRetirement(existingJudge: any, clData: CourtListenerJudge): Promise<boolean> {
+    try {
+      // Check if judge has any active positions (positions without termination date)
+      const hasActivePosition = clData.positions?.some(p => !p.date_termination)
+
+      // If judge currently has 'active' status but no active positions, mark as retired
+      if (!hasActivePosition && (!existingJudge.status || existingJudge.status === 'active')) {
+        logger.info('Detected retired judge - all positions terminated', {
+          judgeId: existingJudge.id,
+          judgeName: existingJudge.name,
+          positionsCount: clData.positions?.length || 0
+        })
+
+        // Update judge status to retired
+        const { error } = await this.supabase
+          .from('judges')
+          .update({
+            status: 'retired',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingJudge.id)
+
+        if (error) {
+          logger.error('Failed to mark judge as retired', {
+            judgeId: existingJudge.id,
+            error: error.message
+          })
+          return false
+        }
+
+        logger.info('Successfully marked judge as retired', {
+          judgeId: existingJudge.id,
+          judgeName: existingJudge.name
+        })
+
+        return true
+      }
+
+      return false
+
+    } catch (error) {
+      logger.error('Error during retirement detection', {
+        judgeId: existingJudge.id,
+        error
+      })
+      return false
+    }
+  }
+
+  /**
    * Extract jurisdiction from position data
    */
   private extractJurisdiction(position: any): string {
@@ -670,10 +738,10 @@ export class JudgeSyncManager {
     }
 
     const courtName = position.court?.full_name || position.court?.name || ''
-    
+
     if (courtName.includes('California') || courtName.includes('CA ')) return 'CA'
     if (courtName.includes('Federal') || courtName.includes('U.S.')) return 'US'
-    
+
     return 'CA' // Default
   }
 
@@ -737,6 +805,7 @@ export class JudgeSyncManager {
     target.judgesProcessed += delta.processed
     target.judgesUpdated += delta.updated
     target.judgesCreated += delta.created
+    target.judgesRetired += delta.retired // NEW: Merge retired count
     target.profilesEnhanced += delta.enhanced
 
     if (delta.errors.length > 0) {

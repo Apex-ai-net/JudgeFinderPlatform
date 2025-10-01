@@ -22,12 +22,12 @@ const hasValidClerkKeys = () => {
 const SignUp = hasValidClerkKeys() 
   ? dynamicImport(() => import('@clerk/nextjs').then(mod => mod.SignUp), { 
       ssr: false,
-      loading: () => <div className="text-center py-8"><span className="text-gray-400">Loading...</span></div>
+      loading: () => <div className="text-center py-8"><span className="text-muted-foreground">Loading...</span></div>
     })
   : () => (
       <div className="text-center py-8">
         <h2 className="text-2xl font-bold text-white mb-4">Create Account</h2>
-        <p className="text-gray-400 mb-6">Authentication is currently disabled</p>
+        <p className="text-muted-foreground mb-6">Authentication is currently disabled</p>
         <Link 
           href="/dashboard" 
           className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium rounded-lg transition-all shadow-lg"
@@ -94,24 +94,24 @@ export function CustomSignUp({
               <h3 className="text-lg font-semibold text-white mb-2">
                 Legal Professional Registration
               </h3>
-              <p className="text-gray-300 text-sm mb-4">
+              <p className="text-muted-foreground text-sm mb-4">
                 This registration is exclusively for law firms, attorneys, and legal professionals. 
                 You'll gain access to advanced features and professional tools beyond our public analytics.
               </p>
               <div className="space-y-2">
-                <div className="flex items-center text-gray-300 text-sm">
+                <div className="flex items-center text-muted-foreground text-sm">
                   <CheckCircleIcon className="w-4 h-4 text-green-400 mr-2" />
                   <span>Export detailed judicial reports</span>
                 </div>
-                <div className="flex items-center text-gray-300 text-sm">
+                <div className="flex items-center text-muted-foreground text-sm">
                   <CheckCircleIcon className="w-4 h-4 text-green-400 mr-2" />
                   <span>Team collaboration features</span>
                 </div>
-                <div className="flex items-center text-gray-300 text-sm">
+                <div className="flex items-center text-muted-foreground text-sm">
                   <CheckCircleIcon className="w-4 h-4 text-green-400 mr-2" />
                   <span>API access for integrations</span>
                 </div>
-                <div className="flex items-center text-gray-300 text-sm">
+                <div className="flex items-center text-muted-foreground text-sm">
                   <CheckCircleIcon className="w-4 h-4 text-green-400 mr-2" />
                   <span>Priority support</span>
                 </div>
@@ -144,7 +144,7 @@ export function CustomSignUp({
               <h3 className="text-lg font-semibold text-white mb-2">
                 Administrator Access Detected
               </h3>
-              <p className="text-gray-300 text-sm mb-4">
+              <p className="text-muted-foreground text-sm mb-4">
                 Welcome back, administrator. You'll have full access to the platform including 
                 administrative tools and system management features.
               </p>
@@ -166,19 +166,19 @@ export function CustomSignUp({
               rootBox: 'w-full',
               card: 'bg-transparent shadow-none border-none',
               headerTitle: 'text-white text-xl font-semibold',
-              headerSubtitle: 'text-gray-300',
-              socialButtonsBlockButton: 'bg-gray-700/50 border border-gray-600 hover:bg-gray-600/50 text-white',
+              headerSubtitle: 'text-muted-foreground',
+              socialButtonsBlockButton: 'bg-card/50 border border-border hover:bg-muted-foreground/50 text-white',
               socialButtonsBlockButtonText: 'text-white font-medium',
-              dividerLine: 'bg-gray-600',
-              dividerText: 'text-gray-400',
-              formFieldLabel: 'text-gray-300 font-medium',
-              formFieldInput: 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-enterprise-primary focus:ring-enterprise-primary/20',
+              dividerLine: 'bg-muted-foreground',
+              dividerText: 'text-muted-foreground',
+              formFieldLabel: 'text-muted-foreground font-medium',
+              formFieldInput: 'bg-card/50 border-border text-white placeholder-gray-400 focus:border-enterprise-primary focus:ring-enterprise-primary/20',
               formButtonPrimary: userType === 'admin' 
                 ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium shadow-lg'
                 : 'bg-gradient-to-r from-enterprise-primary to-enterprise-deep hover:from-enterprise-accent hover:to-enterprise-primary text-white font-medium shadow-lg',
-              footerActionText: 'text-gray-400',
+              footerActionText: 'text-muted-foreground',
               footerActionLink: 'text-enterprise-primary hover:text-enterprise-accent',
-              identityPreviewText: 'text-gray-300',
+              identityPreviewText: 'text-muted-foreground',
               identityPreviewEditButton: 'text-enterprise-primary hover:text-enterprise-accent',
             }
           }}

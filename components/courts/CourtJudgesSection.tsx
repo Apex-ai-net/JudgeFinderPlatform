@@ -35,7 +35,7 @@ interface CourtJudgesSectionProps {
 
 const STATUS_COLORS = {
   active: 'bg-green-100 text-green-800 border-green-200',
-  retired: 'bg-gray-100 text-gray-800 border-gray-200',
+  retired: 'bg-muted text-foreground border-border',
   inactive: 'bg-red-100 text-red-800 border-red-200'
 }
 
@@ -47,7 +47,7 @@ const POSITION_COLORS = {
   'Magistrate Judge': 'bg-teal-100 text-teal-800 border-teal-200',
   'Acting Judge': 'bg-orange-100 text-orange-800 border-orange-200',
   'Temporary Judge': 'bg-pink-100 text-pink-800 border-pink-200',
-  'Retired Judge': 'bg-gray-100 text-gray-800 border-gray-200'
+  'Retired Judge': 'bg-muted text-foreground border-border'
 }
 
 export default function CourtJudgesSection({ courtId, courtName, initialJudges = [] }: CourtJudgesSectionProps) {
@@ -134,16 +134,16 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
 
   if (error && judges.length === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-          <Gavel className="h-5 w-5 mr-2 text-blue-600" />
+      <div className="bg-white dark:bg-card rounded-lg shadow p-6">
+        <h2 className="text-xl font-semibold text-foreground dark:text-white mb-4 flex items-center">
+          <Gavel className="h-5 w-5 mr-2 text-primary" />
           Judges at This Court
         </h2>
         <div className="text-center py-8">
           <p className="text-red-600">Error loading judges: {error}</p>
           <button 
             onClick={() => fetchJudges(1, true)}
-            className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="mt-2 px-4 py-2 bg-primary text-white rounded hover:bg-blue-700"
           >
             Try Again
           </button>
@@ -155,8 +155,8 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
   return (
     <div className="bg-card rounded-lg shadow p-6 border border-border">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
-          <Gavel className="h-5 w-5 mr-2 text-blue-600" />
+        <h2 className="text-xl font-semibold text-foreground dark:text-white flex items-center">
+          <Gavel className="h-5 w-5 mr-2 text-primary" />
           Judges at This Court
           {totalCount > 0 && (
             <span className="ml-2 px-2 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
@@ -167,7 +167,7 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
         
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+          className="flex items-center px-3 py-2 text-sm border border-border dark:border-border rounded-lg hover:bg-muted dark:hover:bg-card text-foreground dark:text-muted-foreground"
         >
           <Filter className="h-4 w-4 mr-1" />
           Filters
@@ -177,34 +177,34 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
 
       {/* Filters Panel */}
       {showFilters && (
-        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6 space-y-4">
+        <div className="bg-muted dark:bg-card rounded-lg p-4 mb-6 space-y-4">
           <div className="grid gap-4 md:grid-cols-3">
             {/* Search */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-foreground dark:text-muted-foreground mb-1">
                 Search Judges
               </label>
               <div className="relative">
-                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by name..."
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  className="w-full pl-10 pr-3 py-2 border border-border dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-card text-foreground dark:text-white"
                 />
               </div>
             </div>
 
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-foreground dark:text-muted-foreground mb-1">
                 Status
               </label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as any)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-border dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-card text-foreground dark:text-white"
               >
                 <option value="all">All Statuses</option>
                 <option value="active">Active</option>
@@ -215,13 +215,13 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
 
             {/* Position Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-foreground dark:text-muted-foreground mb-1">
                 Position Type
               </label>
               <select
                 value={positionFilter}
                 onChange={(e) => setPositionFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-border dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-card text-foreground dark:text-white"
               >
                 <option value="">All Positions</option>
                 {positionTypes.map(position => (
@@ -235,8 +235,8 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
 
           {/* Active Filters Summary */}
           {(statusFilter !== 'all' || positionFilter || searchQuery) && (
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-200">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Active filters:</span>
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+              <span className="text-sm text-muted-foreground dark:text-muted-foreground">Active filters:</span>
               {statusFilter !== 'all' && (
                 <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
                   Status: {statusFilter}
@@ -258,7 +258,7 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
                   setPositionFilter('')
                   setSearchQuery('')
                 }}
-                className="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                className="px-2 py-1 text-xs text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-gray-200"
               >
                 Clear all
               </button>
@@ -270,8 +270,8 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
       {/* Judges List */}
       {filteredJudges.length === 0 ? (
         <div className="text-center py-8">
-          <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">
+          <User className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground dark:text-muted-foreground">
             {searchQuery || statusFilter !== 'all' || positionFilter
               ? 'No judges match your current filters.'
               : 'No judges found for this court.'}
@@ -283,7 +283,7 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
                 setPositionFilter('')
                 setSearchQuery('')
               }}
-              className="mt-2 text-blue-600 hover:text-blue-700 font-medium"
+              className="mt-2 text-primary hover:text-blue-700 font-medium"
             >
               Clear filters
             </button>
@@ -295,18 +295,18 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
             <Link
               key={judge.id}
               href={`/judges/${generateSlug(judge.name)}`}
-              className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg transition-colors hover:bg-accent/5 dark:hover:bg-white/5 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-sm"
+              className="block p-4 border border-border dark:border-border rounded-lg transition-colors hover:bg-accent/5 dark:hover:bg-white/5 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-sm"
             >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="font-medium text-gray-900 dark:text-white">{judge.name}</h3>
+                    <h3 className="font-medium text-foreground dark:text-white">{judge.name}</h3>
                     <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusBadgeClass(judge.status)}`}>
                       {judge.status.charAt(0).toUpperCase() + judge.status.slice(1)}
                     </span>
                   </div>
                   
-                  <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground dark:text-muted-foreground">
                     <span className={`px-2 py-1 text-xs font-medium rounded-md border ${getPositionBadgeClass(judge.position_type)}`}>
                       {judge.position_type}
                     </span>
@@ -320,7 +320,7 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
                   </div>
                 </div>
                 
-                <span className="text-blue-600 font-medium ml-4">View Profile →</span>
+                <span className="text-primary font-medium ml-4">View Profile →</span>
               </div>
             </Link>
           ))}
@@ -330,13 +330,13 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
       {/* Load More / View All */}
       <div className="mt-6 text-center space-y-3">
         {loading && (
-          <div className="text-gray-600 dark:text-gray-400">Loading judges...</div>
+          <div className="text-muted-foreground dark:text-muted-foreground">Loading judges...</div>
         )}
         
         {hasMore && !loading && filteredJudges.length > 0 && searchQuery === '' && (
           <button
             onClick={loadMore}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
           >
             Load More Judges
           </button>
@@ -345,7 +345,7 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
         {totalCount > 0 && (
           <Link 
             href={`/judges?court=${encodeURIComponent(courtName)}`} 
-            className="block text-blue-600 hover:text-blue-700 font-medium"
+            className="block text-primary hover:text-blue-700 font-medium"
           >
             View all {totalCount} judges in dedicated directory →
           </Link>

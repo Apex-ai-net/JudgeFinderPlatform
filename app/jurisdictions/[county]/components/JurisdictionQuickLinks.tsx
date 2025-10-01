@@ -18,7 +18,7 @@ class JurisdictionQuickLinksView {
             <h3 className="text-lg font-semibold text-white mb-4">
               Explore More
             </h3>
-            <p className="text-sm text-blue-100/70 mb-6">
+            <p className="text-sm text-primary/70 mb-6">
               Continue your research with judge analytics or browse additional jurisdictions.
             </p>
 
@@ -32,7 +32,7 @@ class JurisdictionQuickLinksView {
 
               <Link
                 href="/jurisdictions"
-                className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-blue-100/80 transition hover:border-blue-400/60 hover:text-white"
+                className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-primary/80 transition hover:border-blue-400/60 hover:text-white"
               >
                 Browse Other Jurisdictions
               </Link>

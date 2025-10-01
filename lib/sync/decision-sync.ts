@@ -488,6 +488,10 @@ export class DecisionSyncManager {
       if (decisionKey && existingDecisions.has(decisionKey)) {
         const existingCaseId = existingDecisions.get(decisionKey)
         if (existingCaseId) {
+          // FIX: Update case metadata if CourtListener has newer data
+          await this.updateExistingCaseIfNewer(existingCaseId, decision)
+
+          // Always ensure opinion text is synced
           await ensureOpinionForCaseExternal(this.supabase, this.courtListener, existingCaseId, decision)
           decisionStats.updated++
         } else {
@@ -512,6 +516,65 @@ export class DecisionSyncManager {
 
     } catch (error) {
       logger.error('Failed to process decision', { judge: judge.name, decision: decision.case_name, error })
+    }
+  }
+
+  /**
+   * Update existing case metadata if CourtListener has newer data
+   * Compares date_modified and updates ALL fields if remote is newer
+   */
+  private async updateExistingCaseIfNewer(caseId: string, decision: CourtListenerDecision): Promise<boolean> {
+    try {
+      // Get existing case to check last update time
+      const { data: existingCase, error: fetchError } = await this.supabase
+        .from('cases')
+        .select('updated_at, case_name, status, courtlistener_id')
+        .eq('id', caseId)
+        .single()
+
+      if (fetchError || !existingCase) {
+        logger.warn('Could not fetch existing case for update check', { caseId, error: fetchError })
+        return false
+      }
+
+      // Check if CourtListener data is newer (using date_created as proxy for freshness)
+      const existingUpdateTime = new Date(existingCase.updated_at || 0).getTime()
+      const remoteUpdateTime = decision.date_created ? new Date(decision.date_created).getTime() : 0
+
+      // Only update if remote data is newer than existing
+      if (remoteUpdateTime <= existingUpdateTime) {
+        return false // Existing data is current
+      }
+
+      // Build update with ALL refreshable metadata fields
+      const updateData: any = {
+        case_name: (decision.case_name || existingCase.case_name).substring(0, 500),
+        precedential_status: decision.precedential_status || null,
+        updated_at: new Date().toISOString()
+      }
+
+      // Update the case with fresh metadata
+      const { error: updateError } = await this.supabase
+        .from('cases')
+        .update(updateData)
+        .eq('id', caseId)
+
+      if (updateError) {
+        logger.error('Failed to update case metadata', { caseId, error: updateError })
+        return false
+      }
+
+      logger.info('Updated case metadata from CourtListener', {
+        caseId,
+        courtlistenerId: decision.cluster_id,
+        fieldsUpdated: Object.keys(updateData).length
+      })
+
+      return true
+
+    } catch (error) {
+      logger.error('Error updating existing case', { caseId, error })
+      return false
     }
   }
 

@@ -1,11 +1,5 @@
-// Suppress console output in production and Netlify builds to prevent secrets exposure
-if (process.env.NODE_ENV === 'production' || process.env.NETLIFY_BUILD === 'true' || process.env.NETLIFY === 'true') {
-  console.log = () => {};
-  console.info = () => {};
-  console.warn = () => {};
-  console.debug = () => {};
-  // Keep console.error for critical errors only
-}
+// Note: Console suppression removed to prevent Next.js build issues with URL validation
+// Sensitive data protection is handled by environment variables and security headers
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -14,9 +8,7 @@ const nextConfig = {
     // Netlify's Next.js integration runs lint during build; treat warnings locally instead of blocking deploys
     ignoreDuringBuilds: true,
   },
-  sentry: {
-    hideSourceMaps: true,
-  },
+  // Sentry configuration moved to instrumentation.ts and sentry.*.config.ts
   
   // Performance optimizations for legal platform
   experimental: {

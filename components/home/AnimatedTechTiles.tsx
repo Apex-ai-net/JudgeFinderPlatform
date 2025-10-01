@@ -18,7 +18,7 @@ interface TileData {
 
 const topRowTiles: TileData[] = [
   { id: '1', title: 'Statewide', stat: 'Judge Coverage', icon: Scale, gradient: 'from-blue-500 to-blue-600' },
-  { id: '2', title: 'Expanding', stat: 'Case Insights', icon: FileText, gradient: 'from-purple-500 to-purple-600' },
+  { id: '2', title: 'Expanding', stat: 'Case Insights', icon: FileText, gradient: 'from-purple-500 to-accent' },
   { id: '3', title: 'In-Depth', stat: 'Data Points Per Profile', icon: Database, gradient: 'from-green-500 to-green-600' },
   { id: '4', title: 'Real-Time', stat: 'Bias Detection', icon: Activity, gradient: 'from-orange-500 to-orange-600' },
   { id: '5', title: 'ML-Powered', stat: 'Pattern Analysis', icon: Brain, gradient: 'from-pink-500 to-pink-600' },
@@ -34,7 +34,7 @@ const bottomRowTiles: TileData[] = [
   { id: '12', title: 'Public Court Data', stat: 'Data Source', icon: Search, gradient: 'from-emerald-500 to-emerald-600' },
   { id: '13', title: 'Supabase', stat: 'Database Platform', icon: Database, gradient: 'from-blue-500 to-blue-600' },
   { id: '14', title: 'Next.js 14', stat: 'Framework', icon: Zap, gradient: 'from-gray-600 to-gray-700' },
-  { id: '15', title: 'Secure', stat: 'Anonymous Searches', icon: Lock, gradient: 'from-purple-500 to-purple-600' },
+  { id: '15', title: 'Secure', stat: 'Anonymous Searches', icon: Lock, gradient: 'from-purple-500 to-accent' },
   { id: '16', title: '60-95%', stat: 'AI Accuracy', icon: TrendingUp, gradient: 'from-green-500 to-green-600' },
 ]
 
@@ -97,16 +97,16 @@ function TileRow({ tiles, direction = 'left' }: { tiles: TileData[], direction?:
           whileHover={{ scale: 1.02 }}
           transition={{ type: "spring", stiffness: 400, damping: 10 }}
         >
-          <div className="relative w-48 sm:w-56 md:w-64 h-24 sm:h-28 md:h-32 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div className="relative w-48 sm:w-56 md:w-64 h-24 sm:h-28 md:h-32 rounded-xl bg-white dark:bg-card border border-border dark:border-border overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
             <div className={`absolute inset-0 bg-gradient-to-br ${tile.gradient} opacity-5 group-hover:opacity-10 transition-opacity`} />
             
             <div className="relative p-3 sm:p-4 md:p-6 h-full flex flex-col justify-between">
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white truncate">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground dark:text-white truncate">
                     {tile.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 sm:mt-1 truncate">
+                  <p className="text-xs sm:text-sm text-muted-foreground dark:text-muted-foreground mt-0.5 sm:mt-1 truncate">
                     {tile.stat}
                   </p>
                 </div>
@@ -133,9 +133,9 @@ export default function AnimatedTechTiles() {
           viewport={{ once: true }}
         >
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
-            Powered by <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Advanced Technology</span>
+            Powered by <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Advanced Technology</span>
           </h2>
-          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4">
+          <p className="text-base sm:text-lg text-muted-foreground dark:text-muted-foreground max-w-2xl mx-auto px-4">
             Real-time judicial analytics powered by cutting-edge AI and verified court data
           </p>
         </motion.div>
@@ -167,7 +167,7 @@ export default function AnimatedTechTiles() {
           viewport={{ once: true }}
           transition={{ delay: 0.4 }}
         >
-          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 max-w-3xl mx-auto px-4">
+          <p className="text-xs sm:text-sm text-muted-foreground dark:text-muted-foreground max-w-3xl mx-auto px-4">
             All data sourced from public court records. Analytics generated using machine learning algorithms with continuous validation and updates.
           </p>
         </motion.div>

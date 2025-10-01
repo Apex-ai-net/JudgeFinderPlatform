@@ -85,7 +85,7 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
     // Dynamic pricing based on court level for judges
     if (spot.entity_type === 'judge') {
       if (spot.court_level === 'federal') {
-        return { label: 'Federal', color: 'text-blue-600 bg-blue-50', price: 500 }
+        return { label: 'Federal', color: 'text-primary bg-primary/5', price: 500 }
       } else {
         return { label: 'State', color: 'text-green-600 bg-green-50', price: 200 }
       }
@@ -93,7 +93,7 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
     // Default pricing for courts
     const price = spot.base_price_monthly
     if (price <= 300) return { label: 'Budget', color: 'text-green-600 bg-green-50', price }
-    if (price <= 500) return { label: 'Standard', color: 'text-blue-600 bg-blue-50', price }
+    if (price <= 500) return { label: 'Standard', color: 'text-primary bg-primary/5', price }
     return { label: 'Premium', color: 'text-purple-600 bg-purple-50', price }
   }
 
@@ -119,7 +119,7 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
       <div className="space-y-6">
         {/* Plan Context Banner */}
         {showPlanContext && planDetails && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-primary/5 border border-blue-200 rounded-lg p-4">
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="font-semibold text-blue-900">
@@ -133,13 +133,13 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-blue-600 mt-2">
+                <p className="text-xs text-primary mt-2">
                   Showing {courtLevel === 'federal' ? 'Federal' : courtLevel === 'state' ? 'State' : 'All'} judge profiles available for advertising
                 </p>
               </div>
               <button
                 onClick={() => window.history.back()}
-                className="text-sm text-blue-600 hover:text-blue-700"
+                className="text-sm text-primary hover:text-blue-700"
               >
                 Change Plan
               </button>
@@ -148,17 +148,17 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
         )}
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-lg shadow-sm border border-border p-6">
           <div className="space-y-4">
             {/* Search Bar */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search by judge name, court, or jurisdiction..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 
@@ -167,7 +167,7 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
               <select
                 value={entityType}
                 onChange={(e) => setEntityType(e.target.value as any)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Types</option>
                 <option value="judge">Judge Profiles</option>
@@ -178,7 +178,7 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                 <select
                   value={courtLevel}
                   onChange={(e) => setCourtLevel(e.target.value as any)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">All Court Levels</option>
                   <option value="federal">Federal Judges ($500/mo)</option>
@@ -189,7 +189,7 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
               <select
                 value={priceRange}
                 onChange={(e) => setPriceRange(e.target.value as any)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Prices</option>
                 <option value="budget">Budget (≤$200)</option>
@@ -200,7 +200,7 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
               <select
                 value={jurisdiction}
                 onChange={(e) => setJurisdiction(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Jurisdictions</option>
                 <option value="Orange County">Orange County</option>
@@ -214,13 +214,13 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
         </div>
 
         {/* Results */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-lg shadow-sm border border-border">
+          <div className="px-6 py-4 border-b border-border">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-foreground">
                 Available Ad Spots ({filteredSpots.length})
               </h2>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Filter className="h-4 w-4" />
                 <span>Filtered results</span>
               </div>
@@ -230,11 +230,11 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
           {loading ? (
             <div className="p-12 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-4 text-gray-500">Loading available spots...</p>
+              <p className="mt-4 text-muted-foreground">Loading available spots...</p>
             </div>
           ) : filteredSpots.length === 0 ? (
             <div className="p-12 text-center">
-              <p className="text-gray-500">No available ad spots found. Try adjusting your filters.</p>
+              <p className="text-muted-foreground">No available ad spots found. Try adjusting your filters.</p>
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
@@ -244,7 +244,7 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                 return (
                   <div
                     key={spot.id}
-                    className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
+                    className="p-6 hover:bg-muted transition-colors cursor-pointer"
                     onClick={() => {
                       setSelectedSpot(spot)
                       setShowBookingModal(true)
@@ -253,18 +253,18 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">
+                          <h3 className="text-lg font-semibold text-foreground">
                             {spot.entity_name}
                           </h3>
                           <span className={`px-2 py-1 text-xs font-medium rounded-full ${priceInfo.color}`}>
                             {priceInfo.label}
                           </span>
-                          <span className="px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                          <span className="px-2 py-1 text-xs font-medium text-muted-foreground bg-muted rounded-full">
                             Position {spot.position}
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                           {spot.entity_details.jurisdiction && (
                             <div className="flex items-center gap-1">
                               <MapPin className="h-4 w-4" />
@@ -287,8 +287,8 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
 
                         <div className="flex items-center gap-6">
                           <div>
-                            <p className="text-2xl font-bold text-gray-900">
-                              ${priceInfo.price.toLocaleString()}<span className="text-sm font-normal text-gray-500">/month</span>
+                            <p className="text-2xl font-bold text-foreground">
+                              ${priceInfo.price.toLocaleString()}<span className="text-sm font-normal text-muted-foreground">/month</span>
                             </p>
                           </div>
                           <div className="flex items-center gap-1">
@@ -296,13 +296,13 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                             <Star className="h-4 w-4 text-yellow-500 fill-current" />
                             <Star className="h-4 w-4 text-yellow-500 fill-current" />
                             <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                            <Star className="h-4 w-4 text-gray-300" />
-                            <span className="text-sm text-gray-600 ml-1">High visibility</span>
+                            <Star className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground ml-1">High visibility</span>
                           </div>
                         </div>
                       </div>
 
-                      <ChevronRight className="h-5 w-5 text-gray-400 mt-2" />
+                      <ChevronRight className="h-5 w-5 text-muted-foreground mt-2" />
                     </div>
                   </div>
                 )
@@ -315,10 +315,10 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
       {showBookingModal && selectedSpot && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-xl bg-white shadow-xl">
-            <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <div className="border-b border-border px-6 py-4 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Book {selectedSpot.entity_name}</h2>
-                <p className="text-sm text-gray-600 mt-1">
+                <h2 className="text-xl font-semibold text-foreground">Book {selectedSpot.entity_name}</h2>
+                <p className="text-sm text-muted-foreground mt-1">
                   Judge sponsorships renew automatically monthly with ACH-first invoicing. Annual billing available at 10× monthly.
                 </p>
               </div>
@@ -326,7 +326,7 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                 onClick={() => {
                   setShowBookingModal(false)
                 }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-muted-foreground hover:text-muted-foreground"
                 aria-label="Close booking modal"
               >
                 ×
@@ -342,15 +342,15 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                 />
               </div>
 
-              <div className="space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <div className="space-y-4 rounded-lg border border-border bg-muted p-4">
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-900">Summary</h3>
-                  <p className="mt-1 text-xs text-gray-600">
+                  <h3 className="text-sm font-semibold text-foreground">Summary</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
                     We will generate an ACH-first invoice for {bookingOptions.bundleSize} judge(s). Cards remain available for solo placements.
                   </p>
                 </div>
 
-                <dl className="space-y-2 text-sm text-gray-700">
+                <dl className="space-y-2 text-sm text-foreground">
                   <div className="flex justify-between">
                     <dt>Billing Term</dt>
                     <dd>{bookingOptions.durationMonths >= 12 ? 'Annual (10×)' : 'Monthly'}</dd>
@@ -363,7 +363,7 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                     <dt>Bundle Size</dt>
                     <dd>{bookingOptions.bundleSize} judge(s)</dd>
                   </div>
-                  <div className="flex justify-between font-semibold text-gray-900">
+                  <div className="flex justify-between font-semibold text-foreground">
                     <dt>Total due at checkout</dt>
                     <dd>
                       {selectedQuote?.total_price != null ? `$${selectedQuote.total_price.toLocaleString()}` : '—'}
@@ -372,7 +372,7 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                 </dl>
 
                 <button
-                  className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                  className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
                   disabled={!bookingOptions.startDate || !selectedQuote?.total_price}
                 >
                   Continue to Checkout

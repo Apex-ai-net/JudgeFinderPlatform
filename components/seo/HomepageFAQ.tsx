@@ -92,14 +92,14 @@ export function HomepageFAQ() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-primary dark:text-primary mb-4">
               <HelpCircle className="w-4 h-4" />
               <span className="text-sm font-medium">Frequently Asked Questions</span>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground dark:text-white mb-4">
               Everything You Need to Know About JudgeFinder
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground dark:text-muted-foreground max-w-2xl mx-auto">
               Get answers to common questions about using our judicial analytics platform
             </p>
           </motion.div>
@@ -115,14 +115,14 @@ export function HomepageFAQ() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.05 }}
             >
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+              <div className="bg-white dark:bg-card rounded-lg shadow-md hover:shadow-lg transition-shadow">
                 <button
                   onClick={() => toggleItem(index)}
-                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
+                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-muted dark:hover:bg-card/50 rounded-lg transition-colors"
                   aria-expanded={openItems.includes(index)}
                   aria-controls={`faq-answer-${index}`}
                 >
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white pr-4">
+                  <h3 className="text-lg font-semibold text-foreground dark:text-white pr-4">
                     {item.question}
                   </h3>
                   <motion.div
@@ -130,7 +130,7 @@ export function HomepageFAQ() {
                     transition={{ duration: 0.3 }}
                     className="flex-shrink-0"
                   >
-                    <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    <ChevronDown className="w-5 h-5 text-muted-foreground dark:text-muted-foreground" />
                   </motion.div>
                 </button>
                 
@@ -144,7 +144,7 @@ export function HomepageFAQ() {
                       transition={{ duration: 0.3 }}
                       className="overflow-hidden"
                     >
-                      <div className="px-6 pb-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+                      <div className="px-6 pb-4 text-muted-foreground dark:text-muted-foreground leading-relaxed">
                         {item.answer}
                       </div>
                     </motion.div>
@@ -163,19 +163,19 @@ export function HomepageFAQ() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-12 text-center"
         >
-          <p className="text-gray-600 dark:text-gray-300 mb-4">
+          <p className="text-muted-foreground dark:text-muted-foreground mb-4">
             Still have questions? We're here to help!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/contact"
-              className="link-reset inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              className="link-reset inline-flex items-center justify-center px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
             >
               Contact Support
             </Link>
             <Link
               href="/judges"
-              className="inline-flex items-center justify-center px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              className="inline-flex items-center justify-center px-6 py-3 bg-muted dark:bg-card text-foreground dark:text-muted-foreground rounded-lg font-medium hover:bg-muted dark:hover:bg-card transition-colors"
             >
               Start Searching Judges
             </Link>

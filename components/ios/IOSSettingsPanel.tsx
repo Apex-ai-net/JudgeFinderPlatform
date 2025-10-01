@@ -87,7 +87,7 @@ export function IOSSettingsPanel() {
           )}
           
           {!isEnabled && (
-            <div className="rounded-md bg-blue-50 p-3 dark:bg-blue-950">
+            <div className="rounded-md bg-primary/5 p-3 dark:bg-blue-950">
               <p className="text-sm text-blue-800 dark:text-blue-200">
                 Enable notifications to stay updated on judge activity
               </p>

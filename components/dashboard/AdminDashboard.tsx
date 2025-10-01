@@ -123,7 +123,7 @@ function formatSeverity(severity: string) {
     case 'medium':
       return { label: 'Medium', className: 'bg-amber-50 text-amber-600 border border-amber-200' }
     default:
-      return { label: 'Low', className: 'bg-blue-50 text-blue-600 border border-blue-200' }
+      return { label: 'Low', className: 'bg-primary/5 text-primary border border-blue-200' }
   }
 }
 
@@ -239,7 +239,7 @@ function healthPill(status: SyncStatusResponse['health']['status']) {
     default:
       return {
         label: 'Unknown',
-        className: 'bg-gray-100 text-gray-700 border border-gray-200',
+        className: 'bg-muted text-foreground border border-border',
         icon: Clock
       }
   }
@@ -368,12 +368,12 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
         <AlertTriangle className="h-10 w-10 text-red-500" />
         <div className="text-center">
-          <p className="text-lg font-medium text-gray-900">Unable to load operations data</p>
-          <p className="text-sm text-gray-600">Verify SYNC_API_KEY and admin API availability.</p>
+          <p className="text-lg font-medium text-foreground">Unable to load operations data</p>
+          <p className="text-sm text-muted-foreground">Verify SYNC_API_KEY and admin API availability.</p>
         </div>
         <button
           onClick={() => router.refresh()}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700"
         >
           <RefreshCcw className="h-4 w-4 mr-2" />Try again
         </button>
@@ -438,20 +438,20 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-900">Operations Dashboard</h1>
-          <p className="text-gray-600">Monitor sync pipelines, queue health, and CourtListener integrations.</p>
+          <h1 className="text-3xl font-semibold text-foreground">Operations Dashboard</h1>
+          <p className="text-muted-foreground">Monitor sync pipelines, queue health, and CourtListener integrations.</p>
         </div>
         <div className="flex items-center gap-3">
           <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${health.className}`}>
             <health.icon className="h-4 w-4" />
             {health.label}
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-muted-foreground">
             Last updated {formatRelative(status.timestamp)}
           </div>
           <button
             onClick={() => router.refresh()}
-            className="inline-flex items-center rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+            className="inline-flex items-center rounded-md border border-border bg-white px-3 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-muted"
           >
             <RefreshCw className="h-4 w-4 mr-2" />Refresh
           </button>
@@ -471,34 +471,34 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
       )}
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">System uptime</p>
-              <p className="mt-2 text-3xl font-semibold text-gray-900">{formatPercent(uptime, '—')}</p>
+              <p className="text-sm font-medium text-muted-foreground">System uptime</p>
+              <p className="mt-2 text-3xl font-semibold text-foreground">{formatPercent(uptime, '—')}</p>
             </div>
             <CheckCircle2 className="h-10 w-10 text-emerald-500" />
           </div>
-          <p className="mt-3 text-xs text-gray-500">
+          <p className="mt-3 text-xs text-muted-foreground">
             {formatNumber(status.performance?.daily?.total_runs)} jobs today · {formatNumber(status.recent_logs?.length ?? 0)} recent runs tracked
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Queue depth</p>
-              <p className="mt-2 text-3xl font-semibold text-gray-900">{formatNumber(backlog)}</p>
+              <p className="text-sm font-medium text-muted-foreground">Queue depth</p>
+              <p className="mt-2 text-3xl font-semibold text-foreground">{formatNumber(backlog)}</p>
             </div>
             <Server className="h-10 w-10 text-blue-500" />
           </div>
-          <p className="mt-3 text-xs text-gray-500">
+          <p className="mt-3 text-xs text-muted-foreground">
             Pending {formatNumber(queueStats.pending)} · Running {formatNumber(queueStats.running)}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">CourtListener circuit</p>
+              <p className="text-sm font-medium text-muted-foreground">CourtListener circuit</p>
               <p className={`mt-2 text-2xl font-semibold ${
                 circuitSeverity.tone === 'critical'
                   ? 'text-red-600'
@@ -517,53 +517,53 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
               }`}
             />
           </div>
-          <p className="mt-3 text-xs text-gray-500">
+          <p className="mt-3 text-xs text-muted-foreground">
             {circuitSeverity.message} · Failures {formatNumber(external.courtlistener_failures_24h)}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Cache efficiency</p>
-              <p className="mt-2 text-3xl font-semibold text-gray-900">{cacheHitLabel}</p>
+              <p className="text-sm font-medium text-muted-foreground">Cache efficiency</p>
+              <p className="mt-2 text-3xl font-semibold text-foreground">{cacheHitLabel}</p>
             </div>
             <Clock className="h-10 w-10 text-teal-500" />
           </div>
-          <p className="mt-3 text-xs text-gray-500">
+          <p className="mt-3 text-xs text-muted-foreground">
             Judges synced {judgeFreshnessRelative} · Decisions {decisionFreshnessRelative}
           </p>
         </div>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-            <h2 className="text-sm font-semibold text-gray-900">Queue status</h2>
-            <Activity className="h-5 w-5 text-gray-400" />
+        <div className="rounded-lg border border-border bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-border px-6 py-4">
+            <h2 className="text-sm font-semibold text-foreground">Queue status</h2>
+            <Activity className="h-5 w-5 text-muted-foreground" />
           </div>
           <div className="px-6 py-4">
-            <dl className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-              <div className="rounded-md bg-gray-50 p-4">
-                <dt className="font-medium text-gray-500">Pending</dt>
-                <dd className="mt-1 text-xl font-semibold text-gray-900">{formatNumber(queueStats.pending)}</dd>
+            <dl className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
+              <div className="rounded-md bg-muted p-4">
+                <dt className="font-medium text-muted-foreground">Pending</dt>
+                <dd className="mt-1 text-xl font-semibold text-foreground">{formatNumber(queueStats.pending)}</dd>
               </div>
-              <div className="rounded-md bg-gray-50 p-4">
-                <dt className="font-medium text-gray-500">Running</dt>
-                <dd className="mt-1 text-xl font-semibold text-gray-900">{formatNumber(queueStats.running)}</dd>
+              <div className="rounded-md bg-muted p-4">
+                <dt className="font-medium text-muted-foreground">Running</dt>
+                <dd className="mt-1 text-xl font-semibold text-foreground">{formatNumber(queueStats.running)}</dd>
               </div>
-              <div className="rounded-md bg-gray-50 p-4">
-                <dt className="font-medium text-gray-500">Succeeded (24h)</dt>
-                <dd className="mt-1 text-xl font-semibold text-gray-900">{formatNumber(queueStats.succeeded)}</dd>
+              <div className="rounded-md bg-muted p-4">
+                <dt className="font-medium text-muted-foreground">Succeeded (24h)</dt>
+                <dd className="mt-1 text-xl font-semibold text-foreground">{formatNumber(queueStats.succeeded)}</dd>
               </div>
-              <div className="rounded-md bg-gray-50 p-4">
-                <dt className="font-medium text-gray-500">Failed (24h)</dt>
-                <dd className="mt-1 text-xl font-semibold text-gray-900">{formatNumber(queueStats.failed)}</dd>
+              <div className="rounded-md bg-muted p-4">
+                <dt className="font-medium text-muted-foreground">Failed (24h)</dt>
+                <dd className="mt-1 text-xl font-semibold text-foreground">{formatNumber(queueStats.failed)}</dd>
               </div>
             </dl>
             {queueBreakdown.length > 0 && (
-              <div className="mt-4 overflow-hidden rounded-md border border-gray-200">
+              <div className="mt-4 overflow-hidden rounded-md border border-border">
                 <table className="min-w-full divide-y divide-gray-200 text-xs">
-                  <thead className="bg-gray-50 text-gray-600">
+                  <thead className="bg-muted text-muted-foreground">
                     <tr>
                       <th scope="col" className="px-3 py-2 text-left font-semibold">Queue</th>
                       <th scope="col" className="px-3 py-2 text-right font-semibold">Pending</th>
@@ -571,10 +571,10 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                       <th scope="col" className="px-3 py-2 text-right font-semibold">Failed</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 bg-white text-gray-600">
+                  <tbody className="divide-y divide-gray-100 bg-white text-muted-foreground">
                     {queueBreakdown.map((row) => (
                       <tr key={row.label}>
-                        <td className="px-3 py-2 font-medium text-gray-800">{row.label}</td>
+                        <td className="px-3 py-2 font-medium text-foreground">{row.label}</td>
                         <td className="px-3 py-2 text-right">{formatNumber(row.pending)}</td>
                         <td className="px-3 py-2 text-right">{formatNumber(row.running)}</td>
                         <td className="px-3 py-2 text-right">{formatNumber(row.failed)}</td>
@@ -587,24 +587,24 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
           </div>
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-            <h2 className="text-sm font-semibold text-gray-900">Performance summary</h2>
-            <BarChart3 className="h-5 w-5 text-gray-400" />
+        <div className="rounded-lg border border-border bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-border px-6 py-4">
+            <h2 className="text-sm font-semibold text-foreground">Performance summary</h2>
+            <BarChart3 className="h-5 w-5 text-muted-foreground" />
           </div>
           <div className="grid grid-cols-1 gap-4 px-6 py-4 md:grid-cols-2">
-            <div className="rounded-md bg-gray-50 p-4">
-              <p className="text-xs font-medium uppercase text-gray-500">Daily</p>
-              <p className="mt-2 text-3xl font-semibold text-gray-900">{formatNumber(status.performance?.daily?.total_runs)}</p>
-              <p className="mt-1 text-sm text-gray-600">
+            <div className="rounded-md bg-muted p-4">
+              <p className="text-xs font-medium uppercase text-muted-foreground">Daily</p>
+              <p className="mt-2 text-3xl font-semibold text-foreground">{formatNumber(status.performance?.daily?.total_runs)}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
                 Success {formatPercent(status.performance?.daily?.success_rate ?? null, '—')} · Failures {formatNumber(dailyFailedRuns)}
               </p>
-              <p className="mt-1 text-xs text-gray-500">Avg duration {formatNumber(status.performance?.daily?.avg_duration_ms)} ms</p>
+              <p className="mt-1 text-xs text-muted-foreground">Avg duration {formatNumber(status.performance?.daily?.avg_duration_ms)} ms</p>
             </div>
-            <div className="rounded-md bg-gray-50 p-4">
-              <p className="text-xs font-medium uppercase text-gray-500">Weekly</p>
-              <p className="mt-2 text-3xl font-semibold text-gray-900">{formatNumber(status.performance?.weekly?.total_runs)}</p>
-              <p className="mt-1 text-sm text-gray-600">
+            <div className="rounded-md bg-muted p-4">
+              <p className="text-xs font-medium uppercase text-muted-foreground">Weekly</p>
+              <p className="mt-2 text-3xl font-semibold text-foreground">{formatNumber(status.performance?.weekly?.total_runs)}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
                 Success {formatPercent(status.performance?.weekly?.success_rate ?? null, '—')} · Failures {formatNumber(weeklyFailedRuns)}
               </p>
             </div>
@@ -612,26 +612,26 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
         </div>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-          <h2 className="text-sm font-semibold text-gray-900">Recent sync activity</h2>
-          <Triangle className="h-5 w-5 text-gray-400 rotate-180" />
+      <div className="rounded-lg border border-border bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <h2 className="text-sm font-semibold text-foreground">Recent sync activity</h2>
+          <Triangle className="h-5 w-5 text-muted-foreground rotate-180" />
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-muted">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">Sync type</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">Status</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">Started</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">Duration (ms)</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">Error</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Sync type</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Status</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Started</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Duration (ms)</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Error</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
               {status.recent_logs.slice(0, 8).map(log => (
                 <tr key={log.id}>
-                  <td className="px-6 py-3 text-gray-900">{log.sync_type}</td>
+                  <td className="px-6 py-3 text-foreground">{log.sync_type}</td>
                   <td className="px-6 py-3">
                     <span
                       className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
@@ -639,21 +639,21 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                           ? 'bg-green-50 text-green-700'
                           : log.status === 'failed'
                             ? 'bg-red-50 text-red-700'
-                            : 'bg-gray-100 text-gray-700'
+                            : 'bg-muted text-foreground'
                       }`}
                     >
                       {log.status === 'completed' ? <CheckCircle2 className="h-3 w-3" /> : log.status === 'failed' ? <AlertTriangle className="h-3 w-3" /> : <Square className="h-3 w-3" />}
                       {log.status}
                     </span>
                   </td>
-                  <td className="px-6 py-3 text-gray-600">{formatRelative(log.started_at)}</td>
-                  <td className="px-6 py-3 text-gray-600">{formatNumber(log.duration_ms)}</td>
-                  <td className="px-6 py-3 text-gray-600">{log.error_message || '—'}</td>
+                  <td className="px-6 py-3 text-muted-foreground">{formatRelative(log.started_at)}</td>
+                  <td className="px-6 py-3 text-muted-foreground">{formatNumber(log.duration_ms)}</td>
+                  <td className="px-6 py-3 text-muted-foreground">{log.error_message || '—'}</td>
                 </tr>
               ))}
               {status.recent_logs.length === 0 && (
                 <tr>
-                  <td className="px-6 py-4 text-center text-gray-500" colSpan={5}>
+                  <td className="px-6 py-4 text-center text-muted-foreground" colSpan={5}>
                     No recent sync jobs recorded.
                   </td>
                 </tr>
@@ -662,23 +662,23 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
           </table>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-          <h2 className="text-sm font-semibold text-gray-900">Rate limit counters</h2>
-          <Clock className="h-5 w-5 text-gray-400" />
+      <div className="rounded-lg border border-border bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <h2 className="text-sm font-semibold text-foreground">Rate limit counters</h2>
+          <Clock className="h-5 w-5 text-muted-foreground" />
         </div>
-        <div className="px-6 py-5 text-sm text-gray-600">
+        <div className="px-6 py-5 text-sm text-muted-foreground">
           {rateLimitMetrics.length === 0 ? (
-            <p className="text-xs text-gray-500">No active throttling signals from the last 24 hours.</p>
+            <p className="text-xs text-muted-foreground">No active throttling signals from the last 24 hours.</p>
           ) : (
             <div className="space-y-3">
               {rateLimitMetrics.map((metric) => (
-                <div key={metric.name} className="flex items-center justify-between rounded-md bg-gray-50 px-4 py-2">
+                <div key={metric.name} className="flex items-center justify-between rounded-md bg-muted px-4 py-2">
                   <div>
-                    <p className="text-sm font-medium text-gray-800">{metric.name}</p>
-                    {metric.window && <p className="text-xs text-gray-500">Window: {metric.window}</p>}
+                    <p className="text-sm font-medium text-foreground">{metric.name}</p>
+                    {metric.window && <p className="text-xs text-muted-foreground">Window: {metric.window}</p>}
                   </div>
-                  <span className="text-sm font-semibold text-gray-900">{formatNumber(metric.value, '—')}</span>
+                  <span className="text-sm font-semibold text-foreground">{formatNumber(metric.value, '—')}</span>
                 </div>
               ))}
             </div>
@@ -687,17 +687,17 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
       </div>
     </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-        <div className="flex flex-col gap-3 border-b border-gray-200 px-6 py-4 md:flex-row md:items-center md:justify-between">
+      <div className="rounded-lg border border-border bg-white shadow-sm">
+        <div className="flex flex-col gap-3 border-b border-border px-6 py-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-gray-900">Corrections queue</h2>
-            <p className="text-xs text-gray-500">Public data issues flagged for review.</p>
+            <h2 className="text-sm font-semibold text-foreground">Corrections queue</h2>
+            <p className="text-xs text-muted-foreground">Public data issues flagged for review.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {overdueCount > 0 && (
               <span className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700">
                 Over SLA
-                <span className="text-gray-800">{overdueCount.toLocaleString()}</span>
+                <span className="text-foreground">{overdueCount.toLocaleString()}</span>
               </span>
             )}
             {profileIssueCounts.map(({ status, count }) => (
@@ -706,7 +706,7 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                 className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${ISSUE_STATUS_META[status].className}`}
               >
                 {ISSUE_STATUS_META[status].label}
-                <span className="text-gray-800">{count.toLocaleString()}</span>
+                <span className="text-foreground">{count.toLocaleString()}</span>
               </span>
             ))}
           </div>
@@ -718,8 +718,8 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                 onClick={() => setIssueFilter(id)}
                 className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
                   issueFilter === id
-                    ? 'border-blue-400 bg-blue-50 text-blue-700'
-                    : 'border-gray-200 bg-gray-100 text-gray-600 hover:border-gray-300 hover:text-gray-800'
+                    ? 'border-blue-400 bg-primary/5 text-blue-700'
+                    : 'border-border bg-muted text-muted-foreground hover:border-border hover:text-foreground'
                 }`}
               >
                 {label}
@@ -729,17 +729,17 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-muted">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">Judge</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">Court</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">Issue</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">Severity</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">SLA</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">Status</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">Reported</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">Contact</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-gray-700">Actions</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Judge</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Court</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Issue</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Severity</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">SLA</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Status</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Reported</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Contact</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
@@ -755,9 +755,9 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
 
                 return (
                   <tr key={issue.id} className={rowClass}>
-                    <td className="px-6 py-3 text-gray-900">{issue.judge_slug}</td>
-                    <td className="px-6 py-3 text-gray-600">{issue.court_id || '—'}</td>
-                    <td className="px-6 py-3 text-gray-600">{ISSUE_TYPE_LABELS[issue.issue_type] || issue.issue_type}</td>
+                    <td className="px-6 py-3 text-foreground">{issue.judge_slug}</td>
+                    <td className="px-6 py-3 text-muted-foreground">{issue.court_id || '—'}</td>
+                    <td className="px-6 py-3 text-muted-foreground">{ISSUE_TYPE_LABELS[issue.issue_type] || issue.issue_type}</td>
                     <td className="px-6 py-3">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${severityMeta.className}`}>
                         {severityMeta.label}
@@ -770,7 +770,7 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                             ? 'bg-red-100 text-red-700'
                             : slaInfo.tone === 'warn'
                             ? 'bg-amber-100 text-amber-700'
-                            : 'bg-gray-100 text-gray-700'
+                            : 'bg-muted text-foreground'
                         }`}
                       >
                         {slaInfo.label}
@@ -781,15 +781,15 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                         {ISSUE_STATUS_META[issue.status].label}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-gray-600">{formatRelative(issue.created_at)}</td>
-                    <td className="px-6 py-3 text-gray-600">{maskEmail(issue.reporter_email)}</td>
+                    <td className="px-6 py-3 text-muted-foreground">{formatRelative(issue.created_at)}</td>
+                    <td className="px-6 py-3 text-muted-foreground">{maskEmail(issue.reporter_email)}</td>
                     <td className="px-6 py-3">
                       <div className="flex flex-wrap items-center gap-2">
                         {issue.status === 'new' && (
                           <button
                             type="button"
                             onClick={() => handleIssueTransition(issue.id, 'researching', 'Acknowledged')}
-                            className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60"
+                            className="rounded-full border border-blue-200 bg-primary/5 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60"
                             disabled={issueTransitionPending || issuePendingId === issue.id}
                           >
                             {issuePendingId === issue.id && issueTransitionPending ? 'Updating…' : 'Acknowledge'}
@@ -809,7 +809,7 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                           <button
                             type="button"
                             onClick={() => handleIssueTransition(issue.id, 'dismissed', 'Dismissed')}
-                            className="rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-200 disabled:opacity-60"
+                            className="rounded-full border border-border bg-muted px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-60"
                             disabled={issueTransitionPending || issuePendingId === issue.id}
                           >
                             {issuePendingId === issue.id && issueTransitionPending ? 'Updating…' : 'Dismiss'}
@@ -829,7 +829,7 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                           <button
                             type="button"
                             onClick={() => handleIssueTransition(issue.id, 'new', 'Reset')}
-                            className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+                            className="rounded-full border border-border bg-white px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-60"
                             disabled={issueTransitionPending || issuePendingId === issue.id}
                           >
                             {issuePendingId === issue.id && issueTransitionPending ? 'Updating…' : 'Reset'}
@@ -842,7 +842,7 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
               })}
               {filteredIssues.length === 0 && (
                 <tr>
-                  <td className="px-6 py-5 text-center text-sm text-gray-500" colSpan={9}>
+                  <td className="px-6 py-5 text-center text-sm text-muted-foreground" colSpan={9}>
                     No open issues. Incoming corrections will appear here.
                   </td>
                 </tr>
@@ -852,14 +852,14 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
         </div>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+      <div className="rounded-lg border border-border bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <div>
-            <h2 className="text-sm font-semibold text-gray-900">Admin actions</h2>
-            <p className="text-xs text-gray-500">Actions run via secure server-side API key.</p>
+            <h2 className="text-sm font-semibold text-foreground">Admin actions</h2>
+            <p className="text-xs text-muted-foreground">Actions run via secure server-side API key.</p>
           </div>
           {isPending && (
-            <div className="inline-flex items-center gap-2 text-sm text-gray-500">
+            <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
               <RefreshCcw className="h-4 w-4 animate-spin" />Processing…
             </div>
           )}
@@ -867,13 +867,13 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
         <div className="grid gap-4 px-6 py-6 md:grid-cols-3">
           <button
             onClick={() => handleAction('queue-decisions')}
-            className="rounded-md border border-blue-200 bg-blue-50 px-4 py-3 text-left text-sm font-medium text-blue-700 hover:bg-blue-100"
+            className="rounded-md border border-blue-200 bg-primary/5 px-4 py-3 text-left text-sm font-medium text-blue-700 hover:bg-blue-100"
           >
             <div className="flex items-center gap-2">
               <PlayCircle className="h-4 w-4" />
               Queue CA decision sync
             </div>
-            <p className="mt-1 text-xs font-normal text-blue-600/80">Runs the daily high-priority CA decision ingest.</p>
+            <p className="mt-1 text-xs font-normal text-primary/80">Runs the daily high-priority CA decision ingest.</p>
           </button>
           <button
             onClick={() => handleAction('cancel-decisions')}
@@ -887,33 +887,33 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
           </button>
           <button
             onClick={() => handleAction('restart-queue')}
-            className="rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-100"
+            className="rounded-md border border-border bg-muted px-4 py-3 text-left text-sm font-medium text-foreground hover:bg-muted"
           >
             <div className="flex items-center gap-2">
               <RefreshCcw className="h-4 w-4" />
               Restart queue processor
             </div>
-            <p className="mt-1 text-xs font-normal text-gray-500">Gracefully restarts the queue worker.</p>
+            <p className="mt-1 text-xs font-normal text-muted-foreground">Gracefully restarts the queue worker.</p>
           </button>
         </div>
       </div>
 
       {pendingAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900">{ACTION_META[pendingAction].title}</h3>
-            <p className="mt-2 text-sm text-gray-600">{ACTION_META[pendingAction].description}</p>
+          <div className="w-full max-w-md rounded-lg border border-border bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-foreground">{ACTION_META[pendingAction].title}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">{ACTION_META[pendingAction].description}</p>
             <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={cancelAction}
-                className="rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                className="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted"
                 disabled={isPending}
               >
                 Cancel
               </button>
               <button
                 onClick={executeAction}
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
                 disabled={isPending}
               >
                 {ACTION_META[pendingAction].confirmLabel}

@@ -146,18 +146,18 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1))
 
   return (
-    <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-8">
+    <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-8">
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm font-medium text-gray-400">
+          <span className="text-sm font-medium text-muted-foreground">
             Step {currentStep} of 4
           </span>
-          <span className="text-sm font-medium text-gray-400">
+          <span className="text-sm font-medium text-muted-foreground">
             {Math.round((currentStep / 4) * 100)}% Complete
           </span>
         </div>
-        <div className="w-full bg-gray-700 rounded-full h-2">
+        <div className="w-full bg-card rounded-full h-2">
           <div 
             className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep / 4) * 100}%` }}
@@ -170,7 +170,7 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
         <div className="space-y-6">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-white mb-2">What's your profession?</h2>
-            <p className="text-gray-400">This helps us customize your experience</p>
+            <p className="text-muted-foreground">This helps us customize your experience</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -182,14 +182,14 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
                   onClick={() => setOnboardingData(prev => ({ ...prev, profession: profession.id }))}
                   className={`flex items-center p-4 rounded-lg border transition-colors ${
                     onboardingData.profession === profession.id
-                      ? 'bg-blue-500/20 border-blue-500/50 text-blue-400'
-                      : 'bg-gray-700/50 border-gray-600/50 text-gray-300 hover:bg-gray-600/50'
+                      ? 'bg-primary/50/20 border-blue-500/50 text-primary'
+                      : 'bg-card/50 border-border/50 text-muted-foreground hover:bg-muted-foreground/50'
                   }`}
                 >
                   <Icon className="h-6 w-6 mr-3" />
                   <span className="font-medium">{profession.label}</span>
                   {onboardingData.profession === profession.id && (
-                    <CheckCircleIcon className="h-5 w-5 ml-auto text-blue-400" />
+                    <CheckCircleIcon className="h-5 w-5 ml-auto text-primary" />
                   )}
                 </button>
               )
@@ -203,7 +203,7 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
         <div className="space-y-6">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-white mb-2">How will you use JudgeFinder?</h2>
-            <p className="text-gray-400">Select all that apply</p>
+            <p className="text-muted-foreground">Select all that apply</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -214,7 +214,7 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
                 className={`flex items-center p-4 rounded-lg border transition-colors text-left ${
                   onboardingData.useCase.includes(useCase)
                     ? 'bg-purple-500/20 border-purple-500/50 text-purple-400'
-                    : 'bg-gray-700/50 border-gray-600/50 text-gray-300 hover:bg-gray-600/50'
+                    : 'bg-card/50 border-border/50 text-muted-foreground hover:bg-muted-foreground/50'
                 }`}
               >
                 <div className="flex-1">
@@ -234,7 +234,7 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
         <div className="space-y-6">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-white mb-2">Primary jurisdiction</h2>
-            <p className="text-gray-400">Which jurisdiction do you work in most often?</p>
+            <p className="text-muted-foreground">Which jurisdiction do you work in most often?</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -245,7 +245,7 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
                 className={`flex items-center p-4 rounded-lg border transition-colors ${
                   onboardingData.jurisdiction === jurisdiction.code
                     ? 'bg-green-500/20 border-green-500/50 text-green-400'
-                    : 'bg-gray-700/50 border-gray-600/50 text-gray-300 hover:bg-gray-600/50'
+                    : 'bg-card/50 border-border/50 text-muted-foreground hover:bg-muted-foreground/50'
                 }`}
               >
                 <MapPinIcon className="h-6 w-6 mr-3" />
@@ -264,16 +264,16 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
         <div className="space-y-6">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-white mb-2">Notification preferences</h2>
-            <p className="text-gray-400">Choose how you'd like to stay updated</p>
+            <p className="text-muted-foreground">Choose how you'd like to stay updated</p>
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-card/30 rounded-lg">
               <div className="flex items-center">
-                <BellIcon className="h-6 w-6 text-blue-400 mr-3" />
+                <BellIcon className="h-6 w-6 text-primary mr-3" />
                 <div>
                   <p className="font-medium text-white">Email Updates</p>
-                  <p className="text-sm text-gray-400">Platform updates and new features</p>
+                  <p className="text-sm text-muted-foreground">Platform updates and new features</p>
                 </div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -286,16 +286,16 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
                   }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                <div className="w-11 h-6 bg-muted-foreground peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-card/30 rounded-lg">
               <div className="flex items-center">
                 <BookmarkIcon className="h-6 w-6 text-purple-400 mr-3" />
                 <div>
                   <p className="font-medium text-white">Judge Alerts</p>
-                  <p className="text-sm text-gray-400">Updates about saved judges</p>
+                  <p className="text-sm text-muted-foreground">Updates about saved judges</p>
                 </div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -308,16 +308,16 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
                   }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                <div className="w-11 h-6 bg-muted-foreground peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-card/30 rounded-lg">
               <div className="flex items-center">
                 <BellIcon className="h-6 w-6 text-green-400 mr-3" />
                 <div>
                   <p className="font-medium text-white">Weekly Digest</p>
-                  <p className="text-sm text-gray-400">Weekly summary of activity</p>
+                  <p className="text-sm text-muted-foreground">Weekly summary of activity</p>
                 </div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -330,7 +330,7 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
                   }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                <div className="w-11 h-6 bg-muted-foreground peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
           </div>
@@ -344,8 +344,8 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
           disabled={currentStep === 1}
           className={`px-6 py-3 rounded-lg font-medium transition-colors ${
             currentStep === 1
-              ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-              : 'bg-gray-700 text-white hover:bg-gray-600'
+              ? 'bg-card text-muted-foreground cursor-not-allowed'
+              : 'bg-card text-white hover:bg-muted-foreground'
           }`}
         >
           Previous
@@ -357,7 +357,7 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
             disabled={currentStep === 1 && !onboardingData.profession}
             className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
               (currentStep === 1 && !onboardingData.profession)
-                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                ? 'bg-card text-muted-foreground cursor-not-allowed'
                 : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white'
             }`}
           >

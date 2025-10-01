@@ -38,7 +38,7 @@ export function WhatYoullLearn() {
     <div>
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold mb-4">What You'll Learn About Each Judge</h2>
-        <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Gain comprehensive insights into judicial behavior and decision-making patterns
         </p>
       </div>
@@ -49,13 +49,13 @@ export function WhatYoullLearn() {
           return (
             <div
               key={index}
-              className="group rounded-lg border border-gray-800 bg-gray-900/50 p-6 transition-all hover:border-blue-600/50 hover:bg-gray-900"
+              className="group rounded-lg border border-gray-800 bg-surface-sunken/50 p-6 transition-all hover:border-blue-600/50 hover:bg-surface-sunken"
             >
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600/10 text-blue-400 group-hover:bg-blue-600/20">
+              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20">
                 <Icon className="h-6 w-6" />
               </div>
               <h3 className="mb-2 text-lg font-semibold">{feature.title}</h3>
-              <p className="text-sm text-gray-400">{feature.description}</p>
+              <p className="text-sm text-muted-foreground">{feature.description}</p>
             </div>
           )
         })}

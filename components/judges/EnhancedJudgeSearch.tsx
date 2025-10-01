@@ -151,7 +151,7 @@ export function EnhancedJudgeSearch() {
 
   const getExperienceColor = (years: number) => {
     if (years >= 20) return 'text-purple-400'
-    if (years >= 10) return 'text-blue-400'
+    if (years >= 10) return 'text-primary'
     if (years >= 5) return 'text-green-400'
     return 'text-yellow-400'
   }
@@ -180,7 +180,7 @@ export function EnhancedJudgeSearch() {
           <h1 className="text-4xl font-bold mb-4">
             Find the Right Judge for Your Case
           </h1>
-          <p className="text-gray-300 text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Search through {totalCountDisplay} California judges with advanced filtering 
             by case type, experience, settlement rates, and judicial patterns.
           </p>
@@ -190,20 +190,20 @@ export function EnhancedJudgeSearch() {
         <div className="max-w-4xl mx-auto mb-6">
           <div className="flex gap-2">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search judges by name, court, or location..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-3 bg-card border border-border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
               />
             </div>
             <button
               onClick={handleSearch}
               disabled={loading}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors"
+              className="px-6 py-3 bg-primary hover:bg-blue-700 disabled:bg-muted-foreground rounded-lg font-medium transition-colors"
             >
               {loading ? 'Searching...' : 'Search'}
             </button>
@@ -227,16 +227,16 @@ export function EnhancedJudgeSearch() {
         {/* Search Results Summary */}
         {searchResults && (
           <div className="mb-6 flex justify-between items-center">
-            <div className="text-gray-300">
+            <div className="text-muted-foreground">
               Showing {searchResults.judges.length} of {totalCountDisplay} judges
               {searchResults.search_took_ms && (
-                <span className="text-gray-500 ml-2">
+                <span className="text-muted-foreground ml-2">
                   ({searchResults.search_took_ms}ms)
                 </span>
               )}
             </div>
             {searchResults.applied_filters && Object.values(searchResults.applied_filters).some(v => v && v !== '' && (!Array.isArray(v) || v.length > 0)) && (
-              <div className="text-blue-400 text-sm">
+              <div className="text-primary text-sm">
                 Advanced filters applied
               </div>
             )}
@@ -247,15 +247,15 @@ export function EnhancedJudgeSearch() {
         {loading && !searchResults && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {Array.from({ length: 6 }).map((_, idx) => (
-              <div key={idx} className="animate-pulse rounded-lg border border-gray-800 bg-gray-800/60 p-6">
-                <div className="h-4 w-1/2 bg-gray-700 rounded mb-3" />
-                <div className="h-3 w-2/3 bg-gray-700 rounded mb-2" />
-                <div className="h-3 w-1/3 bg-gray-700 rounded mb-6" />
+              <div key={idx} className="animate-pulse rounded-lg border border-gray-800 bg-card/60 p-6">
+                <div className="h-4 w-1/2 bg-card rounded mb-3" />
+                <div className="h-3 w-2/3 bg-card rounded mb-2" />
+                <div className="h-3 w-1/3 bg-card rounded mb-6" />
                 <div className="space-y-2">
-                  <div className="h-3 w-full bg-gray-700 rounded" />
-                  <div className="h-3 w-3/4 bg-gray-700 rounded" />
-                  <div className="h-3 w-2/5 bg-gray-700 rounded" />
-                  <div className="h-3 w-1/2 bg-gray-700 rounded" />
+                  <div className="h-3 w-full bg-card rounded" />
+                  <div className="h-3 w-3/4 bg-card rounded" />
+                  <div className="h-3 w-2/5 bg-card rounded" />
+                  <div className="h-3 w-1/2 bg-card rounded" />
                 </div>
               </div>
             ))}
@@ -271,11 +271,11 @@ export function EnhancedJudgeSearch() {
                 href={`/judges/${generateSlug(judge.name)}`}
                 className="group"
               >
-                <div className="bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition-colors border border-gray-700 group-hover:border-blue-500">
+                <div className="bg-card rounded-lg p-6 hover:bg-card transition-colors border border-border group-hover:border-blue-500">
                   {/* Match Score Indicator */}
                   {judge.match_score < 1.0 && (
                     <div className="flex justify-end mb-2">
-                      <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded">
+                      <span className="px-2 py-1 bg-primary text-white text-xs rounded">
                         {Math.round(judge.match_score * 100)}% match
                       </span>
                     </div>
@@ -283,11 +283,11 @@ export function EnhancedJudgeSearch() {
 
                   {/* Judge Info */}
                   <div className="mb-4">
-                    <h3 className="text-xl font-semibold text-white mb-1 group-hover:text-blue-400 transition-colors">
+                    <h3 className="text-xl font-semibold text-white mb-1 group-hover:text-primary transition-colors">
                       {judge.name}
                     </h3>
-                    <p className="text-gray-400 text-sm mb-2">{judge.court_name}</p>
-                    <div className="flex items-center gap-2 text-gray-500 text-sm">
+                    <p className="text-muted-foreground text-sm mb-2">{judge.court_name}</p>
+                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
                       <Scale className="h-4 w-4" />
                       <span>{judge.jurisdiction}</span>
                     </div>
@@ -296,38 +296,38 @@ export function EnhancedJudgeSearch() {
                   {/* Key Metrics */}
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-400 text-sm">Experience:</span>
+                      <span className="text-muted-foreground text-sm">Experience:</span>
                       <span className={`font-medium ${getExperienceColor(judge.experience_years)}`}>
                         {judge.experience_years} years
                       </span>
                     </div>
                     
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-400 text-sm">Efficiency:</span>
+                      <span className="text-muted-foreground text-sm">Efficiency:</span>
                       <span className={`font-medium ${getEfficiencyColor(judge.efficiency_score)}`}>
                         {judge.efficiency_score.toFixed(1)} cases/mo
                       </span>
                     </div>
                     
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-400 text-sm">Settlement Rate:</span>
+                      <span className="text-muted-foreground text-sm">Settlement Rate:</span>
                       <span className={`font-medium ${getSettlementColor(judge.settlement_rate)}`}>
                         {(judge.settlement_rate * 100).toFixed(1)}%
                       </span>
                     </div>
                     
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-400 text-sm">Specialization:</span>
-                      <span className="text-blue-400 font-medium text-sm">
+                      <span className="text-muted-foreground text-sm">Specialization:</span>
+                      <span className="text-primary font-medium text-sm">
                         {judge.primary_specialization}
                       </span>
                     </div>
                   </div>
 
                   {/* Total Cases */}
-                  <div className="mt-4 pt-4 border-t border-gray-700">
+                  <div className="mt-4 pt-4 border-t border-border">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-400 text-sm">Total Cases:</span>
+                      <span className="text-muted-foreground text-sm">Total Cases:</span>
                       <span className="text-green-400 font-medium">
                         {(judge.total_cases || 0).toLocaleString()}
                       </span>
@@ -345,7 +345,7 @@ export function EnhancedJudgeSearch() {
             <button
               onClick={loadMore}
               disabled={loading}
-              className="px-8 py-3 bg-gray-800 hover:bg-gray-700 disabled:bg-gray-600 rounded-lg font-medium transition-colors border border-gray-600"
+              className="px-8 py-3 bg-card hover:bg-card disabled:bg-muted-foreground rounded-lg font-medium transition-colors border border-border"
             >
               {loading ? 'Loading...' : 'Load More Judges'}
             </button>
@@ -355,14 +355,14 @@ export function EnhancedJudgeSearch() {
         {/* No Results */}
         {searchResults && searchResults.judges.length === 0 && !loading && (
           <div className="text-center py-12">
-            <Scale className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+            <Scale className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">No judges found</h3>
-            <p className="text-gray-400 mb-4">
+            <p className="text-muted-foreground mb-4">
               Try adjusting your search query or filters to find more results.
             </p>
             <button
               onClick={handleClearFilters}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors"
+              className="px-6 py-2 bg-primary hover:bg-blue-700 rounded-lg font-medium transition-colors"
             >
               Clear Filters
             </button>

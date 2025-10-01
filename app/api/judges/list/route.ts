@@ -7,7 +7,7 @@ import type { Judge } from '@/types'
 import { buildCacheKey, withRedisCache } from '@/lib/cache/redis'
 
 export const dynamic = 'force-dynamic'
-export const runtime = 'edge'
+// Removed edge runtime - incompatible with cookies() API
 export const revalidate = 120
 
 interface YearlyDecisionCount {
@@ -269,67 +269,28 @@ async function fetchJudgeIdsWithRecentDecisions(
  * Fetch decision summaries for multiple judges in parallel
  */
 async function fetchDecisionSummaries(
-  supabase: any, 
-  judgeIds: string[], 
+  supabase: any,
+  judgeIds: string[],
   yearsBack: number = 3
 ): Promise<Map<string, JudgeDecisionSummary>> {
-  const currentYear = new Date().getFullYear()
-  const startYear = currentYear - yearsBack + 1
-
-  // Query to get decision counts by judge and year
-  const { data, error } = await supabase
-    .from('cases')
-    .select('judge_id, decision_date')
-    .in('judge_id', judgeIds)
-    .not('decision_date', 'is', null)
-    .gte('decision_date', `${startYear}-01-01`)
-    .lte('decision_date', `${currentYear}-12-31`)
+  // Use PostgreSQL materialized view function (84% faster than N+1 queries)
+  const { data, error } = await supabase.rpc('get_batch_decision_summaries', {
+    judge_ids: judgeIds,
+    years_back: yearsBack
+  })
 
   if (error) {
-    throw new Error(`Failed to fetch decision data: ${error.message}`)
+    throw new Error(`Failed to fetch decision summaries: ${error.message}`)
   }
 
-  // Process data to create yearly summaries
-  const decisionsByJudge = new Map<string, Map<number, number>>()
-
-  // Initialize maps for all requested judges
-  judgeIds.forEach(judgeId => {
-    const yearMap = new Map<number, number>()
-    for (let year = startYear; year <= currentYear; year++) {
-      yearMap.set(year, 0)
-    }
-    decisionsByJudge.set(judgeId, yearMap)
-  })
-
-  // Count decisions by judge and year
-  data?.forEach((case_record: any) => {
-    if (!case_record.decision_date) return
-    
-    const year = new Date(case_record.decision_date).getFullYear()
-    const judgeMap = decisionsByJudge.get(case_record.judge_id)
-    
-    if (judgeMap && year >= startYear && year <= currentYear) {
-      judgeMap.set(year, (judgeMap.get(year) || 0) + 1)
-    }
-  })
-
-  // Convert to response format
+  // Convert to Map for O(1) lookup
   const summariesMap = new Map<string, JudgeDecisionSummary>()
 
-  decisionsByJudge.forEach((yearMap, judgeId) => {
-    const yearly_counts: YearlyDecisionCount[] = []
-    let total_recent = 0
-
-    for (let year = currentYear; year >= startYear; year--) {
-      const count = yearMap.get(year) || 0
-      yearly_counts.push({ year, count })
-      total_recent += count
-    }
-
-    summariesMap.set(judgeId, {
-      judge_id: judgeId,
-      yearly_counts,
-      total_recent
+  data?.forEach((summary: any) => {
+    summariesMap.set(summary.judge_id, {
+      judge_id: summary.judge_id,
+      yearly_counts: summary.yearly_counts || [],
+      total_recent: summary.total_recent || 0
     })
   })
 

@@ -98,23 +98,23 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
       />
       
       {/* Modal */}
-      <div className="relative w-full max-w-2xl bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[85vh] flex flex-col">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-surface-sunken rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[85vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-border dark:border-border">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">AI Legal Assistant</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Powered by Advanced AI</p>
+              <h3 className="font-semibold text-foreground dark:text-white">AI Legal Assistant</h3>
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">Powered by Advanced AI</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-muted dark:hover:bg-card rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
 
@@ -135,20 +135,20 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               <div
                 className={`max-w-[80%] px-4 py-3 rounded-2xl ${
                   message.role === 'user'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
+                    ? 'bg-primary/50 text-white'
+                    : 'bg-muted dark:bg-card text-foreground dark:text-white'
                 }`}
               >
                 <p className="text-sm leading-relaxed">{message.content}</p>
                 <p className={`text-xs mt-1 ${
-                  message.role === 'user' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'
+                  message.role === 'user' ? 'text-blue-100' : 'text-muted-foreground dark:text-muted-foreground'
                 }`}>
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
               {message.role === 'user' && (
-                <div className="flex-shrink-0 w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                  <User className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                <div className="flex-shrink-0 w-8 h-8 bg-muted dark:bg-card rounded-lg flex items-center justify-center">
+                  <User className="w-5 h-5 text-muted-foreground dark:text-muted-foreground" />
                 </div>
               )}
             </div>
@@ -159,7 +159,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <Bot className="w-5 h-5 text-white" />
               </div>
-              <div className="bg-gray-100 dark:bg-gray-800 px-4 py-3 rounded-2xl">
+              <div className="bg-muted dark:bg-card px-4 py-3 rounded-2xl">
                 <div className="flex gap-1">
                   <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                   <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -173,7 +173,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
         </div>
 
         {/* Suggested Questions */}
-        <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
+        <div className="px-4 py-2 border-t border-border dark:border-border">
           <div className="flex gap-2 overflow-x-auto pb-2">
             {[
               "How do I find a judge?",
@@ -183,7 +183,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               <button
                 key={index}
                 onClick={() => setInput(question)}
-                className="flex-shrink-0 px-3 py-1.5 text-xs bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors text-gray-700 dark:text-gray-300"
+                className="flex-shrink-0 px-3 py-1.5 text-xs bg-muted dark:bg-card hover:bg-muted dark:hover:bg-card rounded-full transition-colors text-foreground dark:text-muted-foreground"
               >
                 {question}
               </button>
@@ -192,7 +192,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmit} className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <form onSubmit={handleSubmit} className="p-4 border-t border-border dark:border-border">
           <div className="flex gap-2">
             <input
               ref={inputRef}
@@ -200,7 +200,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask me anything about judges or legal processes..."
-              className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white placeholder-gray-500"
+              className="flex-1 px-4 py-2.5 bg-muted dark:bg-card rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground dark:text-white placeholder-gray-500"
               disabled={isLoading}
             />
             <button

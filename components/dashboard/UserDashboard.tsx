@@ -206,12 +206,12 @@ export function UserDashboard({ user }: UserDashboardProps) {
       return (
         <div className="space-y-3">
           {[0, 1, 2].map(key => (
-            <div key={key} className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg animate-pulse">
+            <div key={key} className="flex items-center justify-between p-3 bg-card/30 rounded-lg animate-pulse">
               <div className="w-full space-y-2">
-                <div className="h-4 bg-gray-600/60 rounded" />
-                <div className="h-3 bg-gray-600/40 rounded w-1/2" />
+                <div className="h-4 bg-muted-foreground/60 rounded" />
+                <div className="h-3 bg-muted-foreground/40 rounded w-1/2" />
               </div>
-              <StarIcon className="h-5 w-5 text-gray-600" />
+              <StarIcon className="h-5 w-5 text-muted-foreground" />
             </div>
           ))}
         </div>
@@ -220,7 +220,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
 
     if (!savedJudges.length) {
       return (
-        <div className="py-6 text-center text-sm text-gray-400">
+        <div className="py-6 text-center text-sm text-muted-foreground">
           No saved judges yet. Bookmark judges to see them here.
         </div>
       )
@@ -231,10 +231,10 @@ export function UserDashboard({ user }: UserDashboardProps) {
       const courtLabel = judge.court_name || judge.court || 'Court information unavailable'
 
       return (
-        <div key={bookmark.id} className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+        <div key={bookmark.id} className="flex items-center justify-between p-3 bg-card/30 rounded-lg">
           <div>
             <p className="font-medium text-white">{judge.name}</p>
-            <p className="text-sm text-gray-400">{courtLabel}</p>
+            <p className="text-sm text-muted-foreground">{courtLabel}</p>
           </div>
           <StarIcon className="h-5 w-5 text-yellow-400" />
         </div>
@@ -247,12 +247,12 @@ export function UserDashboard({ user }: UserDashboardProps) {
       return (
         <div className="space-y-3">
           {[0, 1, 2].map(key => (
-            <div key={key} className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg animate-pulse">
+            <div key={key} className="flex items-center justify-between p-3 bg-card/30 rounded-lg animate-pulse">
               <div className="w-full space-y-2">
-                <div className="h-4 bg-gray-600/60 rounded" />
-                <div className="h-3 bg-gray-600/40 rounded w-1/2" />
+                <div className="h-4 bg-muted-foreground/60 rounded" />
+                <div className="h-3 bg-muted-foreground/40 rounded w-1/2" />
               </div>
-              <SearchIcon className="h-5 w-5 text-gray-600" />
+              <SearchIcon className="h-5 w-5 text-muted-foreground" />
             </div>
           ))}
         </div>
@@ -261,7 +261,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
 
     if (!recentSearches.length) {
       return (
-        <div className="py-6 text-center text-sm text-gray-400">
+        <div className="py-6 text-center text-sm text-muted-foreground">
           No recent searches yet. Start exploring judges and courts to see them here.
         </div>
       )
@@ -272,14 +272,14 @@ export function UserDashboard({ user }: UserDashboardProps) {
       const context = activity.activity_data?.context || activity.activity_data?.jurisdiction || activity.activity_data?.court_name || ''
 
       return (
-        <div key={activity.id ?? index} className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+        <div key={activity.id ?? index} className="flex items-center justify-between p-3 bg-card/30 rounded-lg">
           <div>
             <p className="font-medium text-white">{query}</p>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-muted-foreground">
               {context ? `${context} • ` : ''}{formatRelativeTime(activity.created_at)}
             </p>
           </div>
-          <SearchIcon className="h-5 w-5 text-gray-400" />
+          <SearchIcon className="h-5 w-5 text-muted-foreground" />
         </div>
       )
     })
@@ -289,49 +289,49 @@ export function UserDashboard({ user }: UserDashboardProps) {
     <div className="space-y-8">
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-6">
+        <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <BookmarkIcon className="h-8 w-8 text-blue-400" />
+              <BookmarkIcon className="h-8 w-8 text-primary" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-400">Saved Judges</p>
+              <p className="text-sm font-medium text-muted-foreground">Saved Judges</p>
               <p className="text-2xl font-bold text-white">{loading ? '...' : stats.bookmarkedJudges}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-6">
+        <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <SearchIcon className="h-8 w-8 text-green-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-400">Total Searches</p>
+              <p className="text-sm font-medium text-muted-foreground">Total Searches</p>
               <p className="text-2xl font-bold text-white">{loading ? '...' : stats.totalSearches}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-6">
+        <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <TrendingUpIcon className="h-8 w-8 text-blue-400" />
+              <TrendingUpIcon className="h-8 w-8 text-primary" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-400">Judges Viewed</p>
+              <p className="text-sm font-medium text-muted-foreground">Judges Viewed</p>
               <p className="text-2xl font-bold text-white">{loading ? '...' : stats.judgesViewed}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-6">
+        <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <ClockIcon className="h-8 w-8 text-orange-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-400">Days Active</p>
+              <p className="text-sm font-medium text-muted-foreground">Days Active</p>
               <p className="text-2xl font-bold text-white">{loading ? '...' : stats.daysSinceJoin}</p>
             </div>
           </div>
@@ -339,7 +339,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-6">
+      <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
         <h2 className="text-xl font-semibold text-white mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Buy Ad Space - Featured Button */}
@@ -356,67 +356,67 @@ export function UserDashboard({ user }: UserDashboardProps) {
 
           <Link
             href="/judges"
-            className="flex items-center p-4 bg-gray-700/50 rounded-lg border border-gray-600/50 hover:bg-gray-600/50 transition-colors group"
+            className="flex items-center p-4 bg-card/50 rounded-lg border border-border/50 hover:bg-muted-foreground/50 transition-colors group"
           >
-            <UserIcon className="h-6 w-6 text-blue-400 mr-3" />
+            <UserIcon className="h-6 w-6 text-primary mr-3" />
             <div>
-              <p className="font-medium text-white group-hover:text-blue-400">Browse Judges</p>
-              <p className="text-sm text-gray-400">Explore California judges statewide</p>
+              <p className="font-medium text-white group-hover:text-primary">Browse Judges</p>
+              <p className="text-sm text-muted-foreground">Explore California judges statewide</p>
             </div>
           </Link>
 
           <Link
             href="/courts"
-            className="flex items-center p-4 bg-gray-700/50 rounded-lg border border-gray-600/50 hover:bg-gray-600/50 transition-colors group"
+            className="flex items-center p-4 bg-card/50 rounded-lg border border-border/50 hover:bg-muted-foreground/50 transition-colors group"
           >
             <BuildingIcon className="h-6 w-6 text-green-400 mr-3" />
             <div>
               <p className="font-medium text-white group-hover:text-green-400">Browse Courts</p>
-              <p className="text-sm text-gray-400">Search courts across California</p>
+              <p className="text-sm text-muted-foreground">Search courts across California</p>
             </div>
           </Link>
 
           <Link
             href="/search"
-            className="flex items-center p-4 bg-gray-700/50 rounded-lg border border-gray-600/50 hover:bg-gray-600/50 transition-colors group"
+            className="flex items-center p-4 bg-card/50 rounded-lg border border-border/50 hover:bg-muted-foreground/50 transition-colors group"
           >
             <SearchIcon className="h-6 w-6 text-blue-500 mr-3" />
             <div>
               <p className="font-medium text-white group-hover:text-blue-500">Advanced Search</p>
-              <p className="text-sm text-gray-400">Find specific judges and cases</p>
+              <p className="text-sm text-muted-foreground">Find specific judges and cases</p>
             </div>
           </Link>
 
           <Link
             href="/compare"
-            className="flex items-center p-4 bg-gray-700/50 rounded-lg border border-gray-600/50 hover:bg-gray-600/50 transition-colors group"
+            className="flex items-center p-4 bg-card/50 rounded-lg border border-border/50 hover:bg-muted-foreground/50 transition-colors group"
           >
             <BarChart3Icon className="h-6 w-6 text-orange-400 mr-3" />
             <div>
               <p className="font-medium text-white group-hover:text-orange-400">Compare Judges</p>
-              <p className="text-sm text-gray-400">Analyze judicial patterns</p>
+              <p className="text-sm text-muted-foreground">Analyze judicial patterns</p>
             </div>
           </Link>
 
           <Link
             href="/profile"
-            className="flex items-center p-4 bg-gray-700/50 rounded-lg border border-gray-600/50 hover:bg-gray-600/50 transition-colors group"
+            className="flex items-center p-4 bg-card/50 rounded-lg border border-border/50 hover:bg-muted-foreground/50 transition-colors group"
           >
-            <UserIcon className="h-6 w-6 text-blue-600 mr-3" />
+            <UserIcon className="h-6 w-6 text-primary mr-3" />
             <div>
-              <p className="font-medium text-white group-hover:text-blue-600">My Profile</p>
-              <p className="text-sm text-gray-400">Manage account settings</p>
+              <p className="font-medium text-white group-hover:text-primary">My Profile</p>
+              <p className="text-sm text-muted-foreground">Manage account settings</p>
             </div>
           </Link>
 
           <Link
             href="/dashboard/bookmarks"
-            className="flex items-center p-4 bg-gray-700/50 rounded-lg border border-gray-600/50 hover:bg-gray-600/50 transition-colors group"
+            className="flex items-center p-4 bg-card/50 rounded-lg border border-border/50 hover:bg-muted-foreground/50 transition-colors group"
           >
             <BookmarkIcon className="h-6 w-6 text-yellow-400 mr-3" />
             <div>
               <p className="font-medium text-white group-hover:text-yellow-400">Saved Judges</p>
-              <p className="text-sm text-gray-400">View bookmarked judges</p>
+              <p className="text-sm text-muted-foreground">View bookmarked judges</p>
             </div>
           </Link>
         </div>
@@ -425,10 +425,10 @@ export function UserDashboard({ user }: UserDashboardProps) {
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Saved Judges */}
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-6">
+        <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-white">Recently Saved</h2>
-            <Link href="/dashboard/bookmarks" className="text-blue-400 hover:text-blue-300 text-sm">
+            <Link href="/dashboard/bookmarks" className="text-primary hover:text-blue-300 text-sm">
               View All
             </Link>
           </div>
@@ -438,10 +438,10 @@ export function UserDashboard({ user }: UserDashboardProps) {
         </div>
 
         {/* Recent Searches */}
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-6">
+        <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-white">Recent Searches</h2>
-            <Link href="/search" className="text-blue-400 hover:text-blue-300 text-sm">
+            <Link href="/search" className="text-primary hover:text-blue-300 text-sm">
               New Search
             </Link>
           </div>
@@ -452,27 +452,27 @@ export function UserDashboard({ user }: UserDashboardProps) {
       </div>
 
       {/* Account Info */}
-      <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-6">
+      <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
         <h2 className="text-xl font-semibold text-white mb-4">Account Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <p className="text-sm font-medium text-gray-400 mb-1">Email</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">Email</p>
             <p className="text-white">{user?.email}</p>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-400 mb-1">Member Since</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">Member Since</p>
             <p className="text-white">
               {loading ? 'Loading...' : formattedMemberSince}
             </p>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-400 mb-1">Account Type</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">Account Type</p>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
               Free Account
             </span>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-400 mb-1">Last Login</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">Last Login</p>
             <p className="text-white">Today</p>
           </div>
         </div>

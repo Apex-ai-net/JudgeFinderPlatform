@@ -69,8 +69,8 @@ export function CountyComparison() {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="mb-6">
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">County Market Comparison</h3>
-        <p className="text-gray-600">Compare market opportunities across California counties</p>
+        <h3 className="text-2xl font-bold text-foreground mb-2">County Market Comparison</h3>
+        <p className="text-muted-foreground">Compare market opportunities across California counties</p>
       </div>
 
       {/* County Selection */}
@@ -82,8 +82,8 @@ export function CountyComparison() {
               onClick={() => toggleCounty(county.id)}
               className={`px-4 py-2 rounded-lg border transition-colors ${
                 selectedCounties.includes(county.id)
-                  ? 'bg-blue-50 border-blue-200 text-blue-800'
-                  : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                  ? 'bg-primary/5 border-blue-200 text-blue-800'
+                  : 'bg-muted border-border text-muted-foreground hover:bg-muted'
               }`}
             >
               {county.name}
@@ -98,10 +98,10 @@ export function CountyComparison() {
         <div className="overflow-x-auto">
           <table className="w-full table-auto">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Metric</th>
+              <tr className="border-b border-border">
+                <th className="text-left py-3 px-4 font-semibold text-foreground">Metric</th>
                 {selectedData.map(county => (
-                  <th key={county.id} className="text-center py-3 px-4 font-semibold text-gray-900">
+                  <th key={county.id} className="text-center py-3 px-4 font-semibold text-foreground">
                     {county.name}
                   </th>
                 ))}
@@ -109,13 +109,13 @@ export function CountyComparison() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               <tr>
-                <td className="py-3 px-4 font-medium text-gray-700">Phase Status</td>
+                <td className="py-3 px-4 font-medium text-foreground">Phase Status</td>
                 {selectedData.map(county => (
                   <td key={county.id} className="py-3 px-4 text-center">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                       county.status === 'active' ? 'bg-green-100 text-green-800' :
                       county.status === 'expanding' ? 'bg-blue-100 text-blue-800' :
-                      'bg-gray-100 text-gray-600'
+                      'bg-muted text-muted-foreground'
                     }`}>
                       Phase {county.phase} - {county.status}
                     </span>
@@ -124,7 +124,7 @@ export function CountyComparison() {
               </tr>
               
               <tr>
-                <td className="py-3 px-4 font-medium text-gray-700">
+                <td className="py-3 px-4 font-medium text-foreground">
                   <div className="flex items-center">
                     <ScaleIcon className="h-4 w-4 mr-2" />
                     Active Judges
@@ -138,7 +138,7 @@ export function CountyComparison() {
               </tr>
 
               <tr>
-                <td className="py-3 px-4 font-medium text-gray-700">
+                <td className="py-3 px-4 font-medium text-foreground">
                   <div className="flex items-center">
                     <BuildingOfficeIcon className="h-4 w-4 mr-2" />
                     Court Locations
@@ -152,7 +152,7 @@ export function CountyComparison() {
               </tr>
 
               <tr>
-                <td className="py-3 px-4 font-medium text-gray-700">
+                <td className="py-3 px-4 font-medium text-foreground">
                   <div className="flex items-center">
                     <CurrencyDollarIcon className="h-4 w-4 mr-2" />
                     Established Revenue
@@ -165,14 +165,14 @@ export function CountyComparison() {
                         ${county.established_revenue.toLocaleString()}/mo
                       </span>
                     ) : (
-                      <span className="text-gray-500">Expanding</span>
+                      <span className="text-muted-foreground">Expanding</span>
                     )}
                   </td>
                 ))}
               </tr>
 
               <tr>
-                <td className="py-3 px-4 font-medium text-gray-700">
+                <td className="py-3 px-4 font-medium text-foreground">
                   <div className="flex items-center">
                     <ArrowTrendingUpIcon className="h-4 w-4 mr-2" />
                     Revenue Potential
@@ -180,7 +180,7 @@ export function CountyComparison() {
                 </td>
                 {selectedData.map(county => (
                   <td key={county.id} className="py-3 px-4 text-center">
-                    <span className="font-semibold text-blue-600">
+                    <span className="font-semibold text-primary">
                       ${county.revenue_potential[0].toLocaleString()}-${county.revenue_potential[1].toLocaleString()}/mo
                     </span>
                   </td>
@@ -188,7 +188,7 @@ export function CountyComparison() {
               </tr>
 
               <tr>
-                <td className="py-3 px-4 font-medium text-gray-700">Average Attorney Budget</td>
+                <td className="py-3 px-4 font-medium text-foreground">Average Attorney Budget</td>
                 {selectedData.map(county => (
                   <td key={county.id} className="py-3 px-4 text-center font-semibold">
                     ${county.avg_attorney_budget}/mo
@@ -197,7 +197,7 @@ export function CountyComparison() {
               </tr>
 
               <tr>
-                <td className="py-3 px-4 font-medium text-gray-700">Success Rate</td>
+                <td className="py-3 px-4 font-medium text-foreground">Success Rate</td>
                 {selectedData.map(county => (
                   <td key={county.id} className="py-3 px-4 text-center font-medium">
                     {county.success_rate}
@@ -206,15 +206,15 @@ export function CountyComparison() {
               </tr>
 
               <tr>
-                <td className="py-3 px-4 font-medium text-gray-700">Top Practice Areas</td>
+                <td className="py-3 px-4 font-medium text-foreground">Top Practice Areas</td>
                 {selectedData.map(county => (
                   <td key={county.id} className="py-3 px-4 text-center">
                     <div className="text-sm">
                       {county.top_practice_areas.slice(0, 2).map((area, idx) => (
-                        <div key={idx} className="text-gray-600">{area}</div>
+                        <div key={idx} className="text-muted-foreground">{area}</div>
                       ))}
                       {county.top_practice_areas.length > 2 && (
-                        <div className="text-gray-400 text-xs">
+                        <div className="text-muted-foreground text-xs">
                           +{county.top_practice_areas.length - 2} more
                         </div>
                       )}
@@ -228,9 +228,9 @@ export function CountyComparison() {
       )}
 
       {/* Summary */}
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+      <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-blue-200">
         <div className="flex items-center mb-2">
-          <ChartBarIcon className="h-5 w-5 text-blue-600 mr-2" />
+          <ChartBarIcon className="h-5 w-5 text-primary mr-2" />
           <span className="font-semibold text-blue-900">Expansion Analysis</span>
         </div>
         <p className="text-blue-800 text-sm">

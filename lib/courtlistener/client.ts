@@ -1,5 +1,6 @@
 import { sleep } from '@/lib/utils/helpers'
 import { logger } from '@/lib/utils/logger'
+import { GlobalRateLimiter } from './global-rate-limiter'
 
 export interface CourtListenerOpinion {
   id: number
@@ -97,12 +98,14 @@ export class CourtListenerClient {
   private circuitThreshold = Math.max(3, parseInt(process.env.COURTLISTENER_CIRCUIT_THRESHOLD || '5', 10))
   private circuitCooldownMs = Math.max(10000, parseInt(process.env.COURTLISTENER_CIRCUIT_COOLDOWN_MS || '60000', 10))
   private metricsReporter?: (name: string, value: number, meta?: Record<string, any>) => void | Promise<void>
+  private globalRateLimiter: GlobalRateLimiter
 
   constructor() {
     this.apiToken = process.env.COURTLISTENER_API_KEY || process.env.COURTLISTENER_API_TOKEN || ''
     if (!this.apiToken) {
       throw new Error('COURTLISTENER_API_KEY or COURTLISTENER_API_TOKEN environment variable is required')
     }
+    this.globalRateLimiter = new GlobalRateLimiter()
   }
 
   setMetricsReporter(reporter: (name: string, value: number, meta?: Record<string, any>) => void | Promise<void>) {
@@ -110,6 +113,15 @@ export class CourtListenerClient {
   }
 
   private async makeRequest<T>(endpoint: string, params: Record<string, string> = {}, options: RequestOptions = {}): Promise<T> {
+    // Global rate limiter: check hourly quota before proceeding
+    const rateLimitCheck = await this.globalRateLimiter.checkLimit()
+    if (!rateLimitCheck.allowed) {
+      const resetInMinutes = Math.ceil((rateLimitCheck.resetAt.getTime() - Date.now()) / 60000)
+      const err = new Error(`CourtListener hourly quota exceeded: ${rateLimitCheck.currentCount}/${rateLimitCheck.limit}. Reset in ${resetInMinutes} minutes`)
+      try { await this.metricsReporter?.('courtlistener_quota_exceeded', 1, { currentCount: rateLimitCheck.currentCount, limit: rateLimitCheck.limit }) } catch {}
+      throw err
+    }
+
     // Circuit breaker: short-circuit requests during cooldown window
     const now = Date.now()
     if (now < this.circuitOpenUntil) {
@@ -185,7 +197,39 @@ export class CourtListenerClient {
             throw new Error(`CourtListener API error ${status}: ${errorText}`)
           }
         } else {
+          // Extract and monitor CourtListener rate limit headers
+          const limitHeader = response.headers.get('X-RateLimit-Limit')
+          const remainingHeader = response.headers.get('X-RateLimit-Remaining')
+          const resetHeader = response.headers.get('X-RateLimit-Reset')
+
+          if (remainingHeader) {
+            const remaining = parseInt(remainingHeader)
+
+            // Warn when approaching limit (< 100 requests remaining)
+            if (remaining < 100) {
+              logger.warn('Approaching CourtListener rate limit', {
+                remaining,
+                limit: limitHeader,
+                resetAt: resetHeader,
+                url: url.pathname
+              })
+              try { await this.metricsReporter?.('courtlistener_rate_limit_warning', remaining, { limit: limitHeader }) } catch {}
+            }
+
+            // Critical alert if exhausted
+            if (remaining === 0) {
+              const resetTime = resetHeader ? parseInt(resetHeader) * 1000 : Date.now() + 3600000
+              logger.error('CourtListener rate limit exhausted', {
+                resetAt: new Date(resetTime).toISOString(),
+                waitMs: resetTime - Date.now()
+              })
+              try { await this.metricsReporter?.('courtlistener_rate_limit_exhausted', 0, { resetTime }) } catch {}
+            }
+          }
+
           const data = await response.json()
+          // Record successful request in global rate limiter
+          await this.globalRateLimiter.recordRequest()
           await sleep(this.requestDelay)
           // reset failure counter on success
           this.circuitFailures = 0

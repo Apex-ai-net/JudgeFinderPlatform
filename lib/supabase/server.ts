@@ -13,7 +13,19 @@ export async function createServerClient(): Promise<SupabaseClient> {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
     if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('Missing Supabase env vars:', {
+        hasUrl: !!supabaseUrl,
+        hasKey: !!supabaseAnonKey,
+        urlLength: supabaseUrl?.length || 0,
+        keyLength: supabaseAnonKey?.length || 0,
+      })
       throw new Error('Missing Supabase environment variables')
+    }
+
+    // Additional validation for correct URL format
+    if (!supabaseUrl.startsWith('https://')) {
+      console.error('Invalid Supabase URL format:', supabaseUrl.substring(0, 20))
+      throw new Error('Invalid Supabase URL format')
     }
 
     return createSupabaseServerClient(

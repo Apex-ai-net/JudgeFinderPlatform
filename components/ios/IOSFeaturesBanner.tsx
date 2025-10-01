@@ -92,7 +92,7 @@ export function IOSFeaturesBanner() {
       
       {/* Feature content */}
       <div className="flex items-start gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
           <FeatureIcon className="h-6 w-6" />
         </div>
         
@@ -109,7 +109,7 @@ export function IOSFeaturesBanner() {
               <Button
                 onClick={feature.action.handler}
                 size="sm"
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-primary hover:bg-blue-700"
               >
                 {feature.action.label}
               </Button>
@@ -117,7 +117,7 @@ export function IOSFeaturesBanner() {
             
             <button
               onClick={handleNext}
-              className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400"
+              className="text-sm font-medium text-primary hover:text-blue-700 dark:text-primary"
             >
               {currentFeature < features.length - 1 ? 'Next' : 'Got it'}
             </button>
@@ -129,7 +129,7 @@ export function IOSFeaturesBanner() {
                   key={index}
                   className={`h-1.5 w-1.5 rounded-full ${
                     index === currentFeature 
-                      ? 'bg-blue-600 dark:bg-blue-400' 
+                      ? 'bg-primary dark:bg-blue-400' 
                       : 'bg-blue-300 dark:bg-blue-700'
                   }`}
                 />

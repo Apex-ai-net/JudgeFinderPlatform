@@ -6,6 +6,21 @@
   :root {
     color-scheme: light;
 
+    /*
+     * JudgeFinder Color Palette - Single Source of Truth
+     *
+     * NEVER use hardcoded colors (hex, rgb, or inline HSL).
+     * Always use semantic tokens via Tailwind classes:
+     *
+     * Surfaces: bg-background, bg-card, bg-popover, bg-surface-elevated, bg-surface-sunken
+     * Text: text-foreground, text-muted-foreground
+     * Interactive: bg-interactive, hover:bg-interactive-hover, bg-interactive/10
+     * Semantic: text-success, text-warning, text-error
+     * Borders: border-border
+     *
+     * For custom opacity: bg-primary/10, text-accent/60, border-border/20
+     */
+
     /* Core surface + type scale */
     --bg-0: 210 40% 98%; /* page */
     --bg-1: 213 44% 96%; /* panels */
@@ -16,12 +31,22 @@
     --border-1: 220 13% 91%;
     --muted-1: 220 14% 96%;
 
+    /* Professional surface variations */
+    --surface-elevated: 213 44% 96%;
+    --surface-sunken: 210 40% 94%;
+
     /* Accent + semantic hues */
     --accent: 216 80% 55%;
     --accent-foreground: 222 86% 9%;
     --pos: 151 74% 66%;
     --neg: 0 94% 82%;
     --warn: 38 93% 77%;
+
+    /* Interactive element states */
+    --interactive-primary: 216 80% 55%;
+    --interactive-hover: 220 85% 60%;
+    --interactive-active: 220 90% 50%;
+    --interactive-subtle: 220 80% 95%;
 
     /* Legacy Tailwind tokens mapped to palette */
     --background: var(--bg-0);
@@ -42,6 +67,11 @@
     --destructive: var(--neg);
     --destructive-foreground: var(--text-1);
     --radius: 0.75rem;
+
+    /* Semantic convenience aliases */
+    --success: var(--pos);
+    --warning: var(--warn);
+    --error: var(--neg);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -55,11 +85,22 @@
       --text-3: 216 12% 60%;
       --border-1: 221 16% 22%;
       --muted-1: 220 20% 16%;
+
+      /* Professional surface variations (dark) */
+      --surface-elevated: 223 17% 10%;
+      --surface-sunken: 228 19% 4%;
+
       --accent: 220 80% 64%;
       --accent-foreground: 222 86% 15%;
       --pos: 151 74% 66%;
       --neg: 0 94% 82%;
       --warn: 38 93% 77%;
+
+      /* Interactive element states (dark) */
+      --interactive-primary: 220 80% 64%;
+      --interactive-hover: 220 85% 68%;
+      --interactive-active: 220 90% 60%;
+      --interactive-subtle: 220 80% 15%;
       --background: var(--bg-0);
       --foreground: var(--text-1);
       --card: var(--bg-2);
@@ -90,11 +131,22 @@
     --text-3: 216 12% 60%;
     --border-1: 221 16% 22%;
     --muted-1: 220 20% 16%;
+
+    /* Professional surface variations (dark) */
+    --surface-elevated: 223 17% 10%;
+    --surface-sunken: 228 19% 4%;
+
     --accent: 220 90% 66%;
     --accent-foreground: 222 84% 5%;
     --pos: 151 74% 66%;
     --neg: 0 94% 82%;
     --warn: 38 93% 77%;
+
+    /* Interactive element states (dark) */
+    --interactive-primary: 220 90% 66%;
+    --interactive-hover: 220 92% 70%;
+    --interactive-active: 220 94% 62%;
+    --interactive-subtle: 220 90% 15%;
     --background: var(--bg-0);
     --foreground: var(--text-1);
     --card: var(--bg-2);

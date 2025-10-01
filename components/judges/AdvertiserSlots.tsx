@@ -144,7 +144,7 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
     return (
       <div className="space-y-4">
         {Array.from({ length: maxRotations }, (_, index) => index + 1).map((rotation) => (
-          <div key={rotation} className="animate-pulse rounded-2xl border border-border/60 bg-[hsl(var(--bg-2))] p-4">
+          <div key={rotation} className="animate-pulse rounded-2xl border border-border/60 bg-card p-4">
             <div className="mb-2 h-4 w-3/4 rounded bg-muted" />
             <div className="h-3 w-1/2 rounded bg-muted" />
           </div>
@@ -190,12 +190,12 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
       <article
         key={slot.id}
         ref={ref}
-        className="overflow-hidden rounded-2xl border border-border/60 bg-[hsl(var(--bg-2))] transition-shadow hover:shadow-lg"
+        className="overflow-hidden rounded-2xl border border-border/60 bg-card transition-shadow hover:shadow-lg"
       >
-        <header className="flex items-center justify-between border-b border-border/50 bg-[hsl(var(--bg-1))] px-5 py-3 text-xs font-semibold text-[color:hsl(var(--text-3))]">
+        <header className="flex items-center justify-between border-b border-border/50 bg-surface-elevated px-5 py-3 text-xs font-semibold text-muted-foreground/70">
           <span>{rotationLabel(slot.position, maxRotations)}</span>
           {!available && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-[rgba(110,168,254,0.45)] bg-[rgba(110,168,254,0.14)] px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-[color:hsl(var(--accent))]">
+            <span className="inline-flex items-center gap-1 rounded-full border border-primary/45 bg-interactive/10 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-primary">
               Ad
             </span>
           )}
@@ -206,8 +206,8 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
             <div className="flex flex-col gap-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
-                  <h4 className="text-lg font-semibold text-[color:hsl(var(--text-1))]">{advertiser.firm_name}</h4>
-                  <p className="mt-1 text-sm text-[color:hsl(var(--text-2))]">{advertiser.description}</p>
+                  <h4 className="text-lg font-semibold text-foreground">{advertiser.firm_name}</h4>
+                  <p className="mt-1 text-sm text-muted-foreground">{advertiser.description}</p>
                 </div>
                 {advertiser.logo_url && (
                   <Image
@@ -215,17 +215,17 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
                     alt={advertiser.firm_name}
                     width={52}
                     height={52}
-                    className="h-12 w-12 rounded-lg border border-border/40 bg-[hsl(var(--bg-1))] object-contain p-2"
+                    className="h-12 w-12 rounded-lg border border-border/40 bg-surface-elevated object-contain p-2"
                   />
                 )}
               </div>
-              <div className="flex flex-wrap items-center gap-3 text-[11px] text-[color:hsl(var(--text-3))]">
+              <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground/70">
                 {barVerificationUrl && (
                   <a
                     href={barVerificationUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-[color:hsl(var(--accent))] hover:text-[color:hsl(var(--text-1))]"
+                    className="inline-flex items-center gap-1 text-primary hover:text-foreground"
                   >
                     <Shield className="h-3 w-3" aria-hidden />
                     CA Bar #{barNumber}
@@ -236,9 +236,9 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
             </div>
 
             {slot.creative && (
-              <div className="rounded-xl border border-border/60 bg-[hsl(var(--bg-1))] p-4">
-                <h5 className="mb-1 text-sm font-semibold text-[color:hsl(var(--text-1))]">{slot.creative.headline}</h5>
-                <p className="text-sm text-[color:hsl(var(--text-2))]">{slot.creative.description}</p>
+              <div className="rounded-xl border border-border/60 bg-surface-elevated p-4">
+                <h5 className="mb-1 text-sm font-semibold text-foreground">{slot.creative.headline}</h5>
+                <p className="text-sm text-muted-foreground">{slot.creative.description}</p>
               </div>
             )}
 
@@ -247,7 +247,7 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
                 {advertiser.specializations.map((spec) => (
                   <span
                     key={spec}
-                    className="inline-flex items-center rounded-full border border-border/50 bg-[hsl(var(--bg-1))] px-3 py-1 text-xs text-[color:hsl(var(--text-3))]"
+                    className="inline-flex items-center rounded-full border border-border/50 bg-surface-elevated px-3 py-1 text-xs text-muted-foreground/70"
                   >
                     {spec}
                   </span>
@@ -255,7 +255,7 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
               </div>
             )}
 
-            <div className="space-y-2 text-sm text-[color:hsl(var(--text-2))]">
+            <div className="space-y-2 text-sm text-muted-foreground">
               {advertiser.phone && (
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4" aria-hidden />
@@ -267,7 +267,7 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
                   <Mail className="h-4 w-4" aria-hidden />
                   <a
                     href={`mailto:${advertiser.email}`}
-                    className="text-[color:hsl(var(--accent))] transition-colors hover:text-[color:hsl(var(--text-1))]"
+                    className="text-primary transition-colors hover:text-foreground"
                   >
                     {advertiser.email}
                   </a>
@@ -280,7 +280,7 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
                     href={advertiser.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[color:hsl(var(--accent))] transition-colors hover:text-[color:hsl(var(--text-1))]"
+                    className="text-primary transition-colors hover:text-foreground"
                     onClick={(event) => {
                       event.preventDefault()
                       onTrackClick(slot.id, advertiser.website!)
@@ -296,22 +296,22 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
               <button
                 type="button"
                 onClick={() => onTrackClick(slot.id, slot.creative!.cta_url)}
-                className="w-full rounded-full border border-[rgba(110,168,254,0.45)] bg-[rgba(110,168,254,0.15)] px-4 py-2 text-sm font-semibold text-[color:hsl(var(--accent))] transition-colors hover:bg-[rgba(110,168,254,0.25)]"
+                className="w-full rounded-full border border-primary/45 bg-interactive/15 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-[rgba(110,168,254,0.25)]"
               >
                 {slot.creative.cta_text}
               </button>
             )}
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-3 border border-dashed border-border/50 bg-[hsl(var(--bg-1))] p-6 text-center">
-            <Briefcase className="h-8 w-8 text-[color:hsl(var(--text-3))]" aria-hidden />
-            <p className="text-sm font-semibold text-[color:hsl(var(--text-1))]">Rotation available</p>
-            <p className="text-xs text-[color:hsl(var(--text-3))]">
+          <div className="flex flex-col items-center gap-3 border border-dashed border-border/50 bg-surface-elevated p-6 text-center">
+            <Briefcase className="h-8 w-8 text-muted-foreground/70" aria-hidden />
+            <p className="text-sm font-semibold text-foreground">Rotation available</p>
+            <p className="text-xs text-muted-foreground/70">
               High-intent visibility for attorneys appearing before Judge {judgeName}.
             </p>
             <Link
               href={`/dashboard/advertiser/ad-spots?preselected=true&entityType=judge&entityId=${encodeURIComponent(judgeId)}&position=${encodeURIComponent(String(slot.position))}`}
-              className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-[hsl(var(--bg-2))] px-4 py-2 text-sm font-semibold text-[color:hsl(var(--text-2))] transition-colors hover:border-[rgba(110,168,254,0.45)] hover:text-[color:hsl(var(--text-1))]"
+              className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/45 hover:text-foreground"
             >
               Book this rotation
             </Link>
@@ -325,8 +325,8 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
     <div className="space-y-5" id="attorney-slots" aria-label="Verified legal sponsors">
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-[color:hsl(var(--text-1))]">Verified Legal Sponsors</h3>
-          <p className="mt-1 flex items-center gap-2 text-xs text-[color:hsl(var(--text-3))]">
+          <h3 className="text-lg font-semibold text-foreground">Verified Legal Sponsors</h3>
+          <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground/70">
             <RotateCw className="h-3 w-3" aria-hidden />
             {maxRotations === 1
               ? 'One verified sponsor per judge page.'
@@ -335,27 +335,27 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
         </div>
         <Link
           href="/docs/ads-policy"
-          className="inline-flex items-center gap-2 text-xs font-medium text-[color:hsl(var(--accent))] transition-colors hover:text-[color:hsl(var(--text-1))]"
+          className="inline-flex items-center gap-2 text-xs font-medium text-primary transition-colors hover:text-foreground"
         >
           Understand our ad policy
           <ExternalLink className="h-3.5 w-3.5" aria-hidden />
         </Link>
       </div>
 
-      <p className="text-xs text-[color:hsl(var(--text-3))]">
-        Listings labeled <span className="font-semibold text-[color:hsl(var(--accent))]">Ad</span> are paid placements. We verify every sponsor&apos;s
+      <p className="text-xs text-muted-foreground/70">
+        Listings labeled <span className="font-semibold text-primary">Ad</span> are paid placements. We verify every sponsor&apos;s
         California bar status before activation.
       </p>
 
       {soldOut && (
-        <div className="rounded-2xl border border-dashed border-border/60 bg-[hsl(var(--bg-1))] p-4 text-sm text-[color:hsl(var(--text-2))]">
-          <p className="font-semibold text-[color:hsl(var(--text-1))]">Sponsor inventory sold out</p>
+        <div className="rounded-2xl border border-dashed border-border/60 bg-surface-elevated p-4 text-sm text-muted-foreground">
+          <p className="font-semibold text-foreground">Sponsor inventory sold out</p>
           <p className="mt-1">
             Both rotations are currently filled. Join the waitlist and we&apos;ll notify you the moment a verified slot becomes available.
           </p>
           <Link
             href={waitlistMailTo}
-            className="mt-3 inline-flex items-center justify-center rounded-full border border-[rgba(110,168,254,0.45)] bg-[rgba(110,168,254,0.15)] px-4 py-2 text-xs font-semibold text-[color:hsl(var(--accent))] transition-colors hover:bg-[rgba(110,168,254,0.25)]"
+            className="mt-3 inline-flex items-center justify-center rounded-full border border-primary/45 bg-interactive/15 px-4 py-2 text-xs font-semibold text-primary transition-colors hover:bg-[rgba(110,168,254,0.25)]"
           >
             Join waitlist
           </Link>
@@ -373,11 +373,11 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
         />
       ))}
 
-      <div className="rounded-2xl border border-border/60 bg-[hsl(var(--bg-2))] p-4">
-        <div className="flex items-start gap-2 text-xs text-[color:hsl(var(--text-3))]">
-          <Shield className="mt-0.5 h-4 w-4 text-[color:hsl(var(--accent))]" aria-hidden />
+      <div className="rounded-2xl border border-border/60 bg-card p-4">
+        <div className="flex items-start gap-2 text-xs text-muted-foreground/70">
+          <Shield className="mt-0.5 h-4 w-4 text-primary" aria-hidden />
           <div>
-            <p className="mb-1 font-semibold text-[color:hsl(var(--text-2))]">Trust &amp; verification</p>
+            <p className="mb-1 font-semibold text-muted-foreground">Trust &amp; verification</p>
             <p>
               We confirm California bar standing and active insurance before approving any sponsor. Listings are removed immediately if a bar license lapses.
             </p>

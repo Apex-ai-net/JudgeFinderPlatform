@@ -10,59 +10,58 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-Judicial Analytics Platform Core Architecture
+The system implements a judicial analytics and legal data management platform with several key business components:
 
-## Analytics Engine (Importance: 95)
-lib/ai/judicial-analytics.js
-- 6-dimensional bias detection system
-- Settlement pattern analysis 
-- Risk tolerance scoring
-- Case duration metrics
-- Confidence scoring with normalization
+## Core Analytics Engine
+`lib/ai/judicial-analytics.js` (95/100)
+- 6-category bias detection across case types
+- Confidence scoring (60-95% range)
+- Pattern analysis for civil litigation, custody cases, criminal sentencing
+- Fallback analytics for incomplete data scenarios
 
-## Court Relationship Management (Importance: 90)
-lib/judges/directory/JudgesDirectoryDataManager.ts
-- Hierarchical court relationship tracking
-- Judge assignment validation
-- Multi-jurisdiction data coordination
-- Court system topology maintenance
+## Judge Directory Management
+`lib/judges/directory/JudgesDirectoryDataManager.ts` (85/100)
+- Multi-tier filtering system for active judges
+- Court hierarchy-based organization
+- Decision tracking with confidence scoring
+- California jurisdiction specialization
 
-## Legal Search Intelligence (Importance: 85)
-lib/ai/search-intelligence.ts
-- Domain-specific entity recognition
-- Legal taxonomy classification
-- Practice area categorization
-- Judge specialization matching
+## Legal Advertising System
+`components/dashboard/AdSpotBookingModal.tsx` (80/100)
+- Tiered pricing based on court hierarchy
+- Court-specific placement valuation
+- Bundle pricing with volume discounts
+- Annual commitment incentives
 
-## Data Synchronization System (Importance: 80)
-lib/sync/decision-sync.ts
-- Multi-source judicial data integration
-- Court opinion processing
-- Case outcome classification
-- Decision document analysis
+## Court Relationship Engine
+`lib/courts/service.ts` (75/100)
+- Court ranking by case volume
+- Jurisdiction filtering logic
+- Judge-to-case ratio analysis
+- Filing rate calculations
 
-## Advertising Platform (Importance: 75)
-lib/ads/service.ts
-- Court hierarchy-based pricing
-- Judge prominence scoring
-- Practice area targeting
-- Professional verification
+## Bias Detection Pipeline
+`components/judges/BiasPatternAnalysis.tsx` (85/100)
+- Multi-metric judicial scoring:
+  - Consistency in rulings
+  - Decision timing patterns
+  - Settlement preferences
+  - Risk tolerance levels
+  - Outcome predictability
 
-Key Integration Points:
-1. Analytics feeds bias detection system
-2. Court relationships inform ad placement
-3. Search system leverages judge analytics
-4. Sync system maintains data quality
-5. Ad platform respects jurisdiction rules
+## Data Synchronization
+`scripts/comprehensive-case-judge-linking.js` (80/100)
+- Judge matching with multiple fallback strategies
+- Court jurisdiction validation
+- Case distribution algorithms
+- Data freshness tracking
 
-Core Data Flows:
-1. Court opinions → Analytics engine
-2. Judge assignments → Court relationships
-3. Search queries → Entity recognition
-4. External sources → Sync system
-5. Ad placement → Court hierarchy
-
-This architecture demonstrates tight coupling between judicial data processing, court relationship management, and legal domain search functionality, with specialized handling of jurisdiction hierarchies and legal professional advertising.
+The system prioritizes:
+- Judicial analytics accuracy
+- California court system specialization
+- Legal professional targeting
+- Data freshness maintenance
+- Jurisdiction-aware operations
 
 $END$
 

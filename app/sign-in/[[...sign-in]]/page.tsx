@@ -49,8 +49,8 @@ export default function Page() {
                   <svg width="48" height="48" viewBox="0 0 40 40" className="absolute inset-0 p-2">
                     <defs>
                       <linearGradient id="signInGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#60a5fa" />
-                        <stop offset="100%" stopColor="#a855f7" />
+                        <stop offset="0%" stopColor="hsl(220 85% 60%)" />
+                        <stop offset="100%" stopColor="hsl(280 80% 60%)" />
                       </linearGradient>
                     </defs>
                     <rect x="19" y="10" width="2" height="20" fill="url(#signInGradient)" />
@@ -113,8 +113,8 @@ export default function Page() {
                   <svg width="32" height="32" viewBox="0 0 40 40" className="p-1">
                     <defs>
                       <linearGradient id="mobileGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#60a5fa" />
-                        <stop offset="100%" stopColor="#a855f7" />
+                        <stop offset="0%" stopColor="hsl(220 85% 60%)" />
+                        <stop offset="100%" stopColor="hsl(280 80% 60%)" />
                       </linearGradient>
                     </defs>
                     <rect x="19" y="10" width="2" height="20" fill="url(#mobileGradient)" />

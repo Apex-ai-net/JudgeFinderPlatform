@@ -50,6 +50,22 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        // Surface variations for professional layouts
+        surface: {
+          elevated: 'hsl(var(--surface-elevated))',
+          sunken: 'hsl(var(--surface-sunken))',
+        },
+        // Interactive element states
+        interactive: {
+          DEFAULT: 'hsl(var(--interactive-primary))',
+          hover: 'hsl(var(--interactive-hover))',
+          active: 'hsl(var(--interactive-active))',
+          subtle: 'hsl(var(--interactive-subtle))',
+        },
+        // Semantic color aliases
+        success: 'hsl(var(--success))',
+        warning: 'hsl(var(--warning))',
+        error: 'hsl(var(--error))',
         // Professional Legal Brand Colors (Human-Centric)
         legal: {
           navy: '#1e3a8a',        // Deep blue - trust, authority

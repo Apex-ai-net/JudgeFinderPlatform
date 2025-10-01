@@ -39,8 +39,8 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
       icon: Target,
       change: `${stats.total_campaigns} total`,
       changeType: 'neutral' as const,
-      bgColor: 'bg-blue-50',
-      iconColor: 'text-blue-600'
+      bgColor: 'bg-primary/5',
+      iconColor: 'text-primary'
     },
     {
       title: 'Total Impressions',
@@ -67,14 +67,14 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat) => (
-          <div key={stat.title} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div key={stat.title} className="bg-white rounded-lg shadow-sm border border-border p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                <p className="mt-2 text-3xl font-bold text-foreground">{stat.value}</p>
                 <p className={`mt-2 text-sm ${
                   stat.changeType === 'positive' ? 'text-green-600' :
-                  stat.changeType === 'neutral' ? 'text-gray-500' :
+                  stat.changeType === 'neutral' ? 'text-muted-foreground' :
                   'text-red-600'
                 }`}>
                   {stat.change}
@@ -89,18 +89,18 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+      <div className="bg-white rounded-lg shadow-sm border border-border p-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             href="/dashboard/advertiser/campaigns/new"
-            className="flex items-center justify-between p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+            className="flex items-center justify-between p-4 bg-primary/5 rounded-lg hover:bg-blue-100 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <Plus className="h-5 w-5 text-blue-600" />
-              <span className="font-medium text-gray-900">Create Campaign</span>
+              <Plus className="h-5 w-5 text-primary" />
+              <span className="font-medium text-foreground">Create Campaign</span>
             </div>
-            <ArrowRight className="h-4 w-4 text-gray-400" />
+            <ArrowRight className="h-4 w-4 text-muted-foreground" />
           </Link>
 
           <Link
@@ -109,9 +109,9 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
           >
             <div className="flex items-center gap-3">
               <Target className="h-5 w-5 text-purple-600" />
-              <span className="font-medium text-gray-900">Browse Ad Spots</span>
+              <span className="font-medium text-foreground">Browse Ad Spots</span>
             </div>
-            <ArrowRight className="h-4 w-4 text-gray-400" />
+            <ArrowRight className="h-4 w-4 text-muted-foreground" />
           </Link>
 
           <Link
@@ -120,9 +120,9 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
           >
             <div className="flex items-center gap-3">
               <BarChart3 className="h-5 w-5 text-green-600" />
-              <span className="font-medium text-gray-900">View Analytics</span>
+              <span className="font-medium text-foreground">View Analytics</span>
             </div>
-            <ArrowRight className="h-4 w-4 text-gray-400" />
+            <ArrowRight className="h-4 w-4 text-muted-foreground" />
           </Link>
         </div>
       </div>
@@ -130,29 +130,29 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Active Bookings */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-lg shadow-sm border border-border p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Active Ad Spots</h2>
-            <Link href="/dashboard/advertiser/bookings" className="text-sm text-blue-600 hover:text-blue-700">
+            <h2 className="text-lg font-semibold text-foreground">Active Ad Spots</h2>
+            <Link href="/dashboard/advertiser/bookings" className="text-sm text-primary hover:text-blue-700">
               View all
             </Link>
           </div>
           <div className="space-y-3">
             {stats.active_bookings > 0 ? (
               <>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900">Judge Smith - Position 1</p>
-                    <p className="text-sm text-gray-500">Orange County Superior Court</p>
+                    <p className="font-medium text-foreground">Judge Smith - Position 1</p>
+                    <p className="text-sm text-muted-foreground">Orange County Superior Court</p>
                   </div>
                   <span className="px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
                     Active
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900">Court of Appeal - Position 2</p>
-                    <p className="text-sm text-gray-500">Fourth Appellate District</p>
+                    <p className="font-medium text-foreground">Court of Appeal - Position 2</p>
+                    <p className="text-sm text-muted-foreground">Fourth Appellate District</p>
                   </div>
                   <span className="px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
                     Active
@@ -160,9 +160,9 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
                 </div>
               </>
             ) : (
-              <p className="text-gray-500 text-center py-8">
+              <p className="text-muted-foreground text-center py-8">
                 No active ad spots. 
-                <Link href="/dashboard/advertiser/ad-spots" className="text-blue-600 hover:text-blue-700 ml-1">
+                <Link href="/dashboard/advertiser/ad-spots" className="text-primary hover:text-blue-700 ml-1">
                   Book your first spot
                 </Link>
               </p>
@@ -171,18 +171,18 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
         </div>
 
         {/* Upcoming Bookings */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-lg shadow-sm border border-border p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Upcoming Bookings</h2>
-            <Calendar className="h-5 w-5 text-gray-400" />
+            <h2 className="text-lg font-semibold text-foreground">Upcoming Bookings</h2>
+            <Calendar className="h-5 w-5 text-muted-foreground" />
           </div>
           <div className="space-y-3">
             {stats.upcoming_bookings > 0 ? (
               <>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900">Judge Johnson - Position 3</p>
-                    <p className="text-sm text-gray-500">Starts Jan 1, 2025</p>
+                    <p className="font-medium text-foreground">Judge Johnson - Position 3</p>
+                    <p className="text-sm text-muted-foreground">Starts Jan 1, 2025</p>
                   </div>
                   <span className="px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
                     Scheduled
@@ -190,7 +190,7 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
                 </div>
               </>
             ) : (
-              <p className="text-gray-500 text-center py-8">
+              <p className="text-muted-foreground text-center py-8">
                 No upcoming bookings scheduled
               </p>
             )}
@@ -199,9 +199,9 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
       </div>
 
       {/* Performance Chart Placeholder */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-lg shadow-sm border border-border p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Performance Overview</h2>
+          <h2 className="text-lg font-semibold text-foreground">Performance Overview</h2>
           <div className="flex gap-2">
             {(['7d', '30d', '90d'] as const).map((range) => (
               <button
@@ -210,7 +210,7 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
                 className={`px-3 py-1 text-sm font-medium rounded-lg transition-colors ${
                   timeRange === range
                     ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    : 'text-muted-foreground hover:bg-muted'
                 }`}
               >
                 {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
@@ -218,11 +218,11 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
             ))}
           </div>
         </div>
-        <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+        <div className="h-64 flex items-center justify-center bg-muted rounded-lg">
           <div className="text-center">
-            <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-500">Performance chart will be displayed here</p>
-            <p className="text-sm text-gray-400 mt-1">Showing data for the last {timeRange === '7d' ? '7 days' : timeRange === '30d' ? '30 days' : '90 days'}</p>
+            <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+            <p className="text-muted-foreground">Performance chart will be displayed here</p>
+            <p className="text-sm text-muted-foreground mt-1">Showing data for the last {timeRange === '7d' ? '7 days' : timeRange === '30d' ? '30 days' : '90 days'}</p>
           </div>
         </div>
       </div>

@@ -80,7 +80,7 @@ const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
       case 'jurisdiction':
         return <MapPin className="w-4 h-4 text-purple-500" />
       default:
-        return <Search className="w-4 h-4 text-gray-400" />
+        return <Search className="w-4 h-4 text-muted-foreground" />
     }
   }
 
@@ -115,13 +115,13 @@ const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
       <div
         className={`
           relative flex items-center w-full
-          bg-white dark:bg-gray-800
+          bg-white dark:bg-card
           rounded-xl lg:rounded-2xl shadow-lg
           border-2 transition-all duration-200
           min-h-[52px] lg:min-h-[56px]
           ${isFocused
             ? 'border-blue-500 shadow-xl lg:scale-[1.02]'
-            : 'border-gray-200 dark:border-gray-700'
+            : 'border-border dark:border-border'
           }
         `}
       >
@@ -133,7 +133,7 @@ const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
         >
           <Search
             className={`w-5 h-5 lg:w-5 lg:h-5 transition-colors ${
-              isFocused ? 'text-blue-500' : 'text-gray-400'
+              isFocused ? 'text-blue-500' : 'text-muted-foreground'
             }`}
           />
         </button>
@@ -157,8 +157,8 @@ const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
             flex-1 py-3 lg:py-4 pr-2
             bg-transparent
             text-base lg:text-base font-medium
-            text-gray-900 dark:text-white
-            placeholder:text-gray-400 dark:placeholder:text-gray-500
+            text-foreground dark:text-white
+            placeholder:text-muted-foreground dark:placeholder:text-muted-foreground
             focus:outline-none
             appearance-none
             min-h-[56px]
@@ -173,9 +173,9 @@ const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               onClick={clearSearch}
-              className="p-2 mr-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="p-2 mr-1 rounded-lg hover:bg-muted dark:hover:bg-accent transition-colors"
             >
-              <X className="w-4 h-4 text-gray-400" />
+              <X className="w-4 h-4 text-muted-foreground" />
             </motion.button>
           )}
         </AnimatePresence>
@@ -207,9 +207,9 @@ const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
             exit={{ opacity: 0, y: -10 }}
             className="
               absolute z-50 w-full mt-2
-              bg-white dark:bg-gray-800
+              bg-white dark:bg-card
               rounded-xl shadow-xl
-              border border-gray-200 dark:border-gray-700
+              border border-border dark:border-border
               overflow-hidden
               max-h-96 overflow-y-auto
             "
@@ -217,7 +217,7 @@ const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
             {isLoading ? (
               <div className="flex items-center justify-center p-4">
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-                <span className="ml-2 text-gray-500">Searching...</span>
+                <span className="ml-2 text-muted-foreground">Searching...</span>
               </div>
             ) : (
               <>
@@ -227,27 +227,27 @@ const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
                     onClick={() => handleSelectResult(result)}
                     className="
                       w-full px-5 py-3 text-left
-                      hover:bg-gray-50 dark:hover:bg-gray-700
+                      hover:bg-muted dark:hover:bg-accent
                       transition-colors
                       flex items-start gap-3
                       min-h-[48px]
-                      border-b border-gray-100 dark:border-gray-700 last:border-b-0
+                      border-b border-gray-100 dark:border-border last:border-b-0
                     "
                   >
                     <div className="mt-1">
                       {getResultIcon(result.type)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
+                      <div className="font-medium text-sm text-foreground dark:text-foreground truncate">
                         {result.title}
                       </div>
                       {result.subtitle && (
-                        <div className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                        <div className="text-xs text-muted-foreground dark:text-muted-foreground truncate">
                           {result.subtitle}
                         </div>
                       )}
                       {result.description && (
-                        <div className="text-xs text-gray-500 dark:text-gray-500 truncate">
+                        <div className="text-xs text-muted-foreground dark:text-muted-foreground truncate">
                           {result.description}
                         </div>
                       )}
@@ -260,10 +260,10 @@ const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
                     onClick={handleSearch}
                     className="
                       w-full px-5 py-3 text-center
-                      bg-gray-50 dark:bg-gray-700/50
-                      hover:bg-gray-100 dark:hover:bg-gray-700
+                      bg-muted dark:bg-surface-elevated/50
+                      hover:bg-muted dark:hover:bg-accent
                       transition-colors
-                      text-sm text-blue-600 dark:text-blue-400
+                      text-sm text-primary dark:text-primary
                       font-medium
                     "
                   >

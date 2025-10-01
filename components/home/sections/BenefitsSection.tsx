@@ -14,7 +14,7 @@ const BENEFITS = [
     icon: BarChart3,
     title: 'Analytics You Can Trust',
     description: 'AI bias detection across six independent metrics.',
-    gradient: 'from-purple-500 to-purple-600',
+    gradient: 'from-purple-500 to-accent',
   },
   {
     icon: Lock,
@@ -32,17 +32,17 @@ const BENEFITS = [
 
 export function BenefitsSection(): JSX.Element {
   return (
-    <section className="bg-white py-12 dark:bg-gray-900">
+    <section className="bg-white py-12 dark:bg-card">
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">Why people trust JudgeFinder</h2>
-            <p className="mt-3 max-w-2xl text-sm text-gray-600 dark:text-gray-400">
+            <h2 className="text-2xl font-bold text-foreground dark:text-white sm:text-3xl">Why people trust JudgeFinder</h2>
+            <p className="mt-3 max-w-2xl text-sm text-muted-foreground dark:text-muted-foreground">
               We combine court records, AI analytics, and legal expertise to surface the most important signals about every California judge.
             </p>
           </div>
           <div>
-            <p className="text-sm font-medium text-blue-600 dark:text-blue-300">Free. Fast. Updated daily.</p>
+            <p className="text-sm font-medium text-primary dark:text-blue-300">Free. Fast. Updated daily.</p>
           </div>
         </div>
 
@@ -59,8 +59,8 @@ export function BenefitsSection(): JSX.Element {
               <div className={`inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r ${benefit.gradient} text-white`}>
                 <benefit.icon className="h-5 w-5" />
               </div>
-              <h3 className="mt-4 text-base font-semibold text-gray-900 dark:text-white">{benefit.title}</h3>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{benefit.description}</p>
+              <h3 className="mt-4 text-base font-semibold text-foreground dark:text-white">{benefit.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">{benefit.description}</p>
             </motion.div>
           ))}
         </div>

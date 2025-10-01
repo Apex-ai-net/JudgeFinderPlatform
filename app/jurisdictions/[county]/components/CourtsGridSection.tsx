@@ -14,8 +14,8 @@ class CourtsGridSectionView {
 
   private renderLoadingState(): JSX.Element {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-blue-100/70">
-        <Loader2 className="h-10 w-10 animate-spin text-blue-300 mb-4" />
+      <div className="flex flex-col items-center justify-center py-16 text-primary/70">
+        <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
         <p>Loading courts...</p>
       </div>
     )
@@ -23,12 +23,12 @@ class CourtsGridSectionView {
 
   private renderEmptyState(): JSX.Element {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-blue-100/70 text-center">
+      <div className="flex flex-col items-center justify-center py-16 text-primary/70 text-center">
         <div className="h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
-          <Building className="h-8 w-8 text-blue-300" />
+          <Building className="h-8 w-8 text-primary" />
         </div>
         <h3 className="text-lg font-semibold text-white mb-2">No courts found</h3>
-        <p className="text-sm text-blue-100/60 max-w-sm">
+        <p className="text-sm text-primary/60 max-w-sm">
           Try adjusting your search term or explore other jurisdictions to discover more courts.
         </p>
       </div>

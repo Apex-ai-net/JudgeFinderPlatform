@@ -59,9 +59,9 @@ interface Phase2CaseHistoryProps {
   courtName: string
 }
 
-const panelClass = 'rounded-2xl border border-border bg-[hsl(var(--bg-2))] p-5 shadow-[0_1px_0_rgba(38,43,54,0.35)]'
+const panelClass = 'rounded-2xl border border-border bg-card p-5 shadow-sm'
 const selectClass =
-  'rounded-full border border-border/60 bg-[hsl(var(--bg-1))] px-3 py-1.5 text-sm text-[color:hsl(var(--text-1))] focus:outline-none focus:ring-2 focus:ring-[color:hsl(var(--accent))] focus:ring-offset-0'
+  'rounded-full border border-border/60 bg-surface-elevated px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-0'
 
 export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Phase2CaseHistoryProps) {
   const [cases, setCases] = useState<CaseData[]>([])
@@ -169,8 +169,8 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
   if (loading) {
     return (
       <section className={cn(panelClass, 'flex h-48 items-center justify-center')}>
-        <div className="flex items-center gap-3 text-sm text-[color:hsl(var(--text-2))]">
-          <div className="h-3 w-3 animate-ping rounded-full bg-[color:hsl(var(--accent))]" />
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+          <div className="h-3 w-3 animate-ping rounded-full bg-primary" />
           Loading recent case history…
         </div>
       </section>
@@ -188,11 +188,11 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
       <header className={cn(panelClass, 'space-y-5')}>
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
-            <div className="text-xs uppercase tracking-[0.28em] text-[color:hsl(var(--text-3))]">Phase 2 · Case history</div>
-            <h2 className="mt-2 text-2xl font-semibold text-[color:hsl(var(--text-1))]">
+            <div className="text-xs uppercase tracking-[0.28em] text-muted-foreground/70">Phase 2 · Case history</div>
+            <h2 className="mt-2 text-2xl font-semibold text-foreground">
               Case patterns for {judgeName}
             </h2>
-            <p className="text-sm text-[color:hsl(var(--text-2))]">
+            <p className="text-sm text-muted-foreground">
               {timeRangeLabel(timeRange)} snapshot · {courtName}
             </p>
           </div>
@@ -201,7 +201,7 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
               type="button"
               variant="ghost"
               size="sm"
-              className="rounded-full border border-border/60 bg-[hsl(var(--bg-1))] px-3 text-[color:hsl(var(--text-2))] hover:text-[color:hsl(var(--text-1))]"
+              className="rounded-full border border-border/60 bg-surface-elevated px-3 text-muted-foreground hover:text-foreground"
             >
               <Download className="h-4 w-4" aria-hidden />
               Export
@@ -210,7 +210,7 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
               type="button"
               variant="ghost"
               size="sm"
-              className="rounded-full border border-border/60 bg-[hsl(var(--bg-1))] px-3 text-[color:hsl(var(--text-2))] hover:text-[color:hsl(var(--text-1))]"
+              className="rounded-full border border-border/60 bg-surface-elevated px-3 text-muted-foreground hover:text-foreground"
             >
               <Eye className="h-4 w-4" aria-hidden />
               Full report
@@ -218,8 +218,8 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-border/60 bg-[hsl(var(--bg-1))] px-4 py-3">
-          <div className="flex items-center gap-2 text-sm text-[color:hsl(var(--text-2))]">
+        <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-border/60 bg-surface-elevated px-4 py-3">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Filter className="h-4 w-4" aria-hidden />
             Practice area
             <select
@@ -232,7 +232,7 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
               ))}
             </select>
           </div>
-          <div className="flex items-center gap-2 text-sm text-[color:hsl(var(--text-2))]">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Calendar className="h-4 w-4" aria-hidden />
             Time range
             <select value={timeRange} onChange={(event) => setTimeRange(event.target.value)} className={selectClass}>
@@ -259,8 +259,8 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
       <div className="grid gap-6 lg:grid-cols-2">
         <article className={panelClass}>
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-[color:hsl(var(--text-1))]">Cases by practice area</h3>
-            <span className="text-xs text-[color:hsl(var(--text-3))]">Interactive · hover to inspect</span>
+            <h3 className="text-lg font-semibold text-foreground">Cases by practice area</h3>
+            <span className="text-xs text-muted-foreground/70">Interactive · hover to inspect</span>
           </div>
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
@@ -299,8 +299,8 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
 
         <article className={panelClass}>
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-[color:hsl(var(--text-1))]">Ruling patterns by practice area</h3>
-            <span className="text-xs text-[color:hsl(var(--text-3))]">Stacked outcomes</span>
+            <h3 className="text-lg font-semibold text-foreground">Ruling patterns by practice area</h3>
+            <span className="text-xs text-muted-foreground/70">Stacked outcomes</span>
           </div>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={analytics}>
@@ -346,8 +346,8 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
       <article className={cn(panelClass, 'space-y-5')}>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-[color:hsl(var(--text-1))]">Recent cases</h3>
-            <p className="text-sm text-[color:hsl(var(--text-3))]">
+            <h3 className="text-lg font-semibold text-foreground">Recent cases</h3>
+            <p className="text-sm text-muted-foreground/70">
               {filteredCases.length} cases{selectedPracticeArea !== 'All' ? ` in ${selectedPracticeArea}` : ''}
             </p>
           </div>
@@ -356,19 +356,19 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
           {filteredCases.slice(0, 10).map((item) => (
             <div
               key={item.id}
-              className="rounded-2xl border border-border/60 bg-[hsl(var(--bg-1))] p-4 transition-colors hover:border-[rgba(110,168,254,0.45)]"
+              className="rounded-2xl border border-border/60 bg-surface-elevated p-4 transition-colors hover:border-primary/50"
             >
               <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                 <div>
-                  <h4 className="text-lg font-semibold text-[color:hsl(var(--text-1))]">{item.case_name}</h4>
-                  <p className="text-sm text-[color:hsl(var(--text-3))]">
+                  <h4 className="text-lg font-semibold text-foreground">{item.case_name}</h4>
+                  <p className="text-sm text-muted-foreground/70">
                     Case #{item.case_number} · Filed {formatDate(item.filing_date)}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge
                     variant="outline"
-                    className="border-border/60 text-[color:hsl(var(--text-2))]"
+                    className="border-border/60 text-muted-foreground"
                     style={{
                       backgroundColor: `${getPracticeColor(item.practice_area)}1f`,
                       color: getPracticeColor(item.practice_area),
@@ -380,8 +380,8 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
                     variant={item.status === 'decided' ? 'default' : 'secondary'}
                     className={cn(
                       item.status === 'decided'
-                        ? 'bg-[rgba(103,232,169,0.14)] text-[color:hsl(var(--pos))]'
-                        : 'bg-[hsl(var(--bg-1))] text-[color:hsl(var(--text-2))]',
+                        ? 'bg-success/10 text-success'
+                        : 'bg-surface-elevated text-muted-foreground',
                     )}
                   >
                     {item.status}
@@ -389,15 +389,15 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-4 text-sm text-[color:hsl(var(--text-2))] md:grid-cols-3">
+              <div className="mt-4 grid gap-4 text-sm text-muted-foreground md:grid-cols-3">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-[color:hsl(var(--text-3))]">Parties</p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground/70">Parties</p>
                   <p className="mt-1">
                     {item.parties.plaintiff} v. {item.parties.defendant}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-[color:hsl(var(--text-3))]">Attorneys</p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground/70">Attorneys</p>
                   <ul className="mt-1 space-y-1">
                     {item.attorneys.map((attorney, index) => (
                       <li key={`${attorney.name}-${index}`}>
@@ -408,7 +408,7 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
                   </ul>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs uppercase tracking-[0.18em] text-[color:hsl(var(--text-3))]">Details</p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground/70">Details</p>
                   {item.case_value ? <p>Value: {compactCurrency.format(item.case_value)}</p> : null}
                   {item.outcome ? <p>Outcome: {item.outcome}</p> : null}
                   {item.decision_date ? <p>Decided: {formatDate(item.decision_date)}</p> : null}
@@ -419,18 +419,18 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
         </div>
 
         {filteredCases.length === 0 && (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-border/60 bg-[hsl(var(--bg-1))] p-12 text-center">
-            <FileText className="mb-4 h-12 w-12 text-[color:hsl(var(--text-3))]" aria-hidden />
-            <p className="text-sm text-[color:hsl(var(--text-2))]">No cases match the current filters.</p>
-            <p className="mt-1 text-xs text-[color:hsl(var(--text-3))]">Adjust the practice area or time range to broaden your scope.</p>
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-border/60 bg-surface-elevated p-12 text-center">
+            <FileText className="mb-4 h-12 w-12 text-muted-foreground/70" aria-hidden />
+            <p className="text-sm text-muted-foreground">No cases match the current filters.</p>
+            <p className="mt-1 text-xs text-muted-foreground/70">Adjust the practice area or time range to broaden your scope.</p>
           </div>
         )}
       </article>
 
       <article className={cn(panelClass, 'space-y-4')}>
         <div>
-          <h3 className="text-lg font-semibold text-[color:hsl(var(--text-1))]">Attorney marketing intelligence</h3>
-          <p className="text-sm text-[color:hsl(var(--text-3))]">
+          <h3 className="text-lg font-semibold text-foreground">Attorney marketing intelligence</h3>
+          <p className="text-sm text-muted-foreground/70">
             Frequent counsel appearing before this judge · useful for placement outreach
           </p>
         </div>
@@ -442,19 +442,19 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
             .map((attorney) => (
               <div
                 key={`${attorney.name}-${attorney.firm ?? 'solo'}`}
-                className="rounded-2xl border border-border/60 bg-[hsl(var(--bg-1))] p-4"
+                className="rounded-2xl border border-border/60 bg-surface-elevated p-4"
               >
-                <div className="text-sm font-semibold text-[color:hsl(var(--text-1))]">{attorney.name}</div>
+                <div className="text-sm font-semibold text-foreground">{attorney.name}</div>
                 {attorney.firm && (
-                  <div className="text-xs text-[color:hsl(var(--text-3))]">{attorney.firm}</div>
+                  <div className="text-xs text-muted-foreground/70">{attorney.firm}</div>
                 )}
                 <Badge
                   variant="outline"
-                  className="mt-3 inline-flex border-border/60 bg-[rgba(110,168,254,0.14)] text-[color:hsl(var(--accent))]"
+                  className="mt-3 inline-flex border-border/60 bg-interactive/10 text-primary"
                 >
                   🎯 Advertising target
                 </Badge>
-                <div className="mt-3 text-xs text-[color:hsl(var(--text-3))]">
+                <div className="mt-3 text-xs text-muted-foreground/70">
                   Cases linked: {
                     cases.filter((c) => c.attorneys.some((entry) => entry.name === attorney.name)).length
                   }
@@ -599,16 +599,16 @@ function MetricTile({
 }) {
   const toneClass =
     tone === 'info'
-      ? 'bg-[hsl(var(--bg-1))]/70 text-[color:hsl(var(--text-1))]'
+      ? 'bg-surface-elevated/70 text-foreground'
       : tone === 'accent'
-      ? 'bg-[rgba(110,168,254,0.18)] text-[color:hsl(var(--accent))]'
+      ? 'bg-interactive/15 text-primary'
       : tone === 'warn'
-      ? 'bg-[rgba(251,211,141,0.18)] text-[color:hsl(var(--warn))]'
-      : 'bg-[hsl(var(--bg-1))] text-[color:hsl(var(--text-2))]'
+      ? 'bg-warning/15 text-warning'
+      : 'bg-surface-elevated text-muted-foreground'
 
   return (
     <article className={panelClass}>
-      <div className="flex items-center gap-3 text-xs uppercase tracking-[0.24em] text-[color:hsl(var(--text-3))]">
+      <div className="flex items-center gap-3 text-xs uppercase tracking-[0.24em] text-muted-foreground/70">
         <Icon className="h-4 w-4" aria-hidden />
         {label}
       </div>

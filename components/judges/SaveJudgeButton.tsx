@@ -144,9 +144,9 @@ export function SaveJudgeButton({
   
   if (showNotificationPrompt) {
     return (
-      <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950">
+      <div className="rounded-lg border border-blue-200 bg-primary/5 p-4 dark:border-blue-900 dark:bg-blue-950">
         <div className="flex items-start gap-3">
-          <BellIcon className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+          <BellIcon className="h-5 w-5 text-primary dark:text-primary mt-0.5" />
           <div className="flex-1">
             <h4 className="font-semibold text-blue-900 dark:text-blue-100">
               Get Notified About {judgeName}
@@ -160,7 +160,7 @@ export function SaveJudgeButton({
                 onClick={handleEnableNotifications}
                 disabled={isLoading}
                 size="sm"
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-primary hover:bg-blue-700"
               >
                 <BellIcon className="h-4 w-4 mr-2" />
                 Enable Alerts

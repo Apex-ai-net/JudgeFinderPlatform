@@ -221,7 +221,7 @@ export default function BuilderStyleChat() {
   return (
     <div className="flex flex-col">
       {/* AI Disclaimer - Simplified */}
-      <div className="mb-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+      <div className="mb-2 p-2 bg-primary/5 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
         <p className="text-[10px] sm:text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
           <span className="font-semibold">ℹ️ Note:</span> AI analysis for informational purposes only.
         </p>
@@ -232,26 +232,26 @@ export default function BuilderStyleChat() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => handleSuggestedPrompt("Search for Judge Thompson in Los Angeles")}
-            className="px-3 py-1.5 text-xs bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-full transition-colors"
+            className="px-3 py-1.5 text-xs bg-white dark:bg-card hover:bg-primary/5 dark:hover:bg-card border border-border dark:border-border rounded-full transition-colors"
           >
             🔍 Search judge
           </button>
           <button
             onClick={() => handleSuggestedPrompt("Show bias analysis for Judge Martinez")}
-            className="px-3 py-1.5 text-xs bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-full transition-colors"
+            className="px-3 py-1.5 text-xs bg-white dark:bg-card hover:bg-primary/5 dark:hover:bg-card border border-border dark:border-border rounded-full transition-colors"
           >
             📊 Bias analysis
           </button>
           <button
             onClick={() => handleSuggestedPrompt("Find judges in Orange County Superior Court")}
-            className="px-3 py-1.5 text-xs bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-full transition-colors"
+            className="px-3 py-1.5 text-xs bg-white dark:bg-card hover:bg-primary/5 dark:hover:bg-card border border-border dark:border-border rounded-full transition-colors"
           >
             📍 Find by court
           </button>
         </div>
       </div>
       
-      <div className="flex flex-col h-[450px] sm:h-[500px] lg:h-[550px] bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="flex flex-col h-[450px] sm:h-[500px] lg:h-[550px] bg-white dark:bg-surface-sunken rounded-xl shadow-lg border border-border dark:border-border overflow-hidden">
         {/* Header */}
         <ChatHeader />
 
@@ -263,7 +263,7 @@ export default function BuilderStyleChat() {
                 <JudgeCard judge={message.judgeData} />
               ) : message.type === 'judge_list' && message.judgesData ? (
                 <div className="space-y-3">
-                  <p className="text-sm text-gray-600 mb-2">I found multiple judges matching your query:</p>
+                  <p className="text-sm text-muted-foreground mb-2">I found multiple judges matching your query:</p>
                   {message.judgesData.slice(0, 3).map((judge, idx) => (
                     <JudgeCard key={idx} judge={judge} compact />
                   ))}
@@ -275,7 +275,7 @@ export default function BuilderStyleChat() {
           ))}
           
           {isLoading && !isStreaming && (
-            <div className="flex items-center gap-2 text-gray-500">
+            <div className="flex items-center gap-2 text-muted-foreground">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span className="text-sm">AI is thinking...</span>
             </div>

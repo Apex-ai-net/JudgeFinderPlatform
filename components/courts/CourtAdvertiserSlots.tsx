@@ -154,7 +154,7 @@ export function CourtAdvertiserSlots({ courtId, courtName }: CourtAdvertiserSlot
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900 mb-2" aria-label={`Verified legal professionals serving ${courtName}`}>
+      <h3 className="text-lg font-semibold text-foreground mb-2" aria-label={`Verified legal professionals serving ${courtName}`}>
         Legal Professionals Serving {courtName}
       </h3>
 
@@ -205,7 +205,7 @@ function AdvertiserSlotCard({ slot, tracker, courtId }: AdvertiserSlotCardProps)
   }, [slot.id, tracker, ctaUrl])
 
   return (
-    <div ref={ref} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+    <div ref={ref} className="bg-white rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow">
       {slot.advertiser ? (
         <AdvertiserDetails slot={slot} onWebsiteClick={handleWebsiteClick} onCtaClick={handleCtaClick} />
       ) : (
@@ -229,12 +229,12 @@ function AdvertiserDetails({ slot, onWebsiteClick, onCtaClick }: AdvertiserDetai
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 space-y-1">
           <div className="flex items-center gap-2">
-            <h4 className="font-semibold text-gray-900">{advertiser.firm_name}</h4>
+            <h4 className="font-semibold text-foreground">{advertiser.firm_name}</h4>
             {advertiser.badge && (
               <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">{advertiser.badge}</span>
             )}
           </div>
-          <p className="text-sm text-gray-600">{advertiser.description}</p>
+          <p className="text-sm text-muted-foreground">{advertiser.description}</p>
         </div>
         {advertiser.logo_url && (
           <Image src={advertiser.logo_url} alt={`${advertiser.firm_name} logo`} width={48} height={48} className="object-contain" />
@@ -242,16 +242,16 @@ function AdvertiserDetails({ slot, onWebsiteClick, onCtaClick }: AdvertiserDetai
       </div>
 
       {slot.creative && (
-        <div className="p-3 bg-gray-50 rounded-lg space-y-1">
-          <h5 className="font-medium text-gray-900 text-sm">{slot.creative.headline}</h5>
-          <p className="text-sm text-gray-600">{slot.creative.description}</p>
+        <div className="p-3 bg-muted rounded-lg space-y-1">
+          <h5 className="font-medium text-foreground text-sm">{slot.creative.headline}</h5>
+          <p className="text-sm text-muted-foreground">{slot.creative.description}</p>
         </div>
       )}
 
       {advertiser.specializations && advertiser.specializations.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {advertiser.specializations.map((specialization) => (
-            <span key={specialization} className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">
+            <span key={specialization} className="px-2 py-1 text-xs bg-muted text-foreground rounded">
               {specialization}
             </span>
           ))}
@@ -260,19 +260,19 @@ function AdvertiserDetails({ slot, onWebsiteClick, onCtaClick }: AdvertiserDetai
 
       <div className="space-y-2 text-sm">
         {advertiser.phone && (
-          <div className="flex items-center gap-2 text-gray-600">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <Phone className="h-3 w-3" />
             <span>{advertiser.phone}</span>
           </div>
         )}
         {advertiser.website && (
-          <div className="flex items-center gap-2 text-gray-600">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <ExternalLink className="h-3 w-3" />
             <a
               href={advertiser.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-700"
+              className="text-primary hover:text-blue-700"
               onClick={onWebsiteClick}
             >
               Visit Website
@@ -285,7 +285,7 @@ function AdvertiserDetails({ slot, onWebsiteClick, onCtaClick }: AdvertiserDetai
         <button
           type="button"
           onClick={onCtaClick}
-          className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
         >
           {slot.creative.cta_text}
         </button>
@@ -308,13 +308,13 @@ function EmptySlotCard({ courtId, position }: EmptySlotCardProps) {
   })
 
   return (
-    <div className="p-4 text-center bg-gray-50 space-y-2">
-      <Briefcase className="h-8 w-8 text-gray-400 mx-auto" />
-      <p className="text-sm font-medium text-gray-700">Advertising Space Available</p>
-      <p className="text-xs text-gray-500">Position #{position} • Premium visibility</p>
+    <div className="p-4 text-center bg-muted space-y-2">
+      <Briefcase className="h-8 w-8 text-muted-foreground mx-auto" />
+      <p className="text-sm font-medium text-foreground">Advertising Space Available</p>
+      <p className="text-xs text-muted-foreground">Position #{position} • Premium visibility</p>
       <Link
         href={`/dashboard/advertiser/ad-spots?${bookingParams.toString()}`}
-        className="inline-block px-4 py-1.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+        className="inline-block px-4 py-1.5 bg-white border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
       >
         Book This Spot
       </Link>
@@ -324,10 +324,10 @@ function EmptySlotCard({ courtId, position }: EmptySlotCardProps) {
 
 function InfoFooter() {
   return (
-    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+    <div className="mt-4 p-3 bg-primary/5 rounded-lg">
       <div className="flex items-start gap-2">
-        <Shield className="h-4 w-4 text-blue-600 mt-0.5" />
-        <div className="text-xs text-gray-700 space-y-1">
+        <Shield className="h-4 w-4 text-primary mt-0.5" />
+        <div className="text-xs text-foreground space-y-1">
           <p className="font-medium">Verified Legal Professionals</p>
           <p>All advertisers are verified attorneys with active bar memberships.</p>
         </div>
@@ -340,9 +340,9 @@ function SlotsSkeleton() {
   return (
     <div className="space-y-4">
       {[1, 2, 3].map((skeletonKey) => (
-        <div key={`skeleton-${skeletonKey}`} className="bg-gray-50 rounded-lg p-4 animate-pulse space-y-2">
-          <div className="h-4 bg-gray-200 rounded w-3/4" />
-          <div className="h-3 bg-gray-200 rounded w-1/2" />
+        <div key={`skeleton-${skeletonKey}`} className="bg-muted rounded-lg p-4 animate-pulse space-y-2">
+          <div className="h-4 bg-muted rounded w-3/4" />
+          <div className="h-3 bg-muted rounded w-1/2" />
         </div>
       ))}
     </div>

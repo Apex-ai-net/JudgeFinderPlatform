@@ -83,7 +83,7 @@ export class GlobalErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="min-h-screen bg-muted flex items-center justify-center px-4">
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
             <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
               <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,32 +91,32 @@ export class GlobalErrorBoundary extends Component<Props, State> {
               </svg>
             </div>
             
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-xl font-semibold text-foreground mb-2">
               Something went wrong
             </h2>
             
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted-foreground mb-6">
               We're sorry, but an unexpected error occurred. Please try refreshing the page or contact support if the problem persists.
             </p>
 
             <div className="space-y-3">
               <button
                 onClick={this.handleReset}
-                className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                className="w-full bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
               >
                 Try Again
               </button>
               
               <button
                 onClick={() => window.location.reload()}
-                className="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+                className="w-full bg-muted text-foreground px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
               >
                 Refresh Page
               </button>
               
               <Link
                 href="/"
-                className="block w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
+                className="block w-full bg-muted text-foreground px-4 py-2 rounded-md hover:bg-muted transition-colors"
               >
                 Return Home
               </Link>
@@ -124,14 +124,14 @@ export class GlobalErrorBoundary extends Component<Props, State> {
 
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="mt-6 text-left">
-                <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
+                <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
                   Error Details (Development)
                 </summary>
-                <div className="mt-2 p-3 bg-gray-100 rounded text-xs font-mono overflow-auto max-h-40">
+                <div className="mt-2 p-3 bg-muted rounded text-xs font-mono overflow-auto max-h-40">
                   <div className="text-red-600 font-semibold">
                     {this.state.error.message}
                   </div>
-                  <pre className="mt-2 text-gray-700 whitespace-pre-wrap">
+                  <pre className="mt-2 text-foreground whitespace-pre-wrap">
                     {this.state.error.stack}
                   </pre>
                 </div>

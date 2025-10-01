@@ -16,9 +16,20 @@ const BASE_URL = getBaseUrl()
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
+// Safely create URL with fallback
+function getMetadataBaseUrl(): URL {
+  try {
+    const url = BASE_URL || 'https://judgefinder.io'
+    return new URL(url)
+  } catch (error) {
+    console.error('Invalid BASE_URL:', BASE_URL, error)
+    return new URL('https://judgefinder.io')
+  }
+}
+
 export const metadata: Metadata = {
   // Ensure absolute URLs for Open Graph/Twitter images
-  metadataBase: new URL(BASE_URL),
+  metadataBase: getMetadataBaseUrl(),
   title: 'JudgeFinder.io - Find Information About Your Judge',
   description: 'Find information about your assigned judge. Understand what to expect in your court appearance with simple, clear insights.',
   keywords: 'find judge, court appearance, judge information, California judges, court preparation',
@@ -69,12 +80,22 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
         {/* Performance: DNS Prefetch + Preconnect for common origins */}
-        {process.env.NEXT_PUBLIC_SUPABASE_URL && (
-          <>
-            <link rel="dns-prefetch" href={new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin} />
-            <link rel="preconnect" href={new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin} crossOrigin="anonymous" />
-          </>
-        )}
+        {(() => {
+          try {
+            if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+              const supabaseOrigin = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
+              return (
+                <>
+                  <link rel="dns-prefetch" href={supabaseOrigin} />
+                  <link rel="preconnect" href={supabaseOrigin} crossOrigin="anonymous" />
+                </>
+              )
+            }
+          } catch (e) {
+            console.error('Invalid SUPABASE_URL:', e)
+          }
+          return null
+        })()}
         <link rel="dns-prefetch" href="https://clerk.judgefinder.io" />
         <link rel="preconnect" href="https://clerk.judgefinder.io" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.clerk.com" />
@@ -89,7 +110,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="JudgeFinder" />
         <meta name="application-name" content="JudgeFinder" />
-        <meta name="theme-color" content="#2563eb" />
+        <meta name="theme-color" content="hsl(216 80% 55%)" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.svg" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="google-site-verification" content="your-google-search-console-verification-code" />

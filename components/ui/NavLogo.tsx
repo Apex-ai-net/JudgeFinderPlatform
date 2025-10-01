@@ -137,7 +137,7 @@ const NavLogo: React.FC<NavLogoProps> = ({
               variant === 'dark'
                 ? 'text-enterprise-light'
                 : variant === 'monochrome'
-                ? 'text-gray-500'
+                ? 'text-muted-foreground'
                 : 'text-enterprise-accent dark:text-enterprise-light'
             }`}>
               .io

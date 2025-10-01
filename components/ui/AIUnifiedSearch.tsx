@@ -207,7 +207,7 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
       case 'jurisdiction':
         return <MapPin className="w-4 h-4 text-purple-500" />
       default:
-        return <Search className="w-4 h-4 text-gray-400" />
+        return <Search className="w-4 h-4 text-muted-foreground" />
     }
   }
 
@@ -217,13 +217,13 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
       <motion.div
         className={`
           relative flex items-center w-full
-          bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl
+          bg-white/90 dark:bg-surface-sunken/90 backdrop-blur-xl
           rounded-2xl shadow-2xl
           border-2 transition-all duration-300
           min-h-[60px] lg:min-h-[64px]
           ${isFocused
             ? 'border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3)] scale-[1.02]'
-            : 'border-gray-200/50 dark:border-gray-700/50 hover:border-blue-400/50'
+            : 'border-border/50 dark:border-border/50 hover:border-blue-400/50'
           }
         `}
         initial={{ opacity: 0, y: 20 }}
@@ -241,11 +241,11 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
           ) : (
             <div className="relative">
               <Brain className={`w-5 h-5 transition-colors ${
-                isFocused ? 'text-blue-500' : 'text-gray-400'
+                isFocused ? 'text-blue-500' : 'text-muted-foreground'
               }`} />
               {isFocused && (
                 <motion.div
-                  className="absolute inset-0 w-5 h-5 bg-blue-500 rounded-full opacity-30"
+                  className="absolute inset-0 w-5 h-5 bg-primary/50 rounded-full opacity-30"
                   animate={{ scale: [1, 2, 1], opacity: [0.3, 0, 0.3] }}
                   transition={{ repeat: Infinity, duration: 2 }}
                 />
@@ -280,8 +280,8 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
             flex-1 py-3 lg:py-4 pr-2
             bg-transparent
             text-base lg:text-lg font-medium
-            text-gray-900 dark:text-white
-            placeholder:text-gray-400 dark:placeholder:text-gray-500
+            text-foreground dark:text-white
+            placeholder:text-muted-foreground dark:placeholder:text-muted-foreground
             focus:outline-none
             min-h-[48px]
           "
@@ -294,7 +294,7 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
-              className="absolute bottom-full mb-2 left-4 right-4 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+              className="absolute bottom-full mb-2 left-4 right-4 p-2 bg-primary/5 dark:bg-blue-900/20 rounded-lg"
             >
               <p className="text-sm text-blue-700 dark:text-blue-300">
                 {voiceTranscript}
@@ -313,9 +313,9 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 onClick={clearSearch}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="p-2 rounded-lg hover:bg-muted dark:hover:bg-accent transition-colors"
               >
-                <X className="w-4 h-4 text-gray-400" />
+                <X className="w-4 h-4 text-muted-foreground" />
               </motion.button>
             )}
           </AnimatePresence>
@@ -329,7 +329,7 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
               className={`p-2 rounded-lg transition-all ${
                 isListening
                   ? 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400'
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400'
+                  : 'hover:bg-muted dark:hover:bg-accent text-muted-foreground'
               }`}
             >
               {isListening ? (
@@ -372,9 +372,9 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
             exit={{ opacity: 0, y: -10 }}
             className="
               absolute z-50 w-full mt-2
-              bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl
+              bg-white/95 dark:bg-surface-sunken/95 backdrop-blur-xl
               rounded-xl shadow-2xl
-              border border-gray-200/50 dark:border-gray-700/50
+              border border-border/50 dark:border-border/50
               overflow-hidden
               max-h-96 overflow-y-auto
             "
@@ -383,16 +383,16 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
             {isLoading && (
               <div className="flex items-center justify-center p-4">
                 <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                <span className="ml-2 text-gray-500">Searching...</span>
+                <span className="ml-2 text-muted-foreground">Searching...</span>
               </div>
             )}
 
             {/* Search Results */}
             {!isLoading && searchResults.length > 0 && (
-              <div className="border-b border-gray-200 dark:border-gray-700">
+              <div className="border-b border-border dark:border-border">
                 <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <Sparkles className="w-4 h-4 text-primary dark:text-primary" />
                     <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
                       Search Results
                     </span>
@@ -419,31 +419,31 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
                       {getResultIcon(result.type)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                      <div className="font-medium text-sm text-foreground dark:text-foreground truncate group-hover:text-primary dark:group-hover:text-primary">
                         {result.title}
                       </div>
                       {result.subtitle && (
-                        <div className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                        <div className="text-xs text-muted-foreground dark:text-muted-foreground truncate">
                           {result.subtitle}
                         </div>
                       )}
                       {result.description && (
-                        <div className="text-xs text-gray-500 dark:text-gray-500 truncate">
+                        <div className="text-xs text-muted-foreground dark:text-muted-foreground truncate">
                           {result.description}
                         </div>
                       )}
                     </div>
-                    <ChevronRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                   </motion.button>
                 ))}
                 <button
                   onClick={handleSearch}
                   className="
                     w-full px-5 py-3 text-center
-                    bg-gray-50 dark:bg-gray-800/50
-                    hover:bg-gray-100 dark:hover:bg-gray-700
+                    bg-muted dark:bg-card/50
+                    hover:bg-muted dark:hover:bg-accent
                     transition-colors
-                    text-sm text-blue-600 dark:text-blue-400
+                    text-sm text-primary dark:text-primary
                     font-medium
                   "
                 >
@@ -455,10 +455,10 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
             {/* Search History */}
             {!isLoading && showHistoryDropdown && recentQueries.length > 0 && !query && (
               <div>
-                <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-between">
+                <div className="px-4 py-2 bg-muted dark:bg-card/50 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <History className="w-4 h-4 text-gray-500" />
-                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                    <History className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                       Recent Searches
                     </span>
                   </div>
@@ -467,7 +467,7 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
                       e.stopPropagation()
                       clearHistory()
                     }}
-                    className="text-xs text-gray-500 hover:text-red-500 transition-colors"
+                    className="text-xs text-muted-foreground hover:text-red-500 transition-colors"
                   >
                     Clear
                   </button>
@@ -484,14 +484,14 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
                     }}
                     className="
                       w-full px-5 py-3 text-left
-                      hover:bg-gray-50 dark:hover:bg-gray-800/50
+                      hover:bg-muted dark:hover:bg-accent/50
                       transition-colors
                       flex items-center gap-3
                       group
                     "
                   >
-                    <History className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200">
+                    <History className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground dark:text-muted-foreground group-hover:text-foreground dark:group-hover:text-gray-200">
                       {historyQuery}
                     </span>
                   </motion.button>

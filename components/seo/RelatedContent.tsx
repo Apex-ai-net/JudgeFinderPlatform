@@ -38,7 +38,7 @@ export function RelatedContent({
             <CardTitle className="text-lg font-semibold">
               Other Judges in {jurisdiction}
             </CardTitle>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Explore other judicial officers serving in {jurisdiction}
             </p>
           </CardHeader>
@@ -52,18 +52,18 @@ export function RelatedContent({
                   <Link 
                     key={judge.id} 
                     href={`/judges/${slug}`}
-                    className="block p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                    className="block p-3 rounded-lg border border-border hover:border-blue-300 hover:bg-primary/5 transition-colors"
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h4 className="font-medium text-gray-900">
+                        <h4 className="font-medium text-foreground">
                           Judge {relatedName}
                         </h4>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-muted-foreground">
                           {judge.court_name || courtName}
                         </p>
                         {judge.appointed_date && (
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-muted-foreground">
                             Appointed {new Date(judge.appointed_date).getFullYear()}
                           </p>
                         )}
@@ -80,7 +80,7 @@ export function RelatedContent({
             <div className="mt-4 pt-4 border-t">
               <Link 
                 href={`/jurisdictions/${jurisdiction.toLowerCase().replace(/\s+/g, '-')}`}
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="text-primary hover:text-blue-800 text-sm font-medium"
               >
                 View All {jurisdiction} Judges →
               </Link>
@@ -95,15 +95,15 @@ export function RelatedContent({
           <CardTitle className="text-lg font-semibold">
             {courtName}
           </CardTitle>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             Learn more about Judge {cleanName}'s court
           </p>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-2">Court Information</h4>
-              <ul className="space-y-1 text-sm text-gray-600">
+            <div className="p-3 bg-muted rounded-lg">
+              <h4 className="font-medium text-foreground mb-2">Court Information</h4>
+              <ul className="space-y-1 text-sm text-muted-foreground">
                 <li>• Jurisdiction: {jurisdiction}</li>
                 <li>• Court Type: {getCourtType(courtName)}</li>
                 <li>• Service Area: {getServiceArea(jurisdiction)}</li>
@@ -113,13 +113,13 @@ export function RelatedContent({
             <div className="space-y-2">
               <Link 
                 href={`/courts/${preferredCourtSlug}`}
-                className="block p-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="block p-2 text-primary hover:text-blue-800 text-sm font-medium"
               >
                 View {courtName} Directory →
               </Link>
               <Link 
                 href={`/jurisdictions/${jurisdiction.toLowerCase().replace(/\s+/g, '-')}`}
-                className="block p-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="block p-2 text-primary hover:text-blue-800 text-sm font-medium"
               >
                 Explore {jurisdiction} Legal System →
               </Link>
@@ -181,7 +181,7 @@ export function RelatedContent({
           <CardTitle className="text-lg font-semibold">
             Popular Searches
           </CardTitle>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             Frequently searched judicial information
           </p>
         </CardHeader>
@@ -189,31 +189,31 @@ export function RelatedContent({
           <div className="grid grid-cols-1 gap-2 text-sm">
               <Link 
                 href={`/judges?jurisdiction=${encodeURIComponent(jurisdiction)}`}
-                className="text-blue-600 hover:text-blue-800"
+                className="text-primary hover:text-blue-800"
               >
               All {jurisdiction} Judges
             </Link>
             <Link 
               href={`/judges?court=${encodeURIComponent(courtName)}`}
-                className="text-blue-600 hover:text-blue-800"
+                className="text-primary hover:text-blue-800"
             >
               {getCourtType(courtName)} Judges
             </Link>
             <Link 
               href="/judges?experience=veteran"
-                className="text-blue-600 hover:text-blue-800"
+                className="text-primary hover:text-blue-800"
             >
               Veteran Judges (15+ Years)
             </Link>
             <Link 
               href="/judges?recently-appointed=true"
-                className="text-blue-600 hover:text-blue-800"
+                className="text-primary hover:text-blue-800"
             >
               Recently Appointed Judges
             </Link>
             <Link 
               href="/judicial-analytics"
-                className="text-blue-600 hover:text-blue-800"
+                className="text-primary hover:text-blue-800"
             >
               Judicial Analytics Dashboard
             </Link>

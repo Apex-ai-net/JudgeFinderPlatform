@@ -43,18 +43,18 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="border-b border-gray-200 px-8 py-6 flex items-center justify-between sticky top-0 bg-white z-10">
+        <div className="border-b border-border px-8 py-6 flex items-center justify-between sticky top-0 bg-white z-10">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-foreground">
               Advertise on Judge Profiles
             </h2>
-            <p className="text-gray-600 mt-1">
+            <p className="text-muted-foreground mt-1">
               Reach attorneys and litigants researching judges in your jurisdiction
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-muted-foreground hover:text-muted-foreground transition-colors"
           >
             <X className="h-6 w-6" />
           </button>
@@ -64,13 +64,13 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
         <div className="p-8">
           {/* Billing Toggle */}
           <div className="flex justify-center mb-8">
-            <div className="bg-gray-100 rounded-lg p-1 flex">
+            <div className="bg-muted rounded-lg p-1 flex">
               <button
                 onClick={() => setBillingCycle('monthly')}
                 className={`px-6 py-2 rounded-md font-medium transition-all ${
                   billingCycle === 'monthly'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-white text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 Monthly Billing
@@ -79,8 +79,8 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
                 onClick={() => setBillingCycle('annual')}
                 className={`px-6 py-2 rounded-md font-medium transition-all flex items-center gap-2 ${
                   billingCycle === 'annual'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-white text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 Annual Billing
@@ -97,8 +97,8 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
             <div 
               className={`relative rounded-xl border-2 p-6 cursor-pointer transition-all ${
                 (selectedPlan === 'federal_monthly' || selectedPlan === 'federal_annual')
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-blue-500 bg-primary/5'
+                  : 'border-border hover:border-border'
               }`}
               onClick={() => setSelectedPlan(billingCycle === 'monthly' ? 'federal_monthly' : 'federal_annual')}
             >
@@ -110,22 +110,22 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
               </div>
 
               <div className="mt-2">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-blue-600" />
+                <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-primary" />
                   Federal Judge Profiles
                 </h3>
                 
                 <div className="mt-4">
                   {billingCycle === 'monthly' ? (
                     <div className="flex items-baseline">
-                      <span className="text-4xl font-bold text-gray-900">${federalMonthlyPrice}</span>
-                      <span className="text-gray-600 ml-2">/month</span>
+                      <span className="text-4xl font-bold text-foreground">${federalMonthlyPrice}</span>
+                      <span className="text-muted-foreground ml-2">/month</span>
                     </div>
                   ) : (
                     <div>
                       <div className="flex items-baseline">
-                        <span className="text-4xl font-bold text-gray-900">${federalAnnualPrice}</span>
-                        <span className="text-gray-600 ml-2">/year</span>
+                        <span className="text-4xl font-bold text-foreground">${federalAnnualPrice}</span>
+                        <span className="text-muted-foreground ml-2">/year</span>
                       </div>
                       <div className="mt-1">
                         <span className="text-sm text-green-600 font-medium">
@@ -139,30 +139,30 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
                 <ul className="mt-6 space-y-3">
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">Premium placement on federal judge profiles</span>
+                    <span className="text-foreground">Premium placement on federal judge profiles</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">Higher visibility for complex federal cases</span>
+                    <span className="text-foreground">Higher visibility for complex federal cases</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">Reach attorneys handling federal litigation</span>
+                    <span className="text-foreground">Reach attorneys handling federal litigation</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">Advanced analytics and reporting</span>
+                    <span className="text-foreground">Advanced analytics and reporting</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">Priority customer support</span>
+                    <span className="text-foreground">Priority customer support</span>
                   </li>
                 </ul>
 
                 {/* Selection Indicator */}
                 {(selectedPlan === 'federal_monthly' || selectedPlan === 'federal_annual') && (
                   <div className="absolute top-4 right-4">
-                    <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 bg-primary/50 rounded-full flex items-center justify-center">
                       <Check className="h-4 w-4 text-white" />
                     </div>
                   </div>
@@ -175,7 +175,7 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
               className={`relative rounded-xl border-2 p-6 cursor-pointer transition-all ${
                 (selectedPlan === 'state_monthly' || selectedPlan === 'state_annual')
                   ? 'border-green-500 bg-green-50'
-                  : 'border-gray-200 hover:border-gray-300'
+                  : 'border-border hover:border-border'
               }`}
               onClick={() => setSelectedPlan(billingCycle === 'monthly' ? 'state_monthly' : 'state_annual')}
             >
@@ -187,7 +187,7 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
               </div>
 
               <div className="mt-2">
-                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-green-600" />
                   State Judge Profiles
                 </h3>
@@ -195,14 +195,14 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
                 <div className="mt-4">
                   {billingCycle === 'monthly' ? (
                     <div className="flex items-baseline">
-                      <span className="text-4xl font-bold text-gray-900">${stateMonthlyPrice}</span>
-                      <span className="text-gray-600 ml-2">/month</span>
+                      <span className="text-4xl font-bold text-foreground">${stateMonthlyPrice}</span>
+                      <span className="text-muted-foreground ml-2">/month</span>
                     </div>
                   ) : (
                     <div>
                       <div className="flex items-baseline">
-                        <span className="text-4xl font-bold text-gray-900">${stateAnnualPrice}</span>
-                        <span className="text-gray-600 ml-2">/year</span>
+                        <span className="text-4xl font-bold text-foreground">${stateAnnualPrice}</span>
+                        <span className="text-muted-foreground ml-2">/year</span>
                       </div>
                       <div className="mt-1">
                         <span className="text-sm text-green-600 font-medium">
@@ -216,23 +216,23 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
                 <ul className="mt-6 space-y-3">
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">Prominent placement on state judge profiles</span>
+                    <span className="text-foreground">Prominent placement on state judge profiles</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">Target local attorneys and litigants</span>
+                    <span className="text-foreground">Target local attorneys and litigants</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">High volume of state court searches</span>
+                    <span className="text-foreground">High volume of state court searches</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">Detailed performance metrics</span>
+                    <span className="text-foreground">Detailed performance metrics</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">Email support included</span>
+                    <span className="text-foreground">Email support included</span>
                   </li>
                 </ul>
 
@@ -249,27 +249,27 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
           </div>
 
           {/* Benefits Section */}
-          <div className="bg-gray-50 rounded-lg p-6 mb-8">
-            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <div className="bg-muted rounded-lg p-6 mb-8">
+            <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
               <Zap className="h-5 w-5 text-yellow-500" />
               Why Advertise on JudgeFinder?
             </h3>
             <div className="grid md:grid-cols-3 gap-4">
               <div>
-                <h4 className="font-medium text-gray-900 mb-1">Targeted Reach</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-medium text-foreground mb-1">Targeted Reach</h4>
+                <p className="text-sm text-muted-foreground">
                   Connect with attorneys actively researching judges for their cases
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900 mb-1">High Intent Traffic</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-medium text-foreground mb-1">High Intent Traffic</h4>
+                <p className="text-sm text-muted-foreground">
                   Users are decision-makers looking for legal representation
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-gray-900 mb-1">Measurable ROI</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-medium text-foreground mb-1">Measurable ROI</h4>
+                <p className="text-sm text-muted-foreground">
                   Track impressions, clicks, and conversions with detailed analytics
                 </p>
               </div>
@@ -277,9 +277,9 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
           </div>
 
           {/* Info Box */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="bg-primary/5 border border-blue-200 rounded-lg p-4 mb-6">
             <div className="flex gap-3">
-              <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
               <div className="text-sm text-blue-900">
                 <p className="font-medium mb-1">Limited Availability</p>
                 <p>
@@ -294,14 +294,14 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-gray-700 transition-colors"
+              className="flex-1 px-6 py-3 border border-border rounded-lg hover:bg-muted font-medium text-foreground transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleProceedToSelection}
               disabled={!selectedPlan}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2 transition-colors"
+              className="flex-1 px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2 transition-colors"
             >
               Select Judges to Advertise On
               <ChevronRight className="h-4 w-4" />
