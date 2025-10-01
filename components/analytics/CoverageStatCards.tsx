@@ -53,7 +53,7 @@ export function CoverageStatCards({ stats, loading = false }: CoverageStatCardsP
               </div>
               <div className="text-3xl font-bold text-foreground">
                 {value !== null && value !== undefined ? (
-                  <AnimatedNumber end={value} />
+                  <AnimatedNumber value={value} />
                 ) : (
                   '—'
                 )}

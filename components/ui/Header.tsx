@@ -61,15 +61,24 @@ export function Header() {
                 key={href}
                 href={href}
                 className={cn(
-                  'relative inline-flex items-center text-sm font-medium transition-colors',
+                  'relative inline-flex items-center text-sm font-medium transition-colors group',
                   isActive(href)
                     ? 'text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 {label}
-                {isActive(href) && (
-                  <span className="absolute inset-x-0 -bottom-2 h-0.5 rounded-full bg-primary" />
+                {isActive(href) ? (
+                  <motion.span
+                    className="absolute inset-x-0 -bottom-2 h-0.5 rounded-full bg-primary"
+                    layoutId="activeIndicator"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                ) : (
+                  <motion.span
+                    className="absolute inset-x-0 -bottom-2 h-0.5 rounded-full bg-primary opacity-0 group-hover:opacity-30"
+                    transition={{ duration: 0.2 }}
+                  />
                 )}
               </Link>
             ))}

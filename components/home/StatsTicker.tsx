@@ -23,7 +23,7 @@ function Stat({ icon, value, label, delay }: StatProps) {
       <div className="flex items-center gap-2">
         <div className="text-primary">{icon}</div>
         <div className="text-2xl md:text-3xl font-bold text-foreground">
-          <AnimatedNumber end={value} />
+          <AnimatedNumber value={value} />
         </div>
       </div>
       <p className="text-xs md:text-sm text-muted-foreground">{label}</p>

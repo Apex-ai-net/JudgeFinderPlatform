@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Building, MapPin, Users, Scale, Search, Loader2, ArrowRight, Sparkles } from 'lucide-react'
+import { Building, MapPin, Users, Scale, Search, Loader2, ArrowRight, Sparkles, Landmark, Building2, Flag } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useSearchDebounce } from '@/lib/hooks/useDebounce'
 import { CourtCardSkeleton } from '@/components/ui/Skeleton'
 import { resolveCourtSlug } from '@/lib/utils/slug'
+import { AnimatedCard, AnimatedBadge } from '@/components/micro-interactions'
 
 interface Court {
   id: string
@@ -31,6 +32,37 @@ interface CourtsResponse {
 interface CourtsSearchProps {
   initialCourts: Court[]
   initialJurisdiction?: string
+}
+
+// Helper to get court type icon and color
+function getCourtTypeInfo(type: string) {
+  const normalizedType = type.toLowerCase()
+
+  if (normalizedType.includes('federal')) {
+    return {
+      icon: Flag,
+      color: 'text-blue-500',
+      bgColor: 'bg-blue-500/10',
+      label: 'Federal'
+    }
+  }
+
+  if (normalizedType.includes('state')) {
+    return {
+      icon: Landmark,
+      color: 'text-purple-500',
+      bgColor: 'bg-purple-500/10',
+      label: 'State'
+    }
+  }
+
+  // Default to local/municipal
+  return {
+    icon: Building2,
+    color: 'text-green-500',
+    bgColor: 'bg-green-500/10',
+    label: 'Local'
+  }
 }
 
 export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: CourtsSearchProps) {
@@ -223,66 +255,83 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
 
       {/* Courts Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {courts.map((court, index) => (
-          <motion.div
-            key={court.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05, duration: 0.5 }}
-            whileHover={{ scale: 1.02 }}
-            className="group"
-          >
-            <Link
-              href={`/courts/${resolveCourtSlug(court) || court.id}`}
-              className="block h-full"
+        {courts.map((court, index) => {
+          const typeInfo = getCourtTypeInfo(court.type)
+          const TypeIcon = typeInfo.icon
+
+          return (
+            <motion.div
+              key={court.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05, duration: 0.5 }}
             >
-              <div className="relative h-full rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:bg-accent/5 group-hover:border-primary/30">
-                {/* Gradient overlay on hover */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-enterprise-primary to-enterprise-deep opacity-0 group-hover:opacity-5 transition-opacity duration-300" />
-                
-                <div className="relative flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
-                        <Building className="h-4 w-4" />
+              <Link
+                href={`/courts/${resolveCourtSlug(court) || court.id}`}
+                className="block h-full"
+              >
+                <AnimatedCard
+                  intensity="medium"
+                  className="relative h-full p-6 shadow-card hover:shadow-card-hover"
+                >
+                  {/* Gradient overlay on hover */}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-enterprise-primary to-enterprise-deep opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none" />
+
+                  <div className="relative flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className={`p-1.5 rounded-lg ${typeInfo.bgColor} ${typeInfo.color}`}>
+                          <TypeIcon className="h-4 w-4" />
+                        </div>
+                        <AnimatedBadge
+                          variant={
+                            typeInfo.label === 'Federal' ? 'info' :
+                            typeInfo.label === 'State' ? 'default' :
+                            'success'
+                          }
+                          className="capitalize"
+                        >
+                          {typeInfo.label}
+                        </AnimatedBadge>
                       </div>
-                      <span className="text-sm font-medium text-primary">
-                        {court.type}
-                      </span>
+
+                      <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-3 line-clamp-2">
+                        {court.name}
+                      </h3>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                          <span>{court.jurisdiction}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Users className="h-3.5 w-3.5 flex-shrink-0" />
+                          <span>{court.judge_count} {court.judge_count === 1 ? 'judge' : 'judges'}</span>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex items-center gap-1 text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="text-sm font-medium">View Details</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </div>
                     </div>
-                    
-                    <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-3">
-                      {court.name}
-                    </h3>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5" />
-                        <span>{court.jurisdiction}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="h-3.5 w-3.5" />
-                        <span>{court.judge_count} judges</span>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-4 flex items-center gap-1 text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="text-sm font-medium">View Details</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
+
+                    <div className="ml-4">
+                      <motion.div
+                        className={`p-2 rounded-lg ${typeInfo.bgColor}`}
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        transition={{ type: 'spring', stiffness: 400 }}
+                      >
+                        <Scale className={`h-6 w-6 ${typeInfo.color}`} />
+                      </motion.div>
                     </div>
                   </div>
-                  
-                  <div className="ml-4">
-                    <div className="p-2 rounded-lg bg-muted/50 group-hover:bg-primary/10 transition-colors">
-                      <Scale className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </motion.div>
-        ))}
+                </AnimatedCard>
+              </Link>
+            </motion.div>
+          )
+        })}
         
         {/* Show skeleton cards while loading more */}
         {loading && hasMore && (

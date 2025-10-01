@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { HeartHandshake, ArrowRight } from 'lucide-react'
+import { AnimatedButton } from '@/components/micro-interactions'
+import { motion } from 'framer-motion'
 
 interface DonationButtonProps {
   amount: number
@@ -46,18 +48,36 @@ export function DonationButton({ amount, variant = 'inline', className }: Donati
       ? 'inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-4 py-3 text-sm font-semibold text-primary transition hover:bg-primary/20'
       : 'inline-flex items-center gap-2 rounded-full border border-primary/60 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20'
 
+  const HeartIcon = () => (
+    <motion.div
+      animate={{
+        scale: [1, 1.2, 1],
+      }}
+      transition={{
+        duration: 1.5,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }}
+    >
+      <HeartHandshake className="h-4 w-4" aria-hidden />
+    </motion.div>
+  )
+
   return (
     <div className={className}>
-      <button
-        type="button"
+      <AnimatedButton
         onClick={handleDonate}
         disabled={loading}
-        className={`${baseClasses} ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+        loading={loading}
+        variant={variant === 'header' ? 'outline' : 'primary'}
+        size="md"
+        icon={<HeartIcon />}
+        iconPosition="left"
+        className={baseClasses}
       >
-        <HeartHandshake className="h-4 w-4" aria-hidden />
         <span>Support transparency</span>
-        <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-      </button>
+        <ArrowRight className="h-3.5 w-3.5 ml-1" aria-hidden />
+      </AnimatedButton>
       {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
     </div>
   )

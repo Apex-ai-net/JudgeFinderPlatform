@@ -10,58 +10,64 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The judicial analytics platform implements specialized business logic across several core domains:
+The judicial analytics platform consists of several interconnected business logic systems:
 
-## Judicial Analytics Engine
-Importance Score: 95/100
-- Multi-factor bias detection system analyzing 6 key metrics:
-  - Civil litigation favor rates
-  - Child custody patterns
-  - Contract enforcement trends
-  - Criminal sentencing severity
-  - Motion grant patterns
-  - Settlement preferences
-- Confidence scoring (60-95%) for analytics reliability
-- AI-augmented pattern detection using dual model architecture
-- Jurisdiction-specific benchmarking
+## Core Analytics Engine
+Path: `lib/analytics/`
+Importance Score: 95
 
-## Court Data Management
-Importance Score: 85/100
-- Hierarchical court system modeling 
-- Judge assignment tracking with retirement detection
-- Multi-source data reconciliation
-- California-specific jurisdiction validation
-- Case outcome pattern analysis
+Implements sophisticated judicial pattern analysis through:
+- 6-category bias detection system
+- Settlement rate analysis
+- Case outcome distribution tracking
+- Motion grant pattern analysis
+- Temporal consistency scoring
 
-## Legal Advertising System
-Importance Score: 80/100
-- Court/judge-specific ad slot allocation
-- Tiered pricing based on jurisdiction level:
-  - Federal courts (Tier A)
-  - State appellate courts (Tier B) 
-  - Trial courts (Tier C)
-  - Specialized courts (Tier D)
-- Law firm verification workflow
-- Bar number validation
-- Geographic targeting by jurisdiction
+## Court System Management
+Path: `lib/sync/`
+Importance Score: 90
 
-## Professional Directory
-Importance Score: 75/100
-- Role-based access control for legal professionals
-- Judge profile verification system
-- Court relationship mapping
-- Position history tracking
-- SLA-driven issue management
+Handles complex court hierarchies and relationships:
+- Jurisdiction mapping and validation
+- Judge assignment tracking
+- Term limit monitoring
+- Pro tem substitution handling
+- Court system reorganization detection
 
-Core file structure for business logic:
-```
-/lib/analytics/ - Judicial analytics engine
-/lib/sync/ - Court data synchronization
-/lib/ads/ - Legal advertising system
-/lib/judges/ - Judge profile management
-```
+## Legal Advertising Marketplace
+Path: `lib/ads/`
+Importance Score: 85
 
-The system emphasizes judicial transparency through sophisticated analytics while maintaining compliance with legal industry requirements for advertising and professional verification.
+Specialized advertising system for legal professionals:
+- Court-level ad placement rules
+- Attorney verification integration  
+- Practice area targeting
+- Jurisdiction-based pricing tiers
+- Rotation limits and exclusivity rules
+
+## Judge Profile Analytics
+Path: `components/judges/`
+Importance Score: 80
+
+Multi-dimensional judge analysis system:
+- Case outcome pattern detection
+- Settlement preference scoring
+- Decision speed analysis
+- Motion grant rate tracking
+- Practice area specialization detection
+
+## Case Distribution System
+Path: `scripts/`
+Importance Score: 75
+
+Manages realistic case distribution patterns:
+- Practice area allocation rules
+- Geographic jurisdiction mapping
+- Case number format validation
+- Filing timeline modeling
+- Outcome distribution normalization
+
+The platform's unique value lies in its judicial analytics capabilities and sophisticated legal domain modeling, particularly around bias detection and court relationship handling.
 
 $END$
 
