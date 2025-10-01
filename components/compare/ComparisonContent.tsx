@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { fadeInUp, staggerContainer, staggerItem, cardHover } from '@/lib/animations/presets'
 import { colors, spacing, borderRadius, shadows } from '@/lib/design-system/tokens'
+import { AnimatedCard, SlideInView } from '@/components/micro-interactions'
 import type { Judge } from '@/types'
 
 interface ComparisonContentProps {
@@ -132,12 +133,12 @@ export function ComparisonContent({ initialJudges = [] }: ComparisonContentProps
     <div className="max-w-7xl mx-auto">
       {/* Add Judge Search Section */}
       {selectedJudges.length < 3 && (
-        <motion.div
-          className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm"
-          variants={fadeInUp}
-          initial="initial"
-          animate="animate"
-        >
+        <SlideInView direction="down" delay={0.1}>
+          <AnimatedCard
+            intensity="subtle"
+            glowColor="none"
+            className="mb-8 p-6 shadow-sm"
+          >
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-xl font-semibold text-foreground">Select Judges to Compare</h2>
@@ -227,7 +228,8 @@ export function ComparisonContent({ initialJudges = [] }: ComparisonContentProps
               {searchError}
             </motion.div>
           )}
-        </motion.div>
+        </AnimatedCard>
+      </SlideInView>
       )}
 
       {/* Side-by-Side Judge Comparison Cards */}
@@ -243,34 +245,33 @@ export function ComparisonContent({ initialJudges = [] }: ComparisonContentProps
             const isLoading = loadingAnalytics[judge.id]
 
             return (
-              <motion.div
-                key={judge.id}
-                className="relative rounded-xl border border-border bg-card shadow-md hover:shadow-lg transition-all"
-                variants={cardHover}
-                initial="initial"
-                whileHover="hover"
-              >
-                {/* Remove Button */}
-                <button
-                  onClick={() => removeJudge(judge.id)}
-                  className="absolute top-4 right-4 z-10 p-2 rounded-full bg-background/80 hover:bg-destructive/10 border border-border hover:border-destructive/20 transition-all group"
-                  aria-label={`Remove ${judge.name}`}
+              <SlideInView key={judge.id} direction="up" delay={index * 0.1}>
+                <AnimatedCard
+                  intensity="medium"
+                  glowColor="primary"
+                  className="relative shadow-md"
                 >
-                  <X className="h-4 w-4 text-muted-foreground group-hover:text-destructive" />
-                </button>
+                  {/* Remove Button */}
+                  <button
+                    onClick={() => removeJudge(judge.id)}
+                    className="absolute top-4 right-4 z-10 p-2 rounded-full bg-background/80 hover:bg-destructive/10 border border-border hover:border-destructive/20 transition-all group"
+                    aria-label={`Remove ${judge.name}`}
+                  >
+                    <X className="h-4 w-4 text-muted-foreground group-hover:text-destructive" />
+                  </button>
 
-                {/* Judge Header */}
-                <div className="p-6 border-b border-border bg-gradient-to-br from-primary/5 to-transparent">
-                  <div className="flex items-start gap-3">
-                    <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
-                      <Gavel className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="flex-1 pr-8">
-                      <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-2">{judge.name}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{judge.court_name}</p>
+                  {/* Judge Header */}
+                  <div className="p-6 border-b border-border bg-gradient-to-br from-primary/5 to-transparent">
+                    <div className="flex items-start gap-3">
+                      <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+                        <Gavel className="w-6 h-6 text-primary" />
+                      </div>
+                      <div className="flex-1 pr-8">
+                        <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-2">{judge.name}</h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{judge.court_name}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
                 {/* Basic Info Section */}
                 <div className="p-6 space-y-4">
@@ -386,7 +387,8 @@ export function ComparisonContent({ initialJudges = [] }: ComparisonContentProps
                     </div>
                   )}
                 </div>
-              </motion.div>
+              </AnimatedCard>
+            </SlideInView>
             )
           })}
         </motion.div>
