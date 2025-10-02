@@ -42,6 +42,7 @@ declare module 'react-window' {
     rowHeight: number
     width: number
     itemData?: any
+    itemKey?: (props: { columnIndex: number; rowIndex: number; data?: any }) => string | number
     overscanColumnCount?: number
     overscanRowCount?: number
     onItemsRendered?: (props: GridOnItemsRenderedProps) => void
