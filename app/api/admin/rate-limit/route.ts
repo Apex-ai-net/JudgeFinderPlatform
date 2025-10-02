@@ -5,6 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@clerk/nextjs/server'
+import { resolveAdminStatus } from '@/lib/auth/is-admin'
 import { getGlobalRateLimiter } from '@/lib/courtlistener/global-rate-limiter'
 import { logger } from '@/lib/utils/logger'
 
@@ -18,11 +20,16 @@ export const runtime = 'nodejs'
  */
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Add authentication check
-    // const { userId } = await auth()
-    // if (!isAdmin(userId)) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
+    // Admin authentication required
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const status = await resolveAdminStatus()
+    if (!status.isAdmin) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
+    }
 
     const limiter = getGlobalRateLimiter()
 
@@ -80,11 +87,16 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Add authentication check
-    // const { userId } = await auth()
-    // if (!isAdmin(userId)) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
+    // Admin authentication required
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const status = await resolveAdminStatus()
+    if (!status.isAdmin) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
+    }
 
     const body = await request.json()
     const { action } = body
@@ -103,7 +115,7 @@ export async function POST(request: NextRequest) {
         await limiter.resetWindow()
 
         logger.info('Rate limit window manually reset', {
-          resetBy: 'admin', // TODO: Add actual user ID
+          resetBy: userId,
           timestamp: new Date().toISOString()
         })
 

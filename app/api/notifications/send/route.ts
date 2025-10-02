@@ -6,6 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@clerk/nextjs/server'
+import { resolveAdminStatus } from '@/lib/auth/is-admin'
 import { createServerClient } from '@/lib/supabase/server'
 import { apnsService } from '@/lib/ios/APNsService'
 
@@ -17,32 +19,24 @@ export const dynamic = 'force-dynamic'
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerClient()
-    
-    // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
-    if (authError || !user) {
+    // Admin authentication required
+    const { userId } = await auth()
+    if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
-    
-    // TODO: Add admin role check
-    // const { data: profile } = await supabase
-    //   .from('user_profiles')
-    //   .select('role')
-    //   .eq('id', user.id)
-    //   .single()
-    // 
-    // if (profile?.role !== 'admin') {
-    //   return NextResponse.json(
-    //     { error: 'Forbidden - Admin access required' },
-    //     { status: 403 }
-    //   )
-    // }
-    
+
+    const status = await resolveAdminStatus()
+    if (!status.isAdmin) {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
+        { status: 403 }
+      )
+    }
+
+    const supabase = await createServerClient()
     const body = await request.json()
     const { type, ...params } = body
     
