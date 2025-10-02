@@ -173,7 +173,8 @@ BEGIN;
 CREATE INDEX IF NOT EXISTS idx_judges_court_id ON judges(court_id);
 CREATE INDEX IF NOT EXISTS idx_cases_judge_id ON cases(judge_id);
 CREATE INDEX IF NOT EXISTS idx_cases_court_id ON cases(court_id);
-CREATE INDEX IF NOT EXISTS idx_decisions_case_id ON decisions(case_id);
+-- Note: decisions table does not exist, skipping index
+-- CREATE INDEX IF NOT EXISTS idx_decisions_case_id ON decisions(case_id);
 
 INSERT INTO supabase_migrations.schema_migrations (version, name)
 VALUES ('20250817', '20250817_003_add_performance_indexes')
@@ -185,8 +186,9 @@ COMMIT;
 BEGIN;
 
 -- Add composite indexes for common query patterns
-CREATE INDEX IF NOT EXISTS idx_cases_judge_date ON cases(judge_id, filed_date DESC);
-CREATE INDEX IF NOT EXISTS idx_cases_court_date ON cases(court_id, filed_date DESC);
+-- Note: cases table uses 'date_filed' not 'filed_date'
+CREATE INDEX IF NOT EXISTS idx_cases_judge_date ON cases(judge_id, date_filed DESC);
+CREATE INDEX IF NOT EXISTS idx_cases_court_date ON cases(court_id, date_filed DESC);
 CREATE INDEX IF NOT EXISTS idx_judges_slug ON judges(slug);
 CREATE INDEX IF NOT EXISTS idx_courts_slug ON courts(slug);
 
@@ -203,7 +205,8 @@ BEGIN;
 CREATE INDEX IF NOT EXISTS idx_judges_name_trgm ON judges USING gin(name gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS idx_courts_name_trgm ON courts USING gin(name gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS idx_cases_docket_number ON cases(docket_number);
-CREATE INDEX IF NOT EXISTS idx_decisions_date ON decisions(date_filed DESC);
+-- Note: decisions table does not exist, skipping index
+-- CREATE INDEX IF NOT EXISTS idx_decisions_date ON decisions(date_filed DESC);
 
 INSERT INTO supabase_migrations.schema_migrations (version, name)
 VALUES ('20250930', '20250930_001_critical_performance_indexes')
@@ -218,7 +221,7 @@ SELECT
     indexname
 FROM pg_indexes
 WHERE schemaname = 'public'
-  AND tablename IN ('judges', 'courts', 'cases', 'decisions')
+  AND tablename IN ('judges', 'courts', 'cases')
 ORDER BY tablename, indexname;
 
 -- ==============================================================================
@@ -333,19 +336,19 @@ BEGIN;
 -- Enable pg_trgm extension if not exists
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
--- Create materialized view for judge decision counts
+-- Create materialized view for judge case counts
+-- Note: decisions table does not exist, using cases only
 CREATE MATERIALIZED VIEW IF NOT EXISTS judge_decision_counts AS
 SELECT
     j.id as judge_id,
     j.name as judge_name,
     j.slug as judge_slug,
     COUNT(DISTINCT c.id) as total_cases,
-    COUNT(DISTINCT d.id) as total_decisions,
-    MAX(d.date_filed) as latest_decision_date,
-    MIN(d.date_filed) as earliest_decision_date
+    COUNT(DISTINCT c.id) as total_decisions,
+    MAX(c.date_filed) as latest_decision_date,
+    MIN(c.date_filed) as earliest_decision_date
 FROM judges j
 LEFT JOIN cases c ON c.judge_id = j.id
-LEFT JOIN decisions d ON d.case_id = c.id
 GROUP BY j.id, j.name, j.slug;
 
 -- Add indexes to materialized view
@@ -424,20 +427,18 @@ COMMIT;
 BEGIN;
 
 -- Enable RLS on main tables
+-- Note: decisions table does not exist, skipping RLS for it
 ALTER TABLE judges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE courts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cases ENABLE ROW LEVEL SECURITY;
-ALTER TABLE decisions ENABLE ROW LEVEL SECURITY;
 
 -- Drop existing policies if they exist
 DROP POLICY IF EXISTS "Allow public read on judges" ON judges;
 DROP POLICY IF EXISTS "Allow public read on courts" ON courts;
 DROP POLICY IF EXISTS "Allow public read on cases" ON cases;
-DROP POLICY IF EXISTS "Allow public read on decisions" ON decisions;
 DROP POLICY IF EXISTS "Allow service role all on judges" ON judges;
 DROP POLICY IF EXISTS "Allow service role all on courts" ON courts;
 DROP POLICY IF EXISTS "Allow service role all on cases" ON cases;
-DROP POLICY IF EXISTS "Allow service role all on decisions" ON decisions;
 
 -- Allow public read access (platform is transparency tool)
 CREATE POLICY "Allow public read on judges"
@@ -455,11 +456,6 @@ CREATE POLICY "Allow public read on cases"
   TO anon, authenticated
   USING (true);
 
-CREATE POLICY "Allow public read on decisions"
-  ON decisions FOR SELECT
-  TO anon, authenticated
-  USING (true);
-
 -- Service role can do everything
 CREATE POLICY "Allow service role all on judges"
   ON judges FOR ALL
@@ -473,11 +469,6 @@ CREATE POLICY "Allow service role all on courts"
 
 CREATE POLICY "Allow service role all on cases"
   ON cases FOR ALL
-  TO service_role
-  USING (true);
-
-CREATE POLICY "Allow service role all on decisions"
-  ON decisions FOR ALL
   TO service_role
   USING (true);
 
