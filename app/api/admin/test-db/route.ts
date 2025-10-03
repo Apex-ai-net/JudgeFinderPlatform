@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { ensureAdminAccess } from '@/lib/admin/admin-guard'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
+  // Require admin authentication
+  await ensureAdminAccess()
   const results: any = {
     timestamp: new Date().toISOString(),
     tests: []
