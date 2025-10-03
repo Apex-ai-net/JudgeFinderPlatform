@@ -9,8 +9,8 @@
 
 export async function register() {
   // Validate environment variables before anything else
-  const { validateAndLogEnv } = await import('@/lib/utils/env-validator')
-  validateAndLogEnv()
+  const { validateEnvironmentOnStartup } = await import('@/lib/utils/env-validator')
+  validateEnvironmentOnStartup()
 
   // Only run on server
   if (process.env.NEXT_RUNTIME === 'nodejs') {
