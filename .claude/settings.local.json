@@ -1,24 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(PGPASSWORD='postgrespassword' psql -h db.xstlnicbnzdxlgfiewmg.supabase.co -U postgres -d postgres -p 5432 -c \"\\df+ search_judges_ranked\")",
-      "Bash(supabase db push:*)",
-      "Bash(PGPASSWORD='your-db-password' psql 'postgresql://postgres:your-password@db.xstlnicbnzdxlgfiewmg.supabase.co:5432/postgres')",
-      "Bash(env)",
-      "Bash(npm run type-check:*)",
-      "Bash(npm run lint:*)",
-      "Bash(wc:*)",
-      "Bash(npm audit:*)",
-      "Bash(find:*)",
-      "Bash(cat:*)",
-      "Bash(npx eslint:*)",
-      "Bash(grep:*)",
-      "Bash(npm install:*)",
-      "Bash(git add:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nfix(security): address critical vulnerabilities and performance issues\n\nCRITICAL FIXES:\n- Fixed TypeScript build error in lib/auth/index.ts export\n- Added SQL injection protection with sanitization utilities\n- Created instrumentation.ts for Sentry error monitoring\n- Added database indexes for 70-85% query performance improvement\n- Installed vitest testing framework\n\nSECURITY:\n- Fixed 11 SQL injection vulnerabilities across 6 API endpoints\n- Created lib/utils/sql-sanitize.ts with input sanitization\n- Protected ILIKE queries from wildcard attacks\n- Added length limits and type validation to user inputs\n\nPERFORMANCE:\n- Created migration for database indexes on judges, cases, courts\n- Added trigram indexes for fast fuzzy text search\n- Composite indexes for common query patterns\n- Expected 70-85% improvement in search response times\n\nTESTING:\n- Installed vitest, @testing-library/react, happy-dom\n- Fixed type errors in test files\n- Added testing infrastructure for future test development\n\nMONITORING:\n- Created instrumentation.ts for Next.js observability\n- Configured Sentry with environment-specific settings\n- Added error filtering and sensitive data sanitization\n- Implemented onRequestError hook for detailed error tracking\n\n🤖 Generated with Claude Code\nhttps://claude.com/claude-code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(npm run build:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nfix(logging): replace all empty catch blocks with proper error logging\n\nCRITICAL FIX:\n- Fixed 9 empty catch blocks across 6 critical files\n- All catch blocks now log errors with descriptive context\n- Maintains non-breaking behavior with WARN level logging\n\nFILES MODIFIED:\n- lib/sync/judge-sync.ts (1 catch block)\n- lib/sync/decision-sync.ts (2 catch blocks)\n- lib/sync/court-sync.ts (1 catch block)\n- lib/supabase/server.ts (2 catch blocks)\n- app/api/advertising/track-click/route.ts (2 catch blocks)\n- app/api/auth/callback/route.ts (1 catch block)\n\nOBSERVABILITY:\n- Added consistent logging pattern with context identifiers\n- All failures now traceable for debugging\n- Includes relevant metadata (metric names, slot IDs, etc.)\n\nBUNDLE OPTIMIZATION:\n- Lazy loaded ComparisonContent component\n- Added dynamic imports for chart-heavy components\n- Bundle sizes verified: 102 kB shared JS (optimal)\n\n🤖 Generated with Claude Code\nhttps://claude.com/claude-code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(git commit -m \"$(cat <<''EOF''\nfix(security): add admin authentication to test-db endpoint\n\nSECURITY FIX:\n- Added ensureAdminAccess() to /api/admin/test-db endpoint\n- Prevents unauthorized access to database testing utility\n- All admin endpoints now properly protected\n\nENDPOINT PROTECTION STATUS:\n✓ /api/admin/bias-analytics - protected\n✓ /api/admin/debug-env - protected (production check)\n✓ /api/admin/verification - protected  \n✓ /api/admin/migrate - protected\n✓ /api/admin/test-db - NOW PROTECTED\n✓ /api/admin/data-status - protected\n✓ /api/admin/sync - protected\n✓ /api/admin/sync-status - protected\n✓ /api/admin/warm-analytics - protected\n✓ /api/admin/stats - protected\n✓ /api/admin/rate-limit - protected\n\n🤖 Generated with Claude Code\nhttps://claude.com/claude-code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat(validation): add environment variable validation at startup\n\nCRITICAL IMPROVEMENT:\n- Integrated env validator into instrumentation.ts\n- Validates all required environment variables at startup\n- Fails fast in production with clear error messages\n- Provides warnings for optional but recommended vars\n\nVALIDATION COVERAGE:\n✓ Supabase URL and API keys\n✓ Clerk authentication keys\n✓ AI API keys (Google/OpenAI)\n✓ Redis configuration  \n✓ Sentry DSN\n✓ CourtListener API key\n\nBENEFITS:\n- Prevents cryptic runtime failures\n- Clear error messages for misconfiguration\n- Validates API key formats and URL patterns\n- Distinguishes between critical and recommended vars\n- Logged warnings for missing optional features\n\n🤖 Generated with Claude Code\nhttps://claude.com/claude-code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": [],

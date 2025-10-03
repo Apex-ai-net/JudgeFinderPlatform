@@ -8,6 +8,10 @@
  */
 
 export async function register() {
+  // Validate environment variables before anything else
+  const { validateAndLogEnv } = await import('@/lib/utils/env-validator')
+  validateAndLogEnv()
+
   // Only run on server
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     // Initialize Sentry for server-side error tracking
