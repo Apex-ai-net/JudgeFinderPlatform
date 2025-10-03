@@ -89,7 +89,11 @@ export async function GET(request: NextRequest) {
 
     // Apply text search if provided
     if (query.trim()) {
-      queryBuilder = queryBuilder.or(`name.ilike.%${query}%,court_name.ilike.%${query}%`)
+      const { sanitizeLikePattern } = await import('@/lib/utils/sql-sanitize')
+      const sanitizedQuery = sanitizeLikePattern(query)
+      if (sanitizedQuery) {
+        queryBuilder = queryBuilder.or(`name.ilike.%${sanitizedQuery}%,court_name.ilike.%${sanitizedQuery}%`)
+      }
     }
 
     // Apply experience filters
@@ -107,12 +111,16 @@ export async function GET(request: NextRequest) {
 
     // Apply court type filters
     if (filters.court_types && filters.court_types.length > 0) {
-      // This would need to join with courts table for court type filtering
-      // For now, we'll filter by court names that contain type keywords
-      const courtTypeConditions = filters.court_types.map(type => 
-        `court_name.ilike.%${type}%`
-      ).join(',')
-      queryBuilder = queryBuilder.or(courtTypeConditions)
+      const { sanitizeFilterArray } = await import('@/lib/utils/sql-sanitize')
+      const allowedCourtTypes = ['Superior', 'Supreme', 'District', 'Circuit', 'Appellate', 'Municipal']
+      const sanitizedTypes = sanitizeFilterArray(filters.court_types, allowedCourtTypes)
+
+      if (sanitizedTypes.length > 0) {
+        const courtTypeConditions = sanitizedTypes.map(type =>
+          `court_name.ilike.%${type}%`
+        ).join(',')
+        queryBuilder = queryBuilder.or(courtTypeConditions)
+      }
     }
 
     // Execute the query

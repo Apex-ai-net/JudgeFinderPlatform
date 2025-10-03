@@ -10,64 +10,61 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The judicial analytics platform consists of several interconnected business logic systems:
+The JudgeFinder Platform implements sophisticated judicial analytics and legal advertising through several core business systems:
 
-## Core Analytics Engine
-Path: `lib/analytics/`
+## Judicial Analytics Engine
 Importance Score: 95
+Path: lib/analytics/bias-calculations.ts
 
-Implements sophisticated judicial pattern analysis through:
-- 6-category bias detection system
-- Settlement rate analysis
-- Case outcome distribution tracking
-- Motion grant pattern analysis
-- Temporal consistency scoring
+- 6-category bias detection framework analyzing 50+ case documents per judge
+- Settlement pattern analysis across case types
+- Decision timeline tracking with jurisdiction context
+- Custom confidence scoring (60-95% range)
+- Multi-model AI verification system
 
-## Court System Management
-Path: `lib/sync/`
-Importance Score: 90
+## Court Assignment Management 
+Importance Score: 85
+Path: lib/sync/judge-sync.ts
 
-Handles complex court hierarchies and relationships:
-- Jurisdiction mapping and validation
-- Judge assignment tracking
-- Term limit monitoring
-- Pro tem substitution handling
-- Court system reorganization detection
+- Complex position hierarchy tracking
+- Jurisdiction validation with geographical constraints  
+- Assignment conflict detection
+- Historical position archival
+- Department/calendar tracking
 
 ## Legal Advertising Marketplace
-Path: `lib/ads/`
-Importance Score: 85
-
-Specialized advertising system for legal professionals:
-- Court-level ad placement rules
-- Attorney verification integration  
-- Practice area targeting
-- Jurisdiction-based pricing tiers
-- Rotation limits and exclusivity rules
-
-## Judge Profile Analytics
-Path: `components/judges/`
 Importance Score: 80
+Path: components/dashboard/AdPurchaseModal.tsx
 
-Multi-dimensional judge analysis system:
-- Case outcome pattern detection
-- Settlement preference scoring
-- Decision speed analysis
-- Motion grant rate tracking
-- Practice area specialization detection
+- Tiered pricing system:
+  - Federal profiles: $500/month
+  - State profiles: $200/month
+  - 2-month discount on annual billing
+- Court hierarchy-based positioning
+- Jurisdiction-targeted inventory
+- Rotation and exclusivity rules
 
-## Case Distribution System
-Path: `scripts/`
+## Judge Search System
 Importance Score: 75
+Path: lib/judges/directory/JudgesDirectoryDataManager.ts
 
-Manages realistic case distribution patterns:
-- Practice area allocation rules
-- Geographic jurisdiction mapping
-- Case number format validation
-- Filing timeline modeling
-- Outcome distribution normalization
+Relevance scoring algorithm:
+- Name match quality (40%)  
+- Recent activity (30%)
+- Position seniority (20%)
+- Court relevance (10%)
 
-The platform's unique value lies in its judicial analytics capabilities and sophisticated legal domain modeling, particularly around bias detection and court relationship handling.
+## Profile Data Validation
+Importance Score: 70
+Path: lib/sync/data-quality-validator.ts
+
+- Multi-stage validation pipeline
+- Court relationship verification
+- Position history tracking
+- Assignment date validation
+- Jurisdiction overlap detection
+
+The platform demonstrates sophisticated domain knowledge in judicial analytics, legal advertising, and court system hierarchies while maintaining strict data quality requirements for the California legal system.
 
 $END$
 

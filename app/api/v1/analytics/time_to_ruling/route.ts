@@ -3,6 +3,7 @@ import { createServerClient } from '@/lib/supabase/server'
 import { enforceRateLimit, getClientKey } from '@/lib/security/rate-limit'
 import { requireApiKeyIfEnabled } from '@/lib/security/api-auth'
 import { getQualityTier, MIN_SAMPLE_SIZE } from '@/lib/analytics/config'
+import { sanitizeLikePattern } from '@/lib/utils/sql-sanitize'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,8 +40,8 @@ export async function GET(request: NextRequest) {
       .eq('judge_id', judgeId)
       .not('decision_date', 'is', null)
 
-    if (caseType) qb = qb.ilike('case_type', `%${caseType}%`)
-    if (motion) qb = qb.or(`outcome.ilike.%${motion}%,summary.ilike.%${motion}%`)
+    if (caseType) { const sanitized = sanitizeLikePattern(caseType); if (sanitized) qb = qb.ilike('case_type', `%${sanitized}%`) }
+    if (motion) { const sanitized = sanitizeLikePattern(motion); if (sanitized) qb = qb.or(`outcome.ilike.%${sanitized}%,summary.ilike.%${sanitized}%`) }
 
     const { data: rows, error } = await qb.limit(5000)
     if (error) return NextResponse.json({ error: 'Query failed' }, { status: 500 })

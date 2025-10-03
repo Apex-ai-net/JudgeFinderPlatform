@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
+import { sanitizeLikePattern } from '@/lib/utils/sql-sanitize'
 
 export const dynamic = 'force-dynamic'
 
@@ -96,7 +97,7 @@ export async function GET(request: NextRequest) {
     
     // Try exact match first
     const { data: exactMatch } = await query
-      .ilike('name', `%${cleanName}%`)
+      .ilike('name', `%${sanitizeLikePattern(cleanName)}%`)
       .limit(1)
       .single()
 
@@ -127,7 +128,7 @@ export async function GET(request: NextRequest) {
     
     // Add search conditions
     if (searchTerms.length > 0) {
-      const searchConditions = searchTerms.map(term => `name.ilike.%${term}%`).join(',')
+      const searchConditions = searchTerms.map(term => `name.ilike.%${sanitizeLikePattern(term)}%`).join(',')
       fuzzyQuery = fuzzyQuery.or(searchConditions)
     }
     

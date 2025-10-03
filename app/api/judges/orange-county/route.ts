@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
+import { sanitizeLikePattern } from '@/lib/utils/sql-sanitize'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,7 +46,10 @@ export async function GET(request: NextRequest) {
 
     // Apply search filter if provided
     if (searchQuery) {
-      query = query.or(`name.ilike.%${searchQuery}%,court_name.ilike.%${searchQuery}%`)
+      const sanitizedSearch = sanitizeLikePattern(searchQuery)
+      if (sanitizedSearch) {
+        query = query.or(`name.ilike.%${sanitizedSearch}%,court_name.ilike.%${sanitizedSearch}%`)
+      }
     }
 
     // Filter for judges with available slots if requested

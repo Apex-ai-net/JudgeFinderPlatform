@@ -582,7 +582,7 @@ describe('CourtListenerClient', () => {
       // Should have reported retry metric
       expect(metricsReporter).toHaveBeenCalled()
       expect(metricsReporter.mock.calls.some(
-        call => call[0] === 'courtlistener_retry'
+        (call: any[]) => call[0] === 'courtlistener_retry'
       )).toBe(true)
     })
   })
