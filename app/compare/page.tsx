@@ -1,10 +1,28 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Scale, ArrowLeft, BarChart3 } from 'lucide-react'
-import { ComparisonContent } from '@/components/compare/ComparisonContent'
 import { fadeInUp, fadeInDown } from '@/lib/animations/presets'
+
+// Lazy load ComparisonContent with charts to reduce initial bundle
+const ComparisonContent = dynamic(
+  () => import('@/components/compare/ComparisonContent').then(mod => ({ default: mod.ComparisonContent })),
+  {
+    loading: () => (
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+            <p className="mt-4 text-muted-foreground">Loading comparison tool...</p>
+          </div>
+        </div>
+      </div>
+    ),
+    ssr: false
+  }
+)
 
 export default function ComparePage() {
   return (

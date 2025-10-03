@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { auth } from '@clerk/nextjs/server'
 import { createServiceRoleClient as createServiceRoleSupabaseClient } from '@/lib/supabase/service-role'
+import { logger } from '@/lib/utils/logger'
 
 export async function createServerClient(): Promise<SupabaseClient> {
   try {
@@ -39,12 +40,24 @@ export async function createServerClient(): Promise<SupabaseClient> {
           set(name: string, value: string, options: CookieOptions) {
             try {
               cookieStore.set({ name, value, ...options })
-            } catch (error) {}
+            } catch (error) {
+              logger.warn('Failed to set cookie', {
+                context: 'supabase_server_cookie_set',
+                cookie_name: name,
+                error
+              })
+            }
           },
           remove(name: string, options: CookieOptions) {
             try {
               cookieStore.set({ name, value: '', ...options })
-            } catch (error) {}
+            } catch (error) {
+              logger.warn('Failed to remove cookie', {
+                context: 'supabase_server_cookie_remove',
+                cookie_name: name,
+                error
+              })
+            }
           },
         },
       }

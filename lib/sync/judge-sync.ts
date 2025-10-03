@@ -91,7 +91,13 @@ export class JudgeSyncManager {
           rating: 'needs-improvement',
           metadata: meta || null
         })
-      } catch (_) {}
+      } catch (error) {
+        logger.warn('Failed to record performance metric', {
+          context: 'judge_sync_metrics',
+          metric_name: name,
+          error
+        })
+      }
     })
     return client
   }

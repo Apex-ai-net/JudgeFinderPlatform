@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,7 +22,12 @@ export async function GET(request: NextRequest) {
         role,
       }, { onConflict: 'id' })
     }
-  } catch (_) {}
+  } catch (error) {
+    logger.warn('Failed to upsert user profile on auth callback', {
+      context: 'auth_callback_user_upsert',
+      error
+    })
+  }
   return NextResponse.redirect(new URL(redirectTo, request.url))
 }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createServerClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,8 +24,12 @@ export async function POST(request: NextRequest) {
     // Increment click counters for spot and optionally record event
     try {
       await supabase.rpc('increment_ad_spot_clicks', { p_spot_id: parsed.data.slot_id })
-    } catch (_) {
-      // ignore counter errors
+    } catch (error) {
+      logger.warn('Failed to increment ad spot click counter', {
+        context: 'ad_click_counter',
+        slot_id: parsed.data.slot_id,
+        error
+      })
     }
 
     try {
@@ -35,8 +40,12 @@ export async function POST(request: NextRequest) {
         user_agent: request.headers.get('user-agent') || null,
         ip_hash: null,
       })
-    } catch (_) {
-      // ignore logging errors
+    } catch (error) {
+      logger.warn('Failed to log ad click event', {
+        context: 'ad_click_event_logging',
+        slot_id: parsed.data.slot_id,
+        error
+      })
     }
 
     return NextResponse.json({ ok: true })

@@ -51,7 +51,9 @@ export class CourtSyncManager {
           rating: 'needs-improvement',
           metadata: meta || null
         })
-      } catch (_) {}
+      } catch (error) {
+        logger.warn('Failed to track court sync metric', { metric: name, error })
+      }
     })
     this.syncId = `court-sync-${Date.now()}`
   }
@@ -177,7 +179,12 @@ export class CourtSyncManager {
           rating: 'poor',
           metadata: { error: error instanceof Error ? error.message : String(error) }
         })
-      } catch (_) {}
+      } catch (metricError) {
+        logger.warn('Failed to record failure metric', {
+          context: 'fetch_courts_failed_metric',
+          error: metricError
+        })
+      }
       throw error
     }
   }

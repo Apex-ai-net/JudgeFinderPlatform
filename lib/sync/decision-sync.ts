@@ -96,7 +96,13 @@ export class DecisionSyncManager {
           rating: 'needs-improvement',
           metadata: meta || null
         })
-      } catch (_) {}
+      } catch (error) {
+        logger.warn('Failed to record performance metric', {
+          context: 'decision_sync_metrics',
+          metric_name: name,
+          error
+        })
+      }
     })
     this.syncId = `decision-sync-${Date.now()}`
     this.repository = new DecisionRepository(this.supabase)
@@ -426,7 +432,12 @@ export class DecisionSyncManager {
           metric_id: 'fetch_decisions_failed',
           rating: 'poor'
         })
-      } catch (_) {}
+      } catch (metricError) {
+        logger.warn('Failed to record failure metric', {
+          context: 'fetch_decisions_failed_metric',
+          error: metricError
+        })
+      }
       throw error
     }
   }
