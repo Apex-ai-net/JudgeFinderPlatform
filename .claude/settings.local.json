@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git commit -m \"$(cat <<''EOF''\nfeat(validation): add environment variable validation at startup\n\nCRITICAL IMPROVEMENT:\n- Integrated env validator into instrumentation.ts\n- Validates all required environment variables at startup\n- Fails fast in production with clear error messages\n- Provides warnings for optional but recommended vars\n\nVALIDATION COVERAGE:\n✓ Supabase URL and API keys\n✓ Clerk authentication keys\n✓ AI API keys (Google/OpenAI)\n✓ Redis configuration  \n✓ Sentry DSN\n✓ CourtListener API key\n\nBENEFITS:\n- Prevents cryptic runtime failures\n- Clear error messages for misconfiguration\n- Validates API key formats and URL patterns\n- Distinguishes between critical and recommended vars\n- Logged warnings for missing optional features\n\n🤖 Generated with Claude Code\nhttps://claude.com/claude-code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat(validation): add environment variable validation at startup\n\nCRITICAL IMPROVEMENT:\n- Integrated env validator into instrumentation.ts\n- Validates all required environment variables at startup\n- Fails fast in production with clear error messages\n- Provides warnings for optional but recommended vars\n\nVALIDATION COVERAGE:\n✓ Supabase URL and API keys\n✓ Clerk authentication keys\n✓ AI API keys (Google/OpenAI)\n✓ Redis configuration  \n✓ Sentry DSN\n✓ CourtListener API key\n\nBENEFITS:\n- Prevents cryptic runtime failures\n- Clear error messages for misconfiguration\n- Validates API key formats and URL patterns\n- Distinguishes between critical and recommended vars\n- Logged warnings for missing optional features\n\n🤖 Generated with Claude Code\nhttps://claude.com/claude-code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": [],
