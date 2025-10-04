@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { DebugEnvManager } from '@/lib/admin/debug-env-manager'
+import { isAdmin } from '@/lib/auth/is-admin'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  if (isProductionEnvironment()) {
-    return NextResponse.json({ error: 'Debug endpoint is disabled in production' }, { status: 403 })
+  // Require admin authentication
+  if (!(await isAdmin())) {
+    return NextResponse.json(
+      { error: 'Unauthorized - Admin access required' },
+      { status: 403 }
+    )
   }
 
   const manager = new DebugEnvManager()
@@ -16,8 +21,4 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       'Cache-Control': 'no-store, max-age=0',
     },
   })
-}
-
-function isProductionEnvironment(): boolean {
-  return process.env.NODE_ENV === 'production' || process.env.NETLIFY === 'true'
 }

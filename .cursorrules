@@ -10,61 +10,64 @@
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The JudgeFinder Platform implements sophisticated judicial analytics and legal advertising through several core business systems:
+The system implements a comprehensive judicial analytics platform with several key business domains:
 
-## Judicial Analytics Engine
-Importance Score: 95
-Path: lib/analytics/bias-calculations.ts
+## Core Analytics Engine
+- Judge bias detection system using 6-category analysis framework
+- Court relationship mapping with jurisdiction hierarchies 
+- Case outcome pattern recognition
+- Settlement preference detection algorithms
+- Geographic bias analysis
 
-- 6-category bias detection framework analyzing 50+ case documents per judge
-- Settlement pattern analysis across case types
-- Decision timeline tracking with jurisdiction context
-- Custom confidence scoring (60-95% range)
-- Multi-model AI verification system
+Key files:
+- `lib/ai/judicial-analytics.js`
+- `lib/analytics/bias-calculations.ts`
 
-## Court Assignment Management 
-Importance Score: 85
-Path: lib/sync/judge-sync.ts
+## Legal Advertising Platform
+- Dynamic pricing based on court jurisdiction levels
+- Federal court premium pricing ($500/month, $5000/year)
+- State court standard pricing ($200/month, $2000/year)
+- Bundle discounts: 10% for 5+ judges, 15% for 10+
+- Exclusive rotation premium at 1.75x base rate
 
-- Complex position hierarchy tracking
-- Jurisdiction validation with geographical constraints  
-- Assignment conflict detection
-- Historical position archival
-- Department/calendar tracking
+Key files:
+- `components/dashboard/AdPurchaseModal.tsx`
+- `lib/ads/service.ts`
 
-## Legal Advertising Marketplace
-Importance Score: 80
-Path: components/dashboard/AdPurchaseModal.tsx
+## Judge Directory Management
+- Multi-stage court lookup with fallbacks
+- Judge profile verification system
+- Court assignment validation
+- SLA-based issue management
+- Jurisdiction-based filtering
 
-- Tiered pricing system:
-  - Federal profiles: $500/month
-  - State profiles: $200/month
-  - 2-month discount on annual billing
-- Court hierarchy-based positioning
-- Jurisdiction-targeted inventory
-- Rotation and exclusivity rules
+Key files:
+- `app/judges/[slug]/page.tsx`
+- `lib/judges/directory/JudgesDirectoryDataManager.ts`
 
-## Judge Search System
-Importance Score: 75
-Path: lib/judges/directory/JudgesDirectoryDataManager.ts
+## Search Intelligence
+- Legal entity recognition
+- Jurisdiction-aware query processing
+- Court hierarchy understanding
+- Case type classification
+- Legal professional verification
 
-Relevance scoring algorithm:
-- Name match quality (40%)  
-- Recent activity (30%)
-- Position seniority (20%)
-- Court relevance (10%)
+Key files:
+- `lib/ai/search-intelligence.ts`
+- `components/judges/SearchSection.tsx`
 
-## Profile Data Validation
-Importance Score: 70
-Path: lib/sync/data-quality-validator.ts
+The platform focuses on California courts with specialized handling for:
+- WCAB (Workers' Compensation Appeals Board) naming patterns
+- Municipal/Justice court conventions
+- Complex jurisdiction hierarchies
+- Legal professional advertising compliance
 
-- Multi-stage validation pipeline
-- Court relationship verification
-- Position history tracking
-- Assignment date validation
-- Jurisdiction overlap detection
-
-The platform demonstrates sophisticated domain knowledge in judicial analytics, legal advertising, and court system hierarchies while maintaining strict data quality requirements for the California legal system.
+Business rules enforce:
+1. Judge data canonical URL standards
+2. Court hierarchy relationships
+3. Legal professional verification
+4. Ad placement restrictions
+5. Profile issue resolution SLAs
 
 $END$
 

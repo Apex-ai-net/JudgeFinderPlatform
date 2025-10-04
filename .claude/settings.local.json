@@ -3,7 +3,22 @@
     "allow": [
       "Bash(git commit -m \"$(cat <<''EOF''\nfeat(validation): add environment variable validation at startup\n\nCRITICAL IMPROVEMENT:\n- Integrated env validator into instrumentation.ts\n- Validates all required environment variables at startup\n- Fails fast in production with clear error messages\n- Provides warnings for optional but recommended vars\n\nVALIDATION COVERAGE:\n✓ Supabase URL and API keys\n✓ Clerk authentication keys\n✓ AI API keys (Google/OpenAI)\n✓ Redis configuration  \n✓ Sentry DSN\n✓ CourtListener API key\n\nBENEFITS:\n- Prevents cryptic runtime failures\n- Clear error messages for misconfiguration\n- Validates API key formats and URL patterns\n- Distinguishes between critical and recommended vars\n- Logged warnings for missing optional features\n\n🤖 Generated with Claude Code\nhttps://claude.com/claude-code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit:*)",
-      "Bash(PGPASSWORD='g7gsBTUa_Ij2aLJ6dYxMUkurHmg8VDjd_Ma_4JvbXRY' psql -h db.xstlnicbnzdxlgfiewmg.supabase.co -U postgres -d postgres -p 5432 -f supabase/migrations/20250102_performance_indexes.sql)"
+      "Bash(PGPASSWORD='g7gsBTUa_Ij2aLJ6dYxMUkurHmg8VDjd_Ma_4JvbXRY' psql -h db.xstlnicbnzdxlgfiewmg.supabase.co -U postgres -d postgres -p 5432 -f supabase/migrations/20250102_performance_indexes.sql)",
+      "Bash(npm audit:*)",
+      "Bash(npm run build:*)",
+      "Bash(cat:*)",
+      "Bash(git log:*)",
+      "Bash(npm outdated:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(git rev-list:*)",
+      "Bash(while read rev)",
+      "Bash(do git ls-tree -r $rev)",
+      "Bash(done)",
+      "Bash(git check-ignore:*)",
+      "Bash(git -C /Users/tannerosterkamp/JudgeFinderPlatform-1 status --short)",
+      "Bash(git -C /Users/tannerosterkamp/JudgeFinderPlatform-1 add -A)",
+      "Bash(git -C /Users/tannerosterkamp/JudgeFinderPlatform-1 commit -m \"$(cat <<''EOF''\nsecurity: remove debug endpoints and secure admin endpoints\n\nRemoved insecure debug/test endpoints that exposed environment variables:\n- DELETE: /app/api/test-env/route.ts - exposed env var details publicly\n- DELETE: /app/api/test/route.ts - exposed env var details publicly  \n- DELETE: /app/api/auth/test/route.ts - exposed user data unnecessarily\n\nSecured admin debug endpoint:\n- UPDATED: /app/api/admin/debug-env/route.ts - added admin authentication\n\nRemaining secured debug endpoints (admin-only):\n- /app/api/admin/debug-env/route.ts - requires admin auth\n- /app/api/admin/test-db/route.ts - requires admin auth\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": [],
