@@ -190,24 +190,25 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
       <article
         key={slot.id}
         ref={ref}
-        className="overflow-hidden rounded-2xl border border-border/60 bg-card transition-shadow hover:shadow-lg"
+        className="overflow-hidden rounded-lg md:rounded-2xl border border-border/60 bg-card transition-shadow hover:shadow-lg"
       >
-        <header className="flex items-center justify-between border-b border-border/50 bg-surface-elevated px-5 py-3 text-xs font-semibold text-muted-foreground/70">
-          <span>{rotationLabel(slot.position, maxRotations)}</span>
+        <header className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-border/50 bg-surface-elevated px-2 py-2 md:px-5 md:py-3 text-[10px] md:text-xs font-semibold text-muted-foreground/70 gap-1">
+          <span className="hidden md:inline">{rotationLabel(slot.position, maxRotations)}</span>
+          <span className="md:hidden text-[9px]">#{slot.position}</span>
           {!available && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-primary/45 bg-interactive/10 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-primary">
+            <span className="inline-flex items-center gap-1 rounded-full border border-primary/45 bg-interactive/10 px-2 py-0.5 md:px-3 md:py-1 text-[8px] md:text-[10px] uppercase tracking-[0.25em] text-primary">
               Ad
             </span>
           )}
         </header>
 
         {advertiser ? (
-          <div className="space-y-4 p-5">
-            <div className="flex flex-col gap-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1">
-                  <h4 className="text-lg font-semibold text-foreground">{advertiser.firm_name}</h4>
-                  <p className="mt-1 text-sm text-muted-foreground">{advertiser.description}</p>
+          <div className="space-y-2 md:space-y-4 p-2 md:p-5">
+            <div className="flex flex-col gap-2 md:gap-3">
+              <div className="flex flex-col md:flex-row items-start justify-between gap-2 md:gap-3">
+                <div className="flex-1 w-full">
+                  <h4 className="text-xs md:text-lg font-semibold text-foreground truncate">{advertiser.firm_name}</h4>
+                  <p className="mt-1 text-[10px] md:text-sm text-muted-foreground line-clamp-2 md:line-clamp-none">{advertiser.description}</p>
                 </div>
                 {advertiser.logo_url && (
                   <Image
@@ -215,11 +216,11 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
                     alt={advertiser.firm_name}
                     width={52}
                     height={52}
-                    className="h-12 w-12 rounded-lg border border-border/40 bg-surface-elevated object-contain p-2"
+                    className="hidden md:block h-12 w-12 rounded-lg border border-border/40 bg-surface-elevated object-contain p-2"
                   />
                 )}
               </div>
-              <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground/70">
+              <div className="hidden md:flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground/70">
                 {barVerificationUrl && (
                   <a
                     href={barVerificationUrl}
@@ -236,14 +237,14 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
             </div>
 
             {slot.creative && (
-              <div className="rounded-xl border border-border/60 bg-surface-elevated p-4">
+              <div className="hidden md:block rounded-xl border border-border/60 bg-surface-elevated p-4">
                 <h5 className="mb-1 text-sm font-semibold text-foreground">{slot.creative.headline}</h5>
                 <p className="text-sm text-muted-foreground">{slot.creative.description}</p>
               </div>
             )}
 
             {advertiser.specializations && advertiser.specializations.length > 0 && (
-              <div className="flex flex-wrap gap-2">
+              <div className="hidden md:flex flex-wrap gap-2">
                 {advertiser.specializations.map((spec) => (
                   <span
                     key={spec}
@@ -255,7 +256,7 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
               </div>
             )}
 
-            <div className="space-y-2 text-sm text-muted-foreground">
+            <div className="hidden md:block space-y-2 text-sm text-muted-foreground">
               {advertiser.phone && (
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4" aria-hidden />
@@ -292,28 +293,41 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
               )}
             </div>
 
+            {/* Mobile: Show simple CTA button */}
+            {advertiser.website && (
+              <button
+                type="button"
+                onClick={() => onTrackClick(slot.id, advertiser.website!)}
+                className="md:hidden w-full rounded-full border border-primary/45 bg-interactive/15 px-2 py-1.5 text-[10px] font-semibold text-primary transition-colors hover:bg-[rgba(110,168,254,0.25)]"
+              >
+                Visit
+              </button>
+            )}
+
+            {/* Desktop: Show custom CTA if available */}
             {slot.creative?.cta_text && slot.creative?.cta_url && (
               <button
                 type="button"
                 onClick={() => onTrackClick(slot.id, slot.creative!.cta_url)}
-                className="w-full rounded-full border border-primary/45 bg-interactive/15 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-[rgba(110,168,254,0.25)]"
+                className="hidden md:block w-full rounded-full border border-primary/45 bg-interactive/15 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-[rgba(110,168,254,0.25)]"
               >
                 {slot.creative.cta_text}
               </button>
             )}
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-3 border border-dashed border-border/50 bg-surface-elevated p-6 text-center">
-            <Briefcase className="h-8 w-8 text-muted-foreground/70" aria-hidden />
-            <p className="text-sm font-semibold text-foreground">Rotation available</p>
-            <p className="text-xs text-muted-foreground/70">
+          <div className="flex flex-col items-center gap-2 md:gap-3 border border-dashed border-border/50 bg-surface-elevated p-3 md:p-6 text-center">
+            <Briefcase className="h-6 w-6 md:h-8 md:w-8 text-muted-foreground/70" aria-hidden />
+            <p className="text-[10px] md:text-sm font-semibold text-foreground">Available</p>
+            <p className="hidden md:block text-xs text-muted-foreground/70">
               High-intent visibility for attorneys appearing before Judge {judgeName}.
             </p>
             <Link
               href={`/dashboard/advertiser/ad-spots?preselected=true&entityType=judge&entityId=${encodeURIComponent(judgeId)}&position=${encodeURIComponent(String(slot.position))}`}
-              className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/45 hover:text-foreground"
+              className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-2 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/45 hover:text-foreground"
             >
-              Book this rotation
+              <span className="hidden md:inline">Book this rotation</span>
+              <span className="md:hidden">Book</span>
             </Link>
           </div>
         )}
@@ -362,16 +376,18 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
         </div>
       )}
 
-      {slots.map((slot) => (
-        <SlotCard
-          key={slot.id}
-          slot={slot}
-          maxRotations={maxRotations}
-          judgeId={judgeId}
-          judgeName={judgeName}
-          onTrackClick={trackClick}
-        />
-      ))}
+      <div className="grid grid-cols-3 gap-3 md:flex md:flex-col md:gap-5">
+        {slots.map((slot) => (
+          <SlotCard
+            key={slot.id}
+            slot={slot}
+            maxRotations={maxRotations}
+            judgeId={judgeId}
+            judgeName={judgeName}
+            onTrackClick={trackClick}
+          />
+        ))}
+      </div>
 
       <div className="rounded-2xl border border-border/60 bg-card p-4">
         <div className="flex items-start gap-2 text-xs text-muted-foreground/70">
