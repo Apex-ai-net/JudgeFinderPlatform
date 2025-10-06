@@ -81,7 +81,12 @@ export function JudgesDirectoryResultsGrid({ viewModel }: JudgesDirectoryResults
               rowHeight={CARD_HEIGHT + GRID_ROW_GAP}
               width={width}
               itemData={itemData}
-              itemKey={({ columnIndex, rowIndex }) => `${rowIndex}-${columnIndex}-${viewModel.state.recentYears}`}
+              itemKey={({ columnIndex, rowIndex, data }) => {
+                // Use actual judge ID to prevent React Window from reusing cells when new data loads
+                const index = rowIndex * gridColumnCount + columnIndex
+                const judge = data.judges[index]
+                return judge?.id || `empty-${rowIndex}-${columnIndex}`
+              }}
               onItemsRendered={handleItemsRendered}
             >
               {({ columnIndex, rowIndex, style }: GridChildComponentProps) => {
