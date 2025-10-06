@@ -23,7 +23,9 @@ const clerkKeys = {
 }
 
 const isProduction = process.env.NODE_ENV === 'production'
-const hasConfiguredClerkKeys = Boolean(
+const isDevelopment = process.env.NODE_ENV === 'development'
+
+const hasValidClerkKeys = Boolean(
   clerkKeys.publishable &&
   clerkKeys.secret &&
   clerkKeys.publishable.startsWith('pk_') &&
@@ -31,21 +33,22 @@ const hasConfiguredClerkKeys = Boolean(
   !clerkKeys.publishable.includes('CONFIGURE')
 )
 
-// Do not hard fail production if Clerk keys are missing; fall back to public mode
-// Authentication for protected/admin routes will be disabled when keys are not configured
+// SECURITY: Fail fast in production if Clerk keys are missing
+// This prevents protected routes from accidentally becoming public
+if (!hasValidClerkKeys && isProduction) {
+  logger.error('[middleware] CRITICAL: Clerk authentication keys are required in production')
+  throw new Error(
+    'CRITICAL SECURITY ERROR: Clerk authentication keys are missing or invalid in production. ' +
+    'Protected routes cannot be secured without valid authentication credentials. ' +
+    'Please configure NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY.'
+  )
+}
 
-const hasValidClerkKeys = hasConfiguredClerkKeys
-  ? clerkKeys.publishable &&
-    clerkKeys.secret &&
-    clerkKeys.publishable.startsWith('pk_') &&
-    !clerkKeys.publishable.includes('YOUR_') &&
-    !clerkKeys.publishable.includes('CONFIGURE')
-  : null
-
-if (!hasValidClerkKeys) {
-  logger.warn('[middleware] Clerk keys missing or invalid; authentication disabled for public routes', {
+// In development, allow running without auth but log a clear warning
+if (!hasValidClerkKeys && isDevelopment) {
+  logger.warn('[middleware] Running in INSECURE MODE: Clerk keys not configured', {
     publishableConfigured: Boolean(clerkKeys.publishable),
-    environment: process.env.NODE_ENV
+    message: 'Protected routes will not require authentication. This is only acceptable in local development.'
   })
 }
 
@@ -81,11 +84,20 @@ const middlewareHandler = clerkWrappedHandler
       try {
         return await clerkWrappedHandler(request, event)
       } catch (error) {
-        logger.warn('[middleware] Clerk middleware failed; falling back to base handler', undefined, error as Error)
+        // In production, authentication failures are critical
+        if (isProduction) {
+          logger.error('[middleware] CRITICAL: Clerk middleware failed in production', undefined, error as Error)
+          throw error
+        }
+
+        // In development, log warning and allow fallback
+        logger.warn('[middleware] Clerk middleware failed in development; falling back to base handler', undefined, error as Error)
         return baseMiddleware(request)
       }
     }
   : async (request: NextRequest) => {
+      // This path only executes in development when Clerk keys are not configured
+      // Production will have already failed fast above
       const judgeRedirect = handleJudgeRedirects(request)
       if (judgeRedirect) {
         return judgeRedirect

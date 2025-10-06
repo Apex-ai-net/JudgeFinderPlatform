@@ -4,7 +4,13 @@ const path = require('path');
 // SVG template for the icon (scales of justice)
 const createSVG = (size) => `
 <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
-  <rect width="${size}" height="${size}" fill="#2563eb"/>
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2B9FE3"/>
+      <stop offset="100%" stop-color="#2389C9"/>
+    </linearGradient>
+  </defs>
+  <rect width="${size}" height="${size}" fill="url(#bgGradient)"/>
   <g transform="translate(${size/2}, ${size/2})">
     <!-- Scales of Justice -->
     <g transform="scale(${size/256})">

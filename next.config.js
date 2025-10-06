@@ -54,7 +54,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Access-Control-Allow-Origin',
-            value: process.env.NODE_ENV === 'production' 
+            value: process.env.NODE_ENV === 'production'
               ? process.env.NEXT_PUBLIC_SITE_URL || 'https://judgefinder.io'
               : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3005',
           },
@@ -69,6 +69,21 @@ const nextConfig = {
           {
             key: 'X-Robots-Tag',
             value: 'noindex, nofollow',
+          },
+          // Prevent MIME type sniffing attacks - forces browsers to respect declared content-type
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          // Prevent clickjacking attacks - blocks API endpoints from being embedded in iframes
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          // Legacy XSS protection for older browsers - blocks page rendering on XSS detection
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
           },
         ],
       },

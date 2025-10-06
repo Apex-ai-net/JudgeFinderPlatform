@@ -1,0 +1,26 @@
+<svg width="545" height="595" viewBox="0 0 545 595" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Courthouse Icon -->
+  <g id="courthouse">
+    <!-- Base -->
+    <rect x="232" y="293" width="158" height="8" fill="white"/>
+    <rect x="232" y="285" width="158" height="4" fill="white"/>
+
+    <!-- Columns -->
+    <rect x="240" y="238" width="12" height="47" fill="white"/>
+    <rect x="295" y="238" width="12" height="47" fill="white"/>
+    <rect x="350" y="238" width="12" height="47" fill="white"/>
+
+    <!-- Center Door (Blue Accent) -->
+    <rect x="270" y="238" width="32" height="55" fill="#2B9FE3"/>
+
+    <!-- Top Pediment -->
+    <path d="M 232 238 L 311 200 L 390 238 Z" fill="white"/>
+    <rect x="232" y="230" width="158" height="8" fill="white"/>
+  </g>
+
+  <!-- Text: JudgeFinder -->
+  <text x="96" y="427" font-family="serif" font-size="120" font-weight="400" fill="white">JudgeFinder</text>
+
+  <!-- Text: .io (Blue) -->
+  <text x="805" y="427" font-family="serif" font-size="120" font-weight="400" fill="#2B9FE3">.io</text>
+</svg>

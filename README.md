@@ -54,6 +54,10 @@ analysis and automated data ingestion from official sources.
 ## Environment Variables
 
 ```bash
+# Authentication (REQUIRED for production)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_xxx  # Must start with pk_
+CLERK_SECRET_KEY=sk_live_xxx
+
 # AI Services
 GOOGLE_AI_API_KEY=your_gemini_api_key
 OPENAI_API_KEY=your_openai_fallback_key
@@ -95,6 +99,46 @@ netlify env:pull --json > .env.local
 # Or: netlify env:list --json
 ```
 
+## Authentication & Security
+
+**Fail-Fast Security Model:**
+
+The platform implements a fail-fast authentication pattern:
+
+- **Production**: REQUIRES valid Clerk authentication keys. The application will refuse to start if keys are missing or invalid.
+- **Development**: Allows running without Clerk keys (with prominent warnings) for local development convenience.
+
+**Protected Routes:**
+
+- `/profile/*` - User profile management
+- `/settings/*` - User settings
+- `/dashboard/*` - User dashboard
+- `/admin/*` - Administrative functions
+
+**Authentication Flow:**
+
+1. Clerk provides the authentication UI and user management
+2. Users are automatically synchronized to the Supabase database
+3. Session management via Clerk's secure session handling
+4. Protected routes enforce authentication via middleware
+
+**Setup Clerk Authentication:**
+
+1. Create account at https://clerk.com
+2. Create a new application
+3. Copy the publishable key (starts with `pk_`) to `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+4. Copy the secret key to `CLERK_SECRET_KEY`
+5. Configure sign-in/sign-up URLs in Clerk dashboard (optional)
+
+**Security Features:**
+
+- Startup validation ensures authentication is configured before serving requests
+- Middleware enforces authentication on protected routes
+- Production deployments fail immediately if auth is misconfigured
+- CSP headers, HSTS, and XSS protection enabled
+- Rate limiting via Upstash Redis
+- Sentry error tracking and monitoring
+
 ## Getting Started (Local)
 
 ```bash
@@ -102,6 +146,7 @@ netlify env:pull --json > .env.local
 npm install
 
 # Create .env.local and fill with the variables above
+# Note: Clerk keys are optional for local dev but REQUIRED for production
 
 # Start dev server
 npm run dev
@@ -161,13 +206,21 @@ supabase/            # SQL migrations and config
 
 ## Netlify Deployment (Recommended)
 
-1) Connect repository to Netlify (UI) and set env vars in Site Settings → Environment
+**CRITICAL: Production deployment will FAIL if authentication is not properly configured.**
 
-2) Build config is in `netlify.toml` (Node 18, Next plugin). Deploys on push to `main`.
+1) Configure Clerk authentication FIRST:
+   - Create production Clerk application at https://clerk.com
+   - Get your production keys (pk_live_xxx and sk_live_xxx)
 
-3) Secure cron and admin endpoints by setting `CRON_SECRET` and `SYNC_API_KEY`.
+2) Connect repository to Netlify (UI) and set ALL required env vars in Site Settings → Environment
+   - **MUST include**: `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`
+   - All other required variables from the Environment Variables section above
 
-4) After deploy, validate:
+3) Build config is in `netlify.toml` (Node 18, Next plugin). Deploys on push to `main`.
+
+4) Secure cron and admin endpoints by setting `CRON_SECRET` and `SYNC_API_KEY`.
+
+5) After deploy, validate:
 
 ```bash
 # Health

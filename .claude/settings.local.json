@@ -18,7 +18,15 @@
       "Bash(git check-ignore:*)",
       "Bash(git -C /Users/tannerosterkamp/JudgeFinderPlatform-1 status --short)",
       "Bash(git -C /Users/tannerosterkamp/JudgeFinderPlatform-1 add -A)",
-      "Bash(git -C /Users/tannerosterkamp/JudgeFinderPlatform-1 commit -m \"$(cat <<''EOF''\nsecurity: remove debug endpoints and secure admin endpoints\n\nRemoved insecure debug/test endpoints that exposed environment variables:\n- DELETE: /app/api/test-env/route.ts - exposed env var details publicly\n- DELETE: /app/api/test/route.ts - exposed env var details publicly  \n- DELETE: /app/api/auth/test/route.ts - exposed user data unnecessarily\n\nSecured admin debug endpoint:\n- UPDATED: /app/api/admin/debug-env/route.ts - added admin authentication\n\nRemaining secured debug endpoints (admin-only):\n- /app/api/admin/debug-env/route.ts - requires admin auth\n- /app/api/admin/test-db/route.ts - requires admin auth\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git -C /Users/tannerosterkamp/JudgeFinderPlatform-1 commit -m \"$(cat <<''EOF''\nsecurity: remove debug endpoints and secure admin endpoints\n\nRemoved insecure debug/test endpoints that exposed environment variables:\n- DELETE: /app/api/test-env/route.ts - exposed env var details publicly\n- DELETE: /app/api/test/route.ts - exposed env var details publicly  \n- DELETE: /app/api/auth/test/route.ts - exposed user data unnecessarily\n\nSecured admin debug endpoint:\n- UPDATED: /app/api/admin/debug-env/route.ts - added admin authentication\n\nRemaining secured debug endpoints (admin-only):\n- /app/api/admin/debug-env/route.ts - requires admin auth\n- /app/api/admin/test-db/route.ts - requires admin auth\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(npm run type-check:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx eslint:*)",
+      "mcp__memory__create_entities",
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "Bash(npx next dev:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": [],

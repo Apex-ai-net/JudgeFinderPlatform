@@ -13,7 +13,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   return (
     <div className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
       {!isUser && (
-        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-[#2563eb] to-[#1e40af] shadow-sm flex items-center justify-center">
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-[#2B9FE3] to-[#2389C9] shadow-sm flex items-center justify-center">
           <Scale className="w-4 h-4 text-white" />
         </div>
       )}

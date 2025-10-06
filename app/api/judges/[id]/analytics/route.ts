@@ -15,6 +15,12 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
+
+// PERFORMANCE CONFIGURATION: Limit case queries to prevent database overload
+// - Default 1000 cases provides statistical significance (95% confidence)
+// - Prevents slow queries for judges with 5000+ cases
+// - Configurable via JUDGE_ANALYTICS_CASE_LIMIT env variable
+// - Combined with LOOKBACK_YEARS to focus on recent judicial behavior
 const LOOKBACK_YEARS = Math.max(1, parseInt(process.env.JUDGE_ANALYTICS_LOOKBACK_YEARS ?? '5', 10))
 const CASE_FETCH_LIMIT = Math.max(200, parseInt(process.env.JUDGE_ANALYTICS_CASE_LIMIT ?? '1000', 10))
 
@@ -34,10 +40,11 @@ export async function GET(
       return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
     }
 
-    // Redis edge cache first
+    // Redis edge cache first - use cached data if available (indefinite cache)
     const redisKey = `judge:analytics:${judgeKey}`
     const cachedRedis = await redisGetJSON<{ analytics: CaseAnalytics; created_at: string }>(redisKey)
-    if (cachedRedis && isDataFresh(cachedRedis.created_at, 24)) {
+    if (cachedRedis) {
+      // Return cached data regardless of age to prevent regeneration costs
       return NextResponse.json({
         analytics: cachedRedis.analytics,
         cached: true,
@@ -64,16 +71,16 @@ export async function GET(
       )
     }
 
-    // Check if we have cached analytics (less than 7 days old for real data)
+    // Check if we have cached analytics - use indefinitely to prevent regeneration costs
     const cachedData = await fetchCachedAnalytics(supabase, resolvedParams.id)
-    
-    // Only use cached data if it has the new format (with confidence fields)
-    if (cachedData && isDataFresh(cachedData.created_at, 7 * 24) && cachedData.analytics.confidence_civil) { // 7 days
-      logger.info('Using cached analytics', { judgeId: resolvedParams.id })
-      return NextResponse.json({ 
+
+    // Use cached data if available, regardless of age (cost protection)
+    if (cachedData && cachedData.analytics.confidence_civil) {
+      logger.info('Using cached analytics (indefinite cache)', { judgeId: resolvedParams.id })
+      return NextResponse.json({
         analytics: cachedData.analytics,
         cached: true,
-        data_source: 'cached',
+        data_source: 'database_cache',
         last_updated: cachedData.created_at
       })
     }
@@ -117,8 +124,9 @@ export async function GET(
       analytics = await generateAnalyticsFromCases(judge, enrichedCases, analysisWindow)
     }
 
-    // Cache the results (Redis + DB fallback)
-    await redisSetJSON(redisKey, { analytics, created_at: new Date().toISOString() }, 60 * 60 * 24)
+    // Cache the results with INDEFINITE TTL to prevent regeneration costs
+    // Redis: 90 days (practical limit), DB: permanent until manually refreshed
+    await redisSetJSON(redisKey, { analytics, created_at: new Date().toISOString() }, 60 * 60 * 24 * 90)
     await storeAnalyticsCache(supabase, resolvedParams.id, analytics)
 
     return NextResponse.json({ 

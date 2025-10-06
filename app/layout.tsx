@@ -110,7 +110,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="JudgeFinder" />
         <meta name="application-name" content="JudgeFinder" />
-        <meta name="theme-color" content="hsl(216 80% 55%)" />
+        <meta name="theme-color" content="hsl(199 82% 53%)" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.svg" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="google-site-verification" content="your-google-search-console-verification-code" />

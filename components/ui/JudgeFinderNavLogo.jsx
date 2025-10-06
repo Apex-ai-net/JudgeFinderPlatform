@@ -77,9 +77,9 @@ const JudgeFinderNavLogo = () => {
               className="absolute inset-0 opacity-70"
               animate={{
                 background: [
-                  "linear-gradient(45deg, #3b82f6 0%, #1e40af 100%)",
-                  "linear-gradient(45deg, #2563eb 0%, #1e40af 100%)",
-                  "linear-gradient(45deg, #3b82f6 0%, #2563eb 100%)",
+                  "linear-gradient(45deg, #2B9FE3 0%, #2389C9 100%)",
+                  "linear-gradient(45deg, #2B9FE3 0%, #1E75B5 100%)",
+                  "linear-gradient(45deg, #3BC9F5 0%, #2B9FE3 100%)",
                 ],
               }}
               transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
@@ -104,7 +104,7 @@ const JudgeFinderNavLogo = () => {
                   <motion.stop
                     offset="100%"
                     animate={{
-                      stopColor: isHovered ? "#3b82f6" : "#dbeafe",
+                      stopColor: isHovered ? "#2B9FE3" : "#D8F0FB",
                     }}
                     transition={{ duration: 0.3 }}
                   />

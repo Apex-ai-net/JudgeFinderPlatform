@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og'
- 
+
 export const runtime = 'edge'
 export const alt = 'JudgeFinder.io - California Judicial Analytics Platform'
 export const size = {
@@ -7,14 +7,14 @@ export const size = {
   height: 630,
 }
 export const contentType = 'image/png'
- 
+
 export default async function Image() {
   return new ImageResponse(
     (
       <div
         style={{
           fontSize: 48,
-          background: 'linear-gradient(135deg, hsl(216 80% 55%) 0%, hsl(220 90% 50%) 100%)',
+          background: 'linear-gradient(135deg, hsl(199 82% 53%) 0%, hsl(199 70% 46%) 100%)',
           width: '100%',
           height: '100%',
           display: 'flex',
@@ -25,31 +25,33 @@ export default async function Image() {
         }}
       >
         <svg
-          width="100"
-          height="100"
-          viewBox="0 0 24 24"
+          width="160"
+          height="120"
+          viewBox="0 0 160 120"
           fill="none"
           style={{ marginBottom: '20px' }}
         >
-          <path
-            d="M12 2L2 7V12C2 16.5 4.23 20.68 7.62 23.15L12 24L16.38 23.15C19.77 20.68 22 16.5 22 12V7L12 2Z"
-            fill="white"
-            fillOpacity="0.2"
-          />
-          <path
-            d="M12 2L2 7V12C2 16.5 4.23 20.68 7.62 23.15L12 24L16.38 23.15C19.77 20.68 22 16.5 22 12V7L12 2Z"
-            stroke="white"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M9 12L11 14L15 10"
-            stroke="white"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          <g transform="translate(80, 60)">
+            {/* Base */}
+            <rect x="-80" y="50" width="160" height="8" fill="#FFFFFF"/>
+            <rect x="-75" y="58" width="150" height="4" fill="#FFFFFF"/>
+
+            {/* Columns */}
+            <rect x="-65" y="-10" width="12" height="60" fill="#FFFFFF"/>
+            <rect x="-35" y="-10" width="12" height="60" fill="#FFFFFF"/>
+            <rect x="23" y="-10" width="12" height="60" fill="#FFFFFF"/>
+            <rect x="53" y="-10" width="12" height="60" fill="#FFFFFF"/>
+
+            {/* Door */}
+            <rect x="-15" y="0" width="30" height="50" fill="#FFFFFF" fillOpacity="0.9"/>
+
+            {/* Entablature */}
+            <rect x="-75" y="-18" width="150" height="8" fill="#FFFFFF"/>
+
+            {/* Pediment */}
+            <path d="M 0,-50 L 85,-18 L -85,-18 Z" fill="#FFFFFF"/>
+            <path d="M 0,-45 L 75,-18 L -75,-18 Z" fill="#FFFFFF" fillOpacity="0.3"/>
+          </g>
         </svg>
         <div
           style={{

@@ -3,6 +3,22 @@ const { createClient } = require('@supabase/supabase-js')
 const fetch = require('node-fetch')
 const pLimit = require('p-limit')
 
+// Import cost tracker for budget monitoring
+let getCostTracker = null
+async function initializeCostTracker() {
+  if (!getCostTracker) {
+    try {
+      const costTrackerModule = await import('../lib/ai/cost-tracker.js')
+      getCostTracker = costTrackerModule.getCostTracker
+      return getCostTracker()
+    } catch (error) {
+      console.warn('⚠️  Cost tracker not available:', error.message)
+      return null
+    }
+  }
+  return getCostTracker()
+}
+
 function parseArgs() {
   const args = process.argv.slice(2)
   const config = {
@@ -52,6 +68,16 @@ async function batchGenerateAnalytics() {
   try {
     console.log('🧮 Starting batch analytics generation for all California judges...')
     const config = parseArgs()
+
+    // Initialize cost tracker for budget monitoring
+    const costTracker = await initializeCostTracker()
+    if (costTracker) {
+      const breakdown = await costTracker.getCostBreakdown()
+      console.log('💰 Current AI Budget Status:')
+      console.log(`   Daily: $${breakdown.daily.toFixed(2)} / $50.00`)
+      console.log(`   Monthly: $${breakdown.monthly.toFixed(2)} / $500.00`)
+      console.log(`   Requests today: ${breakdown.requestCount}`)
+    }
 
     console.log('⚙️  Config:', {
       baseUrl: config.baseUrl,
@@ -121,7 +147,21 @@ async function batchGenerateAnalytics() {
       const judgeBatch = targetJudges.slice(i, i + batchSize)
       const batchNumber = Math.ceil((i + 1) / batchSize)
       const totalBatches = Math.ceil(targetJudges.length / batchSize)
-      
+
+      // COST PROTECTION: Check budget before each batch
+      if (costTracker && batchNumber % 5 === 0) {
+        const budgetStatus = await costTracker.checkBudget(0.05) // Check if we can afford ~$0.05 more
+        if (!budgetStatus.canProceed) {
+          console.error(`\n🚫 AI Budget limit reached - stopping batch processing`)
+          console.error(`   ${budgetStatus.message}`)
+          console.error(`   Processed ${i} of ${targetJudges.length} judges`)
+          break
+        }
+        if (budgetStatus.warningLevel === 'warning') {
+          console.warn(`\n⚠️  ${budgetStatus.message}`)
+        }
+      }
+
       console.log(`\n📦 Processing batch ${batchNumber}/${totalBatches} (${judgeBatch.length} judges)`)
       
       // Process batch concurrently but with timeout
@@ -197,6 +237,23 @@ async function batchGenerateAnalytics() {
     console.log(`   ❌ Errors: ${errorCount}`)
     console.log(`   ⏭️  Skipped (cached): ${skippedCount}`)
     console.log(`   📊 Total processed: ${successCount + errorCount + skippedCount}`)
+
+    // Show final cost summary
+    if (costTracker) {
+      const finalBreakdown = await costTracker.getCostBreakdown()
+      console.log(`\n💰 AI Cost Summary:`)
+      console.log(`   Daily spend: $${finalBreakdown.daily.toFixed(2)} / $50.00 (${((finalBreakdown.daily / 50) * 100).toFixed(1)}%)`)
+      console.log(`   Monthly spend: $${finalBreakdown.monthly.toFixed(2)} / $500.00 (${((finalBreakdown.monthly / 500) * 100).toFixed(1)}%)`)
+      console.log(`   Requests today: ${finalBreakdown.requestCount}`)
+      console.log(`   Average cost/request: $${finalBreakdown.averageCostPerRequest.toFixed(4)}`)
+
+      if (successCount > 0) {
+        const totalCostThisRun = finalBreakdown.daily // Approximate
+        const costPerJudge = totalCostThisRun / successCount
+        console.log(`   Estimated cost this run: $${totalCostThisRun.toFixed(2)}`)
+        console.log(`   Cost per judge: $${costPerJudge.toFixed(4)}`)
+      }
+    }
     
     // Generate summary statistics
     if (successCount > 0) {

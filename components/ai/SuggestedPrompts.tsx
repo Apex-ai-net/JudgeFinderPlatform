@@ -35,8 +35,8 @@ export default function SuggestedPrompts({ onSelectPrompt }: SuggestedPromptsPro
             onClick={() => onSelectPrompt(prompt.text)}
             className="flex items-center gap-3 px-3 py-3 sm:py-2.5 text-xs bg-white dark:bg-card hover:bg-slate-100 dark:hover:bg-surface-elevated border border-slate-200 dark:border-border rounded-lg transition-all duration-200 shadow-sm hover:shadow-md text-left touch-manipulation"
           >
-            <div className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center bg-gradient-to-br from-[#2563eb]/10 to-[#1e40af]/10 dark:from-[#2563eb]/20 dark:to-[#1e40af]/20 rounded-lg flex-shrink-0">
-              <prompt.icon className="w-4 h-4 text-[#2563eb] dark:text-[#3b82f6]" />
+            <div className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center bg-gradient-to-br from-[#2B9FE3]/10 to-[#2389C9]/10 dark:from-[#2B9FE3]/20 dark:to-[#2389C9]/20 rounded-lg flex-shrink-0">
+              <prompt.icon className="w-4 h-4 text-[#2B9FE3] dark:text-[#2B9FE3]" />
             </div>
             <span className="text-sm sm:text-xs text-slate-700 dark:text-muted-foreground font-medium">
               {prompt.shortText}

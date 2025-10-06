@@ -1,0 +1,31 @@
+<svg viewBox="0 0 600 140" xmlns="http://www.w3.org/2000/svg">
+  <!-- Courthouse Icon -->
+  <g id="courthouse" transform="translate(80, 70)">
+    <!-- Base -->
+    <rect x="-60" y="50" width="120" height="6" fill="#FFFFFF"/>
+    <rect x="-56" y="56" width="112" height="3" fill="#FFFFFF"/>
+
+    <!-- Columns -->
+    <rect x="-48" y="0" width="9" height="50" fill="#FFFFFF"/>
+    <rect x="-26" y="0" width="9" height="50" fill="#FFFFFF"/>
+    <rect x="17" y="0" width="9" height="50" fill="#FFFFFF"/>
+    <rect x="39" y="0" width="9" height="50" fill="#FFFFFF"/>
+
+    <!-- Door -->
+    <rect x="-11" y="10" width="22" height="40" fill="#2B9FE3"/>
+
+    <!-- Entablature -->
+    <rect x="-56" y="-6" width="112" height="6" fill="#FFFFFF"/>
+
+    <!-- Pediment -->
+    <path d="M 0,-35 L 63,-6 L -63,-6 Z" fill="#FFFFFF"/>
+    <path d="M 0,-31 L 56,-6 L -56,-6 Z" fill="#2D3748"/>
+  </g>
+
+  <!-- Text -->
+  <g id="text" transform="translate(180, 85)">
+    <text x="0" y="0" font-family="Georgia, serif" font-size="52" font-weight="400" fill="#FFFFFF" text-anchor="start">
+      <tspan>JudgeFinder</tspan><tspan fill="#2B9FE3">.io</tspan>
+    </text>
+  </g>
+</svg>
