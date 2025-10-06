@@ -85,6 +85,9 @@ export function generateCSP(config: SecurityConfig): string {
       "https://o.sentry.io",
       "https://*.ingest.sentry.io",
       "https://*.sentry.io",
+
+      // Netlify deploy previews and production URLs
+      "https://*.netlify.app",
       ...(isDev ? ["http://localhost:*", "ws://localhost:*"] : [])
     ],
     'frame-src': [
@@ -255,10 +258,27 @@ export function getCORSHeaders(config: SecurityConfig): Record<string, string> {
  */
 export function createSecurityConfig(): SecurityConfig {
   const environment = (process.env.NODE_ENV as SecurityConfig['environment']) || 'development'
-  const domain = environment === 'production' 
-    ? 'judgefinder.io' 
-    : 'localhost:3005'
-    
+
+  // Use actual deployment URL from environment variables
+  // Fallback to judgefinder.io only if no env vars are set
+  let domain = 'localhost:3005'
+
+  if (environment === 'production') {
+    const deployUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.URL ||
+      process.env.DEPLOY_PRIME_URL ||
+      'https://judgefinder.io'
+
+    try {
+      const parsed = new URL(deployUrl.startsWith('http') ? deployUrl : `https://${deployUrl}`)
+      domain = parsed.host
+    } catch {
+      domain = 'judgefinder.io'
+    }
+  }
+
   return {
     environment,
     domain,
