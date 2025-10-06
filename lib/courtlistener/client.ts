@@ -345,8 +345,11 @@ export class CourtListenerClient {
     let offset = 0
     const pageSize = 50
     let hasMore = true
+    const CLUSTER_FETCH_DELAY_MS = 500 // Rate limiting: 500ms delay between cluster fetches
 
-    while (hasMore && allCases.length < 200) { // Limit to 200 cases per judge
+    // Reduced from 200 to 50 to prevent API quota exhaustion
+    // Per CourtListener PR #6345, excessive cluster detail fetches caused high CPU usage
+    while (hasMore && allCases.length < 50) { // Limit to 50 cases per judge
       try {
         const response = await this.getOpinionsByJudge(judgeId, {
           startDate: startDate.toISOString().split('T')[0],
@@ -355,49 +358,69 @@ export class CourtListenerClient {
           offset
         })
 
-        // For each opinion, fetch the cluster details
-        for (const opinion of response.results) {
-          if (opinion.cluster) {
+        // Batch process cluster details with rate limiting
+        // This prevents the nested API call pattern that caused CourtListener CPU issues
+        const clusterIds = response.results
+          .filter(opinion => opinion.cluster)
+          .map(opinion => ({ opinionId: opinion.id, clusterId: opinion.cluster, dateField: opinion.date_filed }))
+
+        // Process clusters in small batches with delays
+        const CLUSTER_BATCH_SIZE = 10
+        for (let i = 0; i < clusterIds.length; i += CLUSTER_BATCH_SIZE) {
+          const batch = clusterIds.slice(i, i + CLUSTER_BATCH_SIZE)
+
+          for (const { opinionId, clusterId, dateField } of batch) {
+            if (allCases.length >= 50) break // Stop if we hit the limit
+
             try {
-              const cluster = await this.getClusterDetails(opinion.cluster)
-              
+              const cluster = await this.getClusterDetails(clusterId)
+
               // Combine opinion and cluster data
               const caseData = {
-                id: opinion.id,
-                opinion_id: opinion.id,
-                cluster_id: opinion.cluster,
+                id: opinionId,
+                opinion_id: opinionId,
+                cluster_id: clusterId,
                 case_name: cluster.case_name || 'Unknown Case',
                 date_filed: cluster.date_filed,
                 precedential_status: cluster.precedential_status,
                 author_id: null, // Not available in opinion object
                 author_str: null, // Not available in opinion object
-                date_created: opinion.date_filed // Use date_filed instead
+                date_created: dateField // Use date_filed instead
               }
-              
+
               allCases.push(caseData)
+
+              // Rate limiting delay between cluster fetches
+              await new Promise(resolve => setTimeout(resolve, CLUSTER_FETCH_DELAY_MS))
+
             } catch (clusterError) {
-              logger.warn('Error fetching cluster', { cluster: opinion.cluster }, clusterError as Error)
+              logger.warn('Error fetching cluster', { cluster: clusterId }, clusterError as Error)
               // Add opinion without cluster details
               allCases.push({
-                id: opinion.id,
-                opinion_id: opinion.id,
-                cluster_id: opinion.cluster,
+                id: opinionId,
+                opinion_id: opinionId,
+                cluster_id: clusterId,
                 case_name: 'Unknown Case',
                 date_filed: null,
                 author_id: null, // Not available in opinion object
                 author_str: null, // Not available in opinion object
-                date_created: opinion.date_filed // Use date_filed instead
+                date_created: dateField // Use date_filed instead
               })
             }
           }
+
+          // Delay between batches
+          if (i + CLUSTER_BATCH_SIZE < clusterIds.length) {
+            await new Promise(resolve => setTimeout(resolve, 1000))
+          }
         }
-        
+
         // Check if there are more results
-        hasMore = response.next !== null && response.results.length === pageSize
+        hasMore = response.next !== null && response.results.length === pageSize && allCases.length < 50
         offset += pageSize
 
         console.log(`  Fetched ${response.results.length} opinions, total cases: ${allCases.length}`)
-        
+
       } catch (error) {
         logger.error('Error fetching opinions for judge at offset', { judgeId, offset }, error as Error)
         break

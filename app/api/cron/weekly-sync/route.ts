@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
         batchSize: 3, // Smaller batches for comprehensive sync
         jurisdiction: 'CA',
         daysSinceLast: 7, // Fetch decisions from last week
-        maxDecisionsPerJudge: 100 // Higher limit for weekly sync
+        maxDecisionsPerJudge: 30 // Reduced from 100 to prevent API quota exhaustion (CourtListener PR #6345)
       },
       100, // Medium priority
       decisionScheduleTime
@@ -238,7 +238,7 @@ export async function POST(request: NextRequest) {
           batchSize: 3,
           jurisdiction: 'CA',
           daysSinceLast: 14,
-          maxDecisionsPerJudge: 100
+          maxDecisionsPerJudge: 30 // Reduced from 100 to prevent API quota exhaustion
         },
         100,
         scheduleTime

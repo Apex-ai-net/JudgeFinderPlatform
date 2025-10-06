@@ -17,6 +17,7 @@
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
+import { GlobalRateLimiter } from '../lib/courtlistener/global-rate-limiter.js';
 
 dotenv.config({ path: '.env.local' });
 
@@ -27,6 +28,9 @@ const supabase = createClient(
 
 const COURTLISTENER_API_KEY = process.env.COURTLISTENER_API_KEY || '11b745157612fd1895856aedf5421a3bc8ecea34';
 const COURTLISTENER_BASE_URL = 'https://www.courtlistener.com/api/rest/v4';
+
+// Initialize global rate limiter to prevent API quota exhaustion
+const rateLimiter = new GlobalRateLimiter();
 
 // Judge position types to search for
 const JUDGE_POSITION_TYPES = [
@@ -64,6 +68,13 @@ const CA_COURT_IDS = [
 
 async function fetchJudgesFromAPI(params = {}) {
   try {
+    // Check rate limit before making request
+    const canProceed = await rateLimiter.canMakeRequest();
+    if (!canProceed) {
+      console.warn('⚠️  Rate limit exceeded. Pausing import...');
+      throw new Error('Rate limit exceeded - please try again later');
+    }
+
     const queryParams = new URLSearchParams({
       format: 'json',
       page_size: '100',
@@ -72,7 +83,7 @@ async function fetchJudgesFromAPI(params = {}) {
 
     const url = `${COURTLISTENER_BASE_URL}/people/?${queryParams}`;
     console.log(`Fetching judges with params:`, params);
-    
+
     const response = await fetch(url, {
       headers: {
         'Authorization': `Token ${COURTLISTENER_API_KEY}`,
@@ -95,8 +106,15 @@ async function fetchJudgesFromAPI(params = {}) {
 
 async function fetchJudgeDetails(judgeId) {
   try {
+    // Check rate limit before making request
+    const canProceed = await rateLimiter.canMakeRequest();
+    if (!canProceed) {
+      console.warn(`⚠️  Rate limit exceeded while fetching judge ${judgeId}. Skipping...`);
+      return null; // Skip this judge instead of throwing
+    }
+
     const url = `${COURTLISTENER_BASE_URL}/people/${judgeId}/?format=json`;
-    
+
     const response = await fetch(url, {
       headers: {
         'Authorization': `Token ${COURTLISTENER_API_KEY}`,

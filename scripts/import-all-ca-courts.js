@@ -9,6 +9,7 @@
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
+import { GlobalRateLimiter } from '../lib/courtlistener/global-rate-limiter.js';
 
 dotenv.config({ path: '.env.local' });
 
@@ -19,6 +20,9 @@ const supabase = createClient(
 
 const COURTLISTENER_API_KEY = process.env.COURTLISTENER_API_KEY || '11b745157612fd1895856aedf5421a3bc8ecea34';
 const COURTLISTENER_BASE_URL = 'https://www.courtlistener.com/api/rest/v4';
+
+// Initialize global rate limiter to prevent API quota exhaustion
+const rateLimiter = new GlobalRateLimiter();
 
 // California court IDs and mappings from CourtListener
 const CA_COURT_MAPPINGS = {
@@ -85,9 +89,16 @@ CA_COUNTIES.forEach(county => {
 
 async function fetchCourtFromAPI(courtId) {
   try {
+    // Check rate limit before making request
+    const canProceed = await rateLimiter.canMakeRequest();
+    if (!canProceed) {
+      console.warn(`⚠️  Rate limit exceeded while fetching court ${courtId}. Skipping...`);
+      return null; // Skip this court instead of throwing
+    }
+
     const url = `${COURTLISTENER_BASE_URL}/courts/${courtId}/?format=json`;
     console.log(`Fetching court: ${courtId}`);
-    
+
     const response = await fetch(url, {
       headers: {
         'Authorization': `Token ${COURTLISTENER_API_KEY}`,
