@@ -9,7 +9,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { resolveAdminStatus } from '@/lib/auth/is-admin'
 import { createServerClient } from '@/lib/supabase/server'
-import { apnsService } from '@/lib/ios/APNsService'
+// NOTE: APNsService is not yet implemented - stub code only
+// import { apnsService } from '@/lib/ios/APNsService'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,12 +37,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // TODO: Implement push notifications when APNsService is ready
+    // For now, return not implemented response
+
+    return NextResponse.json(
+      {
+        error: 'Push notifications not yet implemented',
+        message: 'APNsService requires configuration. See IOS_APP_SETUP.md',
+        status: 'not_implemented'
+      },
+      { status: 501 }
+    )
+
+    /* Planned implementation once APNsService is ready:
     const supabase = await createServerClient()
     const body = await request.json()
-    const { type, ...params } = body
-    
+    const { type, ...params} = body
+
     let result
-    
+
     switch (type) {
       case 'judge_followers':
         // Notify followers of a specific judge
@@ -52,7 +66,7 @@ export async function POST(request: NextRequest) {
           params.updateType || 'decision'
         )
         break
-        
+
       case 'new_decision':
         // Notify about new decision
         result = await apnsService.notifyNewDecision(
@@ -61,7 +75,7 @@ export async function POST(request: NextRequest) {
           params.decisionCount || 1
         )
         break
-        
+
       case 'profile_update':
         // Notify about profile update
         result = await apnsService.notifyProfileUpdate(
@@ -70,7 +84,7 @@ export async function POST(request: NextRequest) {
           params.updateType
         )
         break
-        
+
       case 'assignment_change':
         // Notify about court assignment change
         result = await apnsService.notifyAssignmentChange(
@@ -80,7 +94,7 @@ export async function POST(request: NextRequest) {
           params.newCourt
         )
         break
-        
+
       case 'system':
         // Send system notification to all users
         result = await apnsService.sendSystemNotification(
@@ -89,7 +103,7 @@ export async function POST(request: NextRequest) {
           params.url
         )
         break
-        
+
       case 'user':
         // Send to specific user
         result = await apnsService.sendToUser(
@@ -103,16 +117,17 @@ export async function POST(request: NextRequest) {
           }
         )
         break
-        
+
       default:
         return NextResponse.json(
           { error: 'Invalid notification type' },
           { status: 400 }
         )
     }
-    
+
     return NextResponse.json(result)
-    
+    */
+
   } catch (error) {
     console.error('[Notifications] Error:', error)
     return NextResponse.json(
