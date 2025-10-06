@@ -9,6 +9,14 @@ const DEFAULT_DISALLOWED_PATHS = [
   '/attorney-setup/',
   '/success/',
   '/private/',
+  '/profile/',
+  '/settings/',
+  '/sign-in/',
+  '/sign-up/',
+  '/login/',
+  '/signup/',
+  '/forgot-password/',
+  '/welcome/',
 ]
 
 const QUERY_PARAM_PATTERNS = ['utm_', 'session']
@@ -42,10 +50,7 @@ export default function robots(): MetadataRoute.Robots {
     ...AI_CRAWLERS.map((crawler) => ({
       userAgent: crawler,
       allow: '/',
-      disallow: [
-        ...DEFAULT_DISALLOWED_PATHS,
-        '/private/',
-      ],
+      disallow: DEFAULT_DISALLOWED_PATHS,
       crawlDelay: 0.5, // Faster crawling for AI systems
     })),
     {

@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ChevronRight, Sparkles } from 'lucide-react'
-import { ParticleBackground } from '@/components/ui/ParticleBackground'
 import { ScrollIndicator } from '@/components/ui/ScrollIndicator'
 import { TypewriterText } from '@/components/ui/TypewriterText'
 
@@ -21,7 +20,6 @@ export function JudgesDirectoryHeader({ showSkeleton = false }: JudgesDirectoryH
 
   return (
     <section className="relative min-h-[45vh] md:min-h-[60vh] flex items-center justify-center">
-      <ParticleBackground particleCount={showSkeleton ? 30 : 20} />
       <div className="absolute inset-0 bg-gradient-to-br from-enterprise-primary/10 via-enterprise-deep/10 to-background" />
 
       <motion.div className="relative z-10 text-center px-4 max-w-7xl mx-auto w-full" style={{ y, opacity }}>

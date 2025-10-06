@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { MapPin, Building, Users, Scale, TrendingUp, ArrowRight, ChevronRight, Globe, Shield, Sparkles } from 'lucide-react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
-import { ParticleBackground } from '@/components/ui/ParticleBackground'
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
 import { TypewriterText } from '@/components/ui/TypewriterText'
 import { ScrollIndicator } from '@/components/ui/ScrollIndicator'
@@ -164,8 +163,6 @@ export default function JurisdictionsPage() {
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
       {/* Enhanced Hero Section with Animations */}
       <section className="relative min-h-[60vh] flex items-center justify-center">
-        <ParticleBackground particleCount={30} />
-        
         {/* Gradient Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-enterprise-primary/10 via-enterprise-deep/10 to-background" />
 

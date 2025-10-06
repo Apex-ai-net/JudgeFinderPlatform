@@ -26,7 +26,16 @@
       "Bash(node:*)",
       "Bash(npm install:*)",
       "Bash(npx next dev:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(curl -s http://localhost:3005/sitemap.xml)",
+      "Bash(xargs ls:*)",
+      "Bash(curl:*)",
+      "Bash(awk:*)",
+      "Read(//private/tmp/**)",
+      "Bash(npm uninstall:*)",
+      "Bash(netlify deploy:*)",
+      "Read(//dev/**)"
     ],
     "deny": [],
     "ask": [],

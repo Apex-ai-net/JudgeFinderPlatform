@@ -7,7 +7,6 @@ import Link from 'next/link'
 import { CourtsSearch } from './CourtsSearch'
 import { CountiesTab } from './CountiesTab'
 import { CitiesTab } from './CitiesTab'
-import { ParticleBackground } from '@/components/ui/ParticleBackground'
 import { TypewriterText } from '@/components/ui/TypewriterText'
 import { ScrollIndicator } from '@/components/ui/ScrollIndicator'
 
@@ -33,8 +32,6 @@ export function CourtsPageClient({ initialCourts, initialJurisdiction = 'CA' }: 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
       <section className="relative min-h-[60vh] flex items-center justify-center">
-        <ParticleBackground />
-
         <div className="absolute inset-0 bg-gradient-to-br from-enterprise-primary/10 via-enterprise-deep/10 to-background" />
 
         <motion.div

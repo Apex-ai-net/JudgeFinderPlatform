@@ -3,7 +3,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
 import { TypewriterText } from '@/components/about/TypewriterText'
-import { ParticleBackground } from '@/components/about/ParticleBackground'
 
 export function HeroSection(): JSX.Element {
   const { scrollYProgress } = useScroll()
@@ -12,8 +11,6 @@ export function HeroSection(): JSX.Element {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center">
-      <ParticleBackground />
-
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-purple-600/10 to-background" />
 
       <motion.div className="relative z-10 text-center px-4 max-w-6xl mx-auto" style={{ y, opacity }}>

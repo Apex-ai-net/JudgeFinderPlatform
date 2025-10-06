@@ -2,7 +2,6 @@ import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { JudgesView } from './JudgesView'
 import { JudgeCardSkeleton, SearchSkeleton } from '@/components/ui/Skeleton'
-import { ParticleBackground } from '@/components/ui/ParticleBackground'
 import { TypewriterText } from '@/components/ui/TypewriterText'
 import { ScrollIndicator } from '@/components/ui/ScrollIndicator'
 import { getBaseUrl } from '@/lib/utils/baseUrl'
@@ -39,8 +38,6 @@ function JudgesLoading() {
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
       {/* Enhanced Hero Section with Animations */}
       <section className="relative min-h-[60vh] flex items-center justify-center">
-        <ParticleBackground particleCount={30} />
-        
         {/* Gradient Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-enterprise-primary/10 via-enterprise-deep/10 to-background" />
         

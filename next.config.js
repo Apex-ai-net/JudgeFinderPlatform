@@ -87,26 +87,8 @@ const nextConfig = {
           },
         ],
       },
-      // Security headers are handled by middleware.ts to avoid conflicts
-      // Avoid caching SSR HTML to prevent stale pages referencing old asset hashes
-      {
-        source: '/judges/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-store'
-          }
-        ],
-      },
-      {
-        source: '/courts/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-store'
-          }
-        ],
-      },
+      // Cache headers are handled by middleware.ts for proper SEO and performance
+      // Static assets get long-term caching
       {
         source: '/(.*)\\.(css|js|ico|png|jpg|jpeg|gif|svg|woff|woff2)$',
         headers: [
