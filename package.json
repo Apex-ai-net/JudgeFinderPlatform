@@ -39,7 +39,7 @@
     "test:analytics:modules": "ts-node --transpile-only scripts/test-analytics-modules.ts",
     "test:analytics:endpoints": "node scripts/test-analytics-endpoints.js",
     "ios:open": "npx cap open ios",
-    "ios:sync": "npm run build && npx cap sync ios",
+    "ios:sync": "npx cap sync ios",
     "ios:run": "npx cap run ios",
     "capacitor:update": "npx cap update"
   },
