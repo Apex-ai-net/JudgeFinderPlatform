@@ -1,6 +1,7 @@
 [build]
-  command = "rm -rf node_modules && npm ci --legacy-peer-deps && next build"
-  publish = ".next"
+  command = "npm run build"
+  # Publish directory should not be set when using @netlify/plugin-nextjs
+  # The plugin automatically handles Next.js deployment
 
 [build.environment]
   # Disable Netlify's secrets scanning - getting false positives on environment variable names
