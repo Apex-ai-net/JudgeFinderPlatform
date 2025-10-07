@@ -18,7 +18,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-const COURTLISTENER_API_KEY = process.env.COURTLISTENER_API_KEY || '11b745157612fd1895856aedf5421a3bc8ecea34';
+const COURTLISTENER_API_KEY = process.env.COURTLISTENER_API_KEY;
+if (!COURTLISTENER_API_KEY) {
+  console.error('❌ COURTLISTENER_API_KEY environment variable is required');
+  console.error('   Set it in your .env.local file or environment variables');
+  process.exit(1);
+}
 const COURTLISTENER_BASE_URL = 'https://www.courtlistener.com/api/rest/v4';
 
 // Initialize global rate limiter to prevent API quota exhaustion

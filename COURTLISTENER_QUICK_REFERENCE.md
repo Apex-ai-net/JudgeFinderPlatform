@@ -21,7 +21,7 @@
 
 ### Request Headers
 ```http
-Authorization: Token 11b745157612fd1895856aedf5421a3bc8ecea34
+Authorization: Token YOUR_COURTLISTENER_API_KEY
 Accept: application/json
 User-Agent: JudgeFinder/1.0 (https://judgefinder.io)
 ```
