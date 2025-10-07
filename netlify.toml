@@ -15,8 +15,8 @@
   NEXT_PUBLIC_CLERK_SIGN_UP_URL = "/sign-up"
   NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL = "/dashboard"
   NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL = "/welcome"
-  # Exclude webpack cache from secrets scanning (env vars are expected in build artifacts)
-  SECRETS_SCAN_OMIT_PATHS = ".netlify/.next/cache/**"
+  # Exclude all build artifacts from secrets scanning (env vars are bundled into Next.js server code)
+  SECRETS_SCAN_OMIT_PATHS = ".netlify/**,.next/**"
 
 # Redirect rules for SEO
 [[redirects]]
