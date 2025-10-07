@@ -37,21 +37,9 @@
     "template:sync": "node scripts/template-copy.mjs sync",
     "test:mcp": "node scripts/test-mcp.js",
     "test:analytics:modules": "ts-node --transpile-only scripts/test-analytics-modules.ts",
-    "test:analytics:endpoints": "node scripts/test-analytics-endpoints.js",
-    "ios:open": "npx cap open ios",
-    "ios:sync": "npx cap sync ios",
-    "ios:run": "npx cap run ios",
-    "capacitor:update": "npx cap update"
+    "test:analytics:endpoints": "node scripts/test-analytics-endpoints.js"
   },
   "dependencies": {
-    "@capacitor/app": "^7.1.0",
-    "@capacitor/browser": "^7.0.2",
-    "@capacitor/cli": "^7.4.3",
-    "@capacitor/core": "^7.4.3",
-    "@capacitor/ios": "^7.4.3",
-    "@capacitor/preferences": "^7.0.2",
-    "@capacitor/push-notifications": "^7.0.3",
-    "@capacitor/share": "^7.0.2",
     "@clerk/nextjs": "^6.31.3",
     "@google/generative-ai": "^0.21.0",
     "@headlessui/react": "^1.7.18",
