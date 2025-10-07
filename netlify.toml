@@ -10,6 +10,8 @@
   NPM_FLAGS = "--legacy-peer-deps"
   # Public environment variables (safe for client-side, NEXT_PUBLIC_ prefix)
   NEXT_PUBLIC_APP_NAME = "JudgeFinder Platform"
+  # Exclude webpack cache from secrets scanning (env vars are expected in build artifacts)
+  SECRETS_SCAN_OMIT_PATHS = ".netlify/.next/cache/**"
 
 # Redirect rules for SEO
 [[redirects]]
