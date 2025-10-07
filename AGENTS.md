@@ -1,6 +1,9 @@
 
 # main-overview
 
+> **Giga Operational Instructions**
+> Read the relevant Markdown inside `.cursor/rules` before citing project context. Reference the exact file you used in your response.
+
 ## Development Guidelines
 
 - Only modify code directly relevant to the specific request. Avoid changing unrelated functionality.
