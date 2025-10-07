@@ -9,10 +9,8 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { usePushNotifications, useIsNativeIOS } from '@/hooks/useIOSApp'
 import { BookmarkIcon, BellIcon, CheckIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { widgetManager } from '@/lib/ios/WidgetManager'
 
 interface SaveJudgeButtonProps {
   judgeId: string
@@ -27,7 +25,12 @@ export function SaveJudgeButton({
 }: SaveJudgeButtonProps) {
   const [isSaved, setIsSaved] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false)
+    // iOS features removed in web repo; use stubs
+  const isNative = false as const
+  const pushEnabled = false as const
+  const enableNotifications = async () => false as const
+  const widgetManager = { updateWidgetData: async () => {} } as const
+const [showNotificationPrompt, setShowNotificationPrompt] = useState(false)
   
   const isNative = useIsNativeIOS()
   const { isEnabled: pushEnabled, enableNotifications } = usePushNotifications()

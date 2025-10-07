@@ -3,9 +3,12 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.judgefinder.ios',
   appName: 'JudgeFinder',
-  webDir: 'public',
-  // Note: server.url removed to allow local index.html to load
-  // The index.html (ios-loader.html) will load the production site via iframe
+  webDir: '.next',
+  server: {
+    // Production URL - will load the live site
+    url: 'https://olms-4375-tw501-x421.netlify.app',
+    cleartext: false
+  },
   ios: {
     contentInset: 'automatic',
     scheme: 'JudgeFinder',

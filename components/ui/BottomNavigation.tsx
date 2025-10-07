@@ -7,7 +7,6 @@ import { Home, Search, BarChart3, Bookmark, User } from 'lucide-react'
 import { useSafeUser } from '@/lib/auth/safe-clerk-components'
 import { cn } from '@/lib/utils'
 import { tap, transitions } from '@/lib/animations/presets'
-import { hapticLight } from '@/lib/ios/haptics'
 
 const BottomNavigation = () => {
   const pathname = usePathname()
@@ -60,7 +59,6 @@ const BottomNavigation = () => {
               href={item.href}
               aria-label={item.name}
               className="flex flex-1 items-center justify-center touch-manipulation"
-              onClick={() => hapticLight()}
             >
               <motion.div
                 className={cn(
