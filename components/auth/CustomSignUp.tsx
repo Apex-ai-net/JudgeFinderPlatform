@@ -43,12 +43,12 @@ interface CustomSignUpProps {
 }
 
 export function CustomSignUp({ 
-  fallbackRedirectUrl = '/dashboard', 
-  forceRedirectUrl = '/welcome'
+  fallbackRedirectUrl = process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL || '/dashboard', 
+  forceRedirectUrl = process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL || '/welcome'
 }: CustomSignUpProps) {
   // Use new props only
-  const redirectUrl = forceRedirectUrl || '/welcome'
-  const signInRedirect = fallbackRedirectUrl || '/dashboard'
+  const redirectUrl = forceRedirectUrl || (process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL || '/welcome')
+  const signInRedirect = fallbackRedirectUrl || (process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL || '/dashboard')
   const [email, setEmail] = useState('')
   const [userType, setUserType] = useState<'admin' | 'user' | null>(null)
   const [showSignUp, setShowSignUp] = useState(false)

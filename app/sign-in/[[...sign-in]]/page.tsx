@@ -148,8 +148,8 @@ export default function Page() {
                     identityPreviewEditButton: 'text-blue-400 hover:text-blue-300'
                   }
                 }}
-                fallbackRedirectUrl="/dashboard"
-                forceRedirectUrl="/dashboard"
+                fallbackRedirectUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL || '/dashboard'}
+                forceRedirectUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL || '/dashboard'}
               />
             </div>
 
