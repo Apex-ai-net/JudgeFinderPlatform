@@ -54,9 +54,10 @@ analysis and automated data ingestion from official sources.
 ## iOS App (separated)
 
 - The native wrapper has been extracted to a dedicated iOS repository: JudgeBinder iOS.
+- GitHub repository: https://github.com/thefiredev-cloud/JudgeBinder-iOS
 - Local path (created during split): `../JudgeBinder-iOS`
 - Architecture: Capacitor wrapper loading `https://judgefinder.io` with native features (haptics, push, share).
-- See `../JudgeBinder-iOS/README.md` for setup and scripts.
+- See `../JudgeBinder-iOS/README.md` (or the repo README) for setup and scripts.
 
 ## Environment Variables
 
