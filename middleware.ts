@@ -63,13 +63,21 @@ const clerkWrappedHandler = hasValidClerkKeys
       if (isProtectedRoute(request)) {
         await auth.protect()
         // Best-effort user mapping; don't block response on failure
-        try { await ensureCurrentAppUser() } catch {}
+        try {
+          await ensureCurrentAppUser()
+        } catch (error) {
+          logger.warn('[middleware] User mapping failed (non-blocking)', undefined, error as Error)
+        }
       }
 
       if (isAdminRoute(request)) {
         await auth.protect()
         // Ensure mapping for admins too
-        try { await ensureCurrentAppUser() } catch {}
+        try {
+          await ensureCurrentAppUser()
+        } catch (error) {
+          logger.warn('[middleware] Admin user mapping failed (non-blocking)', undefined, error as Error)
+        }
       }
 
       return baseMiddleware(request)
@@ -112,11 +120,25 @@ export default function handler(request: NextRequest, event: NextFetchEvent) {
 
 function baseMiddleware(request: NextRequest) {
   const response = NextResponse.next()
+  const config = createSecurityConfig()
 
   // Centralized security headers (CSP/HSTS/etc.)
-  const securityHeaders = getSecurityHeaders(createSecurityConfig())
+  const securityHeaders = getSecurityHeaders(config)
   for (const [key, value] of Object.entries(securityHeaders)) {
     response.headers.set(key, value)
+  }
+
+  // CRITICAL FIX: Apply CORS headers to all requests to allow same-origin API calls
+  // This fixes the "Failed to fetch" error on Netlify deployments
+  const origin = request.headers.get('origin')
+  const requestUrl = new URL(request.url)
+
+  // Allow requests from same origin (e.g., netlify.app calling its own API)
+  if (origin && origin === requestUrl.origin) {
+    response.headers.set('Access-Control-Allow-Origin', origin)
+    response.headers.set('Access-Control-Allow-Methods', 'GET, HEAD, POST, OPTIONS')
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+    response.headers.set('Access-Control-Max-Age', '86400')
   }
 
   // Cache control based on path

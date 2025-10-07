@@ -76,7 +76,7 @@ export function JudgesDirectoryResultsGrid({ viewModel }: JudgesDirectoryResults
             <Grid
               columnCount={gridColumnCount}
               columnWidth={perColumnWidth + GRID_COLUMN_GAP}
-              height={Math.min(900, rowCount * (CARD_HEIGHT + GRID_ROW_GAP))}
+              height={rowCount * (CARD_HEIGHT + GRID_ROW_GAP)}
               rowCount={rowCount}
               rowHeight={CARD_HEIGHT + GRID_ROW_GAP}
               width={width}
