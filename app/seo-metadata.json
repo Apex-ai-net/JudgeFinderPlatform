@@ -1,0 +1,79 @@
+{
+  "site": {
+    "name": "JudgeFinder",
+    "url": "https://judgefinder.io",
+    "description": "AI-powered judicial transparency and bias detection platform for California courts. Research judges with comprehensive analytics, case outcomes, and bias analysis.",
+    "keywords": [
+      "judge research",
+      "judicial bias",
+      "California courts",
+      "judge analytics",
+      "case outcomes",
+      "court transparency",
+      "legal research",
+      "judge comparison",
+      "judicial patterns",
+      "bias detection"
+    ]
+  },
+  "aeo": {
+    "targetQuestions": [
+      "How do I research a judge?",
+      "Is my judge biased?",
+      "What is judge bias detection?",
+      "How to compare judges?",
+      "California judge search",
+      "Judge case outcomes",
+      "Judge settlement rates",
+      "Judicial transparency tools",
+      "How to find judge information",
+      "Judge decision patterns"
+    ],
+    "entityTypes": [
+      "Judge",
+      "Court",
+      "Legal Case",
+      "Jurisdiction",
+      "Bias Analysis",
+      "Case Outcome"
+    ],
+    "semanticRelationships": {
+      "judge": ["court", "jurisdiction", "case", "decision", "bias"],
+      "court": ["judge", "jurisdiction", "case", "location"],
+      "bias": ["judge", "analysis", "pattern", "outcome", "detection"],
+      "case": ["judge", "court", "outcome", "decision", "type"]
+    }
+  },
+  "structuredDataTemplates": {
+    "homePage": {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://judgefinder.io/search?q={search_term}"
+      }
+    },
+    "judgePage": {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      "about": {
+        "@type": "Person",
+        "jobTitle": "Judge"
+      }
+    },
+    "courtPage": {
+      "@context": "https://schema.org",
+      "@type": "GovernmentOrganization"
+    }
+  },
+  "socialMedia": {
+    "twitter": {
+      "handle": "@judgefinder",
+      "card": "summary_large_image"
+    },
+    "openGraph": {
+      "type": "website",
+      "locale": "en_US"
+    }
+  }
+}

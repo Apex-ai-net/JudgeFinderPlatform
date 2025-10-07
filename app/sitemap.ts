@@ -11,23 +11,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createServerClient()
 
   // Fetch ALL judges (no limit) for complete AEO coverage
-  // Priority: Higher for judges with more cases
+  // Priority: Higher for judges with more cases and recent activity
   const { data: judges } = await supabase
     .from('judges')
-    .select('name, slug, updated_at, jurisdiction')
-    .order('name', { ascending: true })
+    .select('name, slug, updated_at, jurisdiction, case_count')
+    .order('updated_at', { ascending: false, nullsFirst: false })
+    .order('case_count', { ascending: false, nullsFirst: false })
 
   const judgeEntries = (judges || []).map((j) => {
     // Use canonical slug - either from database or generate one
     const canonicalSlug = j.slug || createCanonicalSlug(j.name)
     const lastModified = j.updated_at ? new Date(j.updated_at) : new Date()
 
-    // Higher priority for judges (AEO focus)
+    // Dynamic priority based on case count for better AEO
+    // Judges with more cases get higher priority (0.85-0.95)
+    const caseCount = (j as any).case_count || 0
+    const basePriority = 0.85
+    const priorityBoost = Math.min(0.1, (caseCount / 100) * 0.1)
+    const priority = Number((basePriority + priorityBoost).toFixed(2))
+
     return {
       url: `${siteUrl}/judges/${canonicalSlug}`,
       lastModified,
-      changeFrequency: 'weekly' as const, // Changed from monthly for better freshness signals
-      priority: 0.9, // Increased from 0.8 - judge pages are our primary content
+      changeFrequency: 'weekly' as const,
+      priority,
     }
   })
 

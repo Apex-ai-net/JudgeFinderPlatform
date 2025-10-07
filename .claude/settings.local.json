@@ -35,7 +35,13 @@
       "Read(//private/tmp/**)",
       "Bash(npm uninstall:*)",
       "Bash(netlify deploy:*)",
-      "Read(//dev/**)"
+      "Read(//dev/**)",
+      "Bash(lsof:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(test:*)",
+      "Bash(npm ls:*)",
+      "Bash(python3:*)",
+      "Bash(netlify:*)"
     ],
     "deny": [],
     "ask": [],

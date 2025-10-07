@@ -1,57 +1,51 @@
+# Netlify configuration for JudgeFinder platform
+
 [build]
   command = "npm run build"
-  # Publish directory should not be set when using @netlify/plugin-nextjs
-  # The plugin automatically handles Next.js deployment
+  publish = ".next"
+  functions = "netlify/functions"
 
 [build.environment]
-  # Disable Netlify's secrets scanning - getting false positives on environment variable names
-  # Re-enable later by removing this line and using SECRETS_SCAN_OMIT_KEYS instead
-  SECRETS_SCAN_ENABLED = "false"
-  NEXT_TELEMETRY_DISABLED = "1"
-  # Ensure Next.js uses the correct Node version
-  NODE_VERSION = "20"
-  # Make npm installs more resilient on Netlify build VMs
-  NPM_FLAGS = "--legacy-peer-deps --no-audit --fund=false --prefer-offline --retry=5 --fetch-retry-maxtimeout=200000 --fetch-retry-mintimeout=20000"
-  NPM_CONFIG_AUDIT = "false"
-  NPM_CONFIG_FUND = "false"
-  NPM_CONFIG_FETCH_RETRIES = "5"
-  NPM_CONFIG_FETCH_RETRY_MINTIMEOUT = "20000"
-  NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT = "200000"
+  NODE_VERSION = "22"
+  NPM_FLAGS = "--legacy-peer-deps"
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
+# Redirect rules for SEO
+[[redirects]]
+  from = "/sitemap_index.xml"
+  to = "/sitemap.xml"
+  status = 301
 
+[[redirects]]
+  from = "/sitemap-index.xml"
+  to = "/sitemap.xml"
+  status = 301
+
+# Headers for security and SEO
 [[headers]]
   for = "/*"
   [headers.values]
+    X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-  Cache-Control = "no-store"
-    # Avoid global HTML caching to prevent stale pages referencing old asset hashes
-    # Cache is handled per-route in next.config.js and middleware
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
 
 [[headers]]
-  for = "/_next/static/*"
+  for = "/sitemap.xml"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "public, max-age=3600, s-maxage=3600"
 
 [[headers]]
-  for = "/_next/image*"
+  for = "/robots.txt"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=86400, s-maxage=86400"
 
-# Apple App Site Association for Universal Links
-[[headers]]
-  for = "/.well-known/apple-app-site-association"
-  [headers.values]
-    Content-Type = "application/json"
-    Cache-Control = "public, max-age=3600"
+# Scheduled functions configuration
+[functions."submit-sitemap"]
+  schedule = "@weekly"
 
+# Edge function configuration
 [functions]
   node_bundler = "esbuild"
-
-[[redirects]]
-  from = "https://www.judgefinder.io/*"
-  to = "https://judgefinder.io/:splat"
-  status = 301
-  force = true
+  external_node_modules = ["@supabase/supabase-js", "@google/generative-ai"]
