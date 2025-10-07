@@ -447,64 +447,63 @@ node scripts/test-courtlistener.js
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-The system implements a comprehensive judicial analytics platform with several key business domains:
+## Core Business Systems
 
-## Core Analytics Engine
-- Judge bias detection system using 6-category analysis framework
-- Court relationship mapping with jurisdiction hierarchies 
-- Case outcome pattern recognition
-- Settlement preference detection algorithms
-- Geographic bias analysis
+### 1. Judicial Analytics Engine (95/100)
+- Sophisticated bias detection using 6-factor analysis methodology
+- Case outcome pattern recognition across practice areas 
+- Judge performance scoring with confidence intervals
+- Settlement rate calculations with complexity weighting
+- Custom analytics cache invalidation logic
+- File: `/lib/ai/judicial-analytics.js`
 
-Key files:
-- `lib/ai/judicial-analytics.js`
-- `lib/analytics/bias-calculations.ts`
+### 2. Court System Management (90/100)
+- California court hierarchy modeling with jurisdiction inheritance
+- Geographic boundary enforcement for court assignments
+- Judge position tracking with term limit validation
+- Complex court-judge relationship validation rules
+- File: `/lib/sync/court-sync.ts`
 
-## Legal Advertising Platform
-- Dynamic pricing based on court jurisdiction levels
-- Federal court premium pricing ($500/month, $5000/year)
-- State court standard pricing ($200/month, $2000/year)
-- Bundle discounts: 10% for 5+ judges, 15% for 10+
-- Exclusive rotation premium at 1.75x base rate
+### 3. Legal Search Intelligence (85/100)
+- Domain-specific relevancy scoring for judicial queries
+- Practice area specialization detection
+- Multi-jurisdiction search with court hierarchy awareness
+- Legal professional verification integration
+- File: `/lib/ai/search-intelligence.ts`
 
-Key files:
-- `components/dashboard/AdPurchaseModal.tsx`
-- `lib/ads/service.ts`
+### 4. Case Distribution System (85/100)
+- Automated case assignment with workload balancing
+- Court hierarchy-aware distribution logic
+- Judge specialization matching algorithms
+- Conflict detection and resolution
+- File: `/scripts/comprehensive-case-judge-linking.js`
 
-## Judge Directory Management
-- Multi-stage court lookup with fallbacks
-- Judge profile verification system
-- Court assignment validation
-- SLA-based issue management
-- Jurisdiction-based filtering
+### 5. Advertising Management (80/100)
+- Court jurisdiction-based ad placement rules
+- Practice area targeting for legal professionals
+- Geographic relevance scoring
+- Price optimization based on jurisdiction importance
+- File: `/lib/ads/service.ts`
 
-Key files:
-- `app/judges/[slug]/page.tsx`
-- `lib/judges/directory/JudgesDirectoryDataManager.ts`
+## Integration Points
 
-## Search Intelligence
-- Legal entity recognition
-- Jurisdiction-aware query processing
-- Court hierarchy understanding
-- Case type classification
-- Legal professional verification
+### Legal Data Synchronization (75/100)
+- CourtListener API integration with rate limiting
+- Multi-source judge profile reconciliation
+- Court relationship validation pipeline
+- Data quality scoring and enhancement
+- Files:
+  - `/app/api/sync/judges/route.ts`
+  - `/app/api/sync/courts/route.ts`
 
-Key files:
-- `lib/ai/search-intelligence.ts`
-- `components/judges/SearchSection.tsx`
+### Professional Access Control (70/100)
+- Bar membership verification workflow
+- Jurisdiction-based access restrictions
+- Legal professional type categorization
+- Firm size classification system
+- File: `/lib/auth/roles.ts`
 
-The platform focuses on California courts with specialized handling for:
-- WCAB (Workers' Compensation Appeals Board) naming patterns
-- Municipal/Justice court conventions
-- Complex jurisdiction hierarchies
-- Legal professional advertising compliance
-
-Business rules enforce:
-1. Judge data canonical URL standards
-2. Court hierarchy relationships
-3. Legal professional verification
-4. Ad placement restrictions
-5. Profile issue resolution SLAs
+The system's core value lies in its judicial analytics and court system management capabilities, with sophisticated algorithms for analyzing judge behavior patterns and maintaining complex court hierarchies. The business logic heavily emphasizes California's legal system specifics while providing extensibility for other jurisdictions.
 
 $END$
 

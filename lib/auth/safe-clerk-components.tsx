@@ -168,21 +168,16 @@ export function SafeSignOutButton({
 
 // Safe useUser hook - Returns mock data during SSR, real data on client
 export function useSafeUser(): SafeUser {
-  // During SSR, always return default state immediately
-  if (!isBrowser()) {
-    return DEFAULT_USER_STATE
-  }
-  
-  // Client-side only logic
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+  // Always call hooks at top level (fix React hooks violation)
   const [mounted, setMounted] = useState(false)
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [userState, setUserState] = useState<SafeUser>(DEFAULT_USER_STATE)
-  
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+
   useEffect(() => {
+    // Only run effect in browser
+    if (!isBrowser()) return
+
     setMounted(true)
-    
+
     if (hasValidClerkKey()) {
       loadClerkComponents().then((components) => {
         if (components && components.useUser) {
@@ -202,11 +197,11 @@ export function useSafeUser(): SafeUser {
       setUserState({ ...DEFAULT_USER_STATE, isLoaded: true })
     }
   }, [])
-  
-  // Before mount, return loading state
-  if (!mounted) {
+
+  // During SSR or before mount, return default state
+  if (!isBrowser() || !mounted) {
     return DEFAULT_USER_STATE
   }
-  
+
   return userState
 }
