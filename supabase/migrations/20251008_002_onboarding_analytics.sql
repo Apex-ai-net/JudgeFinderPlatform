@@ -4,7 +4,7 @@
 -- Create onboarding_analytics table
 CREATE TABLE IF NOT EXISTS public.onboarding_analytics (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES public.app_users(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL REFERENCES public.app_users(clerk_user_id) ON DELETE CASCADE UNIQUE,
 
     -- Onboarding completion tracking
     onboarding_started_at TIMESTAMPTZ,
@@ -97,7 +97,7 @@ CREATE TRIGGER trigger_update_onboarding_analytics
 
 -- Create function to track feature usage
 CREATE OR REPLACE FUNCTION public.track_feature_usage(
-    p_user_id UUID,
+    p_user_id TEXT,
     p_feature TEXT
 )
 RETURNS void AS $$
@@ -220,7 +220,7 @@ ALTER TABLE public.onboarding_analytics ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view own onboarding analytics"
     ON public.onboarding_analytics
     FOR SELECT
-    USING (auth.uid()::text = user_id::text);
+    USING (auth.uid()::text = user_id);
 
 -- Service role can do everything
 CREATE POLICY "Service role has full access to onboarding analytics"

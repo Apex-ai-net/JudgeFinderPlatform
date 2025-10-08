@@ -1,6 +1,9 @@
 -- Performance Metrics Table
 -- Stores application performance data for monitoring and analytics
 
+-- Ensure uuid-ossp extension is available
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE IF NOT EXISTS performance_metrics (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
@@ -77,9 +80,9 @@ CREATE POLICY "Admin users can read performance metrics"
     TO authenticated
     USING (
         EXISTS (
-            SELECT 1 FROM auth.users
-            WHERE auth.users.id = auth.uid()
-            AND auth.users.raw_user_meta_data->>'role' = 'admin'
+            SELECT 1 FROM public.app_users
+            WHERE app_users.clerk_user_id = auth.uid()::text
+            AND app_users.is_admin = true
         )
     );
 
