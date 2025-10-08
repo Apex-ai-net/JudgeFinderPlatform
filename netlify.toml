@@ -18,7 +18,7 @@
 
   # Public Environment Variables (safe for client-side, NEXT_PUBLIC_ prefix)
   NEXT_PUBLIC_APP_NAME = "JudgeFinder Platform"
-  NEXT_PUBLIC_APP_URL = "https://olms-4375-tw501-x421.netlify.app"
+  NEXT_PUBLIC_APP_URL = "https://judgefinder.io"
   NEXT_PUBLIC_CLERK_SIGN_IN_URL = "/sign-in"
   NEXT_PUBLIC_CLERK_SIGN_UP_URL = "/sign-up"
   NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL = "/dashboard"
