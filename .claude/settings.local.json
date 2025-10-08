@@ -98,7 +98,14 @@
       "Bash(xcrun simctl terminate:*)",
       "Bash(xcrun simctl uninstall:*)",
       "Bash(tree:*)",
-      "Bash(git -C /Users/tannerosterkamp/JudgeFinderPlatform-1 add lib/ios/haptics.ts lib/ios/platformDetection.ts components/ios/IOSAppInitializer.tsx components/ui/BottomNavigation.tsx capacitor.config.ts package.json ios/README.md ios/App/App.xcodeproj/project.pbxproj ios/App/App.xcworkspace/contents.xcworkspacedata public/ios-loader.html public/ios/ docs/ios/)"
+      "Bash(git -C /Users/tannerosterkamp/JudgeFinderPlatform-1 add lib/ios/haptics.ts lib/ios/platformDetection.ts components/ios/IOSAppInitializer.tsx components/ui/BottomNavigation.tsx capacitor.config.ts package.json ios/README.md ios/App/App.xcodeproj/project.pbxproj ios/App/App.xcworkspace/contents.xcworkspacedata public/ios-loader.html public/ios/ docs/ios/)",
+      "Bash(findstr:*)",
+      "Bash(dir:*)",
+      "Bash(npm run lint)",
+      "Bash(git rm:*)",
+      "Bash(for file in \"app/admin/page.tsx\" \"app/admin/performance/page.tsx\" \"app/admin/deployments/page.tsx\" \"app/admin/security/page.tsx\")",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(head:*)"
     ],
     "deny": [],
     "ask": [],

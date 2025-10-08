@@ -75,6 +75,21 @@ const clerkWrappedHandler = hasValidClerkKeys
         // Ensure mapping for admins too
         try {
           await ensureCurrentAppUser()
+
+          // Check MFA requirement for admin routes (production only)
+          if (process.env.NODE_ENV === 'production') {
+            const { resolveAdminStatus } = await import('@/lib/auth/is-admin')
+            const status = await resolveAdminStatus()
+
+            // Redirect to MFA setup if required but not enabled
+            if (status.isAdmin && status.requiresMFA && !status.hasMFA) {
+              const mfaRequiredPath = '/admin/mfa-required'
+              // Don't redirect if already on MFA required page
+              if (request.nextUrl.pathname !== mfaRequiredPath) {
+                return NextResponse.redirect(new URL(mfaRequiredPath, request.url))
+              }
+            }
+          }
         } catch (error) {
           logger.warn('[middleware] Admin user mapping failed (non-blocking)', undefined, error as Error)
         }

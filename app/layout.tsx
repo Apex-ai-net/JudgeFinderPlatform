@@ -112,14 +112,58 @@ export default function RootLayout({
         <meta name="theme-color" content="hsl(199 82% 53%)" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.svg" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <meta name="google-site-verification" content="your-google-search-console-verification-code" />
-        <meta name="msvalidate.01" content="your-bing-webmaster-verification-code" />
+        {/* Search Engine Verification Codes
+            IMPORTANT: Replace these placeholder values with actual verification codes from:
+            - Google Search Console: https://search.google.com/search-console
+            - Bing Webmaster Tools: https://www.bing.com/webmasters
+            Without real verification codes, search engines cannot verify site ownership.
+            See docs/SEO_SETUP.md for complete setup instructions.
+        */}
+        {process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && (
+          <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION} />
+        )}
+        {process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION && (
+          <meta name="msvalidate.01" content={process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION} />
+        )}
         {process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT && (
-          <script 
-            async 
+          <script
+            async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT}`}
             crossOrigin="anonymous"
           />
+        )}
+        {/* Google Analytics 4
+            IMPORTANT: Add NEXT_PUBLIC_GA_MEASUREMENT_ID to your environment variables
+            Format: G-XXXXXXXXXX (obtainable from Google Analytics dashboard)
+            Analytics respects cookie consent and tracks user interactions for insights.
+            See docs/SEO_SETUP.md for GA4 property creation and setup instructions.
+        */}
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+            />
+            <script
+              id="google-analytics"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+
+                  // Configure GA4 with enhanced privacy settings
+                  gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}', {
+                    page_path: window.location.pathname,
+                    anonymize_ip: true,
+                    cookie_flags: 'SameSite=None;Secure',
+                    // Respect user privacy - check for consent before tracking
+                    send_page_view: true
+                  });
+                `,
+              }}
+            />
+          </>
         )}
       </head>
       <body className="min-h-screen bg-background font-sans antialiased">

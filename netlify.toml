@@ -1,4 +1,9 @@
-# Netlify configuration for JudgeFinder platform
+# ============================================
+# Netlify Configuration - JudgeFinder Platform
+# ============================================
+# Production deployment configuration for Netlify
+# See: https://docs.netlify.com/configure-builds/file-based-configuration/
+# ============================================
 
 [build]
   command = "npm run build"
@@ -6,18 +11,48 @@
   functions = "netlify/functions"
 
 [build.environment]
+  # Node.js and Build Configuration
   NODE_VERSION = "22"
   NPM_FLAGS = "--legacy-peer-deps"
-  # Public environment variables (safe for client-side, NEXT_PUBLIC_ prefix)
+  NODE_ENV = "production"
+
+  # Public Environment Variables (safe for client-side, NEXT_PUBLIC_ prefix)
   NEXT_PUBLIC_APP_NAME = "JudgeFinder Platform"
   NEXT_PUBLIC_APP_URL = "https://olms-4375-tw501-x421.netlify.app"
   NEXT_PUBLIC_CLERK_SIGN_IN_URL = "/sign-in"
   NEXT_PUBLIC_CLERK_SIGN_UP_URL = "/sign-up"
   NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL = "/dashboard"
   NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL = "/welcome"
+
+  # Build Optimizations
+  NEXT_TELEMETRY_DISABLED = "1"
+
+  # Secrets Scanning Configuration
   # Exclude build artifacts and public env vars from secrets scanning
-  SECRETS_SCAN_OMIT_PATHS = ".netlify/**,.next/**"
-  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL,NEXT_PUBLIC_CLERK_SIGN_UP_URL,NEXT_PUBLIC_APP_NAME,NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL,NEXT_PUBLIC_CLERK_SIGN_IN_URL,NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_APP_URL"
+  SECRETS_SCAN_OMIT_PATHS = ".netlify/**,.next/**,node_modules/**,.git/**"
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL,NEXT_PUBLIC_CLERK_SIGN_UP_URL,NEXT_PUBLIC_APP_NAME,NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL,NEXT_PUBLIC_CLERK_SIGN_IN_URL,NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_APP_URL,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY"
+
+# ============================================
+# Context-Specific Configurations
+# ============================================
+
+# Production Context
+[context.production]
+  command = "npm run build:production"
+  [context.production.environment]
+    NODE_ENV = "production"
+
+# Deploy Preview Context (PR previews)
+[context.deploy-preview]
+  command = "npm run build"
+  [context.deploy-preview.environment]
+    NODE_ENV = "production"
+
+# Branch Deploy Context
+[context.branch-deploy]
+  command = "npm run build"
+  [context.branch-deploy.environment]
+    NODE_ENV = "development"
 
 # Redirect rules for SEO
 [[redirects]]
@@ -51,11 +86,49 @@
     Content-Type = "text/plain; charset=utf-8"
     Cache-Control = "public, max-age=86400, s-maxage=86400"
 
-# Scheduled functions configuration
+# ============================================
+# Serverless Functions Configuration
+# ============================================
+
+[functions]
+  # Function bundler and optimization
+  node_bundler = "esbuild"
+  external_node_modules = ["@supabase/supabase-js", "@google/generative-ai", "sharp"]
+
+  # Function timeouts (max 26 seconds for standard functions)
+  # Background functions can run up to 15 minutes
+  [functions.timeout]
+    default = 10  # 10 seconds default
+    api = 26      # API endpoints can use full 26 seconds
+
+# Scheduled Functions
 [functions."submit-sitemap"]
   schedule = "@weekly"
 
-# Edge function configuration
-[functions]
-  node_bundler = "esbuild"
-  external_node_modules = ["@supabase/supabase-js", "@google/generative-ai"]
+# ============================================
+# Post-Processing & Optimization
+# ============================================
+
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.images]
+  compress = true
+
+# ============================================
+# Plugin Configuration
+# ============================================
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

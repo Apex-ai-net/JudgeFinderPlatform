@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { ExternalLink } from 'lucide-react'
 
 interface InfoTooltipProps {
   content: ReactNode
@@ -10,6 +11,8 @@ interface InfoTooltipProps {
   className?: string
   children?: ReactNode
   position?: 'top' | 'bottom' | 'left' | 'right'
+  learnMoreUrl?: string
+  learnMoreText?: string
 }
 
 export function InfoTooltip({
@@ -18,6 +21,8 @@ export function InfoTooltip({
   className,
   children,
   position = 'top',
+  learnMoreUrl,
+  learnMoreText = 'Learn more',
 }: InfoTooltipProps) {
   const [open, setOpen] = useState(false)
   const tooltipId = useId()
@@ -106,11 +111,26 @@ export function InfoTooltip({
           role="tooltip"
           id={tooltipId}
           className={cn(
-            'pointer-events-none absolute z-50 w-64 max-w-xs rounded-lg border border-border bg-card p-3 text-start text-xs text-muted-foreground shadow-lg',
+            'absolute z-50 w-64 max-w-xs rounded-lg border border-border bg-card p-3 text-start text-xs text-muted-foreground shadow-lg',
+            learnMoreUrl ? 'pointer-events-auto' : 'pointer-events-none',
             positionClasses,
           )}
         >
-          {content}
+          <div className="space-y-2">
+            {content}
+            {learnMoreUrl && (
+              <a
+                href={learnMoreUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-primary hover:text-primary/80 transition-colors font-medium mt-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {learnMoreText}
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            )}
+          </div>
         </div>
       )}
     </span>

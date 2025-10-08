@@ -25,15 +25,13 @@ export function SaveJudgeButton({
 }: SaveJudgeButtonProps) {
   const [isSaved, setIsSaved] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-    // iOS features removed in web repo; use stubs
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false)
+
+  // iOS features removed in web repo; use stubs
   const isNative = false as const
   const pushEnabled = false as const
   const enableNotifications = async () => false as const
   const widgetManager = { updateWidgetData: async () => {} } as const
-const [showNotificationPrompt, setShowNotificationPrompt] = useState(false)
-  
-  const isNative = useIsNativeIOS()
-  const { isEnabled: pushEnabled, enableNotifications } = usePushNotifications()
 
   const supabase = createClient()
   

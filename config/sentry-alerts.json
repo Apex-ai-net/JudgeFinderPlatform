@@ -1,0 +1,423 @@
+{
+  "$schema": "https://docs.sentry.io/product/alerts/alert-types/",
+  "description": "Sentry alerting configuration for JudgeFinder.io production monitoring",
+  "project": "judgefinder-platform",
+  "environment": "production",
+  "alert_rules": [
+    {
+      "name": "Critical Errors - Immediate Response",
+      "type": "issue",
+      "conditions": [
+        {
+          "id": "sentry.rules.conditions.first_seen_event.FirstSeenEventCondition",
+          "description": "A new issue is created"
+        },
+        {
+          "id": "sentry.rules.filters.level.LevelFilter",
+          "level": "50",
+          "description": "Event level is equal to fatal or error"
+        },
+        {
+          "id": "sentry.rules.filters.tagged_event.TaggedEventFilter",
+          "key": "environment",
+          "match": "eq",
+          "value": "production"
+        }
+      ],
+      "filters": [
+        {
+          "id": "sentry.rules.filters.issue_occurrences.IssueOccurrencesFilter",
+          "value": 1,
+          "description": "Alert on first occurrence"
+        }
+      ],
+      "actions": [
+        {
+          "id": "sentry.integrations.slack.notify_action.SlackNotifyServiceAction",
+          "workspace": "CONFIGURE_WORKSPACE_ID",
+          "channel": "#alerts-critical",
+          "tags": "environment,level,url"
+        },
+        {
+          "id": "sentry.mail.actions.NotifyEmailAction",
+          "targetType": "Team",
+          "targetIdentifier": "engineering"
+        }
+      ],
+      "action_match": "all",
+      "frequency": 30,
+      "priority": "critical",
+      "description": "Immediate notification for any new critical error in production"
+    },
+    {
+      "name": "High Error Rate Alert",
+      "type": "metric_alert",
+      "dataset": "events",
+      "query": "event.type:error",
+      "aggregate": "count()",
+      "time_window": 15,
+      "threshold_type": "above",
+      "resolve_threshold": null,
+      "triggers": [
+        {
+          "label": "critical",
+          "alert_threshold": 50,
+          "actions": [
+            {
+              "type": "slack",
+              "target_identifier": "#alerts-critical",
+              "integration_id": "CONFIGURE_INTEGRATION_ID"
+            },
+            {
+              "type": "email",
+              "target_type": "team",
+              "target_identifier": "engineering"
+            }
+          ]
+        },
+        {
+          "label": "warning",
+          "alert_threshold": 25,
+          "actions": [
+            {
+              "type": "slack",
+              "target_identifier": "#alerts-warning",
+              "integration_id": "CONFIGURE_INTEGRATION_ID"
+            }
+          ]
+        }
+      ],
+      "description": "Alert when error rate exceeds 25 errors per 15 minutes (warning) or 50 errors (critical)",
+      "environment": "production"
+    },
+    {
+      "name": "Error Rate Percentage Alert",
+      "type": "metric_alert",
+      "dataset": "events",
+      "query": "",
+      "aggregate": "percentage(sessions_crashed, sessions) AS _crash_rate_alert_aggregate",
+      "time_window": 60,
+      "threshold_type": "above",
+      "triggers": [
+        {
+          "label": "critical",
+          "alert_threshold": 1.0,
+          "actions": [
+            {
+              "type": "slack",
+              "target_identifier": "#alerts-critical"
+            },
+            {
+              "type": "email",
+              "target_type": "team",
+              "target_identifier": "engineering"
+            }
+          ]
+        },
+        {
+          "label": "warning",
+          "alert_threshold": 0.5,
+          "actions": [
+            {
+              "type": "slack",
+              "target_identifier": "#alerts-warning"
+            }
+          ]
+        }
+      ],
+      "description": "Alert when error rate exceeds 0.5% (warning) or 1% (critical) over 1 hour",
+      "environment": "production"
+    },
+    {
+      "name": "Slow Transaction Alert (P95)",
+      "type": "metric_alert",
+      "dataset": "transactions",
+      "query": "transaction.op:http.server",
+      "aggregate": "p95(transaction.duration)",
+      "time_window": 15,
+      "threshold_type": "above",
+      "triggers": [
+        {
+          "label": "critical",
+          "alert_threshold": 5000,
+          "actions": [
+            {
+              "type": "slack",
+              "target_identifier": "#alerts-performance"
+            },
+            {
+              "type": "email",
+              "target_type": "team",
+              "target_identifier": "engineering"
+            }
+          ]
+        },
+        {
+          "label": "warning",
+          "alert_threshold": 2000,
+          "actions": [
+            {
+              "type": "slack",
+              "target_identifier": "#alerts-performance"
+            }
+          ]
+        }
+      ],
+      "description": "Alert when P95 response time exceeds 2 seconds (warning) or 5 seconds (critical)",
+      "environment": "production"
+    },
+    {
+      "name": "Database Connection Failures",
+      "type": "issue",
+      "conditions": [
+        {
+          "id": "sentry.rules.conditions.event_attribute.EventAttributeCondition",
+          "attribute": "message",
+          "match": "co",
+          "value": "database"
+        },
+        {
+          "id": "sentry.rules.conditions.event_attribute.EventAttributeCondition",
+          "attribute": "message",
+          "match": "co",
+          "value": "connection"
+        }
+      ],
+      "filters": [
+        {
+          "id": "sentry.rules.filters.level.LevelFilter",
+          "level": "40",
+          "match": "gte"
+        }
+      ],
+      "actions": [
+        {
+          "id": "sentry.integrations.slack.notify_action.SlackNotifyServiceAction",
+          "channel": "#alerts-critical",
+          "tags": "environment,transaction"
+        },
+        {
+          "id": "sentry.mail.actions.NotifyEmailAction",
+          "targetType": "Team",
+          "targetIdentifier": "engineering"
+        }
+      ],
+      "action_match": "all",
+      "frequency": 5,
+      "description": "Immediate alert for database connectivity issues"
+    },
+    {
+      "name": "External API Failures (CourtListener)",
+      "type": "issue",
+      "conditions": [
+        {
+          "id": "sentry.rules.conditions.tagged_event.TaggedEventCondition",
+          "key": "service",
+          "match": "eq",
+          "value": "courtlistener"
+        }
+      ],
+      "filters": [
+        {
+          "id": "sentry.rules.filters.level.LevelFilter",
+          "level": "40",
+          "match": "gte"
+        },
+        {
+          "id": "sentry.rules.filters.issue_occurrences.IssueOccurrencesFilter",
+          "value": 5,
+          "description": "Alert after 5 occurrences in 1 hour"
+        }
+      ],
+      "actions": [
+        {
+          "id": "sentry.integrations.slack.notify_action.SlackNotifyServiceAction",
+          "channel": "#alerts-integrations"
+        }
+      ],
+      "action_match": "all",
+      "frequency": 60,
+      "description": "Alert when CourtListener API has repeated failures"
+    },
+    {
+      "name": "Authentication Errors",
+      "type": "issue",
+      "conditions": [
+        {
+          "id": "sentry.rules.conditions.tagged_event.TaggedEventCondition",
+          "key": "auth",
+          "match": "eq",
+          "value": "failed"
+        }
+      ],
+      "filters": [
+        {
+          "id": "sentry.rules.filters.issue_occurrences.IssueOccurrencesFilter",
+          "value": 10,
+          "description": "Alert after 10 occurrences"
+        }
+      ],
+      "actions": [
+        {
+          "id": "sentry.integrations.slack.notify_action.SlackNotifyServiceAction",
+          "channel": "#alerts-security"
+        },
+        {
+          "id": "sentry.mail.actions.NotifyEmailAction",
+          "targetType": "Team",
+          "targetIdentifier": "security"
+        }
+      ],
+      "action_match": "all",
+      "frequency": 30,
+      "description": "Alert on repeated authentication failures (potential security issue)"
+    },
+    {
+      "name": "Memory Usage Warning",
+      "type": "issue",
+      "conditions": [
+        {
+          "id": "sentry.rules.conditions.event_attribute.EventAttributeCondition",
+          "attribute": "message",
+          "match": "co",
+          "value": "memory"
+        }
+      ],
+      "filters": [
+        {
+          "id": "sentry.rules.filters.level.LevelFilter",
+          "level": "30",
+          "match": "gte"
+        }
+      ],
+      "actions": [
+        {
+          "id": "sentry.integrations.slack.notify_action.SlackNotifyServiceAction",
+          "channel": "#alerts-infrastructure"
+        }
+      ],
+      "action_match": "all",
+      "frequency": 60,
+      "description": "Alert on memory usage warnings or out-of-memory errors"
+    },
+    {
+      "name": "Unhandled Promise Rejections",
+      "type": "issue",
+      "conditions": [
+        {
+          "id": "sentry.rules.conditions.event_attribute.EventAttributeCondition",
+          "attribute": "exception.type",
+          "match": "eq",
+          "value": "UnhandledPromiseRejectionWarning"
+        }
+      ],
+      "actions": [
+        {
+          "id": "sentry.integrations.slack.notify_action.SlackNotifyServiceAction",
+          "channel": "#alerts-warning"
+        }
+      ],
+      "action_match": "all",
+      "frequency": 60,
+      "description": "Track unhandled promise rejections that could cause issues"
+    }
+  ],
+  "notification_settings": {
+    "issue_alerts": {
+      "digest_frequency": 300,
+      "digest_enabled": false,
+      "description": "Send individual alerts immediately, no digests"
+    },
+    "workflow_notifications": {
+      "subscribe_by_default": true,
+      "subscribe_only_assigned": false
+    }
+  },
+  "integrations": {
+    "slack": {
+      "enabled": true,
+      "workspace": "CONFIGURE_WORKSPACE",
+      "channels": {
+        "#alerts-critical": "For critical errors requiring immediate attention",
+        "#alerts-warning": "For warning-level issues",
+        "#alerts-performance": "For performance degradation",
+        "#alerts-integrations": "For external API/integration issues",
+        "#alerts-security": "For security-related alerts",
+        "#alerts-infrastructure": "For infrastructure and resource issues"
+      }
+    },
+    "pagerduty": {
+      "enabled": false,
+      "integration_key": "CONFIGURE_IF_NEEDED",
+      "description": "On-call escalation for critical issues"
+    },
+    "webhooks": {
+      "enabled": false,
+      "url": "CONFIGURE_IF_NEEDED",
+      "description": "Custom webhook integration for additional alerting"
+    }
+  },
+  "alert_priority_matrix": {
+    "P0_Critical": {
+      "description": "System down or data loss",
+      "response_time": "Immediate (< 5 minutes)",
+      "channels": ["phone_call", "sms", "slack", "email"],
+      "examples": ["Database connection lost", "Authentication system down", "Site unreachable"]
+    },
+    "P1_High": {
+      "description": "Major functionality broken",
+      "response_time": "15 minutes",
+      "channels": ["slack", "email"],
+      "examples": ["Search not working", "Analytics generation failing", "High error rate"]
+    },
+    "P2_Medium": {
+      "description": "Degraded performance or minor issues",
+      "response_time": "1 hour",
+      "channels": ["slack", "email"],
+      "examples": ["Slow response times", "External API degraded", "Memory warnings"]
+    },
+    "P3_Low": {
+      "description": "Informational or minor issues",
+      "response_time": "Next business day",
+      "channels": ["email"],
+      "examples": ["Minor bugs", "Optimization opportunities", "Deprecated API usage"]
+    }
+  },
+  "setup_instructions": {
+    "step_1": "Log in to Sentry at https://sentry.io",
+    "step_2": "Navigate to your JudgeFinder project",
+    "step_3": "Go to Settings > Alerts",
+    "step_4": "Create alert rules matching the configurations above",
+    "step_5": "Configure Slack integration in Settings > Integrations",
+    "step_6": "Set up notification channels and routing",
+    "step_7": "Test each alert rule with sample events",
+    "step_8": "Document on-call rotation and escalation procedures",
+    "step_9": "Train team on alert handling and response procedures"
+  },
+  "best_practices": {
+    "alert_fatigue": "Tune thresholds to avoid excessive alerts. Start conservative and adjust based on production patterns.",
+    "actionable_alerts": "Every alert should require action. If an alert doesn't need response, it shouldn't exist.",
+    "context": "Include relevant tags and context in alerts (environment, transaction, user_id, etc.)",
+    "escalation": "Define clear escalation paths for critical alerts",
+    "review": "Review and adjust alert rules monthly based on incident patterns"
+  },
+  "error_grouping": {
+    "fingerprinting_rules": [
+      {
+        "matcher": "message",
+        "pattern": "Database connection *",
+        "fingerprint": ["database-connection-error"]
+      },
+      {
+        "matcher": "message",
+        "pattern": "CourtListener API *",
+        "fingerprint": ["courtlistener-api-error"]
+      },
+      {
+        "matcher": "type",
+        "pattern": "RateLimitError",
+        "fingerprint": ["rate-limit-error"]
+      }
+    ]
+  }
+}

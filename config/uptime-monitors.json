@@ -1,0 +1,225 @@
+{
+  "$schema": "https://betteruptime.com/docs/monitors/configuration-schema",
+  "description": "Better Uptime monitoring configuration for JudgeFinder.io",
+  "monitors": [
+    {
+      "name": "JudgeFinder.io Homepage",
+      "url": "https://judgefinder.io",
+      "monitor_type": "status",
+      "check_frequency": 60,
+      "request_timeout": 10,
+      "recovery_period": 60,
+      "verify_ssl": true,
+      "follow_redirects": true,
+      "expected_status_codes": [200],
+      "call": true,
+      "sms": true,
+      "email": true,
+      "push": true,
+      "regions": ["us", "eu", "as"],
+      "maintenance_from": null,
+      "maintenance_to": null,
+      "paused": false,
+      "description": "Main homepage availability check",
+      "pronounceable_name": "Homepage",
+      "tags": ["production", "critical", "public"]
+    },
+    {
+      "name": "Health Check Endpoint",
+      "url": "https://judgefinder.io/api/health",
+      "monitor_type": "status",
+      "check_frequency": 60,
+      "request_timeout": 5,
+      "recovery_period": 60,
+      "verify_ssl": true,
+      "follow_redirects": false,
+      "expected_status_codes": [200],
+      "call": true,
+      "sms": true,
+      "email": true,
+      "push": true,
+      "regions": ["us"],
+      "paused": false,
+      "description": "System health check - monitors database, Redis, and external API status",
+      "pronounceable_name": "Health Check",
+      "tags": ["production", "critical", "internal"],
+      "assertions": [
+        {
+          "type": "json",
+          "comparison": "equals",
+          "key": "status",
+          "value": "healthy"
+        },
+        {
+          "type": "json",
+          "comparison": "less_than",
+          "key": "performance.responseTime",
+          "value": 1000
+        }
+      ]
+    },
+    {
+      "name": "Search API Endpoint",
+      "url": "https://judgefinder.io/api/search?q=test",
+      "monitor_type": "status",
+      "check_frequency": 120,
+      "request_timeout": 10,
+      "recovery_period": 120,
+      "verify_ssl": true,
+      "follow_redirects": false,
+      "expected_status_codes": [200],
+      "call": false,
+      "sms": true,
+      "email": true,
+      "push": true,
+      "regions": ["us"],
+      "paused": false,
+      "description": "Core search functionality - critical for user experience",
+      "pronounceable_name": "Search API",
+      "tags": ["production", "critical", "api"],
+      "assertions": [
+        {
+          "type": "response_time",
+          "comparison": "less_than",
+          "value": 2000
+        }
+      ]
+    },
+    {
+      "name": "Judge Analytics API",
+      "url": "https://judgefinder.io/api/judges/sample-id/analytics",
+      "monitor_type": "status",
+      "check_frequency": 300,
+      "request_timeout": 15,
+      "recovery_period": 180,
+      "verify_ssl": true,
+      "follow_redirects": false,
+      "expected_status_codes": [200, 404],
+      "call": false,
+      "sms": false,
+      "email": true,
+      "push": true,
+      "regions": ["us"],
+      "paused": false,
+      "description": "Judge analytics generation - high-value feature",
+      "pronounceable_name": "Analytics API",
+      "tags": ["production", "high-priority", "api"],
+      "assertions": [
+        {
+          "type": "response_time",
+          "comparison": "less_than",
+          "value": 5000
+        }
+      ]
+    },
+    {
+      "name": "Sitemap XML",
+      "url": "https://judgefinder.io/sitemap.xml",
+      "monitor_type": "status",
+      "check_frequency": 1440,
+      "request_timeout": 10,
+      "recovery_period": 360,
+      "verify_ssl": true,
+      "follow_redirects": false,
+      "expected_status_codes": [200],
+      "call": false,
+      "sms": false,
+      "email": true,
+      "push": false,
+      "regions": ["us"],
+      "paused": false,
+      "description": "SEO sitemap availability - important for search engine crawling",
+      "pronounceable_name": "Sitemap",
+      "tags": ["production", "seo", "low-priority"]
+    }
+  ],
+  "alerting_rules": {
+    "critical_incidents": {
+      "condition": "Any monitor tagged 'critical' is down",
+      "channels": ["call", "sms", "email", "push", "slack"],
+      "escalation_time": 5,
+      "description": "Immediate notification for critical service failures"
+    },
+    "high_priority_incidents": {
+      "condition": "Any monitor tagged 'high-priority' is down for 3 consecutive checks",
+      "channels": ["sms", "email", "push", "slack"],
+      "escalation_time": 10,
+      "description": "Quick notification for important but non-critical services"
+    },
+    "degraded_performance": {
+      "condition": "Response time > 2000ms for 3 consecutive checks",
+      "channels": ["email", "slack"],
+      "escalation_time": 15,
+      "description": "Performance degradation alerts"
+    },
+    "ssl_expiration": {
+      "condition": "SSL certificate expires in < 7 days",
+      "channels": ["email", "slack"],
+      "escalation_time": 0,
+      "description": "SSL certificate renewal reminder"
+    }
+  },
+  "notification_channels": {
+    "email": {
+      "enabled": true,
+      "recipients": ["admin@judgefinder.io"],
+      "description": "Primary email alerts"
+    },
+    "slack": {
+      "enabled": true,
+      "webhook_url": "CONFIGURE_IN_BETTER_UPTIME_DASHBOARD",
+      "channel": "#alerts-production",
+      "description": "Real-time Slack notifications"
+    },
+    "pagerduty": {
+      "enabled": false,
+      "integration_key": "CONFIGURE_IF_NEEDED",
+      "description": "PagerDuty integration for on-call escalation"
+    }
+  },
+  "maintenance_windows": {
+    "description": "Scheduled maintenance windows to prevent false alerts",
+    "windows": []
+  },
+  "response_time_thresholds": {
+    "homepage": {
+      "warning": 1000,
+      "critical": 3000,
+      "unit": "ms"
+    },
+    "health_check": {
+      "warning": 500,
+      "critical": 1000,
+      "unit": "ms"
+    },
+    "search_api": {
+      "warning": 1500,
+      "critical": 3000,
+      "unit": "ms"
+    },
+    "analytics_api": {
+      "warning": 3000,
+      "critical": 5000,
+      "unit": "ms"
+    }
+  },
+  "setup_instructions": {
+    "step_1": "Sign up for Better Uptime at https://betteruptime.com",
+    "step_2": "Create a new team or select existing team",
+    "step_3": "Navigate to Monitors section",
+    "step_4": "For each monitor in this config, create a new monitor with matching settings",
+    "step_5": "Configure notification channels (email, Slack, SMS)",
+    "step_6": "Set up on-call schedules if using PagerDuty",
+    "step_7": "Test each monitor to ensure proper configuration",
+    "step_8": "Enable all monitors once verified",
+    "step_9": "Document team's on-call rotation in docs/operations/ON_CALL.md"
+  },
+  "notes": {
+    "check_frequency": "Measured in seconds. Critical endpoints checked every 60s.",
+    "recovery_period": "Time before marking as recovered (seconds).",
+    "regions": "Monitor from multiple global regions for comprehensive coverage.",
+    "expected_status_codes": "HTTP status codes considered healthy.",
+    "assertions": "Additional validation checks beyond status code.",
+    "tags": "Use for filtering and grouping monitors in dashboard."
+  }
+}

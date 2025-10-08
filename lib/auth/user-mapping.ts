@@ -2,6 +2,7 @@ import type { User } from '@clerk/nextjs/server'
 import { safeCurrentUser } from './safe-auth'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/utils/logger'
+import { logPIIModification, type AuditContext } from '@/lib/audit/logger'
 
 export interface AppUserRecord {
   clerk_user_id: string
@@ -34,6 +35,16 @@ function extractFullName(user: User): string | null {
 
 async function upsertAppUser(user: User, email: string): Promise<AppUserRecord | null> {
   const supabase = await createServiceRoleClient()
+
+  // Check if user exists
+  const { data: existing } = await supabase
+    .from('app_users')
+    .select('*')
+    .eq('clerk_user_id', user.id)
+    .maybeSingle<AppUserRecord>()
+
+  const operation = existing ? 'update' : 'create'
+
   const payload = {
     clerk_user_id: user.id,
     email,
@@ -50,14 +61,32 @@ async function upsertAppUser(user: User, email: string): Promise<AppUserRecord |
   if (error) {
     logger.error('Failed to upsert app user', { clerkUserId: user.id, error })
 
-    const { data: existing } = await supabase
+    const { data: fallback } = await supabase
       .from('app_users')
       .select('*')
       .eq('clerk_user_id', user.id)
       .maybeSingle<AppUserRecord>()
 
-    return existing || null
+    return fallback || null
   }
+
+  // Log PII modification (user creation/update)
+  const auditContext: AuditContext = {
+    userId: user.id,
+    clerkUserId: user.id,
+    ipAddress: undefined,
+    userAgent: undefined,
+    requestPath: '/auth/user-mapping',
+    requestMethod: 'POST',
+  }
+
+  await logPIIModification(
+    auditContext,
+    'app_user',
+    user.id,
+    ['email', 'full_name'],
+    operation
+  )
 
   return data
 }

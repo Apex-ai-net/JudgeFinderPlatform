@@ -8,6 +8,39 @@
  */
 
 /**
+ * Validates that monitoring and observability are properly configured
+ */
+function validateMonitoringSetup(): void {
+  const isProduction = process.env.NODE_ENV === 'production'
+  const isDevelopment = process.env.NODE_ENV === 'development'
+
+  const warnings: string[] = []
+
+  // Check Sentry configuration
+  if (!process.env.SENTRY_DSN) {
+    warnings.push('SENTRY_DSN not configured - error tracking disabled')
+  }
+
+  // Check Redis configuration for rate limiting and caching
+  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+    warnings.push('Upstash Redis not configured - caching and rate limiting degraded')
+  }
+
+  if (warnings.length > 0 && isProduction) {
+    console.warn('\n' + '⚠'.repeat(40))
+    console.warn('WARNING: Monitoring not fully configured for production')
+    console.warn('⚠'.repeat(40))
+    warnings.forEach(w => console.warn(`  ⚠️  ${w}`))
+    console.warn('\nProduction deployments should have full monitoring configured.')
+    console.warn('⚠'.repeat(40) + '\n')
+  }
+
+  if (warnings.length === 0 || isDevelopment) {
+    console.log('[instrumentation] Monitoring configuration validated')
+  }
+}
+
+/**
  * Validates that authentication is properly configured
  * Implements fail-fast pattern for production deployments
  */
@@ -104,6 +137,9 @@ export async function register() {
   // SECURITY: Validate authentication configuration at startup
   validateAuthenticationSetup()
 
+  // Validate monitoring configuration
+  validateMonitoringSetup()
+
   // Only run on server
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     // Initialize Sentry for server-side error tracking
@@ -115,7 +151,8 @@ export async function register() {
           dsn: process.env.SENTRY_DSN,
 
           // Performance Monitoring
-          tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+          tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? (process.env.NODE_ENV === 'production' ? '0.1' : '1.0')),
+          profilesSampleRate: Number(process.env.SENTRY_PROFILES_SAMPLE_RATE ?? '0.1'),
 
           // Session Replay
           replaysSessionSampleRate: 0.1,
@@ -125,7 +162,10 @@ export async function register() {
           environment: process.env.NODE_ENV || 'development',
 
           // Release tracking
-          release: process.env.VERCEL_GIT_COMMIT_SHA || 'development',
+          release: process.env.VERCEL_GIT_COMMIT_SHA || process.env.NETLIFY_BUILD_ID || 'development',
+
+          // Enable profiling for slow transactions
+          enableTracing: true,
 
           // Filter sensitive data
           beforeSend(event) {
@@ -140,10 +180,13 @@ export async function register() {
             if (event.request?.url) {
               try {
                 const url = new URL(event.request.url)
-                if (url.searchParams.has('key')) {
-                  url.searchParams.delete('key')
-                  event.request.url = url.toString()
-                }
+                const sensitiveParams = ['key', 'token', 'api_key', 'password']
+                sensitiveParams.forEach(param => {
+                  if (url.searchParams.has(param)) {
+                    url.searchParams.delete(param)
+                  }
+                })
+                event.request.url = url.toString()
               } catch {
                 // Invalid URL, skip sanitization
               }
@@ -157,12 +200,27 @@ export async function register() {
             'ResizeObserver loop limit exceeded',
             'Non-Error promise rejection captured',
             'Network request failed',
+            'AbortError',
+            'cancelled',
           ],
 
           // Configure integrations
           integrations: [
-            // Add custom integrations here if needed
+            Sentry.httpIntegration({
+              // Track slow HTTP requests
+              // Note: shouldCreateSpanForRequest moved to top-level tracesSampler
+            }),
           ],
+
+          // Custom trace sampling for performance monitoring
+          tracesSampler: (samplingContext) => {
+            const url = samplingContext.request?.url || ''
+            // Track all API routes and external API calls
+            if (url.includes('/api/') || url.includes('courtlistener') || url.includes('supabase')) {
+              return 1.0 // 100% sampling for API calls
+            }
+            return 0.1 // 10% for other requests
+          },
         })
 
         console.log('[instrumentation] Sentry initialized for nodejs runtime')

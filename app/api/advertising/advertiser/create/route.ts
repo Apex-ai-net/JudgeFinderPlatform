@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { auth } from '@clerk/nextjs/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { updateUserRole } from '@/lib/auth/roles'
+import { encrypt } from '@/lib/security/encryption'
+import { extractAuditContext, logPIIAccess, logPIIModification, logEncryptionOperation } from '@/lib/audit/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,7 +37,10 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createServerClient()
 
-    // If profile already exists, return it
+    // Extract audit context
+    const auditContext = extractAuditContext(request, userId, userId)
+
+    // If profile already exists, log access and return it
     const { data: existing } = await supabase
       .from('advertiser_profiles')
       .select('*')
@@ -43,12 +48,32 @@ export async function POST(request: NextRequest) {
       .maybeSingle()
 
     if (existing) {
+      // Log PII access
+      await logPIIAccess(
+        auditContext,
+        'advertiser_profile',
+        existing.id,
+        ['bar_number', 'contact_email', 'contact_phone', 'billing_email']
+      )
       return NextResponse.json({ profile: existing })
     }
+
+    // Encrypt sensitive PII fields
+    const encryptedBarNumber = encrypt(parsed.data.bar_number)
+
+    // Log encryption operation
+    await logEncryptionOperation(
+      auditContext,
+      'encrypt',
+      'advertiser_profile',
+      'new_profile',
+      ['bar_number']
+    )
 
     const insertPayload = {
       user_id: userId,
       ...parsed.data,
+      bar_number: encryptedBarNumber, // Store encrypted
       account_status: 'pending',
       verification_status: 'pending',
     }
@@ -62,6 +87,15 @@ export async function POST(request: NextRequest) {
     if (error) {
       return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
     }
+
+    // Log PII modification (creation)
+    await logPIIModification(
+      auditContext,
+      'advertiser_profile',
+      created.id,
+      ['bar_number', 'contact_email', 'contact_phone', 'billing_email', 'billing_address'],
+      'create'
+    )
 
     // Update Clerk role metadata
     const role = parsed.data.firm_type === 'solo' ? 'attorney' : 'law_firm'

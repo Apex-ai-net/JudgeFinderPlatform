@@ -2,10 +2,15 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Scale, TrendingUp, MapPin, FileText, Heart } from 'lucide-react'
+import { Scale, TrendingUp, MapPin, FileText, Heart, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 import { DonationButton } from '@/components/fundraising/DonationButton'
 
 export function Footer() {
+  // SEO verification status (dev mode only)
+  const isDev = process.env.NODE_ENV === 'development'
+  const hasGoogleVerification = !!process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+  const hasBingVerification = !!process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION
+  const hasGoogleAnalytics = !!process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
   const footerSections = [
     {
       title: 'Find Judges',
@@ -119,6 +124,60 @@ export function Footer() {
           >
             &copy; {new Date().getFullYear()} JudgeFinder. Free judicial transparency for California citizens.
           </motion.p>
+
+          {/* SEO Verification Status - Dev Mode Only */}
+          {isDev && (
+            <motion.div
+              className="mt-4 p-3 bg-muted/30 rounded-lg border border-border/50"
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.7 }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle className="h-3.5 w-3.5 text-yellow-500" />
+                <span className="text-xs font-semibold text-foreground">SEO Configuration Status</span>
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-xs">
+                  {hasGoogleVerification ? (
+                    <CheckCircle className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <XCircle className="h-3 w-3 text-red-500" />
+                  )}
+                  <span className={hasGoogleVerification ? 'text-green-500' : 'text-red-500'}>
+                    Google Search Console
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  {hasBingVerification ? (
+                    <CheckCircle className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <XCircle className="h-3 w-3 text-red-500" />
+                  )}
+                  <span className={hasBingVerification ? 'text-green-500' : 'text-red-500'}>
+                    Bing Webmaster Tools
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  {hasGoogleAnalytics ? (
+                    <CheckCircle className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <XCircle className="h-3 w-3 text-red-500" />
+                  )}
+                  <span className={hasGoogleAnalytics ? 'text-green-500' : 'text-red-500'}>
+                    Google Analytics 4
+                  </span>
+                </div>
+              </div>
+              <Link
+                href="/docs/SEO_SETUP.md"
+                className="text-xs text-primary hover:underline mt-2 inline-block"
+              >
+                View Setup Guide →
+              </Link>
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </footer>
