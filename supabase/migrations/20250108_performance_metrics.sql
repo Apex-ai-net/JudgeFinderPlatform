@@ -51,10 +51,10 @@ CREATE INDEX IF NOT EXISTS idx_performance_metrics_success
     ON performance_metrics(success, recorded_at DESC)
     WHERE success = false;
 
--- Create a partial index for recent metrics (last 7 days)
-CREATE INDEX IF NOT EXISTS idx_performance_metrics_recent
-    ON performance_metrics(metric_type, operation, recorded_at DESC)
-    WHERE recorded_at > NOW() - INTERVAL '7 days';
+-- Note: Removed idx_performance_metrics_recent partial index with NOW()
+-- because NOW() is STABLE (not IMMUTABLE) and cannot be used in index predicates.
+-- The existing idx_performance_metrics_recorded_at index provides efficient
+-- time-range queries without the immutability restriction.
 
 -- Create GIN index for JSONB metadata queries
 CREATE INDEX IF NOT EXISTS idx_performance_metrics_metadata
