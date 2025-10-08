@@ -117,6 +117,7 @@
     "happy-dom": "^19.0.2",
     "module-alias": "^2.2.3",
     "p-limit": "^3.1.0",
+    "pg": "^8.16.3",
     "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
