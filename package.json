@@ -59,7 +59,7 @@
     "backup-database": "bash scripts/backup-database.sh",
     "test-migration": "ts-node --transpile-only scripts/test-migration.ts",
     "benchmark:performance": "ts-node --transpile-only scripts/benchmark-performance.ts",
-    "prepare": "husky"
+    "prepare": "node .husky/install.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.31.3",
