@@ -18,7 +18,7 @@ interface CourtBaseline {
 
 let redisClient: Redis | null = null
 
-function getRedis(): void {
+function getRedis(): Redis | null {
   if (redisClient) return redisClient
   const url = process.env.UPSTASH_REDIS_REST_URL
   const token = process.env.UPSTASH_REDIS_REST_TOKEN
@@ -27,7 +27,7 @@ function getRedis(): void {
   return redisClient
 }
 
-function cacheKey(courtId: string): void {
+function cacheKey(courtId: string): string {
   return `analytics:baseline:court:${courtId}`
 }
 

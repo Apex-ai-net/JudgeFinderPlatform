@@ -39,7 +39,7 @@ const hasValidClerkKeys = () => {
   return isValidPubKey && secretConfigured
 }
 
-export async function safeAuth(): Promise<void> {
+export async function safeAuth(): Promise<{ userId: string | null }> {
   if (!hasValidClerkKeys()) {
     return { userId: null }
   }
@@ -53,7 +53,7 @@ export async function safeAuth(): Promise<void> {
   }
 }
 
-export async function safeCurrentUser(): Promise<void> {
+export async function safeCurrentUser(): Promise<null | { twoFactorEnabled?: boolean } | any> {
   if (!hasValidClerkKeys()) {
     return null
   }

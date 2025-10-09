@@ -1,14 +1,14 @@
 const DEFAULT_MIN_SAMPLE_SIZE = 15
 const DEFAULT_GOOD_SAMPLE_SIZE = 40
 
-function parseEnvNumber(value: string | undefined, fallback: number): void {
+function parseEnvNumber(value: string | undefined, fallback: number): number {
   if (!value) return fallback
   const parsed = Number(value)
   if (Number.isNaN(parsed) || parsed <= 0) return fallback
   return Math.floor(parsed)
 }
 
-function parseEnvBoolean(value: string | undefined, fallback: boolean): void {
+function parseEnvBoolean(value: string | undefined, fallback: boolean): boolean {
   if (typeof value !== 'string') return fallback
   const normalized = value.trim().toLowerCase()
   if (['1', 'true', 'yes', 'y', 'on'].includes(normalized)) return true
@@ -50,10 +50,10 @@ export function getQualityTier(
   return sampleSize >= MIN_SAMPLE_SIZE ? 'GOOD' : 'LOW'
 }
 
-export function isBelowSampleThreshold(sampleSize?: number | null): void {
+export function isBelowSampleThreshold(sampleSize?: number | null): boolean {
   return !sampleSize || sampleSize < MIN_SAMPLE_SIZE
 }
 
-export function shouldHideMetric(sampleSize?: number | null): void {
+export function shouldHideMetric(sampleSize?: number | null): boolean {
   return HIDE_METRICS_BELOW_SAMPLE && isBelowSampleThreshold(sampleSize)
 }

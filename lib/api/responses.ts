@@ -377,7 +377,13 @@ export async function parseJsonBody<T = unknown>(
   if (options?.required) {
     const missing: string[] = []
     for (const field of options.required) {
-      if (!(field in body) || body[field] === null || body[field] === undefined) {
+      if (
+        typeof body !== 'object' ||
+        body === null ||
+        !(field in (body as Record<string, unknown>)) ||
+        (body as Record<string, unknown>)[field] === null ||
+        (body as Record<string, unknown>)[field] === undefined
+      ) {
         missing.push(field)
       }
     }

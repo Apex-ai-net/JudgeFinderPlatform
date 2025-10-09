@@ -122,7 +122,7 @@ export function generateCSP(config: SecurityConfig): string {
 /**
  * Security headers for judicial transparency platform
  */
-export function getSecurityHeaders(config: SecurityConfig): void {
+export function getSecurityHeaders(config: SecurityConfig): Record<string, string> {
   const headers: Record<string, string> = {
     // Basic security headers
     'X-Frame-Options': 'DENY',

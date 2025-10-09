@@ -76,7 +76,9 @@ export function isRateLimitConfigured(): boolean {
   }
 }
 
-export function buildRateLimiter(config: RateLimitConfig): void {
+export function buildRateLimiter(config: RateLimitConfig): {
+  limit: (key: string) => Promise<{ success: boolean; remaining: number; reset: number }>
+} {
   let client: Redis | null = null
   const isProduction = process.env.NODE_ENV === 'production'
 
@@ -164,7 +166,9 @@ function getDefaultLimiter(): Ratelimit | null {
   return defaultLimiter
 }
 
-export async function enforceRateLimit(key: string): Promise<void> {
+export async function enforceRateLimit(
+  key: string
+): Promise<{ allowed: boolean; remaining: number | undefined; reset: number | undefined }> {
   const limiter = getDefaultLimiter()
 
   if (!limiter) {
@@ -183,7 +187,7 @@ export async function enforceRateLimit(key: string): Promise<void> {
   return { allowed: res.success, remaining: res.remaining, reset: res.reset }
 }
 
-export function getClientKey(headers: Headers): void {
+export function getClientKey(headers: Headers): string {
   return (
     headers.get('x-api-key') ||
     headers.get('x-forwarded-for') ||

@@ -28,7 +28,14 @@ export function useDebounce<T>(value: T, delay: number): T {
  * @param delay - The delay in milliseconds (default: 300ms)
  * @returns Object with current value and debounced value
  */
-export function useSearchDebounce(searchQuery: string, delay: number = 300): void {
+export function useSearchDebounce(
+  searchQuery: string,
+  delay: number = 300
+): {
+  searchQuery: string
+  debouncedSearchQuery: string
+  isSearching: boolean
+} {
   const debouncedSearchQuery = useDebounce(searchQuery, delay)
 
   return {
