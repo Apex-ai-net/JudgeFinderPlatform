@@ -7,7 +7,7 @@ import type { Context, Config } from "@netlify/functions";
 export default async (req: Request, context: Context) => {
   const { next_run } = await req.json();
 
-  const siteUrl = Netlify.env.get("NEXT_PUBLIC_SITE_URL") || "https://judgefinder.io";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://judgefinder.io";
   const sitemapUrl = `${siteUrl}/sitemap.xml`;
 
   const results = {

@@ -121,7 +121,15 @@ const nextConfig = {
       ...config.resolve.alias,
       '@': require('path').resolve(__dirname),
     }
-    
+
+    // Ensure crypto module is available for server-side code
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        crypto: false,
+      }
+    }
+
     // Windows memory optimization to prevent worker process crashes
     config.optimization = {
       ...config.optimization,
@@ -131,7 +139,7 @@ const nextConfig = {
         maxAsyncRequests: 20,
       },
     }
-    
+
     return config
   },
 

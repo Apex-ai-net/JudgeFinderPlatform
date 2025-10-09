@@ -7,14 +7,20 @@
 
 [build]
   command = "npm run build"
-  publish = ".next"
+  # NOTE: Do NOT set 'publish' when using @netlify/plugin-nextjs
+  # The plugin automatically manages the output directory for Next.js SSR
+  # publish = ".next"  # Commented out - managed by Next.js plugin
   functions = "netlify/functions"
 
 [build.environment]
   # Node.js and Build Configuration
-  NODE_VERSION = "22"
+  NODE_VERSION = "20"  # Match package.json requirement (^20)
   NPM_FLAGS = "--legacy-peer-deps"
   NODE_ENV = "production"
+
+  # IMPORTANT: Set ENCRYPTION_KEY in Netlify UI
+  # Navigate to: Site settings > Environment variables > Add variable
+  # Required for secure data encryption in production
 
   # Public Environment Variables (safe for client-side, NEXT_PUBLIC_ prefix)
   NEXT_PUBLIC_APP_NAME = "JudgeFinder Platform"

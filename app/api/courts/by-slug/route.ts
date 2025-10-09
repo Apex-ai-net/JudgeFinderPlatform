@@ -113,6 +113,7 @@ async function lookupCourt(slug: string): Promise<CourtLookupResult> {
     let slugError = null
     
     try {
+      // PERFORMANCE: Select all fields - primary court lookup returning full court data
       const result = await supabase
         .from('courts')
         .select('*')
@@ -147,6 +148,7 @@ async function lookupCourt(slug: string): Promise<CourtLookupResult> {
       .join(' ')
 
     // Try exact name match first
+    // PERFORMANCE: Select all fields - exact match needs full data for best match comparison
     const { data: exactMatch, error: exactError } = await supabase
       .from('courts')
       .select('*')
@@ -177,6 +179,7 @@ async function lookupCourt(slug: string): Promise<CourtLookupResult> {
     }
 
     // Strategy 3: Fuzzy name matching
+    // PERFORMANCE: Select all fields - fuzzy matching needs full data for alternatives
     const { data: fuzzyMatches, error: fuzzyError } = await supabase
       .from('courts')
       .select('*')

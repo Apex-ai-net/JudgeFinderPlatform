@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getCostTracker, AI_BUDGETS } from '@/lib/ai/cost-tracker'
+import { requireAdmin } from '@/lib/auth/is-admin'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,16 +15,8 @@ export const dynamic = 'force-dynamic'
  */
 export async function GET(request: NextRequest) {
   try {
-    // Admin authentication check
-    const authHeader = request.headers.get('authorization')
-    const adminKey = process.env.SYNC_API_KEY
-
-    if (!adminKey || authHeader !== `Bearer ${adminKey}`) {
-      return NextResponse.json(
-        { error: 'Unauthorized - Admin access required' },
-        { status: 401 }
-      )
-    }
+    // Admin authentication check using database-backed authorization
+    await requireAdmin()
 
     // Get cost tracker instance
     const costTracker = getCostTracker()
@@ -112,6 +105,24 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Error fetching AI spend data:', error)
+
+    // Handle MFA requirement
+    if (error instanceof Error && error.message === 'MFA_REQUIRED') {
+      return NextResponse.json(
+        { error: 'MFA required for admin access' },
+        { status: 403 }
+      )
+    }
+
+    // Handle authentication/authorization errors
+    if (error instanceof Error &&
+        (error.message === 'Authentication required' || error.message === 'Admin access required')) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 403 }
+      )
+    }
+
     return NextResponse.json(
       {
         error: 'Failed to fetch AI spending data',
@@ -128,16 +139,8 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Admin authentication check
-    const authHeader = request.headers.get('authorization')
-    const adminKey = process.env.SYNC_API_KEY
-
-    if (!adminKey || authHeader !== `Bearer ${adminKey}`) {
-      return NextResponse.json(
-        { error: 'Unauthorized - Admin access required' },
-        { status: 401 }
-      )
-    }
+    // Admin authentication check using database-backed authorization
+    await requireAdmin()
 
     const body = await request.json()
     const { action } = body
@@ -160,6 +163,24 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error resetting AI costs:', error)
+
+    // Handle MFA requirement
+    if (error instanceof Error && error.message === 'MFA_REQUIRED') {
+      return NextResponse.json(
+        { error: 'MFA required for admin access' },
+        { status: 403 }
+      )
+    }
+
+    // Handle authentication/authorization errors
+    if (error instanceof Error &&
+        (error.message === 'Authentication required' || error.message === 'Admin access required')) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 403 }
+      )
+    }
+
     return NextResponse.json(
       {
         error: 'Failed to reset AI costs',

@@ -57,10 +57,10 @@ export async function GET(
     const resolvedParams = await params
     const supabase = await createServiceRoleClient()
     
-    // Get judge data
+    // Get judge data - only fields needed for analytics generation
     const { data: judge, error: judgeError } = await supabase
       .from('judges')
-      .select('*')
+      .select('id, name, court_id, court_name, jurisdiction, total_cases, appointed_date, status')
       .eq('id', resolvedParams.id)
       .single()
 
@@ -98,9 +98,12 @@ export async function GET(
       endYear: now.getFullYear()
     }
     
+    // PERFORMANCE: Select only fields required for analytics calculations
+    // Fields needed: case_type (classification), outcome/status (results), summary (AI analysis),
+    // filing_date/decision_date (temporal analysis), case_value (financial metrics)
     const { data: cases, error: casesError } = await supabase
       .from('cases')
-      .select('*')
+      .select('case_type, outcome, status, summary, filing_date, decision_date, case_value')
       .eq('judge_id', resolvedParams.id)
       .gte('filing_date', lookbackStartDate) // Only cases filed within lookback window
       .order('filing_date', { ascending: false })

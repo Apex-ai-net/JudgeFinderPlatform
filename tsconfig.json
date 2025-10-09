@@ -28,9 +28,14 @@
     "node_modules",
     "ios/App/App/public",
     "playwright.config.ts",
+    "vitest.config.ts",
     "tests",
     "e2e",
     "**/*.e2e.ts",
-    "**/*.e2e.tsx"
+    "**/*.e2e.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
   ]
 }

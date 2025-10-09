@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { Search, X, Scale, Building, MapPin } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -29,7 +29,7 @@ function useDebounce(value: string, delay: number) {
   return debouncedValue
 }
 
-const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
+const UnifiedSearchComponent: React.FC<UnifiedSearchProps> = ({
   placeholder = "Enter your judge's name...",
   className = "",
   autoFocus = false
@@ -44,34 +44,34 @@ const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
   // Debounce search query
   const debouncedQuery = useDebounce(query, 300)
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     if (!query.trim()) return
 
     // Route to search results page for full search
     const searchQuery = query.trim()
     router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
-  }
+  }, [query, router])
 
-  const handleSelectResult = (result: SearchResult) => {
+  const handleSelectResult = useCallback((result: SearchResult) => {
     // Navigate directly to the result's URL
     router.push(result.url)
     setQuery('')
     setSearchResults([])
     setIsFocused(false)
-  }
+  }, [router])
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSearch()
     }
-  }
+  }, [handleSearch])
 
-  const clearSearch = () => {
+  const clearSearch = useCallback(() => {
     setQuery('')
     inputRef.current?.focus()
-  }
+  }, [])
 
-  const getResultIcon = (type: string) => {
+  const getResultIcon = useCallback((type: string) => {
     switch (type) {
       case 'judge':
         return <Scale className="w-4 h-4 text-blue-500" />
@@ -82,7 +82,7 @@ const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
       default:
         return <Search className="w-4 h-4 text-muted-foreground" />
     }
-  }
+  }, [])
 
   // Fetch real search results from API
   useEffect(() => {
@@ -278,5 +278,18 @@ const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
     </div>
   )
 }
+
+const UnifiedSearch = React.memo(
+  UnifiedSearchComponent,
+  (prevProps, nextProps) => {
+    return (
+      prevProps.placeholder === nextProps.placeholder &&
+      prevProps.className === nextProps.className &&
+      prevProps.autoFocus === nextProps.autoFocus
+    )
+  }
+)
+
+UnifiedSearch.displayName = 'UnifiedSearch'
 
 export default UnifiedSearch

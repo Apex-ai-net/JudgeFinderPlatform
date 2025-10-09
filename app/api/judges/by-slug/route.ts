@@ -110,6 +110,7 @@ async function lookupJudge(slug: string): Promise<JudgeLookupResult> {
     let slugError = null
     
     try {
+      // PERFORMANCE: Select all fields - this is the primary lookup returning full judge data
       const result = await supabase
         .from('judges')
         .select('*')
@@ -142,6 +143,7 @@ async function lookupJudge(slug: string): Promise<JudgeLookupResult> {
     let fuzzyError = null
     
     try {
+      // PERFORMANCE: Select all fields - fuzzy matching needs full data for alternatives
       const result = await supabase
         .from('judges')
         .select('*')
@@ -203,6 +205,7 @@ async function lookupJudge(slug: string): Promise<JudgeLookupResult> {
     const nameVariations = [...new Set([...nameVariationsBase, ...titleVariations])].slice(0, 6) // small, effective set
 
     for (const nameVariation of nameVariations) {
+      // PERFORMANCE: Select all fields - name lookup needs full data for best match
       const { data: exactJudges, error: exactError } = await supabase
         .from('judges')
         .select('*')

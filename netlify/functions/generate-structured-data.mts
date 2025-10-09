@@ -9,7 +9,7 @@ export default async (req: Request, context: Context) => {
   const type = url.searchParams.get("type") || "website";
   const entityId = url.searchParams.get("id");
 
-  const siteUrl = Netlify.env.get("NEXT_PUBLIC_SITE_URL") || "https://judgefinder.io";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://judgefinder.io";
 
   // Base organization schema for all pages
   const organizationSchema = {

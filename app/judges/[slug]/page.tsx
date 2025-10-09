@@ -87,39 +87,41 @@ async function getJudge(slug: string): Promise<Judge | null> {
 async function getRelatedJudges(currentJudge: Judge): Promise<Judge[]> {
   try {
     const supabase = await createServerClient()
-    
-    const relatedJudges = []
-    
+
+    const relatedJudges: any[] = []
+
     // Get judges from same court (max 3)
+    // PERFORMANCE: Select only fields needed for related judge cards
     if (currentJudge.court_name) {
       const { data: sameCourtJudges } = await supabase
         .from('judges')
-        .select('*')
+        .select('id, name, slug, court_name, jurisdiction, total_cases, appointed_date')
         .eq('court_name', currentJudge.court_name)
         .neq('id', currentJudge.id)
         .limit(3)
-      
+
       if (sameCourtJudges) {
         relatedJudges.push(...sameCourtJudges)
       }
     }
-    
+
     // Get judges from same jurisdiction (fill up to 5 total)
+    // PERFORMANCE: Select only fields needed for related judge cards
     if (relatedJudges.length < 5 && currentJudge.jurisdiction) {
       const { data: sameJurisdictionJudges } = await supabase
         .from('judges')
-        .select('*')
+        .select('id, name, slug, court_name, jurisdiction, total_cases, appointed_date')
         .eq('jurisdiction', currentJudge.jurisdiction)
         .neq('id', currentJudge.id)
         .not('id', 'in', `(${relatedJudges.map(j => j.id).join(',') || '0'})`)
         .limit(5 - relatedJudges.length)
-      
+
       if (sameJurisdictionJudges) {
         relatedJudges.push(...sameJurisdictionJudges)
       }
     }
-    
-    return relatedJudges.slice(0, 5)
+
+    return relatedJudges.slice(0, 5) as Judge[]
   } catch (error) {
     console.error('Error fetching related judges:', error)
     return []
@@ -137,6 +139,7 @@ async function getJudgeFallback(slug: string): Promise<Judge | null> {
     const supabase = await createServerClient()
     
     // Try direct slug lookup first
+    // PERFORMANCE: Select all fields for fallback lookup (needed for full judge profile)
     const { data: slugJudge, error: slugError } = await supabase
       .from('judges')
       .select('*')
@@ -152,6 +155,7 @@ async function getJudgeFallback(slug: string): Promise<Judge | null> {
     const nameVariations = generateNameVariations(primaryName)
     
     // Try exact name matches
+    // PERFORMANCE: Select all fields for fallback lookup (needed for full judge profile)
     for (const nameVariation of nameVariations.slice(0, 5)) { // Limit for performance
       const { data: judges, error } = await supabase
         .from('judges')

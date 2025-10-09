@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { Search, X, Mic, MicOff, Sparkles, Brain, ChevronRight, Loader2, History, Scale, Building, MapPin } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -31,7 +31,7 @@ function useDebounce(value: string, delay: number) {
   return debouncedValue
 }
 
-const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
+const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
   placeholder = "Ask me anything about judges...",
   className = "",
   autoFocus = false,
@@ -73,14 +73,12 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
   }, [recentQueries])
 
   // Clear search history
-  const clearHistory = () => {
+  const clearHistory = useCallback(() => {
     setRecentQueries([])
     localStorage.removeItem('recentSearchQueries')
     setShowHistoryDropdown(false)
-  }
+  }, [])
 
-  // Fetch real search results from API
-  
   // Fetch real search results from API
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -107,12 +105,12 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
     fetchSearchResults()
   }, [debouncedQuery])
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     if (!query.trim()) return
     saveToHistory(query)
     // Navigate to search page for full results
     router.push(`/search?q=${encodeURIComponent(query)}`)
-  }
+  }, [query, router, saveToHistory])
 
   const handleSelectResult = useCallback((searchQuery: string | SearchResult) => {
     if (typeof searchQuery === 'string') {
@@ -180,25 +178,25 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
     }
   }, [isListening, showVoiceSearch, voiceTranscript, handleSelectResult])
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSearch()
     } else if (e.key === 'Escape') {
       setQuery('')
       setShowHistoryDropdown(false)
     }
-  }
+  }, [handleSearch])
 
-  const clearSearch = () => {
+  const clearSearch = useCallback(() => {
     setQuery('')
     inputRef.current?.focus()
-  }
+  }, [])
 
-  const toggleVoiceSearch = () => {
+  const toggleVoiceSearch = useCallback(() => {
     setIsListening(!isListening)
-  }
+  }, [isListening])
 
-  const getResultIcon = (type: string) => {
+  const getResultIcon = useCallback((type: string) => {
     switch (type) {
       case 'judge':
         return <Scale className="w-4 h-4 text-blue-500" />
@@ -209,7 +207,7 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
       default:
         return <Search className="w-4 h-4 text-muted-foreground" />
     }
-  }
+  }, [])
 
   return (
     <div className={`relative w-full ${className}`}>
@@ -504,5 +502,20 @@ const AIUnifiedSearch: React.FC<AIUnifiedSearchProps> = ({
     </div>
   )
 }
+
+const AIUnifiedSearch = React.memo(
+  AIUnifiedSearchComponent,
+  (prevProps, nextProps) => {
+    return (
+      prevProps.placeholder === nextProps.placeholder &&
+      prevProps.className === nextProps.className &&
+      prevProps.autoFocus === nextProps.autoFocus &&
+      prevProps.showVoiceSearch === nextProps.showVoiceSearch &&
+      prevProps.showHistory === nextProps.showHistory
+    )
+  }
+)
+
+AIUnifiedSearch.displayName = 'AIUnifiedSearch'
 
 export default AIUnifiedSearch

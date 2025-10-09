@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import {
   BarChart,
   Bar,
@@ -77,7 +77,7 @@ interface BiasPatternAnalysisProps {
   judge: Judge
 }
 
-export function BiasPatternAnalysis({ judge }: BiasPatternAnalysisProps) {
+const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
   const [biasMetrics, setBiasMetrics] = useState<BiasMetrics | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'patterns' | 'outcomes' | 'trends' | 'indicators'>('patterns')
@@ -147,19 +147,19 @@ export function BiasPatternAnalysis({ judge }: BiasPatternAnalysisProps) {
     [temporalSeries],
   )
 
-  const getScoreColor = (score: number) => {
+  const getScoreColor = useCallback((score: number) => {
     if (score >= 80) return 'text-[color:hsl(var(--pos))]'
     if (score >= 60) return 'text-[color:hsl(var(--warn))]'
     if (score >= 40) return 'text-[color:hsl(var(--accent))]'
     return 'text-[color:hsl(var(--neg))]'
-  }
+  }, [])
 
-  const getScoreIcon = (score: number) => {
+  const getScoreIcon = useCallback((score: number) => {
     if (score >= 80) return <CheckCircle className="h-4 w-4 text-[color:hsl(var(--pos))]" />
     if (score >= 60) return <Clock className="h-4 w-4 text-[color:hsl(var(--warn))]" />
     if (score >= 40) return <TrendingUp className="h-4 w-4 text-[color:hsl(var(--accent))]" />
     return <AlertTriangle className="h-4 w-4 text-[color:hsl(var(--neg))]" />
-  }
+  }, [])
 
   const containerClass = 'rounded-2xl border border-border bg-card/90 p-6 shadow-md backdrop-blur supports-[backdrop-filter]:bg-card/75'
 
@@ -222,48 +222,74 @@ export function BiasPatternAnalysis({ judge }: BiasPatternAnalysisProps) {
     },
   ]
 
-  const busiestPeriod = biasMetrics.temporal_patterns.length
-    ? biasMetrics.temporal_patterns.reduce((acc, curr) =>
-        curr.case_count > acc.case_count ? curr : acc,
-      biasMetrics.temporal_patterns[0])
-    : null
+  const busiestPeriod = useMemo(() => {
+    if (!biasMetrics?.temporal_patterns?.length) return null
+    return biasMetrics.temporal_patterns.reduce((acc, curr) =>
+      curr.case_count > acc.case_count ? curr : acc,
+      biasMetrics.temporal_patterns[0]
+    )
+  }, [biasMetrics?.temporal_patterns])
 
-  const formattedBusiestPeriod = busiestPeriod
-    ? new Date(busiestPeriod.year, busiestPeriod.month - 1).toLocaleDateString(undefined, {
-        month: 'short',
-        year: 'numeric',
-      })
-    : null
+  const formattedBusiestPeriod = useMemo(() => {
+    if (!busiestPeriod) return null
+    return new Date(busiestPeriod.year, busiestPeriod.month - 1).toLocaleDateString(undefined, {
+      month: 'short',
+      year: 'numeric',
+    })
+  }, [busiestPeriod])
 
-  const settlementRates = biasMetrics.temporal_patterns.map((pattern) => pattern.settlement_rate)
-  const minSettlement = settlementRates.length ? Math.min(...settlementRates) : 0
-  const maxSettlement = settlementRates.length ? Math.max(...settlementRates) : 0
-
-  const outcomeSummary = [
-    `${(biasMetrics.outcome_analysis.overall_settlement_rate * 100).toFixed(1)}% settlement rate overall`,
-    `${(biasMetrics.outcome_analysis.judgment_rate * 100).toFixed(1)}% of matters end with a judgment`,
-    `Average resolution in ${biasMetrics.outcome_analysis.average_case_duration.toFixed(0)} days`,
-  ]
-
-  const casePatternSample = biasMetrics.case_type_patterns.reduce((sum, pattern) => sum + (pattern.total_cases || 0), 0)
-  const outcomeSampleSize = biasMetrics.outcome_analysis.case_value_trends.reduce(
-    (sum, entry) => sum + (entry.case_count || 0),
-    0,
+  const settlementRates = useMemo(
+    () => biasMetrics?.temporal_patterns?.map((pattern) => pattern.settlement_rate) ?? [],
+    [biasMetrics?.temporal_patterns]
   )
-  const temporalSampleSize = biasMetrics.temporal_patterns.reduce((sum, entry) => sum + (entry.case_count || 0), 0)
 
-  const caseQuality = getQualityTier(casePatternSample, 75)
-  const outcomeQuality = getQualityTier(outcomeSampleSize, 75)
-  const temporalQuality = getQualityTier(temporalSampleSize, 70)
+  const { minSettlement, maxSettlement } = useMemo(() => ({
+    minSettlement: settlementRates.length ? Math.min(...settlementRates) : 0,
+    maxSettlement: settlementRates.length ? Math.max(...settlementRates) : 0,
+  }), [settlementRates])
 
-  const caseBelowThreshold = isBelowSampleThreshold(casePatternSample)
-  const outcomeBelowThreshold = isBelowSampleThreshold(outcomeSampleSize)
-  const temporalBelowThreshold = isBelowSampleThreshold(temporalSampleSize)
+  const outcomeSummary = useMemo(() => {
+    if (!biasMetrics?.outcome_analysis) return []
+    return [
+      `${(biasMetrics.outcome_analysis.overall_settlement_rate * 100).toFixed(1)}% settlement rate overall`,
+      `${(biasMetrics.outcome_analysis.judgment_rate * 100).toFixed(1)}% of matters end with a judgment`,
+      `Average resolution in ${biasMetrics.outcome_analysis.average_case_duration.toFixed(0)} days`,
+    ]
+  }, [biasMetrics?.outcome_analysis])
 
-  const caseHidden = shouldHideMetric(casePatternSample)
-  const outcomeHidden = shouldHideMetric(outcomeSampleSize)
-  const temporalHidden = shouldHideMetric(temporalSampleSize)
-  const hiddenSections = [caseHidden, outcomeHidden, temporalHidden].filter(Boolean).length
+  const casePatternSample = useMemo(
+    () => biasMetrics?.case_type_patterns?.reduce((sum, pattern) => sum + (pattern.total_cases || 0), 0) ?? 0,
+    [biasMetrics?.case_type_patterns]
+  )
+
+  const outcomeSampleSize = useMemo(
+    () => biasMetrics?.outcome_analysis?.case_value_trends?.reduce(
+      (sum, entry) => sum + (entry.case_count || 0),
+      0,
+    ) ?? 0,
+    [biasMetrics?.outcome_analysis?.case_value_trends]
+  )
+
+  const temporalSampleSize = useMemo(
+    () => biasMetrics?.temporal_patterns?.reduce((sum, entry) => sum + (entry.case_count || 0), 0) ?? 0,
+    [biasMetrics?.temporal_patterns]
+  )
+
+  const caseQuality = useMemo(() => getQualityTier(casePatternSample, 75), [casePatternSample])
+  const outcomeQuality = useMemo(() => getQualityTier(outcomeSampleSize, 75), [outcomeSampleSize])
+  const temporalQuality = useMemo(() => getQualityTier(temporalSampleSize, 70), [temporalSampleSize])
+
+  const caseBelowThreshold = useMemo(() => isBelowSampleThreshold(casePatternSample), [casePatternSample])
+  const outcomeBelowThreshold = useMemo(() => isBelowSampleThreshold(outcomeSampleSize), [outcomeSampleSize])
+  const temporalBelowThreshold = useMemo(() => isBelowSampleThreshold(temporalSampleSize), [temporalSampleSize])
+
+  const caseHidden = useMemo(() => shouldHideMetric(casePatternSample), [casePatternSample])
+  const outcomeHidden = useMemo(() => shouldHideMetric(outcomeSampleSize), [outcomeSampleSize])
+  const temporalHidden = useMemo(() => shouldHideMetric(temporalSampleSize), [temporalSampleSize])
+  const hiddenSections = useMemo(
+    () => [caseHidden, outcomeHidden, temporalHidden].filter(Boolean).length,
+    [caseHidden, outcomeHidden, temporalHidden]
+  )
 
   const lastUpdated = judge.updated_at
 
@@ -326,23 +352,14 @@ export function BiasPatternAnalysis({ judge }: BiasPatternAnalysisProps) {
       >
         <div className="flex min-w-full flex-wrap items-center gap-2 gap-y-3 px-2 sm:min-w-0">
           {tabs.map(({ id, label, icon: Icon }) => (
-            <button
+            <TabButton
               key={id}
-              type="button"
-              onClick={() => setActiveTab(id)}
-              role="tab"
-              aria-selected={activeTab === id}
-              aria-controls={`${id}-panel`}
-              className={cn(
-                'flex items-center gap-2 rounded-full border border-transparent px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap',
-                activeTab === id
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'bg-muted text-muted-foreground hover:text-foreground'
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </button>
+              id={id}
+              label={label}
+              icon={Icon}
+              isActive={activeTab === id}
+              onClick={setActiveTab}
+            />
           ))}
         </div>
       </div>
@@ -808,7 +825,7 @@ interface StatCardProps {
   formatDelta?: (delta: number) => string
 }
 
-function StatCard({ title, value, tone, format = (val) => val.toString(), baseline, formatDelta }: StatCardProps) {
+const StatCard = React.memo<StatCardProps>(({ title, value, tone, format = (val) => val.toString(), baseline, formatDelta }) => {
   const toneClass =
     tone === 'positive'
       ? 'bg-[rgba(103,232,169,0.12)] text-[color:hsl(var(--pos))]'
@@ -847,4 +864,50 @@ function StatCard({ title, value, tone, format = (val) => val.toString(), baseli
       </div>
     </div>
   )
+})
+
+StatCard.displayName = 'StatCard'
+
+interface TabButtonProps {
+  id: 'patterns' | 'outcomes' | 'trends' | 'indicators'
+  label: string
+  icon: React.ComponentType<{ className?: string }>
+  isActive: boolean
+  onClick: (id: 'patterns' | 'outcomes' | 'trends' | 'indicators') => void
 }
+
+const TabButton = React.memo<TabButtonProps>(({ id, label, icon: Icon, isActive, onClick }) => {
+  const handleClick = useCallback(() => {
+    onClick(id)
+  }, [id, onClick])
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      role="tab"
+      aria-selected={isActive}
+      aria-controls={`${id}-panel`}
+      className={cn(
+        'flex items-center gap-2 rounded-full border border-transparent px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap',
+        isActive
+          ? 'bg-primary text-primary-foreground shadow-sm'
+          : 'bg-muted text-muted-foreground hover:text-foreground'
+      )}
+    >
+      <Icon className="h-4 w-4" />
+      {label}
+    </button>
+  )
+})
+
+TabButton.displayName = 'TabButton'
+
+export const BiasPatternAnalysis = React.memo(
+  BiasPatternAnalysisComponent,
+  (prevProps, nextProps) => {
+    return prevProps.judge.id === nextProps.judge.id
+  }
+)
+
+BiasPatternAnalysis.displayName = 'BiasPatternAnalysis'

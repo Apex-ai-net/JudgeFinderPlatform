@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getEnvironmentSummary } from '@/lib/utils/env-validator'
-import { auth } from '@clerk/nextjs/server'
+import { requireAdmin } from '@/lib/auth/is-admin'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,24 +12,8 @@ export const dynamic = 'force-dynamic'
  */
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
-    const { userId } = await auth()
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
-    // Check if user is admin
-    const adminUserIds = process.env.ADMIN_USER_IDS?.split(',').map(id => id.trim()) || []
-    if (!adminUserIds.includes(userId)) {
-      return NextResponse.json(
-        { error: 'Forbidden - Admin access required' },
-        { status: 403 }
-      )
-    }
+    // Check admin authentication with database-backed authorization
+    await requireAdmin()
 
     // Get environment summary
     const summary = getEnvironmentSummary()
@@ -41,6 +25,24 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error getting environment summary:', error)
+
+    // Handle MFA requirement
+    if (error instanceof Error && error.message === 'MFA_REQUIRED') {
+      return NextResponse.json(
+        { error: 'MFA required for admin access' },
+        { status: 403 }
+      )
+    }
+
+    // Handle authentication/authorization errors
+    if (error instanceof Error &&
+        (error.message === 'Authentication required' || error.message === 'Admin access required')) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 403 }
+      )
+    }
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

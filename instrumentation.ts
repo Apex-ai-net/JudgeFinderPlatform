@@ -142,6 +142,17 @@ export async function register() {
 
   // Only run on server
   if (process.env.NEXT_RUNTIME === 'nodejs') {
+    // SECURITY: Validate encryption configuration at startup (server-side only)
+    // Use dynamic import to avoid crypto module issues during build
+    try {
+      const { validateEncryptionSetup } = await import('@/lib/security/encryption-validator.server')
+      await validateEncryptionSetup()
+    } catch (error) {
+      console.error('[instrumentation] Failed to load encryption validator:', error)
+      if (process.env.NODE_ENV === 'production') {
+        throw error
+      }
+    }
     // Initialize Sentry for server-side error tracking
     if (process.env.SENTRY_DSN) {
       try {

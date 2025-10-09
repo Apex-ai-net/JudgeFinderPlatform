@@ -1,9 +1,11 @@
 /**
  * Field-level encryption for PII using AES-256-GCM
  * Implements secure encryption/decryption with timing-safe operations
+ *
+ * NOTE: This module is server-side only due to Node.js crypto dependency
  */
 
-import * as crypto from 'crypto'
+import crypto from 'crypto'
 import { logger } from '@/lib/utils/logger'
 
 const ALGORITHM = 'aes-256-gcm'

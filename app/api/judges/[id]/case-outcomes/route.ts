@@ -67,10 +67,11 @@ export async function GET(request: NextRequest, { params }: CaseOutcomeParams) {
     // - Excessive memory usage (>100MB for complex calculations)
     // - No statistical benefit (diminishing returns beyond 1000 cases)
     // Ordering by decision_date DESC ensures we analyze recent judicial behavior
-    // Get recent cases for this judge
+    // PERFORMANCE: Select only fields needed for outcome calculations
+    // Fields: case_type (breakdown), outcome/status (rates), filing_date/decision_date (duration/trends)
     const { data: cases, error: casesError } = await supabase
       .from('cases')
-      .select('*')
+      .select('case_type, outcome, status, filing_date, decision_date')
       .eq('judge_id', judgeId)
       .not('decision_date', 'is', null)
       .order('decision_date', { ascending: false })
