@@ -44,7 +44,7 @@ interface RefreshReport {
   all_success: boolean
 }
 
-export const runtime = 'edge'
+export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 async function refreshMaterializedView(viewName: string): Promise<ViewRefreshResult> {
