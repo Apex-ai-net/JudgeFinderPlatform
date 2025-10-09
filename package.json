@@ -3,11 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "build:production": "next build",
+    "dev": "npm run validate:env && next dev",
+    "dev:turbo": "next dev --turbo",
+    "build": "npm run validate:env && next build",
+    "build:production": "npm run validate:env && next build",
     "build:netlify": "next build",
     "start": "next start",
+    "setup": "npm install && npm run validate:env",
+    "clean": "rm -rf .next node_modules/.cache",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
+    "validate:env": "node scripts/validate-env.js",
+    "precommit": "lint-staged",
     "test": "vitest run",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
@@ -50,7 +57,9 @@
     "validate-production-data": "ts-node --transpile-only scripts/validate-production-data.ts",
     "cleanup-production-data": "ts-node --transpile-only scripts/cleanup-production-data.ts",
     "backup-database": "bash scripts/backup-database.sh",
-    "test-migration": "ts-node --transpile-only scripts/test-migration.ts"
+    "test-migration": "ts-node --transpile-only scripts/test-migration.ts",
+    "benchmark:performance": "ts-node --transpile-only scripts/benchmark-performance.ts",
+    "prepare": "husky"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.31.3",
@@ -68,6 +77,7 @@
     "d3": "^7.9.0",
     "dotenv": "^17.2.1",
     "framer-motion": "^12.23.12",
+    "lru-cache": "^11.0.2",
     "lucide-react": "^0.539.0",
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",
@@ -111,6 +121,8 @@
     "eslint-config-next": "^15.5.3",
     "eslint-config-prettier": "^10.1.8",
     "happy-dom": "^19.0.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.3",
     "module-alias": "^2.2.3",
     "p-limit": "^3.1.0",
     "pg": "^8.16.3",
@@ -126,5 +138,18 @@
   "engines": {
     "node": "^20",
     "npm": ">=10"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yaml,yml}": [
+      "prettier --write"
+    ]
   }
 }
