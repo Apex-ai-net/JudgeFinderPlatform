@@ -1,10 +1,9 @@
 const { Client } = require('pg')
 
+// Requires DATABASE_URL environment variable
+// Format: postgresql://postgres.PROJECT_ID:SERVICE_ROLE_KEY@HOST:PORT/postgres
 const client = new Client({
-  connectionString:
-    'postgresql://postgres.xstlnicbnzdxlgfiewmg:' +
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzdGxuaWNibnpkeGxnZmlld21nIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMzNzMzNCwiZXhwIjoyMDcxOTEzMzM0fQ.g7gsBTUa_Ij2aLJ6dYxMUkurHmg8VDjd_Ma_4JvbXRY' +
-    '@aws-0-us-west-1.pooler.supabase.com:6543/postgres',
+  connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 })
 
