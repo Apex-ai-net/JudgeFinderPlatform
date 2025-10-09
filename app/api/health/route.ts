@@ -53,10 +53,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { buildRateLimiter, getClientIp, isRateLimitConfigured } = await import(
       '@/lib/security/rate-limit'
     )
-    const rl = buildRateLimiter({ tokens: 60, window: '1 m', prefix: 'api:health' })
-    const { success, remaining } = await rl.limit(`${getClientIp(request)}:global`)
-    if (!success) {
-      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+    let remaining = 60
+    if (isRateLimitConfigured()) {
+      const rl = buildRateLimiter({ tokens: 60, window: '1 m', prefix: 'api:health' })
+      const res = await rl.limit(`${getClientIp(request)}:global`)
+      remaining = res.remaining
+      if (!res.success) {
+        return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+      }
     }
 
     // Check database connectivity using connection helper
