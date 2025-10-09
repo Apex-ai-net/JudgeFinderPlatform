@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 export const maxDuration = 60 // 1 minute to queue jobs
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now()
   const ipAddress = getClientIp(request)
   const rateLimiter = buildRateLimiter({ tokens: 5, window: '1 m', prefix: 'cron:weekly:get' })
@@ -39,14 +39,14 @@ export async function GET(request: NextRequest) {
       {
         batchSize: 30,
         jurisdiction: 'CA',
-        forceRefresh: true // Force refresh all courts weekly
+        forceRefresh: true, // Force refresh all courts weekly
       },
       200 // Highest priority
     )
-    jobs.push({ 
-      id: courtJobId, 
-      type: 'court', 
-      description: 'Full court data refresh' 
+    jobs.push({
+      id: courtJobId,
+      type: 'court',
+      description: 'Full court data refresh',
     })
 
     // 2. Judge profile comprehensive update (schedule 30 minutes later)
@@ -56,16 +56,16 @@ export async function GET(request: NextRequest) {
       {
         batchSize: 15,
         jurisdiction: 'CA',
-        forceRefresh: true // Force refresh all judge profiles
+        forceRefresh: true, // Force refresh all judge profiles
       },
       150, // High priority
       judgeScheduleTime
     )
-    jobs.push({ 
-      id: judgeJobId, 
-      type: 'judge', 
+    jobs.push({
+      id: judgeJobId,
+      type: 'judge',
       description: 'Comprehensive judge profile update',
-      scheduledFor: judgeScheduleTime.toISOString()
+      scheduledFor: judgeScheduleTime.toISOString(),
     })
 
     // 2b. Federal (US) judge maintenance (schedule 45 minutes later)
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
         batchSize: 20,
         jurisdiction: 'US',
         forceRefresh: false,
-        discoverLimit: 1000 // incremental discovery each weekly run
+        discoverLimit: 1000, // incremental discovery each weekly run
       },
       140, // High priority but slightly below CA full refresh
       federalJudgeScheduleTime
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
       id: federalJudgeJobId,
       type: 'judge',
       description: 'Weekly federal judge maintenance (US)',
-      scheduledFor: federalJudgeScheduleTime.toISOString()
+      scheduledFor: federalJudgeScheduleTime.toISOString(),
     })
 
     // 3. Decision backfill (schedule 1 hour later)
@@ -96,16 +96,16 @@ export async function GET(request: NextRequest) {
         batchSize: 3, // Smaller batches for comprehensive sync
         jurisdiction: 'CA',
         daysSinceLast: 7, // Fetch decisions from last week
-        maxDecisionsPerJudge: 30 // Reduced from 100 to prevent API quota exhaustion (CourtListener PR #6345)
+        maxDecisionsPerJudge: 30, // Reduced from 100 to prevent API quota exhaustion (CourtListener PR #6345)
       },
       100, // Medium priority
       decisionScheduleTime
     )
-    jobs.push({ 
-      id: decisionJobId, 
-      type: 'decision', 
+    jobs.push({
+      id: decisionJobId,
+      type: 'decision',
       description: 'Weekly decision backfill',
-      scheduledFor: decisionScheduleTime.toISOString()
+      scheduledFor: decisionScheduleTime.toISOString(),
     })
 
     // 4. Queue cleanup (schedule 2 hours later)
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
       'cleanup',
       {
         olderThanDays: 7,
-        cleanupLogs: true
+        cleanupLogs: true,
       },
       10, // Low priority
       cleanupScheduleTime
@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
 
     logger.info('Weekly sync jobs queued successfully', {
       jobCount: jobs.length,
-      duration
+      duration,
     })
 
     await logCronMetric({
@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
       startTime,
       durationMs: duration,
       jobsQueued: jobs.length,
-      ipAddress
+      ipAddress,
     })
 
     return NextResponse.json({
@@ -145,15 +145,14 @@ export async function GET(request: NextRequest) {
         courts: 'Immediate',
         judges: '30 minutes',
         decisions: '1 hour',
-        cleanup: '2 hours'
+        cleanup: '2 hours',
       },
       queuedAt: new Date().toISOString(),
-      duration
+      duration,
     })
-
   } catch (error) {
     const duration = Date.now() - startTime
-    
+
     logger.error('Weekly sync cron job failed', { error, duration })
 
     await logCronMetric({
@@ -163,21 +162,24 @@ export async function GET(request: NextRequest) {
       startTime,
       durationMs: duration,
       jobsQueued: 0,
-      ipAddress
+      ipAddress,
     })
 
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to queue weekly sync jobs',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      duration,
-      timestamp: new Date().toISOString()
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to queue weekly sync jobs',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        duration,
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 }
+    )
   }
 }
 
 // Manual trigger endpoint
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now()
   const ipAddress = getClientIp(request)
   const rateLimiter = buildRateLimiter({ tokens: 10, window: '1 m', prefix: 'cron:weekly:post' })
@@ -208,7 +210,7 @@ export async function POST(request: NextRequest) {
         {
           batchSize: 30,
           jurisdiction: 'CA',
-          forceRefresh: true
+          forceRefresh: true,
         },
         200
       )
@@ -222,7 +224,7 @@ export async function POST(request: NextRequest) {
         {
           batchSize: 15,
           jurisdiction: 'CA',
-          forceRefresh: true
+          forceRefresh: true,
         },
         150,
         scheduleTime
@@ -238,7 +240,7 @@ export async function POST(request: NextRequest) {
           batchSize: 3,
           jurisdiction: 'CA',
           daysSinceLast: 14,
-          maxDecisionsPerJudge: 30 // Reduced from 100 to prevent API quota exhaustion
+          maxDecisionsPerJudge: 30, // Reduced from 100 to prevent API quota exhaustion
         },
         100,
         scheduleTime
@@ -255,7 +257,7 @@ export async function POST(request: NextRequest) {
       startTime,
       durationMs: duration,
       jobsQueued: jobs.length,
-      ipAddress
+      ipAddress,
     })
 
     return NextResponse.json({
@@ -264,9 +266,8 @@ export async function POST(request: NextRequest) {
       syncType,
       immediate,
       jobs,
-      triggeredAt: new Date().toISOString()
+      triggeredAt: new Date().toISOString(),
     })
-
   } catch (error) {
     logger.error('Manual weekly sync failed', { error })
     const duration = Date.now() - startTime
@@ -278,13 +279,16 @@ export async function POST(request: NextRequest) {
       startTime,
       durationMs: duration,
       jobsQueued: 0,
-      ipAddress
+      ipAddress,
     })
-    
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to trigger manual weekly sync',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to trigger manual weekly sync',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    )
   }
 }

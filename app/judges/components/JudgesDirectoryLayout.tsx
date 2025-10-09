@@ -12,7 +12,14 @@ interface JudgesDirectoryLayoutProps {
   topbar?: ReactNode
 }
 
-export function JudgesDirectoryLayout({ header, search, summary, results, metrics, topbar }: JudgesDirectoryLayoutProps) {
+export function JudgesDirectoryLayout({
+  header,
+  search,
+  summary,
+  results,
+  metrics,
+  topbar,
+}: JudgesDirectoryLayoutProps): JSX.Element {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
       {header}
@@ -36,4 +43,3 @@ export function JudgesDirectoryLayout({ header, search, summary, results, metric
     </div>
   )
 }
-

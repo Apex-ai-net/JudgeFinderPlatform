@@ -269,13 +269,13 @@ describe('Bias Calculations', () => {
     })
   })
 
-  describe('Edge Cases - Sample Size < 500', () => {
-    it('should handle dataset below minimum threshold (< 500 cases)', () => {
+  describe('Edge Cases - Sample Size < 500', (): void => {
+    it('should handle dataset below minimum threshold (< 500 cases)', (): void => {
       const cases: CaseRecord[] = Array(350)
         .fill(null)
-        .map((_, i) => ({
+        .map((_unused, index) => ({
           case_type: 'Civil',
-          outcome: i % 2 === 0 ? 'Settled' : 'Judgment',
+          outcome: index % 2 === 0 ? 'Settled' : 'Judgment',
           case_value: 50000,
         }))
 

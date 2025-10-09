@@ -5,11 +5,11 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { defaultPageTransition, fadeInUp } from '@/lib/animations/config'
 import { usePathname } from 'next/navigation'
 
-type PageTransitionProps = {
+interface PageTransitionProps {
   children: ReactNode
 }
 
-export default function PageTransition({ children }: PageTransitionProps) {
+export default function PageTransition({ children }: PageTransitionProps): JSX.Element {
   const pathname = usePathname()
 
   return (
@@ -26,5 +26,3 @@ export default function PageTransition({ children }: PageTransitionProps) {
     </AnimatePresence>
   )
 }
-
-

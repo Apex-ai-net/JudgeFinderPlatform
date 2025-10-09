@@ -1,7 +1,16 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Search, Filter, MapPin, Users, TrendingUp, Calendar, ChevronRight, Star } from 'lucide-react'
+import {
+  Search,
+  Filter,
+  MapPin,
+  Users,
+  TrendingUp,
+  Calendar,
+  ChevronRight,
+  Star,
+} from 'lucide-react'
 import AdSpotBookingModal from './AdSpotBookingModal'
 import type { AdSpotWithDetails } from '@/types/advertising'
 import { BookingForm, BookingOptions } from './Booking/BookingForm'
@@ -13,7 +22,11 @@ interface AdSpotsExplorerProps {
   showPlanContext?: boolean
 }
 
-export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPlanContext = false }: AdSpotsExplorerProps) {
+export default function AdSpotsExplorer({
+  advertiserId,
+  preselectedPlan,
+  showPlanContext = false,
+}: AdSpotsExplorerProps): JSX.Element {
   const [spots, setSpots] = useState<AdSpotWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -52,12 +65,12 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
         court_level: courtLevel === 'all' ? '' : courtLevel,
         price_range: priceRange,
         jurisdiction: jurisdiction === 'all' ? '' : jurisdiction,
-        status: 'available'
+        status: 'available',
       })
 
       const response = await fetch(`/api/advertising/spots/available?${params}`)
       const data = await response.json()
-      
+
       setSpots(data.spots || [])
     } catch (error) {
       console.error('Error fetching ad spots:', error)
@@ -71,12 +84,14 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
     fetchAdSpots()
   }, [fetchAdSpots])
 
-  const filteredSpots = spots.filter(spot => {
+  const filteredSpots = spots.filter((spot) => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
-      return spot.entity_name.toLowerCase().includes(query) ||
-             spot.entity_details.jurisdiction?.toLowerCase().includes(query) ||
-             spot.entity_details.court_name?.toLowerCase().includes(query)
+      return (
+        spot.entity_name.toLowerCase().includes(query) ||
+        spot.entity_details.jurisdiction?.toLowerCase().includes(query) ||
+        spot.entity_details.court_name?.toLowerCase().includes(query)
+      )
     }
     return true
   })
@@ -100,15 +115,15 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
   // Get plan details for display
   const getPlanDetails = () => {
     if (!preselectedPlan) return null
-    
+
     const isFederal = preselectedPlan.includes('federal')
     const isAnnual = preselectedPlan.includes('annual')
-    
+
     return {
       type: isFederal ? 'Federal Judge' : 'State Judge',
       price: isFederal ? 500 : 200,
       billing: isAnnual ? 'Annual' : 'Monthly',
-      savings: isAnnual ? (isFederal ? 1000 : 400) : 0
+      savings: isAnnual ? (isFederal ? 1000 : 400) : 0,
     }
   }
 
@@ -128,13 +143,13 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                 <p className="text-sm text-blue-700 mt-1">
                   ${planDetails.price}/month • {planDetails.billing} billing
                   {planDetails.savings > 0 && (
-                    <span className="ml-2 text-green-600">
-                      (Save ${planDetails.savings}/year)
-                    </span>
+                    <span className="ml-2 text-green-600">(Save ${planDetails.savings}/year)</span>
                   )}
                 </p>
                 <p className="text-xs text-primary mt-2">
-                  Showing {courtLevel === 'federal' ? 'Federal' : courtLevel === 'state' ? 'State' : 'All'} judge profiles available for advertising
+                  Showing{' '}
+                  {courtLevel === 'federal' ? 'Federal' : courtLevel === 'state' ? 'State' : 'All'}{' '}
+                  judge profiles available for advertising
                 </p>
               </div>
               <button
@@ -234,13 +249,15 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
             </div>
           ) : filteredSpots.length === 0 ? (
             <div className="p-12 text-center">
-              <p className="text-muted-foreground">No available ad spots found. Try adjusting your filters.</p>
+              <p className="text-muted-foreground">
+                No available ad spots found. Try adjusting your filters.
+              </p>
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
               {filteredSpots.map((spot) => {
                 const priceInfo = getPriceRangeLabel(spot)
-                
+
                 return (
                   <div
                     key={spot.id}
@@ -256,7 +273,9 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                           <h3 className="text-lg font-semibold text-foreground">
                             {spot.entity_name}
                           </h3>
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${priceInfo.color}`}>
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded-full ${priceInfo.color}`}
+                          >
                             {priceInfo.label}
                           </span>
                           <span className="px-2 py-1 text-xs font-medium text-muted-foreground bg-muted rounded-full">
@@ -288,7 +307,10 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                         <div className="flex items-center gap-6">
                           <div>
                             <p className="text-2xl font-bold text-foreground">
-                              ${priceInfo.price.toLocaleString()}<span className="text-sm font-normal text-muted-foreground">/month</span>
+                              ${priceInfo.price.toLocaleString()}
+                              <span className="text-sm font-normal text-muted-foreground">
+                                /month
+                              </span>
                             </p>
                           </div>
                           <div className="flex items-center gap-1">
@@ -297,7 +319,9 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                             <Star className="h-4 w-4 text-yellow-500 fill-current" />
                             <Star className="h-4 w-4 text-yellow-500 fill-current" />
                             <Star className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm text-muted-foreground ml-1">High visibility</span>
+                            <span className="text-sm text-muted-foreground ml-1">
+                              High visibility
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -317,9 +341,12 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
           <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-xl bg-white shadow-xl">
             <div className="border-b border-border px-6 py-4 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold text-foreground">Book {selectedSpot.entity_name}</h2>
+                <h2 className="text-xl font-semibold text-foreground">
+                  Book {selectedSpot.entity_name}
+                </h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Judge sponsorships renew automatically monthly with ACH-first invoicing. Annual billing available at 10× monthly.
+                  Judge sponsorships renew automatically monthly with ACH-first invoicing. Annual
+                  billing available at 10× monthly.
                 </p>
               </div>
               <button
@@ -346,7 +373,8 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">Summary</h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    We will generate an ACH-first invoice for {bookingOptions.bundleSize} judge(s). Cards remain available for solo placements.
+                    We will generate an ACH-first invoice for {bookingOptions.bundleSize} judge(s).
+                    Cards remain available for solo placements.
                   </p>
                 </div>
 
@@ -357,7 +385,9 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                   </div>
                   <div className="flex justify-between">
                     <dt>Exclusive</dt>
-                    <dd>{bookingOptions.exclusive ? 'Yes (Exclusive rotation)' : 'Standard rotation'}</dd>
+                    <dd>
+                      {bookingOptions.exclusive ? 'Yes (Exclusive rotation)' : 'Standard rotation'}
+                    </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt>Bundle Size</dt>
@@ -366,7 +396,9 @@ export default function AdSpotsExplorer({ advertiserId, preselectedPlan, showPla
                   <div className="flex justify-between font-semibold text-foreground">
                     <dt>Total due at checkout</dt>
                     <dd>
-                      {selectedQuote?.total_price != null ? `$${selectedQuote.total_price.toLocaleString()}` : '—'}
+                      {selectedQuote?.total_price != null
+                        ? `$${selectedQuote.total_price.toLocaleString()}`
+                        : '—'}
                     </dd>
                   </div>
                 </dl>

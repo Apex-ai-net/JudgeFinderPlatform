@@ -7,13 +7,13 @@ import Link from 'next/link'
 import { Mail, Lock, User, Phone, AlertCircle } from 'lucide-react'
 import { getBaseUrl } from '@/lib/utils/baseUrl'
 
-export default function SignupPage() {
+export default function SignupPage(): JSX.Element {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
     phone: '',
-    accountType: 'user'
+    accountType: 'user',
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)

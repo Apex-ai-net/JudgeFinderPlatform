@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/utils/logger'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { validateSearchParams, judgeSearchParamsSchema, sanitizeSearchQuery } from '@/lib/utils/validation'
+import {
+  validateSearchParams,
+  judgeSearchParamsSchema,
+  sanitizeSearchQuery,
+} from '@/lib/utils/validation'
 import type { Judge } from '@/types'
 import { buildCacheKey, withRedisCache } from '@/lib/cache/redis'
 
@@ -23,9 +27,9 @@ interface JudgeDecisionSummary {
 
 interface JudgeWithDecisions extends Judge {}
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now()
-  
+
   try {
     const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
     const rl = buildRateLimiter({ tokens: 60, window: '1 m', prefix: 'api:judges:list' })
@@ -34,27 +38,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
     }
     const { searchParams } = new URL(request.url)
-    
+
     // Validate input parameters
     const validation = validateSearchParams(judgeSearchParamsSchema, searchParams, 'judges/list')
     if (!validation.success) {
       return validation.response
     }
-    
-    const { 
-      q, 
-      limit = 20, 
-      page = 1, 
-      jurisdiction, 
+
+    const {
+      q,
+      limit = 20,
+      page = 1,
+      jurisdiction,
       court_id,
       only_with_decisions,
-      recent_years
+      recent_years,
     } = validation.data
     const sanitizedQuery = q ? sanitizeSearchQuery(q) : ''
     const includeDecisions = searchParams.get('include_decisions') !== 'false' // Default to true
     const onlyWithDecisions = only_with_decisions ?? false
     const recentYears = recent_years ?? 3
-    
+
     logger.apiRequest('GET', '/api/judges/list', {
       query: sanitizedQuery,
       limit,
@@ -63,13 +67,13 @@ export async function GET(request: NextRequest) {
       court_id,
       includeDecisions,
       onlyWithDecisions,
-      recentYears
+      recentYears,
     })
 
     // Check for required environment variables
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       logger.error('Missing Supabase environment variables')
-      
+
       // Return empty data structure instead of error
       return NextResponse.json({
         judges: [],
@@ -77,7 +81,7 @@ export async function GET(request: NextRequest) {
         page,
         per_page: limit,
         has_more: false,
-        error: 'Database configuration pending'
+        error: 'Database configuration pending',
       })
     }
 
@@ -101,7 +105,8 @@ export async function GET(request: NextRequest) {
     const { data: cachedResult } = await withRedisCache(cacheKey, ttlSeconds, async () => {
       let queryBuilder = supabase
         .from('judges')
-        .select(`
+        .select(
+          `
           id,
           name,
           slug,
@@ -112,7 +117,9 @@ export async function GET(request: NextRequest) {
           total_cases,
           profile_image_url,
           courtlistener_id
-        `, { count: 'exact' })
+        `,
+          { count: 'exact' }
+        )
         .order('name')
         .range(from, to)
 
@@ -163,7 +170,11 @@ export async function GET(request: NextRequest) {
       // Optionally hydrate decision summaries when requested
       if (includeDecisions && judges.length > 0) {
         try {
-          const summaries = await fetchDecisionSummaries(supabase, judges.map(j => j.id), recentYears)
+          const summaries = await fetchDecisionSummaries(
+            supabase,
+            judges.map((j) => j.id),
+            recentYears
+          )
           const withSummaries = judges.map((j: any) => ({
             ...j,
             decision_summary: summaries.get(j.id) || undefined,
@@ -192,19 +203,25 @@ export async function GET(request: NextRequest) {
     })
 
     const response = NextResponse.json(cachedResult)
-    
+
     // Different caching strategies based on search vs browsing
     if (sanitizedQuery.trim()) {
       // Search results - shorter cache due to personalization
-      response.headers.set('Cache-Control', 'public, s-maxage=300, max-age=60, stale-while-revalidate=180')
+      response.headers.set(
+        'Cache-Control',
+        'public, s-maxage=300, max-age=60, stale-while-revalidate=180'
+      )
     } else {
       // Browse results - longer cache for stable data
-      response.headers.set('Cache-Control', 'public, s-maxage=1800, max-age=900, stale-while-revalidate=900')
+      response.headers.set(
+        'Cache-Control',
+        'public, s-maxage=1800, max-age=900, stale-while-revalidate=900'
+      )
       response.headers.set('CDN-Cache-Control', 'public, s-maxage=3600')
     }
-    
+
     response.headers.set('Vary', 'Accept-Encoding')
-    
+
     const duration = Date.now() - startTime
     logger.apiResponse('GET', '/api/judges/list', 200, duration, {
       resultsCount: cachedResult.judges.length,
@@ -213,21 +230,21 @@ export async function GET(request: NextRequest) {
       hasCourtFilter: !!court_id,
       includedDecisions: includeDecisions,
       onlyWithDecisions,
-      recentYears
+      recentYears,
     })
-    
-    return response
 
+    return response
   } catch (error) {
     const duration = Date.now() - startTime
-    logger.error('API error in judges list', { duration }, error instanceof Error ? error : undefined)
-    
-    logger.apiResponse('GET', '/api/judges/list', 500, duration)
-    
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+    logger.error(
+      'API error in judges list',
+      { duration },
+      error instanceof Error ? error : undefined
     )
+
+    logger.apiResponse('GET', '/api/judges/list', 500, duration)
+
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -276,7 +293,7 @@ async function fetchDecisionSummaries(
   // Use PostgreSQL materialized view function (84% faster than N+1 queries)
   const { data, error } = await supabase.rpc('get_batch_decision_summaries', {
     judge_ids: judgeIds,
-    years_back: yearsBack
+    years_back: yearsBack,
   })
 
   if (error) {
@@ -290,7 +307,7 @@ async function fetchDecisionSummaries(
     summariesMap.set(summary.judge_id, {
       judge_id: summary.judge_id,
       yearly_counts: summary.yearly_counts || [],
-      total_recent: summary.total_recent || 0
+      total_recent: summary.total_recent || 0,
     })
   })
 

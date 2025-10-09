@@ -3,7 +3,7 @@ import { createServerClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
     const rl = buildRateLimiter({ tokens: 60, window: '1 m', prefix: 'api:jurisdictions:cities' })
@@ -23,7 +23,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to load city data' }, { status: 500 })
     }
 
-    const citiesCount: Record<string, { city: string; jurisdiction: string; court_count: number }> = {}
+    const citiesCount: Record<string, { city: string; jurisdiction: string; court_count: number }> =
+      {}
 
     const deriveCity = (name?: string | null, address?: string | number | null): string | null => {
       if (typeof name === 'string') {
@@ -43,7 +44,10 @@ export async function GET(request: NextRequest) {
         const m = address.match(/,\s*([A-Za-z .'-]+)\s*,\s*(?:CA|California|[A-Z]{2})\b/)
         if (m && m[1]) return m[1].trim()
         // Fallback: if address starts with city
-        const parts = address.split(',').map(s => s.trim()).filter(Boolean)
+        const parts = address
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
         if (parts.length >= 1 && /[A-Za-z]/.test(parts[0])) return parts[0]
       }
       return null
@@ -61,8 +65,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const result = Object.values(citiesCount)
-      .sort((a, b) => a.city.localeCompare(b.city))
+    const result = Object.values(citiesCount).sort((a, b) => a.city.localeCompare(b.city))
 
     const response = NextResponse.json({ cities: result, rate_limit_remaining: remaining })
     response.headers.set('Cache-Control', 'public, s-maxage=1800, stale-while-revalidate=300')
@@ -71,5 +74,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
-
-

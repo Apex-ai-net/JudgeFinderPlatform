@@ -37,26 +37,36 @@ const releases = [
   },
 ] as const
 
-export default function ChangelogPage() {
+export default function ChangelogPage(): JSX.Element {
   return (
     <div className="bg-background">
       <div className="mx-auto w-full max-w-4xl px-4 py-12">
         <header className="mb-10 space-y-3">
-          <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Release history</p>
-          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">Product changelog &amp; data corrections</h1>
+          <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+            Release history
+          </p>
+          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
+            Product changelog &amp; data corrections
+          </h1>
           <p className="text-base text-muted-foreground sm:text-lg">
-            Every production deploy that affects analytics, data freshness, or trust messaging is logged here. We keep at least
-            12 months of history so you can trace when methodology updates shipped and which data issues were resolved.
+            Every production deploy that affects analytics, data freshness, or trust messaging is
+            logged here. We keep at least 12 months of history so you can trace when methodology
+            updates shipped and which data issues were resolved.
           </p>
         </header>
 
         <section className="space-y-8">
           {releases.map(({ date, version, highlights, corrections }) => (
-            <article key={version} className="rounded-2xl border border-border bg-card/90 p-6 shadow-sm">
+            <article
+              key={version}
+              className="rounded-2xl border border-border bg-card/90 p-6 shadow-sm"
+            >
               <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-xl font-semibold text-foreground">{version}</h2>
-                  <p className="text-sm text-muted-foreground">Published {new Date(date).toLocaleDateString()}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Published {new Date(date).toLocaleDateString()}
+                  </p>
                 </div>
                 <span className="inline-flex items-center rounded-full border border-border/60 bg-background px-3 py-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   Production
@@ -65,22 +75,32 @@ export default function ChangelogPage() {
 
               <div className="mt-5 grid gap-6 md:grid-cols-2">
                 <div>
-                  <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Highlights</h3>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                    Highlights
+                  </h3>
                   <ul className="mt-3 space-y-2 text-sm text-foreground/90">
                     {highlights.map((item) => (
                       <li key={item} className="flex gap-2">
-                        <span aria-hidden className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
+                        <span
+                          aria-hidden
+                          className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary"
+                        />
                         <span>{item}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Data corrections</h3>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                    Data corrections
+                  </h3>
                   <ul className="mt-3 space-y-2 text-sm text-foreground/90">
                     {corrections.map((item) => (
                       <li key={item} className="flex gap-2">
-                        <span aria-hidden className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-destructive" />
+                        <span
+                          aria-hidden
+                          className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-destructive"
+                        />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -95,21 +115,27 @@ export default function ChangelogPage() {
           <h2 className="text-xl font-semibold text-foreground">Correction service levels</h2>
           <dl className="mt-4 grid gap-4 sm:grid-cols-3">
             <div className="rounded-xl border border-border/60 bg-background p-4">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Acknowledgement</dt>
+              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Acknowledgement
+              </dt>
               <dd className="mt-2 text-sm text-foreground">1 business day</dd>
             </div>
             <div className="rounded-xl border border-border/60 bg-background p-4">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Initial response</dt>
+              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Initial response
+              </dt>
               <dd className="mt-2 text-sm text-foreground">5 business days</dd>
             </div>
             <div className="rounded-xl border border-border/60 bg-background p-4">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Resolution target</dt>
+              <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Resolution target
+              </dt>
               <dd className="mt-2 text-sm text-foreground">15 business days</dd>
             </div>
           </dl>
           <p className="mt-4 text-sm text-muted-foreground">
-            Requests enter the queue through the corrections API or admin console. All status changes appear in the admin dashboard
-            and the next published changelog entry.
+            Requests enter the queue through the corrections API or admin console. All status
+            changes appear in the admin dashboard and the next published changelog entry.
           </p>
         </section>
       </div>

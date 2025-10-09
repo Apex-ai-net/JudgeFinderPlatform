@@ -12,18 +12,25 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { CourtListenerClient } from '@/lib/courtlistener/client'
+import {
+  createSuccessFetchResponse,
+  createErrorFetchResponse,
+  createPaginatedResponse,
+} from '@/tests/helpers/test-utils'
+import {
+  setupCourtListenerEnv,
+  getFetchCallUrl,
+  getFetchCallHeaders,
+} from '@/tests/helpers/courtlistener-helpers'
 
 // Mock environment variables
-process.env.COURTLISTENER_API_KEY = 'test-api-key'
-process.env.COURTLISTENER_REQUEST_DELAY_MS = '100' // Faster for tests
-process.env.COURTLISTENER_MAX_RETRIES = '3'
-process.env.COURTLISTENER_REQUEST_TIMEOUT_MS = '5000'
+setupCourtListenerEnv()
 
-describe('CourtListenerClient', () => {
+describe('CourtListenerClient', (): void => {
   let client: CourtListenerClient
   let fetchMock: ReturnType<typeof vi.fn>
 
-  beforeEach(() => {
+  beforeEach((): void => {
     // Mock fetch
     fetchMock = vi.fn()
     global.fetch = fetchMock
@@ -31,7 +38,7 @@ describe('CourtListenerClient', () => {
     client = new CourtListenerClient()
   })
 
-  afterEach(() => {
+  afterEach((): void => {
     vi.restoreAllMocks()
   })
 
@@ -41,7 +48,7 @@ describe('CourtListenerClient', () => {
         ok: true,
         status: 200,
         json: async () => ({ results: [] }),
-        headers: new Headers()
+        headers: new Headers(),
       })
 
       await client.listJudges({ pageSize: 1 })
@@ -82,7 +89,7 @@ describe('CourtListenerClient', () => {
         ok: true,
         status: 200,
         json: async () => ({ results: [] }),
-        headers: new Headers()
+        headers: new Headers(),
       })
 
       await client.listJudges({ pageSize: 1 })
@@ -102,13 +109,13 @@ describe('CourtListenerClient', () => {
           ok: true,
           status: 200,
           json: async () => ({ results: [], count: 0, next: null }),
-          headers: new Headers()
+          headers: new Headers(),
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
           json: async () => ({ results: [], count: 0, next: null }),
-          headers: new Headers()
+          headers: new Headers(),
         })
 
       await client.listJudges({ pageSize: 1 })
@@ -127,13 +134,13 @@ describe('CourtListenerClient', () => {
           ok: false,
           status: 429,
           text: async () => 'Rate limit exceeded',
-          headers: new Headers({ 'Retry-After': retryAfterSeconds.toString() })
+          headers: new Headers({ 'Retry-After': retryAfterSeconds.toString() }),
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
           json: async () => ({ results: [], count: 0, next: null }),
-          headers: new Headers()
+          headers: new Headers(),
         })
 
       const startTime = Date.now()
@@ -152,13 +159,13 @@ describe('CourtListenerClient', () => {
           ok: false,
           status: 429,
           text: async () => 'Rate limit exceeded',
-          headers: new Headers({ 'Retry-After': retryDate.toUTCString() })
+          headers: new Headers({ 'Retry-After': retryDate.toUTCString() }),
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
           json: async () => ({ results: [], count: 0, next: null }),
-          headers: new Headers()
+          headers: new Headers(),
         })
 
       const startTime = Date.now()
@@ -174,13 +181,13 @@ describe('CourtListenerClient', () => {
           ok: false,
           status: 429,
           text: async () => 'Rate limit exceeded',
-          headers: new Headers()
+          headers: new Headers(),
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
           json: async () => ({ results: [], count: 0, next: null }),
-          headers: new Headers()
+          headers: new Headers(),
         })
 
       const startTime = Date.now()
@@ -200,13 +207,13 @@ describe('CourtListenerClient', () => {
           ok: false,
           status: 500,
           text: async () => 'Internal Server Error',
-          headers: new Headers()
+          headers: new Headers(),
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
           json: async () => ({ results: [], count: 0, next: null }),
-          headers: new Headers()
+          headers: new Headers(),
         })
 
       const result = await client.listJudges({ pageSize: 1 })
@@ -216,14 +223,12 @@ describe('CourtListenerClient', () => {
     })
 
     it('should retry on network errors', async () => {
-      fetchMock
-        .mockRejectedValueOnce(new Error('Network error'))
-        .mockResolvedValueOnce({
-          ok: true,
-          status: 200,
-          json: async () => ({ results: [], count: 0, next: null }),
-          headers: new Headers()
-        })
+      fetchMock.mockRejectedValueOnce(new Error('Network error')).mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ results: [], count: 0, next: null }),
+        headers: new Headers(),
+      })
 
       const result = await client.listJudges({ pageSize: 1 })
 
@@ -236,7 +241,7 @@ describe('CourtListenerClient', () => {
         ok: false,
         status: 404,
         text: async () => 'Not Found',
-        headers: new Headers()
+        headers: new Headers(),
       })
 
       await expect(client.listJudges({ pageSize: 1 })).rejects.toThrow(
@@ -251,7 +256,7 @@ describe('CourtListenerClient', () => {
         ok: false,
         status: 404,
         text: async () => 'Not Found',
-        headers: new Headers()
+        headers: new Headers(),
       })
 
       const result = await client.getJudgeById('999999')
@@ -266,25 +271,25 @@ describe('CourtListenerClient', () => {
           ok: false,
           status: 500,
           text: async () => 'Error 1',
-          headers: new Headers()
+          headers: new Headers(),
         })
         .mockResolvedValueOnce({
           ok: false,
           status: 500,
           text: async () => 'Error 2',
-          headers: new Headers()
+          headers: new Headers(),
         })
         .mockResolvedValueOnce({
           ok: false,
           status: 500,
           text: async () => 'Error 3',
-          headers: new Headers()
+          headers: new Headers(),
         })
         .mockResolvedValueOnce({
           ok: false,
           status: 500,
           text: async () => 'Error 4',
-          headers: new Headers()
+          headers: new Headers(),
         })
 
       await expect(client.listJudges({ pageSize: 1 })).rejects.toThrow()
@@ -304,7 +309,7 @@ describe('CourtListenerClient', () => {
         ok: true,
         status: 200,
         json: async () => ({ results: [], count: 0, next: null }),
-        headers: new Headers()
+        headers: new Headers(),
       })
 
       // Should retry after timeout
@@ -317,7 +322,7 @@ describe('CourtListenerClient', () => {
         ok: false,
         status: 400,
         text: async () => 'Bad Request',
-        headers: new Headers()
+        headers: new Headers(),
       })
 
       await expect(client.listJudges({ pageSize: 1 })).rejects.toThrow(
@@ -336,7 +341,7 @@ describe('CourtListenerClient', () => {
           ok: false,
           status: 500,
           text: async () => 'Server Error',
-          headers: new Headers()
+          headers: new Headers(),
         })
       }
 
@@ -350,9 +355,7 @@ describe('CourtListenerClient', () => {
       }
 
       // Next request should be circuit breaker error
-      await expect(client.listJudges({ pageSize: 1 })).rejects.toThrow(
-        'circuit open'
-      )
+      await expect(client.listJudges({ pageSize: 1 })).rejects.toThrow('circuit open')
     })
 
     it('should reset circuit on successful request', async () => {
@@ -362,13 +365,13 @@ describe('CourtListenerClient', () => {
           ok: false,
           status: 500,
           text: async () => 'Error',
-          headers: new Headers()
+          headers: new Headers(),
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
           json: async () => ({ results: [], count: 0, next: null }),
-          headers: new Headers()
+          headers: new Headers(),
         })
 
       await client.listJudges({ pageSize: 1 })
@@ -378,7 +381,7 @@ describe('CourtListenerClient', () => {
         ok: true,
         status: 200,
         json: async () => ({ results: [], count: 0, next: null }),
-        headers: new Headers()
+        headers: new Headers(),
       })
 
       const result = await client.listJudges({ pageSize: 1 })
@@ -392,7 +395,7 @@ describe('CourtListenerClient', () => {
         ok: true,
         status: 200,
         json: async () => ({ results: [], count: 0, next: null }),
-        headers: new Headers()
+        headers: new Headers(),
       })
 
       await client.listJudges({ pageSize: 1 })
@@ -406,13 +409,13 @@ describe('CourtListenerClient', () => {
         ok: true,
         status: 200,
         json: async () => ({ results: [], count: 0, next: null }),
-        headers: new Headers()
+        headers: new Headers(),
       })
 
       await client.listJudges({
         pageSize: 50,
         ordering: '-date_modified',
-        filters: { name: 'John Doe' }
+        filters: { name: 'John Doe' },
       })
 
       const requestUrl = fetchMock.mock.calls[0][0]
@@ -428,7 +431,7 @@ describe('CourtListenerClient', () => {
         ok: true,
         status: 200,
         json: async () => ({ results: [], count: 0, next: null }),
-        headers: new Headers()
+        headers: new Headers(),
       })
 
       await client.listJudges({ cursorUrl: nextUrl })
@@ -446,15 +449,15 @@ describe('CourtListenerClient', () => {
         previous: null,
         results: [
           { id: 1, name: 'Judge 1' },
-          { id: 2, name: 'Judge 2' }
-        ]
+          { id: 2, name: 'Judge 2' },
+        ],
       }
 
       fetchMock.mockResolvedValueOnce({
         ok: true,
         status: 200,
         json: async () => mockData,
-        headers: new Headers()
+        headers: new Headers(),
       })
 
       const result = await client.listJudges({ pageSize: 2 })
@@ -469,7 +472,7 @@ describe('CourtListenerClient', () => {
         ok: true,
         status: 200,
         json: async () => ({ results: [], count: 0, next: null }),
-        headers: new Headers()
+        headers: new Headers(),
       })
 
       const result = await client.listJudges({ pageSize: 10 })
@@ -487,13 +490,13 @@ describe('CourtListenerClient', () => {
           ok: true,
           status: 200,
           json: async () => ({ results: [], count: 0, next: null }),
-          headers: new Headers()
+          headers: new Headers(),
         })
 
         await client.getOpinionsByJudge('12345', {
           startDate: '2023-01-01',
           endDate: '2023-12-31',
-          limit: 50
+          limit: 50,
         })
 
         const requestUrl = fetchMock.mock.calls[0][0]
@@ -511,12 +514,12 @@ describe('CourtListenerClient', () => {
           ok: true,
           status: 200,
           json: async () => ({ results: [], count: 0, next: null }),
-          headers: new Headers()
+          headers: new Headers(),
         })
 
         await client.getDocketsByJudge('12345', {
           startDate: '2023-01-01',
-          limit: 25
+          limit: 25,
         })
 
         const requestUrl = fetchMock.mock.calls[0][0]
@@ -531,14 +534,14 @@ describe('CourtListenerClient', () => {
         const mockJudge = {
           id: '12345',
           name: 'John Doe',
-          positions: []
+          positions: [],
         }
 
         fetchMock.mockResolvedValueOnce({
           ok: true,
           status: 200,
           json: async () => mockJudge,
-          headers: new Headers()
+          headers: new Headers(),
         })
 
         const result = await client.getJudgeById('12345')
@@ -552,7 +555,7 @@ describe('CourtListenerClient', () => {
           ok: false,
           status: 404,
           text: async () => 'Not Found',
-          headers: new Headers()
+          headers: new Headers(),
         })
 
         const result = await client.getJudgeById('999999')
@@ -570,7 +573,7 @@ describe('CourtListenerClient', () => {
         ok: false,
         status: 429,
         text: async () => 'Rate Limited',
-        headers: new Headers()
+        headers: new Headers(),
       })
 
       try {
@@ -581,9 +584,9 @@ describe('CourtListenerClient', () => {
 
       // Should have reported retry metric
       expect(metricsReporter).toHaveBeenCalled()
-      expect(metricsReporter.mock.calls.some(
-        (call: any[]) => call[0] === 'courtlistener_retry'
-      )).toBe(true)
+      expect(
+        metricsReporter.mock.calls.some((call: any[]) => call[0] === 'courtlistener_retry')
+      ).toBe(true)
     })
   })
 
@@ -594,7 +597,7 @@ describe('CourtListenerClient', () => {
           opinion_id: 12345,
           case_name: 'Test v. Case',
           date_filed: '2023-06-15',
-          precedential_status: 'Published'
+          precedential_status: 'Published',
         }
 
         const result = client.transformOpinionToCase(opinionData, 'judge-123')
@@ -612,7 +615,7 @@ describe('CourtListenerClient', () => {
         const opinionData = {
           opinion_id: 12345,
           case_name: longName,
-          date_filed: '2023-06-15'
+          date_filed: '2023-06-15',
         }
 
         const result = client.transformOpinionToCase(opinionData, 'judge-123')
@@ -627,7 +630,7 @@ describe('CourtListenerClient', () => {
           ok: true,
           status: 200,
           json: async () => ({ results: [{ id: 1 }], count: 1, next: null }),
-          headers: new Headers()
+          headers: new Headers(),
         })
 
         const result = await client.validateJudge('12345')
@@ -639,7 +642,7 @@ describe('CourtListenerClient', () => {
           ok: true,
           status: 200,
           json: async () => ({ results: [], count: 0, next: null }),
-          headers: new Headers()
+          headers: new Headers(),
         })
 
         const result = await client.validateJudge('12345')

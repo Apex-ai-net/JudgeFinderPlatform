@@ -3,7 +3,7 @@ import { createServerClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url)
     const judgeId = searchParams.get('judgeId')
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     // 1. Same court
     // 2. Same jurisdiction
     // 3. Similar appointed dates
-    
+
     let relatedJudges = []
 
     // First, try to get judges from the same court
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     // If we don't have enough, get judges from same jurisdiction
     if (relatedJudges.length < limit && jurisdiction) {
       const remainingLimit = limit - relatedJudges.length
-      const existingIds = relatedJudges.map(j => j.id)
+      const existingIds = relatedJudges.map((j) => j.id)
 
       const { data: sameJurisdictionJudges, error } = await supabase
         .from('judges')
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     // If still not enough, get any judges (should rarely happen with statewide coverage)
     if (relatedJudges.length < limit) {
       const remainingLimit = limit - relatedJudges.length
-      const existingIds = relatedJudges.map(j => j.id)
+      const existingIds = relatedJudges.map((j) => j.id)
 
       const { data: anyJudges, error } = await supabase
         .from('judges')
@@ -77,16 +77,16 @@ export async function GET(request: NextRequest) {
       if (court) {
         const aIssameCourt = a.court_name === court
         const bIsSameCourt = b.court_name === court
-        
+
         if (aIssameCourt && !bIsSameCourt) return -1
         if (!aIssameCourt && bIsSameCourt) return 1
       }
-      
+
       // Then by appointment date (more recent first)
       if (a.appointed_date && b.appointed_date) {
         return new Date(b.appointed_date).getTime() - new Date(a.appointed_date).getTime()
       }
-      
+
       // Finally alphabetical by name
       return a.name.localeCompare(b.name)
     })
@@ -95,14 +95,10 @@ export async function GET(request: NextRequest) {
       judges: relatedJudges.slice(0, limit),
       total: relatedJudges.length,
       court,
-      jurisdiction
+      jurisdiction,
     })
-
   } catch (error) {
     console.error('Related judges API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

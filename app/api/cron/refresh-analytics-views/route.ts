@@ -16,7 +16,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 // Lazy initialization to avoid build-time errors
-function getSupabaseClient() {
+function getSupabaseClient(): void {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -54,7 +54,7 @@ async function refreshMaterializedView(viewName: string): Promise<ViewRefreshRes
     started_at: new Date().toISOString(),
     completed_at: '',
     duration_ms: 0,
-    success: false
+    success: false,
   }
 
   try {
@@ -62,7 +62,7 @@ async function refreshMaterializedView(viewName: string): Promise<ViewRefreshRes
 
     // Refresh materialized view concurrently (non-blocking)
     const { error: refreshError } = await supabase.rpc('exec_sql', {
-      sql: `REFRESH MATERIALIZED VIEW CONCURRENTLY ${viewName};`
+      sql: `REFRESH MATERIALIZED VIEW CONCURRENTLY ${viewName};`,
     })
 
     if (refreshError) {
@@ -94,21 +94,16 @@ async function refreshMaterializedView(viewName: string): Promise<ViewRefreshRes
 async function refreshAllViews(): Promise<RefreshReport> {
   const startTime = Date.now()
 
-  const views = [
-    'decision_counts_by_judge_year',
-    'top_judges_by_jurisdiction'
-  ]
+  const views = ['decision_counts_by_judge_year', 'top_judges_by_jurisdiction']
 
   // Refresh all views concurrently
-  const results = await Promise.all(
-    views.map(view => refreshMaterializedView(view))
-  )
+  const results = await Promise.all(views.map((view) => refreshMaterializedView(view)))
 
   const report: RefreshReport = {
     timestamp: new Date().toISOString(),
     views_refreshed: results,
     total_duration_ms: Date.now() - startTime,
-    all_success: results.every(r => r.success)
+    all_success: results.every((r) => r.success),
   }
 
   return report
@@ -119,26 +114,26 @@ async function logRefreshResult(report: RefreshReport): Promise<void> {
     const supabase = getSupabaseClient()
 
     // Log to sync_validation_results table for tracking
-    const { error } = await supabase
-      .from('sync_validation_results')
-      .insert({
-        validation_id: `view_refresh_${Date.now()}`,
-        started_at: report.timestamp,
-        completed_at: new Date().toISOString(),
-        duration_ms: report.total_duration_ms,
-        total_issues: report.views_refreshed.filter(v => !v.success).length,
-        critical_issues: 0,
-        high_priority_issues: 0,
-        medium_priority_issues: 0,
-        low_priority_issues: 0,
-        issues: report.views_refreshed.filter(v => !v.success).map(v => ({
+    const { error } = await supabase.from('sync_validation_results').insert({
+      validation_id: `view_refresh_${Date.now()}`,
+      started_at: report.timestamp,
+      completed_at: new Date().toISOString(),
+      duration_ms: report.total_duration_ms,
+      total_issues: report.views_refreshed.filter((v) => !v.success).length,
+      critical_issues: 0,
+      high_priority_issues: 0,
+      medium_priority_issues: 0,
+      low_priority_issues: 0,
+      issues: report.views_refreshed
+        .filter((v) => !v.success)
+        .map((v) => ({
           severity: 'high',
           category: 'VIEW_REFRESH',
           description: `Failed to refresh ${v.view_name}`,
-          details: v.error
+          details: v.error,
         })),
-        summary: `Refreshed ${report.views_refreshed.length} views in ${report.total_duration_ms}ms`
-      })
+      summary: `Refreshed ${report.views_refreshed.length} views in ${report.total_duration_ms}ms`,
+    })
 
     if (error) {
       console.error('Failed to log refresh result:', error.message)
@@ -148,17 +143,14 @@ async function logRefreshResult(report: RefreshReport): Promise<void> {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Verify cron secret for security
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
 
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     console.log('🔄 Starting analytics views refresh...')
@@ -170,9 +162,11 @@ export async function GET(request: NextRequest) {
 
     // Log summary
     console.log('📊 Refresh Summary:')
-    report.views_refreshed.forEach(view => {
+    report.views_refreshed.forEach((view) => {
       const status = view.success ? '✓' : '✗'
-      console.log(`  ${status} ${view.view_name}: ${view.duration_ms}ms (${view.record_count || 0} records)`)
+      console.log(
+        `  ${status} ${view.view_name}: ${view.duration_ms}ms (${view.record_count || 0} records)`
+      )
       if (view.error) {
         console.log(`    Error: ${view.error}`)
       }
@@ -184,7 +178,7 @@ export async function GET(request: NextRequest) {
         {
           success: false,
           message: 'Some views failed to refresh',
-          report
+          report,
         },
         { status: 500 }
       )
@@ -193,7 +187,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'All views refreshed successfully',
-      report
+      report,
     })
   } catch (error: any) {
     console.error('❌ View refresh failed:', error)
@@ -202,7 +196,7 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       },
       { status: 500 }
     )
@@ -210,6 +204,6 @@ export async function GET(request: NextRequest) {
 }
 
 // Also support POST for manual triggers
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   return GET(request)
 }

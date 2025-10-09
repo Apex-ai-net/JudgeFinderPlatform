@@ -37,7 +37,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     await enforceRateLimit(request, 'api:admin:sync-status:post', 60)
 
     const queueManager = new SyncQueueManager()
-    const body = await request.json().catch(() => ({})) as { action?: string; type?: SyncJobType; options?: Record<string, unknown>; priority?: number; days?: number }
+    const body = (await request.json().catch(() => ({}))) as {
+      action?: string
+      type?: SyncJobType
+      options?: Record<string, unknown>
+      priority?: number
+      days?: number
+    }
 
     switch (body.action) {
       case 'queue_job': {
@@ -46,20 +52,39 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           body.options || {},
           body.priority ?? 100
         )
-        return NextResponse.json({ success: true, message: 'Job queued successfully', jobId, timestamp: new Date().toISOString() })
+        return NextResponse.json({
+          success: true,
+          message: 'Job queued successfully',
+          jobId,
+          timestamp: new Date().toISOString(),
+        })
       }
       case 'cancel_jobs': {
         const cancelledCount = await queueManager.cancelJobs(body.type)
-        return NextResponse.json({ success: true, message: `${cancelledCount} jobs cancelled`, cancelledCount, timestamp: new Date().toISOString() })
+        return NextResponse.json({
+          success: true,
+          message: `${cancelledCount} jobs cancelled`,
+          cancelledCount,
+          timestamp: new Date().toISOString(),
+        })
       }
       case 'cleanup': {
         const deletedCount = await queueManager.cleanupOldJobs(body.days ?? 7)
-        return NextResponse.json({ success: true, message: `${deletedCount} old jobs cleaned up`, deletedCount, timestamp: new Date().toISOString() })
+        return NextResponse.json({
+          success: true,
+          message: `${deletedCount} old jobs cleaned up`,
+          deletedCount,
+          timestamp: new Date().toISOString(),
+        })
       }
       case 'restart_queue': {
         queueManager.stopProcessing()
         queueManager.startProcessing()
-        return NextResponse.json({ success: true, message: 'Queue processing restarted', timestamp: new Date().toISOString() })
+        return NextResponse.json({
+          success: true,
+          message: 'Queue processing restarted',
+          timestamp: new Date().toISOString(),
+        })
       }
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
@@ -81,7 +106,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 class AdminSyncLimiterManager {
   private static limiters = new Map<string, ReturnType<typeof buildRateLimiter>>()
 
-  static getLimiter(prefix: string, tokens: number) {
+  static getLimiter(prefix: string, tokens: number): ReturnType<typeof buildRateLimiter> {
     if (!this.limiters.has(prefix)) {
       this.limiters.set(prefix, buildRateLimiter({ tokens, window: '1 m', prefix }))
     }
@@ -89,7 +114,11 @@ class AdminSyncLimiterManager {
   }
 }
 
-async function enforceRateLimit(request: NextRequest, prefix: string, tokens: number): Promise<void> {
+async function enforceRateLimit(
+  request: NextRequest,
+  prefix: string,
+  tokens: number
+): Promise<void> {
   const rateLimiter = AdminSyncLimiterManager.getLimiter(prefix, tokens)
   const { success } = await rateLimiter.limit(`${getClientIp(request)}:admin`)
   if (!success) {

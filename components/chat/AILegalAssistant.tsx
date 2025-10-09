@@ -2,9 +2,18 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Send, Bot, User, Loader2, Sparkles, 
-  AlertCircle, Mic, MicOff, X, Minimize2, Maximize2 
+import {
+  Send,
+  Bot,
+  User,
+  Loader2,
+  Sparkles,
+  AlertCircle,
+  Mic,
+  MicOff,
+  X,
+  Minimize2,
+  Maximize2,
 } from 'lucide-react'
 
 interface Message {
@@ -20,14 +29,15 @@ interface AILegalAssistantProps {
   onJudgeSelect?: (judgeName: string) => void
 }
 
-export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantProps) {
+export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantProps): JSX.Element {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'assistant',
-      content: "👋 Hello! I'm your AI legal assistant. I can help you find information about California judges, understand bias scores, and navigate our judicial transparency platform. How can I assist you today?",
-      timestamp: new Date()
-    }
+      content:
+        "👋 Hello! I'm your AI legal assistant. I can help you find information about California judges, understand bias scores, and navigate our judicial transparency platform. How can I assist you today?",
+      timestamp: new Date(),
+    },
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -69,10 +79,10 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
       id: Date.now().toString(),
       role: 'user',
       content: input.trim(),
-      timestamp: new Date()
+      timestamp: new Date(),
     }
 
-    setMessages(prev => [...prev, userMessage])
+    setMessages((prev) => [...prev, userMessage])
     setInput('')
     setIsLoading(true)
 
@@ -82,9 +92,9 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
       role: 'assistant',
       content: '',
       timestamp: new Date(),
-      isTyping: true
+      isTyping: true,
     }
-    setMessages(prev => [...prev, typingMessage])
+    setMessages((prev) => [...prev, typingMessage])
 
     try {
       // Create abort controller for request cancellation
@@ -94,13 +104,16 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: messages.filter(m => !m.isTyping).map(m => ({
-            role: m.role,
-            content: m.content
-          })).concat({ role: 'user', content: input.trim() }),
-          stream: true
+          messages: messages
+            .filter((m) => !m.isTyping)
+            .map((m) => ({
+              role: m.role,
+              content: m.content,
+            }))
+            .concat({ role: 'user', content: input.trim() }),
+          stream: true,
         }),
-        signal: abortControllerRef.current.signal
+        signal: abortControllerRef.current.signal,
       })
 
       if (!response.ok) {
@@ -108,7 +121,7 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
       }
 
       // Remove typing indicator
-      setMessages(prev => prev.filter(m => m.id !== 'typing'))
+      setMessages((prev) => prev.filter((m) => m.id !== 'typing'))
 
       // Handle streaming response
       const reader = response.body?.getReader()
@@ -117,10 +130,10 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
         id: Date.now().toString(),
         role: 'assistant',
         content: '',
-        timestamp: new Date()
+        timestamp: new Date(),
       }
 
-      setMessages(prev => [...prev, assistantMessage])
+      setMessages((prev) => [...prev, assistantMessage])
 
       if (reader) {
         while (true) {
@@ -134,15 +147,14 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
             if (line.startsWith('data: ')) {
               const data = line.slice(6)
               if (data === '[DONE]') continue
-              
+
               try {
                 const json = JSON.parse(data)
                 if (json.text) {
                   assistantMessage.content += json.text
-                  setMessages(prev => 
-                    prev.map(m => m.id === assistantMessage.id 
-                      ? { ...m, content: assistantMessage.content }
-                      : m
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === assistantMessage.id ? { ...m, content: assistantMessage.content } : m
                     )
                   )
                 }
@@ -162,19 +174,22 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
           // Could trigger judge selection here
         }
       }
-
     } catch (error: any) {
       if (error.name === 'AbortError') {
         console.log('Request was cancelled')
       } else {
         console.error('Chat error:', error)
-        setMessages(prev => prev.filter(m => m.id !== 'typing'))
-        setMessages(prev => [...prev, {
-          id: Date.now().toString(),
-          role: 'assistant',
-          content: 'I apologize, but I encountered an error processing your request. Please try again.',
-          timestamp: new Date()
-        }])
+        setMessages((prev) => prev.filter((m) => m.id !== 'typing'))
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            role: 'assistant',
+            content:
+              'I apologize, but I encountered an error processing your request. Please try again.',
+            timestamp: new Date(),
+          },
+        ])
       }
     } finally {
       setIsLoading(false)
@@ -188,9 +203,10 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
       return
     }
 
-    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
+    const SpeechRecognition =
+      (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition
     const recognition = new SpeechRecognition()
-    
+
     recognition.continuous = false
     recognition.interimResults = false
     recognition.lang = 'en-US'
@@ -221,9 +237,9 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
 
   const suggestedQuestions = [
     "Tell me about Judge Smith's bias scores",
-    "Which courts handle family law cases?",
-    "How do bias scores work?",
-    "Find judges in Los Angeles County"
+    'Which courts handle family law cases?',
+    'How do bias scores work?',
+    'Find judges in Los Angeles County',
   ]
 
   return (
@@ -276,12 +292,16 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
                       <Bot className="w-4 h-4" />
                     </div>
                   )}
-                  <div className={`flex-1 ${message.role === 'user' ? 'max-w-[80%]' : 'max-w-[90%]'}`}>
-                    <div className={`rounded-xl px-4 py-2 ${
-                      message.role === 'user' 
-                        ? 'bg-primary text-primary-foreground ml-auto' 
-                        : 'bg-muted'
-                    }`}>
+                  <div
+                    className={`flex-1 ${message.role === 'user' ? 'max-w-[80%]' : 'max-w-[90%]'}`}
+                  >
+                    <div
+                      className={`rounded-xl px-4 py-2 ${
+                        message.role === 'user'
+                          ? 'bg-primary text-primary-foreground ml-auto'
+                          : 'bg-muted'
+                      }`}
+                    >
                       {message.isTyping ? (
                         <div className="flex items-center gap-2">
                           <Loader2 className="w-3 h-3 animate-spin" />
@@ -292,7 +312,10 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1 px-2">
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {message.timestamp.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </p>
                   </div>
                   {message.role === 'user' && (

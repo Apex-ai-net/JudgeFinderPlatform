@@ -18,7 +18,10 @@ interface BiasAnalysisParams {
   params: Promise<{ id: string }>
 }
 
-export async function GET(request: NextRequest, { params }: BiasAnalysisParams) {
+export async function GET(
+  request: NextRequest,
+  { params }: BiasAnalysisParams
+): Promise<NextResponse> {
   try {
     const resolvedParams = await params
     const supabase = await createServerClient()
@@ -54,7 +57,10 @@ export async function GET(request: NextRequest, { params }: BiasAnalysisParams) 
     }
 
     if (!caseRows || caseRows.length === 0) {
-      return NextResponse.json({ error: 'No case data available for bias analysis' }, { status: 404 })
+      return NextResponse.json(
+        { error: 'No case data available for bias analysis' },
+        { status: 404 }
+      )
     }
 
     const caseRecords = caseRows as CaseRecord[]
@@ -82,7 +88,7 @@ export async function GET(request: NextRequest, { params }: BiasAnalysisParams) 
         headers: {
           'Cache-Control': 'public, s-maxage=1800, max-age=900, stale-while-revalidate=900',
         },
-      },
+      }
     )
   } catch (error) {
     console.error('Error generating bias analysis:', error)

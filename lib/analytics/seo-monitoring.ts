@@ -27,11 +27,14 @@ interface SearchConsoleData {
  * Track judge name search performance
  * This would integrate with Google Search Console API in production
  */
-export async function trackJudgeSearchPerformance(judgeName: string, jurisdiction: string): Promise<SEOMetrics | null> {
+export async function trackJudgeSearchPerformance(
+  judgeName: string,
+  jurisdiction: string
+): Promise<SEOMetrics | null> {
   try {
     // In production, this would call Google Search Console API
     // For now, we'll structure the data for future implementation
-    
+
     const searchKeywords = [
       judgeName,
       `Judge ${judgeName}`,
@@ -53,7 +56,7 @@ export async function trackJudgeSearchPerformance(judgeName: string, jurisdictio
 
     // Log for analytics (in production, send to analytics service)
     console.log('SEO Tracking:', metrics)
-    
+
     return metrics
   } catch (error) {
     console.error('SEO tracking error:', error)
@@ -64,7 +67,7 @@ export async function trackJudgeSearchPerformance(judgeName: string, jurisdictio
 /**
  * Monitor core web vitals for judge pages
  */
-export function trackCoreWebVitals() {
+export function trackCoreWebVitals(): void {
   if (typeof window === 'undefined') return
 
   // Track Largest Contentful Paint (LCP)
@@ -73,7 +76,7 @@ export function trackCoreWebVitals() {
       const entries = list.getEntries()
       const lastEntry = entries[entries.length - 1]
       console.log('LCP:', lastEntry.startTime)
-      
+
       // In production, send to analytics
       if (window.gtag) {
         window.gtag('event', 'web_vitals', {
@@ -94,7 +97,7 @@ export function trackCoreWebVitals() {
         const fidEntry = entry as any // Cast to any for first-input entries
         const fidValue = fidEntry.processingStart ? fidEntry.processingStart - entry.startTime : 0
         console.log('FID:', fidValue)
-        
+
         if (window.gtag) {
           window.gtag('event', 'web_vitals', {
             name: 'FID',
@@ -118,9 +121,9 @@ export function trackCoreWebVitals() {
           clsValue += clsEntry.value || 0
         }
       })
-      
+
       console.log('CLS:', clsValue)
-      
+
       if (window.gtag) {
         window.gtag('event', 'web_vitals', {
           name: 'CLS',
@@ -137,7 +140,7 @@ export function trackCoreWebVitals() {
 /**
  * Track search intent and user behavior on judge pages
  */
-export function trackJudgePageEngagement(judgeName: string, source?: string) {
+export function trackJudgePageEngagement(judgeName: string, source?: string): void {
   if (typeof window === 'undefined' || !window.gtag) return
 
   // Track page view with judge-specific data
@@ -155,7 +158,7 @@ export function trackJudgePageEngagement(judgeName: string, source?: string) {
     const scrollPercent = Math.round(
       (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
     )
-    
+
     if (scrollPercent > maxScroll && scrollPercent % 25 === 0) {
       maxScroll = scrollPercent
       if (window.gtag) {
@@ -167,9 +170,9 @@ export function trackJudgePageEngagement(judgeName: string, source?: string) {
       }
     }
   }
-  
+
   window.addEventListener('scroll', trackScroll, { passive: true })
-  
+
   // Track time on page
   const startTime = Date.now()
   window.addEventListener('beforeunload', () => {
@@ -187,7 +190,7 @@ export function trackJudgePageEngagement(judgeName: string, source?: string) {
 /**
  * Track attorney directory interactions
  */
-export function trackAttorneyDirectoryUsage(judgeName: string, action: string) {
+export function trackAttorneyDirectoryUsage(judgeName: string, action: string): void {
   if (typeof window === 'undefined' || !window.gtag) return
 
   window.gtag('event', 'attorney_directory_interaction', {
@@ -201,7 +204,7 @@ export function trackAttorneyDirectoryUsage(judgeName: string, action: string) {
 /**
  * Track search queries that lead to judge pages
  */
-export function trackSearchQuery(query: string, judgeName: string, found: boolean) {
+export function trackSearchQuery(query: string, judgeName: string, found: boolean): void {
   if (typeof window === 'undefined' || !window.gtag) return
 
   window.gtag('event', 'judge_search', {
@@ -236,29 +239,32 @@ export function generateSEOReport(judgeName: string): object {
       'Analyze user engagement metrics',
       'Update content based on search trends',
       'Monitor competitor judge pages',
-    ]
+    ],
   }
 }
 
 /**
  * Client-side SEO monitoring setup
  */
-export function initializeSEOMonitoring(judgeName: string) {
+export function initializeSEOMonitoring(judgeName: string): void {
   if (typeof window === 'undefined') return
 
   // Initialize core web vitals tracking
   trackCoreWebVitals()
-  
+
   // Track page engagement
   trackJudgePageEngagement(judgeName, document.referrer || 'direct')
-  
+
   // Track ad performance if ads are loaded
   const observeAds = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
         if (node.nodeType === Node.ELEMENT_NODE) {
           const element = node as Element
-          if (element.classList.contains('adsbygoogle') && element.getAttribute('data-ad-status') === 'filled') {
+          if (
+            element.classList.contains('adsbygoogle') &&
+            element.getAttribute('data-ad-status') === 'filled'
+          ) {
             window.gtag?.('event', 'ad_impression', {
               event_category: 'monetization',
               ad_slot: element.getAttribute('data-ad-slot'),
@@ -269,7 +275,7 @@ export function initializeSEOMonitoring(judgeName: string) {
       })
     })
   })
-  
+
   observeAds.observe(document.body, { childList: true, subtree: true })
 }
 

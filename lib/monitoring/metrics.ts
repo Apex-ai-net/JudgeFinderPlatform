@@ -45,47 +45,49 @@ export interface PerformanceSnapshot {
  */
 export function trackMetric(data: MetricData): void {
   // Fire and forget - don't block the request
-  Promise.resolve().then(async () => {
-    try {
-      const startTime = Date.now()
+  Promise.resolve()
+    .then(async () => {
+      try {
+        const startTime = Date.now()
 
-      // Log to application logs
-      logger.info('Performance metric', {
-        scope: 'metrics',
-        ...data
-      })
-
-      // Send to Sentry as custom metric
-      // Note: setMeasurement is deprecated in Sentry v8, using setAttribute instead
-      const span = Sentry.getActiveSpan()
-      if (span) {
-        span.setAttribute(`${data.type}.${data.operation}.duration_ms`, data.duration_ms)
-      }
-
-      // Store in database for historical analysis (async, non-blocking)
-      if (process.env.NODE_ENV === 'production') {
-        await storeMetricInDatabase(data)
-      }
-
-      const overhead = Date.now() - startTime
-      if (overhead > 5) {
-        logger.warn('Metric collection overhead exceeded threshold', {
+        // Log to application logs
+        logger.info('Performance metric', {
           scope: 'metrics',
-          overhead_ms: overhead,
-          metric_type: data.type
+          ...data,
+        })
+
+        // Send to Sentry as custom metric
+        // Note: setMeasurement is deprecated in Sentry v8, using setAttribute instead
+        const span = Sentry.getActiveSpan()
+        if (span) {
+          span.setAttribute(`${data.type}.${data.operation}.duration_ms`, data.duration_ms)
+        }
+
+        // Store in database for historical analysis (async, non-blocking)
+        if (process.env.NODE_ENV === 'production') {
+          await storeMetricInDatabase(data)
+        }
+
+        const overhead = Date.now() - startTime
+        if (overhead > 5) {
+          logger.warn('Metric collection overhead exceeded threshold', {
+            scope: 'metrics',
+            overhead_ms: overhead,
+            metric_type: data.type,
+          })
+        }
+      } catch (error) {
+        // Never let metrics collection break the application
+        logger.error('Failed to track metric', {
+          scope: 'metrics',
+          error,
+          metric_type: data.type,
         })
       }
-    } catch (error) {
-      // Never let metrics collection break the application
-      logger.error('Failed to track metric', {
-        scope: 'metrics',
-        error,
-        metric_type: data.type
-      })
-    }
-  }).catch(() => {
-    // Silent failure - metrics collection should never break the app
-  })
+    })
+    .catch(() => {
+      // Silent failure - metrics collection should never break the app
+    })
 }
 
 /**
@@ -97,15 +99,15 @@ export function trackMetric(data: MetricData): void {
 export function startTransaction(
   name: string,
   operation: string,
-  metadata?: Record<string, any>
-): any | null {
+  metadata?: Record<string, unknown>
+): unknown | null {
   try {
     // Note: The new Sentry v8 API doesn't support the old transaction pattern
     // Spans are now created automatically with startSpan
     logger.debug('Transaction tracking deprecated, use startSpan', {
       scope: 'metrics',
       name,
-      operation
+      operation,
     })
     return null
   } catch (error) {
@@ -113,7 +115,7 @@ export function startTransaction(
       scope: 'metrics',
       error,
       name,
-      operation
+      operation,
     })
     return null
   }
@@ -202,11 +204,7 @@ export function trackAnalyticsGeneration(
 /**
  * Track judge profile load performance
  */
-export function trackJudgeProfileLoad(
-  judgeId: string,
-  duration: number,
-  cached: boolean
-): void {
+export function trackJudgeProfileLoad(judgeId: string, duration: number, cached: boolean): void {
   trackMetric({
     type: 'judge_profile_load',
     operation: 'load_profile',
@@ -304,13 +302,12 @@ async function storeMetricInDatabase(data: MetricData): Promise<void> {
         recorded_at: data.timestamp || new Date(),
       })
       .select()
-
   } catch (error) {
     // Silent failure - database issues shouldn't break metrics collection
     logger.error('Failed to store metric in database', {
       scope: 'metrics',
       error,
-      metric_type: data.type
+      metric_type: data.type,
     })
   }
 }
@@ -337,8 +334,8 @@ export async function getPerformanceSnapshot(
       return null
     }
 
-    const durations = metrics.map(m => m.duration_ms)
-    const errors = metrics.filter(m => !m.success).length
+    const durations = metrics.map((m) => m.duration_ms)
+    const errors = metrics.filter((m) => !m.success).length
 
     return {
       endpoint,
@@ -355,7 +352,7 @@ export async function getPerformanceSnapshot(
     logger.error('Failed to get performance snapshot', {
       scope: 'metrics',
       error,
-      endpoint
+      endpoint,
     })
     return null
   }
@@ -393,7 +390,7 @@ export async function getCacheStats(): Promise<{
       return null
     }
 
-    const hits = cacheMetrics.filter(m => m.operation === 'hit').length
+    const hits = cacheMetrics.filter((m) => m.operation === 'hit').length
     const total = cacheMetrics.length
     const avgLatency = cacheMetrics.reduce((sum, m) => sum + m.duration_ms, 0) / total
 
@@ -405,7 +402,7 @@ export async function getCacheStats(): Promise<{
   } catch (error) {
     logger.error('Failed to get cache stats', {
       scope: 'metrics',
-      error
+      error,
     })
     return null
   }

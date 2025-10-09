@@ -23,14 +23,16 @@ const tourSteps: Record<string, Step[]> = {
   dashboard: [
     {
       target: '#search-bar',
-      content: 'Start your research by searching for judges by name, court, or jurisdiction. Try "Smith Orange County" to see it in action.',
+      content:
+        'Start your research by searching for judges by name, court, or jurisdiction. Try "Smith Orange County" to see it in action.',
       title: 'Search for Judges',
       placement: 'bottom',
       disableBeacon: true,
     },
     {
       target: '#recent-searches',
-      content: 'Your recent searches are saved here for quick access. Click any to return to previous results.',
+      content:
+        'Your recent searches are saved here for quick access. Click any to return to previous results.',
       title: 'Recent Searches',
       placement: 'left',
     },
@@ -42,7 +44,8 @@ const tourSteps: Record<string, Step[]> = {
     },
     {
       target: '#advanced-filters',
-      content: 'Use advanced filters to narrow results by jurisdiction, court type, appointment date, and more.',
+      content:
+        'Use advanced filters to narrow results by jurisdiction, court type, appointment date, and more.',
       title: 'Advanced Filtering',
       placement: 'bottom',
     },
@@ -50,20 +53,22 @@ const tourSteps: Record<string, Step[]> = {
   'judge-profile': [
     {
       target: '#profile',
-      content: 'View comprehensive judge information including current position, appointment date, and jurisdiction.',
+      content:
+        'View comprehensive judge information including current position, appointment date, and jurisdiction.',
       title: 'Judge Profile Overview',
       placement: 'bottom',
       disableBeacon: true,
     },
     {
       target: '#analytics',
-      content: 'Our AI analyzes thousands of cases to show this judge\'s decision patterns, reversal rates, and settlement preferences.',
+      content:
+        "Our AI analyzes thousands of cases to show this judge's decision patterns, reversal rates, and settlement preferences.",
       title: 'Judicial Analytics',
       placement: 'top',
     },
     {
       target: '#professional-background',
-      content: 'Review the judge\'s professional background, education, and prior legal experience.',
+      content: "Review the judge's professional background, education, and prior legal experience.",
       title: 'Professional Background',
       placement: 'top',
     },
@@ -77,14 +82,16 @@ const tourSteps: Record<string, Step[]> = {
   search: [
     {
       target: '#search-bar',
-      content: 'Enter a judge name, court name, or jurisdiction. Our AI-powered search understands natural language queries.',
+      content:
+        'Enter a judge name, court name, or jurisdiction. Our AI-powered search understands natural language queries.',
       title: 'Smart Search',
       placement: 'bottom',
       disableBeacon: true,
     },
     {
       target: '#search-filters',
-      content: 'Refine your search with filters. Filter by jurisdiction, court type, or practice area.',
+      content:
+        'Refine your search with filters. Filter by jurisdiction, court type, or practice area.',
       title: 'Search Filters',
       placement: 'left',
     },
@@ -98,7 +105,8 @@ const tourSteps: Record<string, Step[]> = {
   comparison: [
     {
       target: '#comparison-tool',
-      content: 'Compare up to 4 judges side-by-side to see how their analytics and backgrounds differ.',
+      content:
+        'Compare up to 4 judges side-by-side to see how their analytics and backgrounds differ.',
       title: 'Judge Comparison',
       placement: 'bottom',
       disableBeacon: true,
@@ -111,14 +119,19 @@ const tourSteps: Record<string, Step[]> = {
     },
     {
       target: '#comparison-metrics',
-      content: 'View comparative analytics including reversal rates, decision patterns, and case volumes.',
+      content:
+        'View comparative analytics including reversal rates, decision patterns, and case volumes.',
       title: 'Comparison Metrics',
       placement: 'top',
     },
   ],
 }
 
-export function ProductTour({ tourType, autoStart = false, onComplete }: ProductTourProps) {
+export function ProductTour({
+  tourType,
+  autoStart = false,
+  onComplete,
+}: ProductTourProps): JSX.Element {
   const [run, setRun] = useState(false)
   const [steps, setSteps] = useState<Step[]>([])
 
@@ -145,7 +158,9 @@ export function ProductTour({ tourType, autoStart = false, onComplete }: Product
 
         // Mark tour as completed
         const completedToursStr = localStorage.getItem(TOUR_STORAGE_KEY)
-        const completedTours: ToursCompleted = completedToursStr ? JSON.parse(completedToursStr) : {}
+        const completedTours: ToursCompleted = completedToursStr
+          ? JSON.parse(completedToursStr)
+          : {}
         completedTours[tourType] = true
         localStorage.setItem(TOUR_STORAGE_KEY, JSON.stringify(completedTours))
 
@@ -187,9 +202,7 @@ export function ProductTour({ tourType, autoStart = false, onComplete }: Product
       className="bg-card border border-border rounded-lg shadow-2xl p-6 max-w-md"
     >
       <div className="flex items-start justify-between mb-3">
-        {step.title && (
-          <h3 className="text-lg font-semibold text-foreground pr-4">{step.title}</h3>
-        )}
+        {step.title && <h3 className="text-lg font-semibold text-foreground pr-4">{step.title}</h3>}
         <button
           {...closeProps}
           className="text-muted-foreground hover:text-foreground transition-colors"
@@ -199,9 +212,7 @@ export function ProductTour({ tourType, autoStart = false, onComplete }: Product
         </button>
       </div>
 
-      <div className="text-sm text-muted-foreground mb-6 leading-relaxed">
-        {step.content}
-      </div>
+      <div className="text-sm text-muted-foreground mb-6 leading-relaxed">{step.content}</div>
 
       <div className="flex items-center justify-between">
         <div className="text-xs text-muted-foreground">
@@ -273,7 +284,7 @@ export function ProductTour({ tourType, autoStart = false, onComplete }: Product
 }
 
 // Hook to check if user has completed tours
-export function useTourStatus() {
+export function useTourStatus(): JSX.Element {
   const [completedTours, setCompletedTours] = useState<ToursCompleted>({})
 
   useEffect(() => {

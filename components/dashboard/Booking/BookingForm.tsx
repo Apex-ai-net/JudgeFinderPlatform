@@ -25,7 +25,7 @@ function resolveTier(spot: AdSpotWithDetails): string | null {
   return spot.pricing_tier ?? null
 }
 
-export function BookingForm({ spot, bookingOptions, onChange }: BookingFormProps) {
+export function BookingForm({ spot, bookingOptions, onChange }: BookingFormProps): JSX.Element {
   const tier = useMemo(() => resolveTier(spot), [spot])
 
   const { quote, loading, error } = usePricingQuote({
@@ -53,7 +53,9 @@ export function BookingForm({ spot, bookingOptions, onChange }: BookingFormProps
         <select
           className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
           value={bookingOptions.durationMonths}
-          onChange={(event) => onChange({ ...bookingOptions, durationMonths: Number(event.target.value) })}
+          onChange={(event) =>
+            onChange({ ...bookingOptions, durationMonths: Number(event.target.value) })
+          }
         >
           <option value={1}>Monthly</option>
           <option value={12}>Annual (10×)</option>
@@ -64,7 +66,8 @@ export function BookingForm({ spot, bookingOptions, onChange }: BookingFormProps
         <div>
           <p className="text-sm font-medium text-foreground">Exclusive Rotation</p>
           <p className="text-xs text-muted-foreground mt-1">
-            Reserve both rotations for your firm (1.75× monthly rate). Useful when sellout is high and intent is critical.
+            Reserve both rotations for your firm (1.75× monthly rate). Useful when sellout is high
+            and intent is critical.
           </p>
         </div>
         <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground">
@@ -80,11 +83,15 @@ export function BookingForm({ spot, bookingOptions, onChange }: BookingFormProps
 
       <div>
         <label className="block text-sm font-medium text-foreground mb-1">County Bundle Size</label>
-        <p className="text-xs text-muted-foreground mb-2">Automatic –10% for 5+ judges, –15% for 10+. You can adjust later before checkout.</p>
+        <p className="text-xs text-muted-foreground mb-2">
+          Automatic –10% for 5+ judges, –15% for 10+. You can adjust later before checkout.
+        </p>
         <select
           className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
           value={bookingOptions.bundleSize}
-          onChange={(event) => onChange({ ...bookingOptions, bundleSize: Number(event.target.value) })}
+          onChange={(event) =>
+            onChange({ ...bookingOptions, bundleSize: Number(event.target.value) })
+          }
         >
           <option value={1}>Single judge</option>
           <option value={5}>5-judge county bundle</option>
@@ -99,14 +106,17 @@ export function BookingForm({ spot, bookingOptions, onChange }: BookingFormProps
         {quote && (
           <ul className="mt-2 space-y-1 text-blue-900">
             <li>
-              Monthly Rate: <span className="font-semibold">${quote.monthly_rate?.toLocaleString() ?? '—'}</span>
+              Monthly Rate:{' '}
+              <span className="font-semibold">${quote.monthly_rate?.toLocaleString() ?? '—'}</span>
             </li>
             <li>
               Total Due at Checkout:{' '}
               <span className="font-semibold">${quote.total_price?.toLocaleString() ?? '—'}</span>
             </li>
             {quote.savings !== undefined && quote.savings !== null && (
-              <li className="text-green-700">Savings vs month-to-month: ${quote.savings.toLocaleString()}</li>
+              <li className="text-green-700">
+                Savings vs month-to-month: ${quote.savings.toLocaleString()}
+              </li>
             )}
           </ul>
         )}

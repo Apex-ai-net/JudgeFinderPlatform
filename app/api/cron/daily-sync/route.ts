@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 export const maxDuration = 60 // 1 minute to queue jobs, actual processing happens async
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now()
   const rateLimiter = buildRateLimiter({ tokens: 5, window: '1 m', prefix: 'cron:daily:get' })
   const ipAddress = getClientIp(request)
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
         batchSize: 5,
         jurisdiction: 'CA',
         daysSinceLast: 1, // Only fetch decisions from last day
-        maxDecisionsPerJudge: 20 // Limit for daily sync
+        maxDecisionsPerJudge: 20, // Limit for daily sync
       },
       100 // High priority
     )
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       {
         batchSize: 20,
         jurisdiction: 'CA',
-        forceRefresh: false // Only update stale profiles
+        forceRefresh: false, // Only update stale profiles
       },
       50 // Medium priority
     )
@@ -58,20 +58,20 @@ export async function GET(request: NextRequest) {
     logger.info('Daily sync jobs queued successfully', {
       decisionJobId,
       judgeJobId,
-      duration
+      duration,
     })
 
     const jobs = [
       {
         id: decisionJobId,
         type: 'decision',
-        description: 'Sync recent decisions from last 24 hours'
+        description: 'Sync recent decisions from last 24 hours',
       },
       {
         id: judgeJobId,
         type: 'judge',
-        description: 'Update stale judge profiles'
-      }
+        description: 'Update stale judge profiles',
+      },
     ]
 
     await logCronMetric({
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
       startTime,
       durationMs: duration,
       jobsQueued: jobs.length,
-      ipAddress
+      ipAddress,
     })
 
     return NextResponse.json({
@@ -89,12 +89,11 @@ export async function GET(request: NextRequest) {
       message: 'Daily sync jobs queued successfully',
       jobs,
       queuedAt: new Date().toISOString(),
-      duration
+      duration,
     })
-
   } catch (error) {
     const duration = Date.now() - startTime
-    
+
     logger.error('Daily sync cron job failed', { error, duration })
 
     await logCronMetric({
@@ -104,21 +103,24 @@ export async function GET(request: NextRequest) {
       startTime,
       durationMs: duration,
       jobsQueued: 0,
-      ipAddress
+      ipAddress,
     })
 
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to queue daily sync jobs',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      duration,
-      timestamp: new Date().toISOString()
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to queue daily sync jobs',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        duration,
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 }
+    )
   }
 }
 
 // Health check endpoint
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now()
   const ipAddress = getClientIp(request)
   const rateLimiter = buildRateLimiter({ tokens: 10, window: '1 m', prefix: 'cron:daily:post' })
@@ -152,7 +154,7 @@ export async function POST(request: NextRequest) {
         batchSize: body.batchSize || 10,
         jurisdiction: 'CA',
         daysSinceLast: force ? 7 : 1, // More days if forced
-        maxDecisionsPerJudge: force ? 50 : 20
+        maxDecisionsPerJudge: force ? 50 : 20,
       },
       150 // Higher priority for manual
     )
@@ -165,7 +167,7 @@ export async function POST(request: NextRequest) {
         {
           batchSize: 20,
           jurisdiction: 'CA',
-          forceRefresh: true
+          forceRefresh: true,
         },
         100
       )
@@ -181,16 +183,15 @@ export async function POST(request: NextRequest) {
       startTime,
       durationMs: duration,
       jobsQueued: jobs.length,
-      ipAddress
+      ipAddress,
     })
 
     return NextResponse.json({
       success: true,
       message: 'Manual daily sync jobs queued',
       jobs,
-      triggeredAt: new Date().toISOString()
+      triggeredAt: new Date().toISOString(),
     })
-
   } catch (error) {
     logger.error('Manual daily sync failed', { error })
     const duration = Date.now() - startTime
@@ -202,13 +203,16 @@ export async function POST(request: NextRequest) {
       startTime,
       durationMs: duration,
       jobsQueued: 0,
-      ipAddress
+      ipAddress,
     })
-    
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to trigger manual sync',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to trigger manual sync',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    )
   }
 }

@@ -1,14 +1,14 @@
 const DEFAULT_MIN_SAMPLE_SIZE = 15
 const DEFAULT_GOOD_SAMPLE_SIZE = 40
 
-function parseEnvNumber(value: string | undefined, fallback: number) {
+function parseEnvNumber(value: string | undefined, fallback: number): void {
   if (!value) return fallback
   const parsed = Number(value)
   if (Number.isNaN(parsed) || parsed <= 0) return fallback
   return Math.floor(parsed)
 }
 
-function parseEnvBoolean(value: string | undefined, fallback: boolean) {
+function parseEnvBoolean(value: string | undefined, fallback: boolean): void {
   if (typeof value !== 'string') return fallback
   const normalized = value.trim().toLowerCase()
   if (['1', 'true', 'yes', 'y', 'on'].includes(normalized)) return true
@@ -16,8 +16,14 @@ function parseEnvBoolean(value: string | undefined, fallback: boolean) {
   return fallback
 }
 
-export const MIN_SAMPLE_SIZE = parseEnvNumber(process.env.NEXT_PUBLIC_MIN_SAMPLE_SIZE, DEFAULT_MIN_SAMPLE_SIZE)
-export const GOOD_SAMPLE_SIZE = parseEnvNumber(process.env.NEXT_PUBLIC_GOOD_SAMPLE_SIZE, DEFAULT_GOOD_SAMPLE_SIZE)
+export const MIN_SAMPLE_SIZE = parseEnvNumber(
+  process.env.NEXT_PUBLIC_MIN_SAMPLE_SIZE,
+  DEFAULT_MIN_SAMPLE_SIZE
+)
+export const GOOD_SAMPLE_SIZE = parseEnvNumber(
+  process.env.NEXT_PUBLIC_GOOD_SAMPLE_SIZE,
+  DEFAULT_GOOD_SAMPLE_SIZE
+)
 export const HIDE_METRICS_BELOW_SAMPLE = parseEnvBoolean(
   process.env.NEXT_PUBLIC_HIDE_SAMPLE_BELOW_MIN,
   true
@@ -25,7 +31,10 @@ export const HIDE_METRICS_BELOW_SAMPLE = parseEnvBoolean(
 
 export type QualityTier = 'LOW' | 'GOOD' | 'HIGH'
 
-export function getQualityTier(sampleSize?: number | null, confidence?: number | null): QualityTier {
+export function getQualityTier(
+  sampleSize?: number | null,
+  confidence?: number | null
+): QualityTier {
   if (!sampleSize || sampleSize < MIN_SAMPLE_SIZE) {
     return 'LOW'
   }
@@ -41,10 +50,10 @@ export function getQualityTier(sampleSize?: number | null, confidence?: number |
   return sampleSize >= MIN_SAMPLE_SIZE ? 'GOOD' : 'LOW'
 }
 
-export function isBelowSampleThreshold(sampleSize?: number | null) {
+export function isBelowSampleThreshold(sampleSize?: number | null): void {
   return !sampleSize || sampleSize < MIN_SAMPLE_SIZE
 }
 
-export function shouldHideMetric(sampleSize?: number | null) {
+export function shouldHideMetric(sampleSize?: number | null): void {
   return HIDE_METRICS_BELOW_SAMPLE && isBelowSampleThreshold(sampleSize)
 }

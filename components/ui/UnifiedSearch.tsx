@@ -13,7 +13,7 @@ interface UnifiedSearchProps {
 }
 
 // Debounce hook
-function useDebounce(value: string, delay: number) {
+function useDebounce(value: string, delay: number): JSX.Element {
   const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {
@@ -31,8 +31,8 @@ function useDebounce(value: string, delay: number) {
 
 const UnifiedSearchComponent: React.FC<UnifiedSearchProps> = ({
   placeholder = "Enter your judge's name...",
-  className = "",
-  autoFocus = false
+  className = '',
+  autoFocus = false,
 }) => {
   const [query, setQuery] = useState('')
   const [isFocused, setIsFocused] = useState(false)
@@ -52,19 +52,25 @@ const UnifiedSearchComponent: React.FC<UnifiedSearchProps> = ({
     router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
   }, [query, router])
 
-  const handleSelectResult = useCallback((result: SearchResult) => {
-    // Navigate directly to the result's URL
-    router.push(result.url)
-    setQuery('')
-    setSearchResults([])
-    setIsFocused(false)
-  }, [router])
+  const handleSelectResult = useCallback(
+    (result: SearchResult) => {
+      // Navigate directly to the result's URL
+      router.push(result.url)
+      setQuery('')
+      setSearchResults([])
+      setIsFocused(false)
+    },
+    [router]
+  )
 
-  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch()
-    }
-  }, [handleSearch])
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        handleSearch()
+      }
+    },
+    [handleSearch]
+  )
 
   const clearSearch = useCallback(() => {
     setQuery('')
@@ -94,7 +100,9 @@ const UnifiedSearchComponent: React.FC<UnifiedSearchProps> = ({
 
       setIsLoading(true)
       try {
-        const response = await fetch(`/api/judges/search?q=${encodeURIComponent(debouncedQuery)}&limit=5`)
+        const response = await fetch(
+          `/api/judges/search?q=${encodeURIComponent(debouncedQuery)}&limit=5`
+        )
         if (response.ok) {
           const data = await response.json()
           setSearchResults(data.results || [])
@@ -119,9 +127,10 @@ const UnifiedSearchComponent: React.FC<UnifiedSearchProps> = ({
           rounded-xl lg:rounded-2xl shadow-lg
           border-2 transition-all duration-200
           min-h-[52px] lg:min-h-[56px]
-          ${isFocused
-            ? 'border-blue-500 shadow-xl lg:scale-[1.02]'
-            : 'border-border dark:border-border'
+          ${
+            isFocused
+              ? 'border-blue-500 shadow-xl lg:scale-[1.02]'
+              : 'border-border dark:border-border'
           }
         `}
       >
@@ -234,9 +243,7 @@ const UnifiedSearchComponent: React.FC<UnifiedSearchProps> = ({
                       border-b border-gray-100 dark:border-border last:border-b-0
                     "
                   >
-                    <div className="mt-1">
-                      {getResultIcon(result.type)}
-                    </div>
+                    <div className="mt-1">{getResultIcon(result.type)}</div>
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm text-foreground dark:text-foreground truncate">
                         {result.title}
@@ -279,16 +286,13 @@ const UnifiedSearchComponent: React.FC<UnifiedSearchProps> = ({
   )
 }
 
-const UnifiedSearch = React.memo(
-  UnifiedSearchComponent,
-  (prevProps, nextProps) => {
-    return (
-      prevProps.placeholder === nextProps.placeholder &&
-      prevProps.className === nextProps.className &&
-      prevProps.autoFocus === nextProps.autoFocus
-    )
-  }
-)
+const UnifiedSearch = React.memo(UnifiedSearchComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.placeholder === nextProps.placeholder &&
+    prevProps.className === nextProps.className &&
+    prevProps.autoFocus === nextProps.autoFocus
+  )
+})
 
 UnifiedSearch.displayName = 'UnifiedSearch'
 

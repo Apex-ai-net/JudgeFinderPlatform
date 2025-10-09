@@ -63,23 +63,27 @@ const sections = [
 const faqs = [
   {
     question: 'Is JudgeFinder free to use?',
-    answer: 'Yes! Basic search and judge profiles are free for all users. Premium features like advanced analytics and export capabilities are available with a subscription.',
+    answer:
+      'Yes! Basic search and judge profiles are free for all users. Premium features like advanced analytics and export capabilities are available with a subscription.',
   },
   {
     question: 'How accurate is the data?',
-    answer: 'We source data from official court records and verified legal databases. Our AI analyzes this data with statistical rigor, providing confidence intervals for all metrics.',
+    answer:
+      'We source data from official court records and verified legal databases. Our AI analyzes this data with statistical rigor, providing confidence intervals for all metrics.',
   },
   {
     question: 'Which jurisdictions are covered?',
-    answer: 'JudgeFinder currently covers all California state courts including Superior, Appellate, and Supreme Courts. Federal court coverage is in development.',
+    answer:
+      'JudgeFinder currently covers all California state courts including Superior, Appellate, and Supreme Courts. Federal court coverage is in development.',
   },
   {
     question: 'Can I download or export judge data?',
-    answer: 'Yes, premium subscribers can export judge profiles and analytics as PDF reports for case preparation.',
+    answer:
+      'Yes, premium subscribers can export judge profiles and analytics as PDF reports for case preparation.',
   },
 ]
 
-export default function GettingStartedPage() {
+export default function GettingStartedPage(): JSX.Element {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}

@@ -6,8 +6,10 @@ interface SponsoredTileProps {
   tile: SponsoredSearchResult
 }
 
-export function SponsoredTile({ tile }: SponsoredTileProps) {
-  const barUrl = tile.bar_number ? `https://apps.calbar.ca.gov/attorney/Licensee/Detail/${tile.bar_number}` : null
+export function SponsoredTile({ tile }: SponsoredTileProps): JSX.Element {
+  const barUrl = tile.bar_number
+    ? `https://apps.calbar.ca.gov/attorney/Licensee/Detail/${tile.bar_number}`
+    : null
 
   return (
     <div className="rounded-lg border border-yellow-400/40 bg-yellow-500/10 p-5 text-sm text-yellow-50">
@@ -42,7 +44,9 @@ export function SponsoredTile({ tile }: SponsoredTileProps) {
           </div>
         </div>
         <div className="flex flex-col items-end gap-2 text-right">
-          {tile.contact_phone && <span className="text-sm text-yellow-100">{tile.contact_phone}</span>}
+          {tile.contact_phone && (
+            <span className="text-sm text-yellow-100">{tile.contact_phone}</span>
+          )}
           {tile.contact_email && (
             <a
               href={`mailto:${tile.contact_email}`}

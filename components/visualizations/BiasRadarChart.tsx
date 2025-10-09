@@ -23,14 +23,14 @@ const defaultData: BiasMetric[] = [
   { axis: 'Speed', value: 72, description: 'Case resolution time', color: '#10b981' },
   { axis: 'Settlement', value: 68, description: 'Settlement preference', color: '#a855f7' },
   { axis: 'Risk Tolerance', value: 45, description: 'Legal innovation', color: '#f97316' },
-  { axis: 'Predictability', value: 78, description: 'Outcome reliability', color: '#ec4899' }
+  { axis: 'Predictability', value: 78, description: 'Outcome reliability', color: '#ec4899' },
 ]
 
-export function BiasRadarChart({ 
-  data = defaultData, 
-  size = 400, 
+export function BiasRadarChart({
+  data = defaultData,
+  size = 400,
   className = '',
-  animated = true 
+  animated = true,
 }: BiasRadarChartProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [hoveredAxis, setHoveredAxis] = useState<string | null>(null)
@@ -47,21 +47,17 @@ export function BiasRadarChart({
     const margin = 60
     const radius = Math.min(width, height) / 2 - margin
 
-    const svg = d3.select(svgRef.current)
-      .attr('width', width)
-      .attr('height', height)
+    const svg = d3.select(svgRef.current).attr('width', width).attr('height', height)
 
-    const g = svg.append('g')
-      .attr('transform', `translate(${width / 2},${height / 2})`)
+    const g = svg.append('g').attr('transform', `translate(${width / 2},${height / 2})`)
 
     // Scales
-    const angleScale = d3.scalePoint()
-      .domain(data.map(d => d.axis))
+    const angleScale = d3
+      .scalePoint()
+      .domain(data.map((d) => d.axis))
       .range([0, 2 * Math.PI])
 
-    const radiusScale = d3.scaleLinear()
-      .domain([0, 100])
-      .range([0, radius])
+    const radiusScale = d3.scaleLinear().domain([0, 100]).range([0, radius])
 
     // Grid levels
     const levels = 5
@@ -70,7 +66,7 @@ export function BiasRadarChart({
     // Draw grid circles
     for (let level = 1; level <= levels; level++) {
       const levelRadius = radiusScale(level * levelStep)
-      
+
       g.append('circle')
         .attr('cx', 0)
         .attr('cy', 0)
@@ -105,7 +101,7 @@ export function BiasRadarChart({
     data.forEach((d, i) => {
       const angle = angleScale(d.axis) || 0
       const lineCoordinate = angleToCoordinate(angle, radius, 0, 0)
-      
+
       // Axis lines
       g.append('line')
         .attr('x1', 0)
@@ -122,8 +118,9 @@ export function BiasRadarChart({
 
       // Axis labels
       const labelCoordinate = angleToCoordinate(angle, radius + 30, 0, 0)
-      
-      const label = g.append('text')
+
+      const label = g
+        .append('text')
         .attr('x', labelCoordinate.x)
         .attr('y', labelCoordinate.y)
         .text(d.axis)
@@ -169,13 +166,15 @@ export function BiasRadarChart({
     })
 
     // Prepare data for the radar area
-    const radarLine = d3.lineRadial<BiasMetric>()
+    const radarLine = d3
+      .lineRadial<BiasMetric>()
       .angle((d) => angleScale(d.axis) || 0)
       .radius((d) => radiusScale(d.value))
       .curve(d3.curveLinearClosed)
 
     // Draw the radar area
-    const radarArea = g.append('path')
+    const radarArea = g
+      .append('path')
       .datum(data)
       .attr('d', radarLine as any)
       .style('fill', 'url(#gradient)')
@@ -196,19 +195,22 @@ export function BiasRadarChart({
     }
 
     // Add gradient
-    const gradient = svg.append('defs')
+    const gradient = svg
+      .append('defs')
       .append('radialGradient')
       .attr('id', 'gradient')
       .attr('cx', '50%')
       .attr('cy', '50%')
       .attr('r', '50%')
 
-    gradient.append('stop')
+    gradient
+      .append('stop')
       .attr('offset', '0%')
       .style('stop-color', '#4a9eff')
       .style('stop-opacity', 0.8)
 
-    gradient.append('stop')
+    gradient
+      .append('stop')
       .attr('offset', '100%')
       .style('stop-color', '#ec4899')
       .style('stop-opacity', 0.2)
@@ -217,8 +219,9 @@ export function BiasRadarChart({
     data.forEach((d, i) => {
       const angle = angleScale(d.axis) || 0
       const coordinate = angleToCoordinate(angle, radiusScale(d.value), 0, 0)
-      
-      const circle = g.append('circle')
+
+      const circle = g
+        .append('circle')
         .attr('cx', coordinate.x)
         .attr('cy', coordinate.y)
         .attr('r', 0)
@@ -228,7 +231,8 @@ export function BiasRadarChart({
         .style('cursor', 'pointer')
 
       if (animated) {
-        circle.transition()
+        circle
+          .transition()
           .duration(500)
           .delay(1000 + i * 100)
           .attr('r', 6)
@@ -238,51 +242,43 @@ export function BiasRadarChart({
 
       // Add hover effect
       circle
-        .on('mouseenter', function() {
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .attr('r', 8)
+        .on('mouseenter', function () {
+          d3.select(this).transition().duration(200).attr('r', 8)
           setHoveredAxis(d.axis)
         })
-        .on('mouseleave', function() {
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .attr('r', 6)
+        .on('mouseleave', function () {
+          d3.select(this).transition().duration(200).attr('r', 6)
           setHoveredAxis(null)
         })
 
       // Tooltip
-      circle.append('title')
-        .text(`${d.axis}: ${d.value}% - ${d.description}`)
+      circle.append('title').text(`${d.axis}: ${d.value}% - ${d.description}`)
     })
 
     setIsVisible(true)
-
   }, [data, size, animated, hoveredAxis])
 
   // Helper function to convert angle to coordinates
-  function angleToCoordinate(angle: number, radius: number, cx: number, cy: number) {
+  function angleToCoordinate(angle: number, radius: number, cx: number, cy: number): JSX.Element {
     return {
       x: cx + radius * Math.cos(angle - Math.PI / 2),
-      y: cy + radius * Math.sin(angle - Math.PI / 2)
+      y: cy + radius * Math.sin(angle - Math.PI / 2),
     }
   }
 
   return (
-    <motion.div 
+    <motion.div
       className={`relative ${className}`}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: isVisible ? 1 : 0, scale: isVisible ? 1 : 0.9 }}
       transition={{ duration: 0.5 }}
     >
       <svg ref={svgRef} className="w-full h-full" />
-      
+
       {/* Legend */}
       <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-4 text-xs">
         {data.map((d) => (
-          <div 
+          <div
             key={d.axis}
             className={`flex items-center gap-1 cursor-pointer transition-opacity ${
               hoveredAxis && hoveredAxis !== d.axis ? 'opacity-50' : ''
@@ -290,10 +286,7 @@ export function BiasRadarChart({
             onMouseEnter={() => setHoveredAxis(d.axis)}
             onMouseLeave={() => setHoveredAxis(null)}
           >
-            <div 
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: d.color }}
-            />
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.color }} />
             <span className="text-muted-foreground">{d.axis}</span>
           </div>
         ))}
@@ -309,12 +302,15 @@ export function BiasRadarChart({
         >
           <h4 className="font-semibold text-sm mb-1">{hoveredAxis}</h4>
           <p className="text-xs text-muted-foreground">
-            {data.find(d => d.axis === hoveredAxis)?.description}
+            {data.find((d) => d.axis === hoveredAxis)?.description}
           </p>
-          <p className="text-lg font-bold mt-1" style={{ 
-            color: data.find(d => d.axis === hoveredAxis)?.color 
-          }}>
-            {data.find(d => d.axis === hoveredAxis)?.value}%
+          <p
+            className="text-lg font-bold mt-1"
+            style={{
+              color: data.find((d) => d.axis === hoveredAxis)?.color,
+            }}
+          >
+            {data.find((d) => d.axis === hoveredAxis)?.value}%
           </p>
         </motion.div>
       )}

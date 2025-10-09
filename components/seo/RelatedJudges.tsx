@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -25,18 +25,24 @@ interface RelatedJudgesProps {
   courtSlug?: string | null
 }
 
-export function RelatedJudges({ currentJudgeId, courtName, jurisdiction, judgeName, courtSlug }: RelatedJudgesProps) {
+export function RelatedJudges({
+  currentJudgeId,
+  courtName,
+  jurisdiction,
+  judgeName,
+  courtSlug,
+}: RelatedJudgesProps): JSX.Element {
   const [relatedJudges, setRelatedJudges] = useState<Judge[]>([])
   const [loading, setLoading] = useState(true)
   const preferredCourtSlug = courtSlug || resolveCourtSlug({ name: courtName }) || 'unknown-court'
 
   useEffect(() => {
-    async function fetchRelatedJudges() {
+    async function fetchRelatedJudges(): JSX.Element {
       try {
         const response = await fetch(
           `/api/judges/related?judgeId=${currentJudgeId}&court=${encodeURIComponent(courtName)}&jurisdiction=${encodeURIComponent(jurisdiction)}&limit=6`
         )
-        
+
         if (response.ok) {
           const data = await response.json()
           setRelatedJudges(data.judges || [])
@@ -57,7 +63,7 @@ export function RelatedJudges({ currentJudgeId, courtName, jurisdiction, judgeNa
         <div className="animate-pulse">
           <div className="h-6 bg-muted rounded w-1/2 mb-4"></div>
           <div className="space-y-3">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="flex items-center space-x-3">
                 <div className="h-12 w-12 bg-muted rounded-full"></div>
                 <div className="flex-1">
@@ -82,7 +88,7 @@ export function RelatedJudges({ currentJudgeId, courtName, jurisdiction, judgeNa
         <User className="h-5 w-5 text-primary mr-2" />
         Other Judges You May Research
       </h2>
-      
+
       <div className="space-y-4">
         {relatedJudges.map((judge, idx) => (
           <motion.div
@@ -144,9 +150,9 @@ export function RelatedJudges({ currentJudgeId, courtName, jurisdiction, judgeNa
       {/* SEO Internal Links */}
       <div className="mt-4 pt-4 border-t border-gray-100">
         <p className="text-xs text-muted-foreground leading-relaxed">
-          Research judicial patterns and find experienced attorneys in {jurisdiction}. Compare {judgeName}'s 
-          ruling history with other {courtName} judges. Access comprehensive legal analytics for case strategy 
-          and attorney selection in {jurisdiction} courts.
+          Research judicial patterns and find experienced attorneys in {jurisdiction}. Compare{' '}
+          {judgeName}'s ruling history with other {courtName} judges. Access comprehensive legal
+          analytics for case strategy and attorney selection in {jurisdiction} courts.
         </p>
       </div>
     </GlassCard>

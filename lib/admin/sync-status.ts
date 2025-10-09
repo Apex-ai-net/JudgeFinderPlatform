@@ -89,8 +89,8 @@ export async function fetchSyncStatus(): Promise<SyncStatusResponse | null> {
     const response = await fetch(`${baseUrl}/api/admin/sync-status`, {
       cache: 'no-store',
       headers: {
-        'x-api-key': getAdminApiKey()
-      }
+        'x-api-key': getAdminApiKey(),
+      },
     })
 
     if (!response.ok) {
@@ -106,16 +106,19 @@ export async function fetchSyncStatus(): Promise<SyncStatusResponse | null> {
   }
 }
 
-export async function runSyncAdminAction(action: string, payload: Record<string, unknown> = {}) {
+export async function runSyncAdminAction(
+  action: string,
+  payload: Record<string, unknown> = {}
+): Promise<void> {
   const baseUrl = await resolveInternalBaseUrl()
   const response = await fetch(`${baseUrl}/api/admin/sync-status`, {
     method: 'POST',
     cache: 'no-store',
     headers: {
       'content-type': 'application/json',
-      'x-api-key': getAdminApiKey()
+      'x-api-key': getAdminApiKey(),
     },
-    body: JSON.stringify({ action, ...payload })
+    body: JSON.stringify({ action, ...payload }),
   })
 
   if (!response.ok) {

@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useEffect, useRef, useState } from 'react'
 
@@ -16,12 +16,12 @@ declare global {
   }
 }
 
-export function GoogleAd({ 
-  slot, 
-  format = 'auto', 
-  responsive = true, 
+export function GoogleAd({
+  slot,
+  format = 'auto',
+  responsive = true,
   style = {},
-  className = ''
+  className = '',
 }: GoogleAdProps) {
   const adRef = useRef<HTMLModElement>(null)
   const isLoaded = useRef(false)
@@ -43,7 +43,7 @@ export function GoogleAd({
   // Don't render ads in development unless explicitly enabled
   if (process.env.NODE_ENV === 'development' && !process.env.NEXT_PUBLIC_ENABLE_ADS) {
     return (
-      <div 
+      <div
         className={`bg-muted border-2 border-dashed border-border rounded-lg p-4 text-center ${className}`}
         style={style}
       >
@@ -72,7 +72,7 @@ export function GoogleAd({
 }
 
 // Lazy-loaded ad component for better performance
-export function LazyGoogleAd(props: GoogleAdProps) {
+export function LazyGoogleAd(props: GoogleAdProps): JSX.Element {
   const ref = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
 
@@ -96,9 +96,11 @@ export function LazyGoogleAd(props: GoogleAdProps) {
 
   return (
     <div ref={ref}>
-      {isVisible ? <GoogleAd {...props} /> : (
-        <div 
-          className={`bg-muted rounded-lg ${props.className || ''}`} 
+      {isVisible ? (
+        <GoogleAd {...props} />
+      ) : (
+        <div
+          className={`bg-muted rounded-lg ${props.className || ''}`}
           style={{ minHeight: '250px', ...props.style }}
         />
       )}

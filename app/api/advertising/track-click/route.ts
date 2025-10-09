@@ -11,7 +11,7 @@ const payloadSchema = z.object({
   court_id: z.string().uuid().optional(),
 })
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const json = await request.json()
     const parsed = payloadSchema.safeParse(json)
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       logger.warn('Failed to increment ad spot click counter', {
         context: 'ad_click_counter',
         slot_id: parsed.data.slot_id,
-        error
+        error,
       })
     }
 
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       logger.warn('Failed to log ad click event', {
         context: 'ad_click_event_logging',
         slot_id: parsed.data.slot_id,
-        error
+        error,
       })
     }
 
@@ -53,5 +53,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: e?.message || 'Internal error' }, { status: 500 })
   }
 }
-
-

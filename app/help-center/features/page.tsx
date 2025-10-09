@@ -1,6 +1,14 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { ChevronLeft, TrendingUp, GitCompare, Bookmark, Filter, FileText, AlertCircle } from 'lucide-react'
+import {
+  ChevronLeft,
+  TrendingUp,
+  GitCompare,
+  Bookmark,
+  Filter,
+  FileText,
+  AlertCircle,
+} from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Features & Tools | Help Center | JudgeFinder',
@@ -17,7 +25,7 @@ const features = [
       'Reversal Rate: Percentage of decisions overturned on appeal. Lower rates indicate stronger legal reasoning.',
       'Settlement Preference: Tendency to encourage settlement vs. trial. Useful for case strategy planning.',
       'Decision Speed: Average time from hearing to decision. Helps estimate case timelines.',
-      'Consistency Score: How predictable the judge\'s rulings are based on historical patterns.',
+      "Consistency Score: How predictable the judge's rulings are based on historical patterns.",
       'All metrics include confidence intervals based on sample size and data quality.',
     ],
   },
@@ -88,7 +96,7 @@ const features = [
   },
 ]
 
-export default function FeaturesPage() {
+export default function FeaturesPage(): JSX.Element {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}

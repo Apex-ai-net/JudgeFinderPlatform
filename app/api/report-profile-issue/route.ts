@@ -8,18 +8,19 @@ import crypto from 'crypto'
 
 export const dynamic = 'force-dynamic'
 
-const ISSUE_TYPE_VALUES = ['data_accuracy', 'bias_context', 'assignment_change', 'ads_or_policy', 'other'] as const
+const ISSUE_TYPE_VALUES = [
+  'data_accuracy',
+  'bias_context',
+  'assignment_change',
+  'ads_or_policy',
+  'other',
+] as const
 const issueSchema = z.object({
   judgeSlug: z.string().min(2).max(200),
   courtId: z.string().min(2).max(100).optional(),
   issueType: z.enum(ISSUE_TYPE_VALUES),
   details: z.string().min(10).max(2000),
-  reporterEmail: z
-    .string()
-    .trim()
-    .email({ message: 'Invalid email address' })
-    .max(200)
-    .optional(),
+  reporterEmail: z.string().trim().email({ message: 'Invalid email address' }).max(200).optional(),
   // Optional Turnstile token (required only when TURNSTILE_SECRET_KEY is configured)
   turnstileToken: z.string().min(10).max(1000).optional(),
 })
@@ -108,7 +109,10 @@ function normalizeDetails(input: string): string {
   return details
 }
 
-async function verifyTurnstile(token: string, remoteip: string | null): Promise<{ ok: boolean; score?: number }> {
+async function verifyTurnstile(
+  token: string,
+  remoteip: string | null
+): Promise<{ ok: boolean; score?: number }> {
   const secret = process.env.TURNSTILE_SECRET_KEY
   if (!secret) return { ok: true }
   try {
@@ -125,7 +129,10 @@ async function verifyTurnstile(token: string, remoteip: string | null): Promise<
       body,
     })
     const json: any = await resp.json()
-    return { ok: Boolean(json?.success), score: typeof json?.score === 'number' ? json.score : undefined }
+    return {
+      ok: Boolean(json?.success),
+      score: typeof json?.score === 'number' ? json.score : undefined,
+    }
   } catch (error) {
     logger.error('Turnstile verification failed', { error })
     return { ok: false }
@@ -163,7 +170,7 @@ async function dispatchCorrectionsWebhook(payload: {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const clientIp = getClientIp(request)
   const rateKey = `profile-issue:${clientIp}`
   const rateResult = await ProfileIssueLimiterManager.getBurstLimiter().limit(rateKey)
@@ -179,7 +186,7 @@ export async function POST(request: NextRequest) {
           'X-RateLimit-Remaining': String(rateResult.remaining ?? 0),
           'X-RateLimit-Reset': String(rateResult.reset ?? ''),
         },
-      },
+      }
     )
   }
 
@@ -218,7 +225,8 @@ export async function POST(request: NextRequest) {
 
   // Optional Turnstile verification (enforced only when TURNSTILE_SECRET_KEY is configured)
   const secretPresent = Boolean(process.env.TURNSTILE_SECRET_KEY)
-  const headerToken = request.headers.get('cf-turnstile-token') || request.headers.get('cf-turnstile-response')
+  const headerToken =
+    request.headers.get('cf-turnstile-token') || request.headers.get('cf-turnstile-response')
   const token = headerToken || (data as any).turnstileToken
   if (secretPresent) {
     if (!token) {
@@ -230,11 +238,16 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const dailyResult = await ProfileIssueLimiterManager.getDailyLimiter().limit(`${clientIp}:${data.judgeSlug}`)
+  const dailyResult = await ProfileIssueLimiterManager.getDailyLimiter().limit(
+    `${clientIp}:${data.judgeSlug}`
+  )
   if (!dailyResult.success) {
     logger.warn('Profile issue daily rate limited', { clientIp, judgeSlug: data.judgeSlug })
     return NextResponse.json(
-      { error: 'Too many reports today. Please try again tomorrow or email corrections@judgefinder.io.' },
+      {
+        error:
+          'Too many reports today. Please try again tomorrow or email corrections@judgefinder.io.',
+      },
       {
         status: 429,
         headers: {
@@ -242,7 +255,7 @@ export async function POST(request: NextRequest) {
           'X-RateLimit-Remaining': String(dailyResult.remaining ?? 0),
           'X-RateLimit-Reset': String(dailyResult.reset ?? ''),
         },
-      },
+      }
     )
   }
 
@@ -294,7 +307,9 @@ export async function POST(request: NextRequest) {
         last_status_change_at: now.toISOString(),
         meta: metadata,
       })
-      .select('id, judge_slug, court_id, issue_type, severity, priority, sla_due_at, reporter_email, meta')
+      .select(
+        'id, judge_slug, court_id, issue_type, severity, priority, sla_due_at, reporter_email, meta'
+      )
       .single()
 
     if (error || !insertedIssue) {
@@ -316,7 +331,9 @@ export async function POST(request: NextRequest) {
     const slaDays = ISSUE_SLA_DAYS[severity]
 
     return NextResponse.json(
-      { message: `Issue submitted. Our transparency team will review within ${slaDays} business day${slaDays === 1 ? '' : 's'}.` },
+      {
+        message: `Issue submitted. Our transparency team will review within ${slaDays} business day${slaDays === 1 ? '' : 's'}.`,
+      },
       {
         status: 201,
         headers: {
@@ -325,10 +342,14 @@ export async function POST(request: NextRequest) {
           'X-RateLimit-Remaining': String(rateResult.remaining ?? 0),
           'X-RateLimit-Reset': String(rateResult.reset ?? ''),
         },
-      },
+      }
     )
   } catch (error) {
-    logger.error('Profile issue handler error', { clientIp }, error instanceof Error ? error : undefined)
+    logger.error(
+      'Profile issue handler error',
+      { clientIp },
+      error instanceof Error ? error : undefined
+    )
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

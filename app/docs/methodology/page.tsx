@@ -33,7 +33,8 @@ const sections = [
   },
   {
     title: 'Confidence scoring',
-    summary: 'Every metric includes a 60–95% confidence score based on sample size, document clarity, and model agreement.',
+    summary:
+      'Every metric includes a 60–95% confidence score based on sample size, document clarity, and model agreement.',
     bullets: [
       'Sample size weighting: scores degrade when n < 25 and hide below the public threshold (default 15).',
       'Document quality: OCR clarity, missing outcome text, or sealed filings reduce confidence in proportion to uncertainty.',
@@ -51,29 +52,39 @@ const sections = [
   },
 ] as const
 
-export default function MethodologyPage() {
+export default function MethodologyPage(): JSX.Element {
   return (
     <div className="bg-background">
       <div className="mx-auto w-full max-w-4xl px-4 py-12">
         <header className="mb-10 space-y-3">
-          <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Transparency</p>
-          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">Methodology &amp; Data Standards</h1>
+          <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+            Transparency
+          </p>
+          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
+            Methodology &amp; Data Standards
+          </h1>
           <p className="text-base text-muted-foreground sm:text-lg">
-            JudgeFinder summarizes public court activity to make judicial decision patterns easier to understand. This page
-            explains how records flow into the platform, how we normalize outcomes, and what powers the confidence scores that
-            appear on every metric.
+            JudgeFinder summarizes public court activity to make judicial decision patterns easier
+            to understand. This page explains how records flow into the platform, how we normalize
+            outcomes, and what powers the confidence scores that appear on every metric.
           </p>
         </header>
 
         <section className="space-y-10">
           {sections.map(({ title, summary, bullets }) => (
-            <article key={title} className="rounded-2xl border border-border bg-card/90 p-6 shadow-sm">
+            <article
+              key={title}
+              className="rounded-2xl border border-border bg-card/90 p-6 shadow-sm"
+            >
               <h2 className="text-2xl font-semibold text-foreground">{title}</h2>
               <p className="mt-3 text-sm text-muted-foreground sm:text-base">{summary}</p>
               <ul className="mt-4 space-y-2 text-sm text-foreground/90 sm:text-base">
                 {bullets.map((item) => (
                   <li key={item} className="flex gap-2">
-                    <span aria-hidden className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
+                    <span
+                      aria-hidden
+                      className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary"
+                    />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -85,17 +96,22 @@ export default function MethodologyPage() {
         <section className="mt-12 rounded-2xl border border-border bg-muted/40 p-6">
           <h2 className="text-xl font-semibold text-foreground">Sampling thresholds</h2>
           <p className="mt-3 text-sm text-muted-foreground">
-            Metrics are hidden on the public site when the sample size falls below the configured threshold (environment variable
-            <code className="mx-1 rounded bg-card px-1 py-0.5 text-xs">NEXT_PUBLIC_MIN_SAMPLE_SIZE</code>, default 15). Scores between 15 and 30 show a LOW quality badge and direct
-            users to request an update. All denominators display next to each chart so readers understand the evidence behind a
-            percentage.
+            Metrics are hidden on the public site when the sample size falls below the configured
+            threshold (environment variable
+            <code className="mx-1 rounded bg-card px-1 py-0.5 text-xs">
+              NEXT_PUBLIC_MIN_SAMPLE_SIZE
+            </code>
+            , default 15). Scores between 15 and 30 show a LOW quality badge and direct users to
+            request an update. All denominators display next to each chart so readers understand the
+            evidence behind a percentage.
           </p>
         </section>
 
         <section className="mt-12 rounded-2xl border border-border bg-card/90 p-6 shadow-sm">
           <h2 className="text-xl font-semibold text-foreground">Need more depth?</h2>
           <p className="mt-3 text-sm text-muted-foreground">
-            For details on governance, prohibited uses, or how we label advertisements, explore the rest of the trust library.
+            For details on governance, prohibited uses, or how we label advertisements, explore the
+            rest of the trust library.
           </p>
           <div className="mt-4 flex flex-wrap gap-3 text-sm">
             <Link

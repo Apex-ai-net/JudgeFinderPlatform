@@ -6,13 +6,13 @@ import { logger } from '@/lib/utils/logger'
 export const dynamic = 'force-dynamic'
 
 const bodySchema = z.object({
-  entity_type: z.enum(['judge', 'court']),
-  entity_id: z.string().uuid(),
+  entityType: z.enum(['judge', 'court']),
+  entityId: z.string().uuid(),
   email: z.string().email(),
-  firm_name: z.string().min(1).max(200),
+  firmName: z.string().min(1).max(200),
 })
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   let payload: unknown
   try {
     payload = await request.json()
@@ -22,18 +22,21 @@ export async function POST(request: NextRequest) {
 
   const parsed = bodySchema.safeParse(payload)
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message || 'Invalid payload' }, { status: 400 })
+    return NextResponse.json(
+      { error: parsed.error.errors[0]?.message || 'Invalid payload' },
+      { status: 400 }
+    )
   }
 
-  const { entity_type, entity_id, email, firm_name } = parsed.data
+  const { entityType, entityId, email, firmName } = parsed.data
 
   try {
     const supabase = await createServerClient()
     const { error } = await supabase.from('ad_waitlist').insert({
-      entity_type,
-      entity_id,
+      entity_type: entityType,
+      entity_id: entityId,
       email,
-      firm_name,
+      firm_name: firmName,
     })
 
     if (error) {

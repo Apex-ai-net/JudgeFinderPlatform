@@ -6,7 +6,7 @@ import { getQualityTier, shouldHideMetric, MIN_SAMPLE_SIZE } from '@/lib/analyti
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const auth = requireApiKeyIfEnabled(request.headers, request.url)
     if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
     const rateState = await enforceRateLimit(`v1:search:${key}`)
     if (!rateState.allowed) {
       const r = NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
-      if (typeof rateState.remaining === 'number') r.headers.set('RateLimit-Remaining', String(rateState.remaining))
+      if (typeof rateState.remaining === 'number')
+        r.headers.set('RateLimit-Remaining', String(rateState.remaining))
       if (rateState.reset) r.headers.set('RateLimit-Reset', String(rateState.reset))
       return r
     }
@@ -79,9 +80,10 @@ export async function GET(request: NextRequest) {
       const analyticsEntry = analyticsMap.get(j.id)
       const analytics = analyticsEntry?.analytics || null
       const sampleCivil = analytics?.sample_size_civil ?? null
-      const qualityTier = sampleCivil !== null
-        ? getQualityTier(sampleCivil, analytics?.confidence_civil ?? null)
-        : 'LOW'
+      const qualityTier =
+        sampleCivil !== null
+          ? getQualityTier(sampleCivil, analytics?.confidence_civil ?? null)
+          : 'LOW'
       const hideCivil = shouldHideMetric(sampleCivil)
 
       return {
@@ -93,7 +95,7 @@ export async function GET(request: NextRequest) {
         confidence: Math.min(0.99, Number(confidence.toFixed(2))),
         analytics: analytics
           ? {
-              civil_plaintiff_favor: hideCivil ? null : analytics.civil_plaintiff_favor ?? null,
+              civil_plaintiff_favor: hideCivil ? null : (analytics.civil_plaintiff_favor ?? null),
               sample_size_civil: sampleCivil,
               confidence_civil: analytics.confidence_civil ?? null,
               overall_confidence: analytics.overall_confidence ?? null,
@@ -101,15 +103,16 @@ export async function GET(request: NextRequest) {
               quality: qualityLabel(qualityTier),
               hidden: hideCivil,
               generated_at: analytics.generated_at ?? analyticsEntry?.created_at ?? null,
-              min_sample_size: MIN_SAMPLE_SIZE
+              min_sample_size: MIN_SAMPLE_SIZE,
             }
-          : null
+          : null,
       }
     })
 
     const res = NextResponse.json({ results: scored, total: scored.length })
     res.headers.set('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=60')
-    if (typeof rateState.remaining === 'number') res.headers.set('RateLimit-Remaining', String(rateState.remaining))
+    if (typeof rateState.remaining === 'number')
+      res.headers.set('RateLimit-Remaining', String(rateState.remaining))
     if (rateState.reset) res.headers.set('RateLimit-Reset', String(rateState.reset))
     return res
   } catch (e) {

@@ -5,7 +5,9 @@ interface AttorneyDirectoryBannerProps {
   jurisdiction: string
 }
 
-export function AttorneyDirectoryBanner({ jurisdiction }: AttorneyDirectoryBannerProps) {
+export function AttorneyDirectoryBanner({
+  jurisdiction,
+}: AttorneyDirectoryBannerProps): JSX.Element {
   return (
     <div className="bg-gradient-to-r from-enterprise-primary to-enterprise-deep text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -23,7 +25,7 @@ export function AttorneyDirectoryBanner({ jurisdiction }: AttorneyDirectoryBanne
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-3">
             <div className="hidden sm:flex items-center space-x-6 text-sm">
               <div className="flex items-center space-x-1">
@@ -39,8 +41,8 @@ export function AttorneyDirectoryBanner({ jurisdiction }: AttorneyDirectoryBanne
                 <span>Local Experts</span>
               </div>
             </div>
-            
-            <Link 
+
+            <Link
               href="/attorneys"
               className="px-6 py-2 rounded-lg font-medium bg-white/15 text-white border border-white/30 transition-colors hover:bg-white/25"
             >

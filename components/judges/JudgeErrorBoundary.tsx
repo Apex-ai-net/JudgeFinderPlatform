@@ -53,10 +53,9 @@ export class JudgeErrorBoundary extends React.Component<
               </h1>
 
               <p className="text-muted-foreground mb-6">
-                {this.props.judgeName 
+                {this.props.judgeName
                   ? `We encountered an error while loading the profile for Judge ${this.props.judgeName}.`
-                  : 'We encountered an error while loading this judge profile.'
-                }
+                  : 'We encountered an error while loading this judge profile.'}
               </p>
 
               {process.env.NODE_ENV === 'development' && this.state.error && (
@@ -130,10 +129,10 @@ export class JudgeErrorBoundary extends React.Component<
 /**
  * Hook-based error boundary for functional components
  */
-export function useJudgeErrorHandler() {
+export function useJudgeErrorHandler(): JSX.Element {
   const handleError = React.useCallback((error: Error, errorInfo?: any) => {
     console.error('Judge profile error:', error, errorInfo)
-    
+
     // Could send to error reporting service here
     // Example: Sentry.captureException(error, { extra: errorInfo })
   }, [])

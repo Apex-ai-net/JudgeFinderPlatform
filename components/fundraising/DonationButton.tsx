@@ -11,11 +11,15 @@ interface DonationButtonProps {
   className?: string
 }
 
-export function DonationButton({ amount, variant = 'inline', className }: DonationButtonProps) {
+export function DonationButton({
+  amount,
+  variant = 'inline',
+  className,
+}: DonationButtonProps): JSX.Element {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleDonate() {
+  async function handleDonate(): JSX.Element {
     try {
       setLoading(true)
       setError(null)
@@ -45,8 +49,8 @@ export function DonationButton({ amount, variant = 'inline', className }: Donati
     variant === 'header'
       ? 'inline-flex items-center gap-2 rounded-full border border-secondary-foreground/40 bg-secondary/30 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-secondary-foreground transition hover:bg-secondary/50'
       : variant === 'footer'
-      ? 'inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-4 py-3 text-sm font-semibold text-primary transition hover:bg-primary/20'
-      : 'inline-flex items-center gap-2 rounded-full border border-primary/60 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20'
+        ? 'inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-4 py-3 text-sm font-semibold text-primary transition hover:bg-primary/20'
+        : 'inline-flex items-center gap-2 rounded-full border border-primary/60 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20'
 
   const HeartIcon = () => (
     <motion.div
@@ -56,7 +60,7 @@ export function DonationButton({ amount, variant = 'inline', className }: Donati
       transition={{
         duration: 1.5,
         repeat: Infinity,
-        ease: "easeInOut"
+        ease: 'easeInOut',
       }}
     >
       <HeartHandshake className="h-4 w-4" aria-hidden />

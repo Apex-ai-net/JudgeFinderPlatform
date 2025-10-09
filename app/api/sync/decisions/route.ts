@@ -10,7 +10,7 @@ export const revalidate = 0
 export const runtime = 'nodejs'
 export const maxDuration = 60 // enqueue job quickly; processing handled by queue worker
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now()
 
   try {
@@ -31,14 +31,14 @@ export async function POST(request: NextRequest) {
       includeDockets: body.includeDockets,
       maxFilingsPerJudge: body.maxFilingsPerJudge,
       filingYearsBack: body.filingYearsBack,
-      filingDaysSinceLast: body.filingDaysSinceLast
+      filingDaysSinceLast: body.filingDaysSinceLast,
     })
 
-    logger.info('Starting decision sync via API', { 
+    logger.info('Starting decision sync via API', {
       options: {
         ...options,
-        judgeIds: options.judgeIds ? `${options.judgeIds.length} judges` : undefined
-      }
+        judgeIds: options.judgeIds ? `${options.judgeIds.length} judges` : undefined,
+      },
     })
 
     const queueManager = new SyncQueueManager()
@@ -48,22 +48,24 @@ export async function POST(request: NextRequest) {
 
     logger.info('Decision sync job queued via API', {
       jobId,
-      duration
+      duration,
     })
 
-    return NextResponse.json({
-      success: true,
-      queued: true,
-      jobId,
-      options,
-      duration
-    }, {
-      status: 202
-    })
-
+    return NextResponse.json(
+      {
+        success: true,
+        queued: true,
+        jobId,
+        options,
+        duration,
+      },
+      {
+        status: 202,
+      }
+    )
   } catch (error) {
     const duration = Date.now() - startTime
-    
+
     logger.error('Decision sync API failed', { error, duration })
 
     return NextResponse.json(
@@ -72,22 +74,19 @@ export async function POST(request: NextRequest) {
         error: 'Failed to queue decision sync',
         message: error instanceof Error ? error.message : 'Unknown error',
         duration,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       },
       { status: 500 }
     )
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Verify API key
     const apiKey = request.headers.get('x-api-key')
     if (!apiKey || apiKey !== process.env.SYNC_API_KEY) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Return sync status/info
@@ -103,13 +102,14 @@ export async function GET(request: NextRequest) {
         maxDecisionsPerJudge: 'Maximum new decisions to fetch per judge (default: 50)',
         includeDockets: 'Set to false to skip docket (court filing) ingestion',
         maxFilingsPerJudge: 'Maximum number of docket filings to fetch per judge (default: 300)',
-        filingYearsBack: 'How many years back to request docket filings when none exist yet (default: matches yearsBack)'
+        filingYearsBack:
+          'How many years back to request docket filings when none exist yet (default: matches yearsBack)',
       },
       example: {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': 'your-sync-api-key'
+          'x-api-key': 'your-sync-api-key',
         },
         body: {
           batchSize: 5,
@@ -117,20 +117,16 @@ export async function GET(request: NextRequest) {
           daysSinceLast: 7,
           maxDecisionsPerJudge: 50,
           maxFilingsPerJudge: 150,
-          judgeIds: ['judge-id-1', 'judge-id-2']
-        }
+          judgeIds: ['judge-id-1', 'judge-id-2'],
+        },
       },
       notes: [
         'This endpoint has stricter rate limiting due to CourtListener API constraints',
         'Processing time may be longer for large datasets',
-        'Duplicate decisions and docket filings are automatically skipped based on CourtListener IDs'
-      ]
+        'Duplicate decisions and docket filings are automatically skipped based on CourtListener IDs',
+      ],
     })
-
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to get sync info' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to get sync info' }, { status: 500 })
   }
 }

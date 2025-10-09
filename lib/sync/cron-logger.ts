@@ -3,7 +3,11 @@ import { logger } from '@/lib/utils/logger'
 
 interface CronMetricOptions {
   route: '/api/cron/daily-sync' | '/api/cron/weekly-sync'
-  metricName: 'cron_daily_sync' | 'cron_weekly_sync' | 'cron_daily_sync_manual' | 'cron_weekly_sync_manual'
+  metricName:
+    | 'cron_daily_sync'
+    | 'cron_weekly_sync'
+    | 'cron_daily_sync_manual'
+    | 'cron_weekly_sync_manual'
   status: 'success' | 'error'
   startTime: number
   durationMs: number
@@ -11,7 +15,7 @@ interface CronMetricOptions {
   ipAddress?: string
 }
 
-export async function logCronMetric(opts: CronMetricOptions) {
+export async function logCronMetric(opts: CronMetricOptions): Promise<void> {
   try {
     const supabase = await createServiceRoleClient()
     const startIso = new Date(opts.startTime).toISOString()
@@ -28,11 +32,14 @@ export async function logCronMetric(opts: CronMetricOptions) {
       page_type: 'cron',
       connection_type: 'cron',
       user_agent: 'cron-worker',
-      ip_address: opts.ipAddress || 'unknown'
+      ip_address: opts.ipAddress || 'unknown',
     })
 
     if (insertResult.error) {
-      logger.warn('Failed to write cron metric', { error: insertResult.error, metric: opts.metricName })
+      logger.warn('Failed to write cron metric', {
+        error: insertResult.error,
+        metric: opts.metricName,
+      })
     }
   } catch (error) {
     logger.warn('Cron metric logging error', { error, metric: opts.metricName })

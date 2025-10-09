@@ -4,7 +4,7 @@ import { sanitizeLikePattern } from '@/lib/utils/sql-sanitize'
 
 export const dynamic = 'force-dynamic'
 
-type AnalyticsPreview = {
+interface AnalyticsPreview {
   overall_confidence: number | null
   total_cases_analyzed: number | null
   civil_plaintiff_favor: number | null
@@ -12,7 +12,10 @@ type AnalyticsPreview = {
   generated_at: string | null
 }
 
-async function getAnalyticsPreview(supabase: any, judgeIds: string[]): Promise<Map<string, AnalyticsPreview | null>> {
+async function getAnalyticsPreview(
+  supabase: any,
+  judgeIds: string[]
+): Promise<Map<string, AnalyticsPreview | null>> {
   const idSet = Array.from(new Set(judgeIds.filter(Boolean)))
   const analyticsMap = new Map<string, AnalyticsPreview | null>()
 
@@ -52,19 +55,21 @@ async function getAnalyticsPreview(supabase: any, judgeIds: string[]): Promise<M
 
     analyticsMap.set(row.judge_id, {
       overall_confidence: toNumber(analytics.overall_confidence),
-      total_cases_analyzed: typeof analytics.total_cases_analyzed === 'number' && Number.isFinite(analytics.total_cases_analyzed)
-        ? Math.round(analytics.total_cases_analyzed)
-        : null,
+      total_cases_analyzed:
+        typeof analytics.total_cases_analyzed === 'number' &&
+        Number.isFinite(analytics.total_cases_analyzed)
+          ? Math.round(analytics.total_cases_analyzed)
+          : null,
       civil_plaintiff_favor: toNumber(analytics.civil_plaintiff_favor),
       criminal_sentencing_severity: toNumber(analytics.criminal_sentencing_severity),
-      generated_at: typeof analytics.generated_at === 'string' ? analytics.generated_at : null
+      generated_at: typeof analytics.generated_at === 'string' ? analytics.generated_at : null,
     })
   })
 
   return analyticsMap
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
     const rl = buildRateLimiter({ tokens: 20, window: '1 m', prefix: 'api:judges:chat-search' })
@@ -75,26 +80,21 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const name = searchParams.get('name')
     const jurisdiction = searchParams.get('jurisdiction')
-    
+
     if (!name) {
-      return NextResponse.json(
-        { error: 'Name parameter is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Name parameter is required' }, { status: 400 })
     }
 
     const supabase = await createServerClient()
-    
+
     // Clean the search name
-    const cleanName = name
-      .replace(/^(judge|justice|the honorable)\s+/i, '')
-      .trim()
-    
+    const cleanName = name.replace(/^(judge|justice|the honorable)\s+/i, '').trim()
+
     // Build the query
     let query = supabase
       .from('judges')
       .select('id, name, slug, court_name, jurisdiction, appointed_date, case_count:cases(count)')
-    
+
     // Try exact match first
     const { data: exactMatch } = await query
       .ilike('name', `%${sanitizeLikePattern(cleanName)}%`)
@@ -113,77 +113,72 @@ export async function GET(request: NextRequest) {
           jurisdiction: exactMatch.jurisdiction || 'California',
           appointed_date: exactMatch.appointed_date,
           case_count: exactMatch.case_count?.[0]?.count || 0,
-          analytics_preview: analyticsPreview.get(exactMatch.id) ?? null
+          analytics_preview: analyticsPreview.get(exactMatch.id) ?? null,
         },
-        rate_limit_remaining: remaining
+        rate_limit_remaining: remaining,
       })
     }
-    
+
     // If no exact match, try fuzzy search
-    const searchTerms = cleanName.split(' ').filter(term => term.length > 2)
-    
+    const searchTerms = cleanName.split(' ').filter((term) => term.length > 2)
+
     let fuzzyQuery = supabase
       .from('judges')
       .select('id, name, slug, court_name, jurisdiction, appointed_date')
-    
+
     // Add search conditions
     if (searchTerms.length > 0) {
-      const searchConditions = searchTerms.map(term => `name.ilike.%${sanitizeLikePattern(term)}%`).join(',')
+      const searchConditions = searchTerms
+        .map((term) => `name.ilike.%${sanitizeLikePattern(term)}%`)
+        .join(',')
       fuzzyQuery = fuzzyQuery.or(searchConditions)
     }
-    
+
     // Add jurisdiction filter if provided
     if (jurisdiction) {
       fuzzyQuery = fuzzyQuery.eq('jurisdiction', jurisdiction)
     }
-    
+
     const { data: judges, error } = await fuzzyQuery.limit(5)
-    
+
     if (error) {
       console.error('Database error:', error)
-      return NextResponse.json(
-        { error: 'Failed to search judges' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Failed to search judges' }, { status: 500 })
     }
-    
+
     if (!judges || judges.length === 0) {
       // Return helpful message if no judges found
       return NextResponse.json({
         message: 'No judges found matching your search',
         suggestions: [
           'Try searching with just the last name',
-          'Check the spelling of the judge\'s name',
-          'Browse our statewide directory of California judges'
-        ]
+          "Check the spelling of the judge's name",
+          'Browse our statewide directory of California judges',
+        ],
       })
     }
-    
+
     const analyticsPreview = await getAnalyticsPreview(
       supabase,
-      judges.map(judge => judge.id).filter(Boolean)
+      judges.map((judge) => judge.id).filter(Boolean)
     )
 
     // Return multiple judges with limited data
     return NextResponse.json({
-      judges: judges.map(judge => ({
+      judges: judges.map((judge) => ({
         id: judge.id,
         name: judge.name,
         slug: judge.slug,
         court_name: judge.court_name,
         jurisdiction: judge.jurisdiction || 'California',
         appointed_date: judge.appointed_date,
-        analytics_preview: analyticsPreview.get(judge.id) ?? null
+        analytics_preview: analyticsPreview.get(judge.id) ?? null,
       })),
       total: judges.length,
-      rate_limit_remaining: remaining
+      rate_limit_remaining: remaining,
     })
-    
   } catch (error) {
     console.error('Chat search error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

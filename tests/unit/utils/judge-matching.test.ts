@@ -22,30 +22,30 @@ import {
   slugToName,
 } from '@/lib/utils/slug'
 
-describe('Judge Name Matching', () => {
-  describe('normalizeName', () => {
-    it('should normalize basic names correctly', () => {
+describe('Judge Name Matching', (): void => {
+  describe('normalizeName', (): void => {
+    it('should normalize basic names correctly', (): void => {
       expect(normalizeName('John Smith')).toBe('John Smith')
       expect(normalizeName('  John  Smith  ')).toBe('John Smith')
       expect(normalizeName('JOHN SMITH')).toBe('JOHN SMITH')
     })
 
-    it('should handle multiple spaces correctly', () => {
+    it('should handle multiple spaces correctly', (): void => {
       expect(normalizeName('Allen  L. Norris')).toBe('Allen L. Norris')
       expect(normalizeName('John   Robert    Smith')).toBe('John Robert Smith')
     })
 
-    it('should preserve initials with periods', () => {
+    it('should preserve initials with periods', (): void => {
       expect(normalizeName('Mary K. Johnson')).toBe('Mary K. Johnson')
       expect(normalizeName('J. Michael Anderson')).toBe('J. Michael Anderson')
       expect(normalizeName('A.B.C. Washington')).toBe('A.B.C. Washington')
     })
 
-    it('should handle empty or invalid input', () => {
+    it('should handle empty or invalid input', (): void => {
       expect(normalizeName('')).toBe('')
       expect(normalizeName('   ')).toBe('')
-      expect(normalizeName(null as any)).toBe('')
-      expect(normalizeName(undefined as any)).toBe('')
+      expect(normalizeName(null as unknown as string)).toBe('')
+      expect(normalizeName(undefined as unknown as string)).toBe('')
     })
 
     it('should remove excessive periods', () => {

@@ -16,28 +16,28 @@ import type { Judge } from '@/types'
 // Helper function to get coordinates for jurisdiction
 function getCoordinatesForJurisdiction(jurisdiction: string): string {
   const coordinates: Record<string, string> = {
-    'CA': '36.7783,-119.4179',
-    'California': '36.7783,-119.4179',
+    CA: '36.7783,-119.4179',
+    California: '36.7783,-119.4179',
     'Orange County': '33.7175,-117.8311',
     'Los Angeles': '34.0522,-118.2437',
     'San Francisco': '37.7749,-122.4194',
     'San Diego': '32.7157,-117.1611',
-    'Sacramento': '38.5816,-121.4944',
-    'Fresno': '36.7378,-119.7871',
+    Sacramento: '38.5816,-121.4944',
+    Fresno: '36.7378,-119.7871',
     'Long Beach': '33.7701,-118.1937',
-    'Oakland': '37.8044,-122.2711',
-    'Bakersfield': '35.3732,-119.0187',
-    'Anaheim': '33.8366,-117.9143',
+    Oakland: '37.8044,-122.2711',
+    Bakersfield: '35.3732,-119.0187',
+    Anaheim: '33.8366,-117.9143',
     'Santa Ana': '33.7455,-117.8677',
-    'Riverside': '33.9533,-117.3962',
-    'Stockton': '37.9577,-121.2908',
-    'Irvine': '33.6846,-117.8265',
+    Riverside: '33.9533,-117.3962',
+    Stockton: '37.9577,-121.2908',
+    Irvine: '33.6846,-117.8265',
     'Chula Vista': '32.6401,-117.0842',
-    'Fremont': '37.5485,-121.9886',
+    Fremont: '37.5485,-121.9886',
     'San Bernardino': '34.1083,-117.2898',
-    'Modesto': '37.6391,-120.9969'
+    Modesto: '37.6391,-120.9969',
   }
-  
+
   return coordinates[jurisdiction] || coordinates['CA'] || '36.7783,-119.4179'
 }
 
@@ -46,22 +46,24 @@ async function getJudge(slug: string): Promise<Judge | null> {
   try {
     const { createServerClient } = await import('@/lib/supabase/server')
     const supabase = await createServerClient()
-    
+
     // Multiple query strategies for robust judge lookup
     const { data: judges, error } = await supabase
       .from('judges')
-      .select(`
+      .select(
+        `
         *,
         court:courts(*)
-      `)
+      `
+      )
       .or(`slug.eq.${slug},name.ilike.%${decodeURIComponent(slug).replace(/-/g, ' ')}%`)
       .limit(1)
-    
+
     if (error) {
       console.error('Database error fetching judge:', error)
       return null
     }
-    
+
     return judges?.[0] || null
   } catch (error) {
     console.error('Error fetching judge:', error)
@@ -73,7 +75,7 @@ interface JudgePageProps {
   params: { slug: string }
 }
 
-export default async function JudgePage({ params }: JudgePageProps) {
+export default async function JudgePage({ params }: JudgePageProps): Promise<JSX.Element> {
   // Add param validation
   if (!params.slug || typeof params.slug !== 'string') {
     console.error('Invalid slug parameter:', params.slug)
@@ -108,12 +110,8 @@ export default async function JudgePage({ params }: JudgePageProps) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* SEO Monitoring and Analytics */}
-      <SEOMonitoring 
-        judgeName={safeName}
-        jurisdiction={safeJurisdiction}
-        slug={params.slug}
-      />
-      
+      <SEOMonitoring judgeName={safeName} jurisdiction={safeJurisdiction} slug={params.slug} />
+
       {/* Comprehensive Structured Data for SEO */}
       <JudgeStructuredData
         judge={judge}
@@ -137,22 +135,22 @@ export default async function JudgePage({ params }: JudgePageProps) {
       {/* SEO Breadcrumbs */}
       <div className="border-b border-border bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <SEOBreadcrumbs 
+          <SEOBreadcrumbs
             items={[
               { label: 'Judges', href: '/judges' },
-              { 
-                label: safeJurisdiction, 
-                href: `/jurisdictions/${safeJurisdiction.toLowerCase().replace(/\s+/g, '-')}` 
+              {
+                label: safeJurisdiction,
+                href: `/jurisdictions/${safeJurisdiction.toLowerCase().replace(/\s+/g, '-')}`,
               },
-              { 
-                label: safeCourtName, 
-                href: `/courts/${judge.court_id || ''}` 
+              {
+                label: safeCourtName,
+                href: `/courts/${judge.court_id || ''}`,
               },
-              { 
-                label: `Judge ${safeName}`, 
-                href: '#', 
-                current: true 
-              }
+              {
+                label: `Judge ${safeName}`,
+                href: '#',
+                current: true,
+              },
             ]}
           />
         </div>
@@ -169,21 +167,9 @@ export default async function JudgePage({ params }: JudgePageProps) {
       {/* Advertisement Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <GoogleAd
-            slot="2345678901"
-            format="rectangle"
-            style={{ minHeight: '250px' }}
-          />
-          <GoogleAd
-            slot="2345678901"
-            format="rectangle"
-            style={{ minHeight: '250px' }}
-          />
-          <GoogleAd
-            slot="2345678901"
-            format="rectangle"
-            style={{ minHeight: '250px' }}
-          />
+          <GoogleAd slot="2345678901" format="rectangle" style={{ minHeight: '250px' }} />
+          <GoogleAd slot="2345678901" format="rectangle" style={{ minHeight: '250px' }} />
+          <GoogleAd slot="2345678901" format="rectangle" style={{ minHeight: '250px' }} />
         </div>
       </div>
 
@@ -198,7 +184,7 @@ export default async function JudgePage({ params }: JudgePageProps) {
 
       {/* Related Judges for Internal Linking */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <RelatedJudges 
+        <RelatedJudges
           currentJudgeId={judge.id}
           jurisdiction={safeJurisdiction}
           courtName={judge.court_name || 'Unknown Court'}
@@ -216,11 +202,11 @@ interface MetadataProps {
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
   const judge = await getJudge(params.slug)
-  
+
   if (!judge) {
     return {
       title: 'Judge Not Found | JudgeFinder',
-      description: 'The requested judge profile could not be found.'
+      description: 'The requested judge profile could not be found.',
     }
   }
 
@@ -228,14 +214,14 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   const safeCourtName = judge.court_name || 'Unknown Court'
   const safeJurisdiction = judge.jurisdiction || 'Unknown Jurisdiction'
   const nameWithoutTitle = safeName.replace(/^(judge|justice|the honorable)\s+/i, '').trim()
-  
+
   const baseUrl = getBaseUrl()
   const coordinates = getCoordinatesForJurisdiction(safeJurisdiction)
-  
+
   return {
     title: `Judge ${nameWithoutTitle} | ${safeJurisdiction} ${safeCourtName.replace(/.*,\s*/, '')} | Complete Profile & Judicial Analytics`,
     description: `Comprehensive judicial profile for Judge ${nameWithoutTitle} serving at ${safeCourtName} in ${safeJurisdiction}. Research ruling patterns, case analytics, and judicial background for effective legal strategy.`,
-    
+
     keywords: [
       `Judge ${nameWithoutTitle}`,
       `${nameWithoutTitle} judge`,
@@ -248,14 +234,14 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
       `courtroom procedures`,
       `judicial patterns`,
       `legal intelligence`,
-      `attorney resources ${safeJurisdiction}`
+      `attorney resources ${safeJurisdiction}`,
     ].join(', '),
-    
+
     authors: [{ name: 'JudgeFinder Legal Research Team', url: `${baseUrl}/about` }],
     publisher: 'JudgeFinder',
     category: 'Legal Research and Judicial Analytics',
     classification: 'Professional Legal Intelligence Platform',
-    
+
     openGraph: {
       title: `Judge ${nameWithoutTitle} - ${safeJurisdiction} ${safeCourtName.replace(/.*,\s*/, '')}`,
       description: `Complete judicial profile: ${nameWithoutTitle}'s analytics, ruling patterns & attorney directory. Essential legal intelligence for case strategy.`,
@@ -274,7 +260,7 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
     twitter: {
       card: 'summary_large_image',
       site: '@JudgeFinder',
-      creator: '@JudgeFinder', 
+      creator: '@JudgeFinder',
       title: `Judge ${nameWithoutTitle} - ${safeJurisdiction} ${safeCourtName.replace(/.*,\s*/, '')}`,
       description: `Complete judicial profile: ${nameWithoutTitle}'s analytics, ruling patterns & attorney directory. Essential legal intelligence for case strategy.`,
       images: {
@@ -303,7 +289,7 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
       'geo.region': 'US-CA',
       'geo.placename': safeJurisdiction,
       'geo.position': coordinates,
-      'ICBM': coordinates,
+      ICBM: coordinates,
     },
 
     // Additional metadata for rich results

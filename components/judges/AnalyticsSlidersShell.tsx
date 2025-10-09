@@ -11,7 +11,10 @@ interface AnalyticsSlidersShellProps {
   judgeName: string
 }
 
-export function AnalyticsSlidersShell({ judgeId, judgeName }: AnalyticsSlidersShellProps) {
+export function AnalyticsSlidersShell({
+  judgeId,
+  judgeName,
+}: AnalyticsSlidersShellProps): JSX.Element {
   return (
     <Suspense
       fallback={
@@ -26,4 +29,3 @@ export function AnalyticsSlidersShell({ judgeId, judgeName }: AnalyticsSlidersSh
     </Suspense>
   )
 }
-

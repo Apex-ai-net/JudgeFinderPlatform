@@ -6,7 +6,8 @@ const BASE_URL = getBaseUrl()
 
 export const metadata: Metadata = {
   title: 'Jurisdictions & Counties | JudgeFinder',
-  description: 'Browse California jurisdictions and counties to find court locations, judge rosters, and legal analytics tailored to each region.',
+  description:
+    'Browse California jurisdictions and counties to find court locations, judge rosters, and legal analytics tailored to each region.',
   alternates: {
     canonical: `${BASE_URL}/jurisdictions`,
   },
@@ -20,10 +21,11 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Jurisdictions & Counties | JudgeFinder',
-    description: 'Explore county-level court data, judges, and analytics for California jurisdictions.',
+    description:
+      'Explore county-level court data, judges, and analytics for California jurisdictions.',
   },
 }
 
-export default function Page() {
+export default function Page(): JSX.Element {
   return <JurisdictionsPage />
 }

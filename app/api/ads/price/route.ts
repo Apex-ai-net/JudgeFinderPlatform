@@ -21,10 +21,10 @@ const bodySchema = z.object({
     .min(1, 'Bundle size must be at least 1')
     .max(50, 'Bundle size exceeds supported maximum')
     .optional()
-    .default(1)
+    .default(1),
 })
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const start = Date.now()
 
   const rateLimiter = buildRateLimiter({ tokens: 10, window: '1 m', prefix: 'api:ads:price' })
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
   if (!rateLimitResult.success) {
     logger.apiResponse('POST', '/api/ads/price', 429, Date.now() - start, {
-      error: 'rate_limited'
+      error: 'rate_limited',
     })
 
     return NextResponse.json(
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     logger.apiResponse('POST', '/api/ads/price', 400, Date.now() - start, {
       error: 'Invalid JSON payload',
-      details: error instanceof Error ? error.message : 'unknown'
+      details: error instanceof Error ? error.message : 'unknown',
     })
 
     return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 })
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) {
     const message = parsed.error.errors[0]?.message ?? 'Invalid request body'
     logger.apiResponse('POST', '/api/ads/price', 400, Date.now() - start, {
-      error: message
+      error: message,
     })
     return NextResponse.json({ error: message }, { status: 400 })
   }
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       logger.apiResponse('POST', '/api/ads/price', 400, Date.now() - start, {
-        error: error.message
+        error: error.message,
       })
       return NextResponse.json(
         { error: 'Unable to calculate pricing for the requested tier' },
@@ -98,25 +98,22 @@ export async function POST(request: NextRequest) {
         monthly_rate: null,
         savings: null,
         applied_discounts: null,
-      }
+      },
     })
 
     response.headers.set('Cache-Control', 'no-store')
 
     logger.apiResponse('POST', '/api/ads/price', 200, Date.now() - start, {
       tier,
-      months
+      months,
     })
 
     return response
   } catch (error) {
     logger.apiResponse('POST', '/api/ads/price', 500, Date.now() - start, {
-      error: error instanceof Error ? error.message : 'unknown'
+      error: error instanceof Error ? error.message : 'unknown',
     })
 
-    return NextResponse.json(
-      { error: 'Failed to calculate pricing' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to calculate pricing' }, { status: 500 })
   }
 }

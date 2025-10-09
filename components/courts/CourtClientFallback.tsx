@@ -15,7 +15,7 @@ interface Court {
   judge_count?: number | null
 }
 
-export function CourtClientFallback({ slug }: { slug: string }) {
+export function CourtClientFallback({ slug }: { slug: string }): JSX.Element {
   const [court, setCourt] = useState<Court | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -24,11 +24,13 @@ export function CourtClientFallback({ slug }: { slug: string }) {
 
   useEffect(() => {
     let cancelled = false
-    async function load() {
+    async function load(): JSX.Element {
       try {
         setLoading(true)
         setError(null)
-        const res = await fetch(`/api/courts/by-slug?slug=${encodeURIComponent(slug)}`, { cache: 'no-store' })
+        const res = await fetch(`/api/courts/by-slug?slug=${encodeURIComponent(slug)}`, {
+          cache: 'no-store',
+        })
         if (!res.ok) throw new Error(`court ${res.status}`)
         const data = await res.json()
         if (cancelled) return
@@ -51,7 +53,9 @@ export function CourtClientFallback({ slug }: { slug: string }) {
       }
     }
     load()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [slug])
 
   if (loading) {
@@ -68,7 +72,12 @@ export function CourtClientFallback({ slug }: { slug: string }) {
       <div className="mx-auto max-w-3xl px-4 py-16 text-center">
         <h1 className="text-3xl font-bold mb-2">Court Not Found</h1>
         <p className="text-muted-foreground mb-6">Please try again or browse all courts.</p>
-        <Link href="/courts" className="inline-block bg-primary text-primary-foreground px-4 py-2 rounded-lg">Back to Courts</Link>
+        <Link
+          href="/courts"
+          className="inline-block bg-primary text-primary-foreground px-4 py-2 rounded-lg"
+        >
+          Back to Courts
+        </Link>
       </div>
     )
   }
@@ -77,17 +86,26 @@ export function CourtClientFallback({ slug }: { slug: string }) {
     <div className="mx-auto max-w-7xl px-4 py-12">
       <div className="mb-6">
         <h1 className="text-4xl font-bold mb-1">{court.name}</h1>
-        <p className="text-muted-foreground capitalize">{court.type} Court • {court.jurisdiction}</p>
+        <p className="text-muted-foreground capitalize">
+          {court.type} Court • {court.jurisdiction}
+        </p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-8">
-          <CourtJudgesSection courtId={court.id} courtName={court.name} initialJudges={initialJudges} />
+          <CourtJudgesSection
+            courtId={court.id}
+            courtName={court.name}
+            initialJudges={initialJudges}
+          />
         </div>
         <div>
           <div className="bg-card rounded-xl shadow p-6 border border-border">
             <h3 className="text-lg font-semibold mb-3">Quick Actions</h3>
-            <Link href={`/judges?court=${encodeURIComponent(court.name)}`} className="block w-full text-center bg-primary text-primary-foreground px-4 py-2 rounded-lg">
+            <Link
+              href={`/judges?court=${encodeURIComponent(court.name)}`}
+              className="block w-full text-center bg-primary text-primary-foreground px-4 py-2 rounded-lg"
+            >
               Browse {totalCount || court.judge_count || 0} Judges
             </Link>
           </div>
@@ -98,5 +116,3 @@ export function CourtClientFallback({ slug }: { slug: string }) {
 }
 
 export default CourtClientFallback
-
-

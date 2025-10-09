@@ -2,9 +2,9 @@
 
 import { motion } from 'framer-motion'
 
-export function ScrollIndicator() {
+export function ScrollIndicator(): JSX.Element {
   return (
-    <motion.div 
+    <motion.div
       className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
       animate={{ y: [0, 10, 0] }}
       transition={{ repeat: Infinity, duration: 2 }}

@@ -6,27 +6,27 @@ import { describe, it, expect } from 'vitest'
 import { sanitizeSearchQuery, normalizeJudgeSearchQuery } from '@/lib/utils/validation'
 import { sanitizeLikePattern } from '@/lib/utils/sql-sanitize'
 
-describe('Input Validation', () => {
-  describe('sanitizeSearchQuery', () => {
-    it('should remove HTML tags', () => {
+describe('Input Validation', (): void => {
+  describe('sanitizeSearchQuery', (): void => {
+    it('should remove HTML tags', (): void => {
       const result = sanitizeSearchQuery('<script>alert("xss")</script>Judge Smith')
       expect(result).not.toContain('<script>')
       expect(result).not.toContain('</script>')
     })
 
-    it('should trim whitespace', () => {
+    it('should trim whitespace', (): void => {
       const result = sanitizeSearchQuery('  Judge Smith  ')
       expect(result).toBe('Judge Smith')
     })
 
-    it('should handle empty string', () => {
+    it('should handle empty string', (): void => {
       const result = sanitizeSearchQuery('')
       expect(result).toBe('')
     })
 
-    it('should handle null/undefined', () => {
-      const result1 = sanitizeSearchQuery(null as any)
-      const result2 = sanitizeSearchQuery(undefined as any)
+    it('should handle null/undefined', (): void => {
+      const result1 = sanitizeSearchQuery(null as unknown as string)
+      const result2 = sanitizeSearchQuery(undefined as unknown as string)
       expect(result1).toBe('')
       expect(result2).toBe('')
     })
@@ -136,7 +136,7 @@ describe('Input Validation', () => {
     })
 
     it('should handle complex real-world input', () => {
-      const userInput = '  Hon. John O\'Brien-Smith (Ret.)  '
+      const userInput = "  Hon. John O'Brien-Smith (Ret.)  "
       const sanitized = sanitizeSearchQuery(userInput)
       const normalized = normalizeJudgeSearchQuery(sanitized)
 

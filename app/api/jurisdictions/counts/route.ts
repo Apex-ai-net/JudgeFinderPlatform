@@ -3,7 +3,7 @@ import { createServerClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
     const rl = buildRateLimiter({ tokens: 60, window: '1 m', prefix: 'api:jurisdictions:counts' })
@@ -58,5 +58,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
-
-

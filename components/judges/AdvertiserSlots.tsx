@@ -55,7 +55,7 @@ function isBooked(slot: AdSlot): boolean {
   return status === 'booked' || status === 'reserved' || status === 'active'
 }
 
-export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
+export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps): JSX.Element {
   const [slots, setSlots] = useState<AdSlot[]>([])
   const [maxRotations, setMaxRotations] = useState<number>(DEFAULT_MAX_ROTATIONS)
   const [loading, setLoading] = useState(true)
@@ -72,11 +72,19 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
       }
 
       const data: ApiResponse = await response.json()
-      const rotations = Math.max(1, Math.min(data.max_rotations ?? DEFAULT_MAX_ROTATIONS, DEFAULT_MAX_ROTATIONS))
+      const rotations = Math.max(
+        1,
+        Math.min(data.max_rotations ?? DEFAULT_MAX_ROTATIONS, DEFAULT_MAX_ROTATIONS)
+      )
       setMaxRotations(rotations)
 
       const incoming = (data.slots ?? []).reduce<Record<number, AdSlot>>((acc, slot) => {
-        if (slot && typeof slot.position === 'number' && slot.position >= 1 && slot.position <= rotations) {
+        if (
+          slot &&
+          typeof slot.position === 'number' &&
+          slot.position >= 1 &&
+          slot.position <= rotations
+        ) {
           acc[slot.position] = slot
         }
         return acc
@@ -122,7 +130,7 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
     }))
   }
 
-  function trackClick(slotId: string, url: string) {
+  function trackClick(slotId: string, url: string): JSX.Element {
     fetch('/api/advertising/track-click', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -144,7 +152,10 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
     return (
       <div className="space-y-4">
         {Array.from({ length: maxRotations }, (_, index) => index + 1).map((rotation) => (
-          <div key={rotation} className="animate-pulse rounded-2xl border border-border/60 bg-card p-4">
+          <div
+            key={rotation}
+            className="animate-pulse rounded-2xl border border-border/60 bg-card p-4"
+          >
             <div className="mb-2 h-4 w-3/4 rounded bg-muted" />
             <div className="h-3 w-1/2 rounded bg-muted" />
           </div>
@@ -207,8 +218,12 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
             <div className="flex flex-col gap-2 md:gap-3">
               <div className="flex flex-col md:flex-row items-start justify-between gap-2 md:gap-3">
                 <div className="flex-1 w-full">
-                  <h4 className="text-xs md:text-lg font-semibold text-foreground truncate">{advertiser.firm_name}</h4>
-                  <p className="mt-1 text-[10px] md:text-sm text-muted-foreground line-clamp-2 md:line-clamp-none">{advertiser.description}</p>
+                  <h4 className="text-xs md:text-lg font-semibold text-foreground truncate">
+                    {advertiser.firm_name}
+                  </h4>
+                  <p className="mt-1 text-[10px] md:text-sm text-muted-foreground line-clamp-2 md:line-clamp-none">
+                    {advertiser.description}
+                  </p>
                 </div>
                 {advertiser.logo_url && (
                   <Image
@@ -238,7 +253,9 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
 
             {slot.creative && (
               <div className="hidden md:block rounded-xl border border-border/60 bg-surface-elevated p-4">
-                <h5 className="mb-1 text-sm font-semibold text-foreground">{slot.creative.headline}</h5>
+                <h5 className="mb-1 text-sm font-semibold text-foreground">
+                  {slot.creative.headline}
+                </h5>
                 <p className="text-sm text-muted-foreground">{slot.creative.description}</p>
               </div>
             )}
@@ -357,15 +374,16 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
       </div>
 
       <p className="text-xs text-muted-foreground/70">
-        Listings labeled <span className="font-semibold text-primary">Ad</span> are paid placements. We verify every sponsor&apos;s
-        California bar status before activation.
+        Listings labeled <span className="font-semibold text-primary">Ad</span> are paid placements.
+        We verify every sponsor&apos;s California bar status before activation.
       </p>
 
       {soldOut && (
         <div className="rounded-2xl border border-dashed border-border/60 bg-surface-elevated p-4 text-sm text-muted-foreground">
           <p className="font-semibold text-foreground">Sponsor inventory sold out</p>
           <p className="mt-1">
-            Both rotations are currently filled. Join the waitlist and we&apos;ll notify you the moment a verified slot becomes available.
+            Both rotations are currently filled. Join the waitlist and we&apos;ll notify you the
+            moment a verified slot becomes available.
           </p>
           <Link
             href={waitlistMailTo}
@@ -395,7 +413,8 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps) {
           <div>
             <p className="mb-1 font-semibold text-muted-foreground">Trust &amp; verification</p>
             <p>
-              We confirm California bar standing and active insurance before approving any sponsor. Listings are removed immediately if a bar license lapses.
+              We confirm California bar standing and active insurance before approving any sponsor.
+              Listings are removed immediately if a bar license lapses.
             </p>
           </div>
         </div>

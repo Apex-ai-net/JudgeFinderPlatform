@@ -5,6 +5,6 @@ import SearchPageClient from './search-client'
 export const metadata: Metadata = searchMetadata
 export const dynamic = 'force-dynamic'
 
-export default function SearchPage() {
+export default function SearchPage(): JSX.Element {
   return <SearchPageClient />
 }

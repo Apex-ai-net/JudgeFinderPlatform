@@ -9,12 +9,12 @@ export const dynamic = 'force-dynamic'
 
 function median(values: number[]): number | null {
   if (!values.length) return null
-  const sorted = [...values].sort((a,b) => a-b)
-  const mid = Math.floor(sorted.length/2)
-  return sorted.length % 2 ? sorted[mid] : (sorted[mid-1] + sorted[mid]) / 2
+  const sorted = [...values].sort((a, b) => a - b)
+  const mid = Math.floor(sorted.length / 2)
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const auth = requireApiKeyIfEnabled(request.headers, request.url)
     if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
     const limit = await enforceRateLimit(`v1:ttr:${key}`)
     if (!limit.allowed) {
       const r = NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
-      if (typeof limit.remaining === 'number') r.headers.set('RateLimit-Remaining', String(limit.remaining))
+      if (typeof limit.remaining === 'number')
+        r.headers.set('RateLimit-Remaining', String(limit.remaining))
       if (limit.reset) r.headers.set('RateLimit-Reset', String(limit.reset))
       return r
     }
@@ -40,8 +41,14 @@ export async function GET(request: NextRequest) {
       .eq('judge_id', judgeId)
       .not('decision_date', 'is', null)
 
-    if (caseType) { const sanitized = sanitizeLikePattern(caseType); if (sanitized) qb = qb.ilike('case_type', `%${sanitized}%`) }
-    if (motion) { const sanitized = sanitizeLikePattern(motion); if (sanitized) qb = qb.or(`outcome.ilike.%${sanitized}%,summary.ilike.%${sanitized}%`) }
+    if (caseType) {
+      const sanitized = sanitizeLikePattern(caseType)
+      if (sanitized) qb = qb.ilike('case_type', `%${sanitized}%`)
+    }
+    if (motion) {
+      const sanitized = sanitizeLikePattern(motion)
+      if (sanitized) qb = qb.or(`outcome.ilike.%${sanitized}%,summary.ilike.%${sanitized}%`)
+    }
 
     const { data: rows, error } = await qb.limit(5000)
     if (error) return NextResponse.json({ error: 'Query failed' }, { status: 500 })
@@ -51,20 +58,20 @@ export async function GET(request: NextRequest) {
       const start = r.filing_date ? new Date(r.filing_date).getTime() : null
       const end = r.decision_date ? new Date(r.decision_date).getTime() : null
       if (!start || !end) continue
-      const days = Math.max(0, Math.round((end - start) / (1000*60*60*24)))
+      const days = Math.max(0, Math.round((end - start) / (1000 * 60 * 60 * 24)))
       durations.push(days)
     }
 
-    durations.sort((a,b)=>a-b)
+    durations.sort((a, b) => a - b)
     const n = durations.length
     const med = median(durations)
-    const p10 = n ? durations[Math.floor(n*0.1)] : null
-    const p90 = n ? durations[Math.floor(n*0.9)] : null
+    const p10 = n ? durations[Math.floor(n * 0.1)] : null
+    const p90 = n ? durations[Math.floor(n * 0.9)] : null
 
     // Very thin survival curve: empirical CDF
     const points = [] as Array<{ day: number; probability: number }>
     if (n) {
-      for (let i = 0; i < n; i += Math.max(1, Math.floor(n/50))) {
+      for (let i = 0; i < n; i += Math.max(1, Math.floor(n / 50))) {
         const day = durations[i]
         const prob = (n - i) / n // survival S(t) ~ P(T>t)
         points.push({ day, probability: Number(prob.toFixed(3)) })
@@ -75,7 +82,7 @@ export async function GET(request: NextRequest) {
 
     const payload = {
       judge_id: judgeId,
-      data_window: { n, min: durations[0] ?? null, max: durations[n-1] ?? null },
+      data_window: { n, min: durations[0] ?? null, max: durations[n - 1] ?? null },
       median_days: med,
       ci80: [p10, p90],
       survival_curve: points,
@@ -84,8 +91,8 @@ export async function GET(request: NextRequest) {
         tier: qualityTier.toLowerCase(),
         sample_size: n,
         min_sample_size: MIN_SAMPLE_SIZE,
-        sufficient: n >= MIN_SAMPLE_SIZE
-      }
+        sufficient: n >= MIN_SAMPLE_SIZE,
+      },
     }
 
     const format = searchParams.get('format')
@@ -95,17 +102,19 @@ export async function GET(request: NextRequest) {
       const r = new Response(rows.join('\n'), {
         headers: {
           'Content-Type': 'text/csv; charset=utf-8',
-          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60'
-        }
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+        },
       })
-      if (typeof limit.remaining === 'number') r.headers.set('RateLimit-Remaining', String(limit.remaining))
+      if (typeof limit.remaining === 'number')
+        r.headers.set('RateLimit-Remaining', String(limit.remaining))
       if (limit.reset) r.headers.set('RateLimit-Reset', String(limit.reset))
       return r
     }
 
     const res = NextResponse.json(payload)
     res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=60')
-    if (typeof limit.remaining === 'number') res.headers.set('RateLimit-Remaining', String(limit.remaining))
+    if (typeof limit.remaining === 'number')
+      res.headers.set('RateLimit-Remaining', String(limit.remaining))
     if (limit.reset) res.headers.set('RateLimit-Reset', String(limit.reset))
     return res
   } catch (e) {

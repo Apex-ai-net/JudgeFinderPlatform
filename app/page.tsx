@@ -12,12 +12,15 @@ const BASE_URL = getBaseUrl()
 // Server-side metadata generation for SEO & AEO (2025)
 export const metadata: Metadata = {
   title: 'JudgeFinder.io - California Judicial Transparency Platform 2025 | Free Legal Research',
-  description: 'Research California judges instantly with comprehensive judicial analytics, pattern analysis, ruling insights, and case outcomes. Free access to complete court data for attorneys, litigants, and citizens. Updated 2025.',
-  keywords: 'california judges, find my judge, court appearance preparation, judicial analytics, judge patterns, california courts, legal research, judge profiles, court analytics, judicial transparency, california superior court judges, judge ruling patterns, legal intelligence, court preparation, judge information, california judicial directory, court case research, judge decision history, legal transparency platform, free judge lookup, 2025',
+  description:
+    'Research California judges instantly with comprehensive judicial analytics, pattern analysis, ruling insights, and case outcomes. Free access to complete court data for attorneys, litigants, and citizens. Updated 2025.',
+  keywords:
+    'california judges, find my judge, court appearance preparation, judicial analytics, judge patterns, california courts, legal research, judge profiles, court analytics, judicial transparency, california superior court judges, judge ruling patterns, legal intelligence, court preparation, judge information, california judicial directory, court case research, judge decision history, legal transparency platform, free judge lookup, 2025',
 
   openGraph: {
     title: 'JudgeFinder.io - California Judicial Research Platform 2025',
-    description: 'Instant access to California judge profiles with comprehensive analytics. Research ruling patterns, judicial tendencies, and case outcomes. 100% free for attorneys and citizens.',
+    description:
+      'Instant access to California judge profiles with comprehensive analytics. Research ruling patterns, judicial tendencies, and case outcomes. 100% free for attorneys and citizens.',
     type: 'website',
     url: BASE_URL,
     siteName: 'JudgeFinder.io',
@@ -27,20 +30,21 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: 'JudgeFinder - California Judicial Analytics Platform',
-      }
+      },
     ],
     locale: 'en_US',
   },
-  
+
   twitter: {
     card: 'summary_large_image',
     title: 'Find Your California Judge - Free Judicial Research 2025',
-    description: 'Research California judges with comprehensive data analytics. Ruling patterns, judicial insights, case outcomes. 100% free access.',
+    description:
+      'Research California judges with comprehensive data analytics. Ruling patterns, judicial insights, case outcomes. 100% free access.',
     images: ['/twitter-image'],
     creator: '@judgefinder',
     site: '@judgefinder',
   },
-  
+
   robots: {
     index: true,
     follow: true,
@@ -52,20 +56,20 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  
+
   alternates: {
     canonical: BASE_URL,
   },
-  
+
   // Search engine verification (configured via environment variables)
   verification: {
     google: process.env.GOOGLE_SITE_VERIFICATION || '',
     yandex: process.env.YANDEX_VERIFICATION || '',
     other: {
       'msvalidate.01': process.env.BING_SITE_VERIFICATION || '',
-    }
+    },
   },
-  
+
   other: {
     'google-site-verification': process.env.GOOGLE_SITE_VERIFICATION || '',
     'msvalidate.01': process.env.BING_SITE_VERIFICATION || '',
@@ -78,7 +82,7 @@ export const metadata: Metadata = {
 }
 
 // Generate comprehensive structured data for homepage
-function generateHomepageStructuredData() {
+function generateHomepageStructuredData(): JSX.Element {
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -87,19 +91,19 @@ function generateHomepageStructuredData() {
         '@id': `${BASE_URL}/#website`,
         url: BASE_URL,
         name: 'JudgeFinder.io',
-        description: 'California\'s judicial analytics and transparency platform',
+        description: "California's judicial analytics and transparency platform",
         publisher: {
-          '@id': `${BASE_URL}/#organization`
+          '@id': `${BASE_URL}/#organization`,
         },
         potentialAction: {
           '@type': 'SearchAction',
           target: {
             '@type': 'EntryPoint',
-            urlTemplate: `${BASE_URL}/judges?q={search_term_string}`
+            urlTemplate: `${BASE_URL}/judges?q={search_term_string}`,
           },
-          'query-input': 'required name=search_term_string'
+          'query-input': 'required name=search_term_string',
         },
-        inLanguage: 'en-US'
+        inLanguage: 'en-US',
       },
       {
         '@type': 'Organization',
@@ -110,19 +114,16 @@ function generateHomepageStructuredData() {
           '@type': 'ImageObject',
           url: `${BASE_URL}/logo.png`,
           width: 600,
-          height: 60
+          height: 60,
         },
         description: 'Leading platform for judicial transparency and legal analytics in California',
-        sameAs: [
-          'https://twitter.com/judgefinder',
-          'https://linkedin.com/company/judgefinder',
-        ],
+        sameAs: ['https://twitter.com/judgefinder', 'https://linkedin.com/company/judgefinder'],
         contactPoint: {
           '@type': 'ContactPoint',
           contactType: 'customer support',
           email: 'support@judgefinder.io',
-          availableLanguage: 'English'
-        }
+          availableLanguage: 'English',
+        },
       },
       {
         '@type': 'WebApplication',
@@ -134,7 +135,7 @@ function generateHomepageStructuredData() {
           '@type': 'Offer',
           price: '0',
           priceCurrency: 'USD',
-          description: 'Free access to judicial analytics and court data'
+          description: 'Free access to judicial analytics and court data',
         },
         featureList: [
           'Comprehensive California Judge Profiles',
@@ -142,14 +143,14 @@ function generateHomepageStructuredData() {
           'Real-time Case Analytics',
           'Extensive Court Decision Library',
           'Ruling Pattern Analysis',
-          'Free Anonymous Access'
-        ]
+          'Free Anonymous Access',
+        ],
       },
       {
         '@type': 'Service',
         name: 'Judicial Analytics Service',
         provider: {
-          '@id': `${BASE_URL}/#organization`
+          '@id': `${BASE_URL}/#organization`,
         },
         serviceType: 'Legal Research and Analytics',
         areaServed: {
@@ -157,8 +158,8 @@ function generateHomepageStructuredData() {
           name: 'California',
           containedInPlace: {
             '@type': 'Country',
-            name: 'United States'
-          }
+            name: 'United States',
+          },
         },
         hasOfferCatalog: {
           '@type': 'OfferCatalog',
@@ -169,27 +170,27 @@ function generateHomepageStructuredData() {
               itemOffered: {
                 '@type': 'Service',
                 name: 'Judge Profile Research',
-                description: 'Comprehensive judicial profiles with analytics'
-              }
+                description: 'Comprehensive judicial profiles with analytics',
+              },
             },
             {
               '@type': 'Offer',
               itemOffered: {
                 '@type': 'Service',
                 name: 'Judicial Pattern Analysis',
-                description: 'Data-driven judicial tendency detection'
-              }
+                description: 'Data-driven judicial tendency detection',
+              },
             },
             {
               '@type': 'Offer',
               itemOffered: {
                 '@type': 'Service',
                 name: 'Case Outcome Analytics',
-                description: 'Historical case outcome analysis and patterns'
-              }
-            }
-          ]
-        }
+                description: 'Historical case outcome analysis and patterns',
+              },
+            },
+          ],
+        },
       },
       {
         '@type': 'BreadcrumbList',
@@ -199,29 +200,29 @@ function generateHomepageStructuredData() {
             '@type': 'ListItem',
             position: 1,
             name: 'Home',
-            item: BASE_URL
-          }
-        ]
-      }
-    ]
+            item: BASE_URL,
+          },
+        ],
+      },
+    ],
   }
 }
 
-export default function HomePage() {
+export default function HomePage(): JSX.Element {
   return (
     <>
       {/* Comprehensive Structured Data for SEO */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(generateHomepageStructuredData())
+          __html: JSON.stringify(generateHomepageStructuredData()),
         }}
       />
-      
+
       {/* Main Homepage Content */}
       <HomeHero />
       <LazyHomeEnhancements />
-      
+
       {/* FAQ Section with Schema Markup */}
       <HomepageFAQ />
     </>

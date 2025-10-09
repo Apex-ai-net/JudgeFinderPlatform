@@ -20,8 +20,8 @@ export function sanitizeLikePattern(input: string, maxLength: number = 100): str
 
   return input
     .substring(0, maxLength)
-    .replace(/[%_\\]/g, '\\$&')  // Escape SQL wildcards and backslash
-    .replace(/'/g, "''")         // Escape single quotes
+    .replace(/[%_\\]/g, '\\$&') // Escape SQL wildcards and backslash
+    .replace(/'/g, "''") // Escape single quotes
     .trim()
 }
 
@@ -42,15 +42,13 @@ export function sanitizeFilterArray(
   }
 
   const sanitized = values
-    .filter(v => typeof v === 'string' && v.length > 0 && v.length < 100)
-    .map(v => sanitizeLikePattern(v))
-    .filter(v => v.length > 0)
+    .filter((v) => typeof v === 'string' && v.length > 0 && v.length < 100)
+    .map((v) => sanitizeLikePattern(v))
+    .filter((v) => v.length > 0)
 
   if (allowedValues) {
-    return sanitized.filter(v =>
-      allowedValues.some(allowed =>
-        v.toLowerCase().includes(allowed.toLowerCase())
-      )
+    return sanitized.filter((v) =>
+      allowedValues.some((allowed) => v.toLowerCase().includes(allowed.toLowerCase()))
     )
   }
 
@@ -67,12 +65,12 @@ export function sanitizeFilterArray(
  * @returns Sanitized number
  */
 export function sanitizeNumericParam(
-  value: any,
+  value: unknown,
   min: number,
   max: number,
   defaultValue: number
 ): number {
-  const num = typeof value === 'string' ? parseInt(value, 10) : value
+  const num = typeof value === 'string' ? parseInt(value, 10) : Number(value)
 
   if (isNaN(num) || !isFinite(num)) {
     return defaultValue

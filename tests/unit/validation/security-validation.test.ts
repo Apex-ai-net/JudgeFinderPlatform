@@ -376,11 +376,11 @@ describe('Security Validation', () => {
       }
     })
 
-    it('should include validation errors in response', () => {
+    it('should include validation errors in response', (): void => {
       const result = validateParams(analyticsParamsSchema, { id: 'not-a-uuid' }, 'test')
       expect(result.success).toBe(false)
       if (!result.success) {
-        const json = result.response.json as any
+        const json = result.response.json as Record<string, unknown>
         expect(json).toBeTruthy()
       }
     })

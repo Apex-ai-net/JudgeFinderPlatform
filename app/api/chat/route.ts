@@ -5,9 +5,11 @@ import { createServerClient } from '@/lib/supabase/server'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 30
 
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-}) : null
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
+  : null
 
 const SYSTEM_PROMPT = `You are JudgeFinder AI, a legal information assistant for California's court system.
 
@@ -38,23 +40,17 @@ interface ChatMessage {
   content: string
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json()
     const { messages, stream = true } = body
 
     if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json(
-        { error: 'Messages array is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Messages array is required' }, { status: 400 })
     }
 
     if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json(
-        { error: 'OpenAI API key not configured' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 })
     }
 
     // Get context about judges if the query mentions any
@@ -65,7 +61,7 @@ export async function POST(request: NextRequest) {
     const chatMessages: ChatMessage[] = [
       { role: 'system', content: SYSTEM_PROMPT },
       ...context,
-      ...messages
+      ...messages,
     ]
 
     if (stream) {
@@ -102,7 +98,7 @@ export async function POST(request: NextRequest) {
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
+          Connection: 'keep-alive',
         },
       })
     } else {
@@ -115,7 +111,7 @@ export async function POST(request: NextRequest) {
       })
 
       const responseText = completion.choices[0]?.message?.content || ''
-      
+
       return NextResponse.json({
         message: responseText,
         usage: completion.usage,
@@ -123,58 +119,58 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error('Chat API error:', error)
-    
+
     if (error instanceof OpenAI.APIError) {
       return NextResponse.json(
         { error: `OpenAI API error: ${error.message}` },
         { status: error.status || 500 }
       )
     }
-    
-    return NextResponse.json(
-      { error: 'Failed to process chat request' },
-      { status: 500 }
-    )
+
+    return NextResponse.json({ error: 'Failed to process chat request' }, { status: 500 })
   }
 }
 
 async function getRelevantContext(query: string): Promise<ChatMessage[]> {
   const context: ChatMessage[] = []
-  
+
   try {
     const supabase = await createServerClient()
-    
+
     // Check if query mentions specific judges or courts
     const lowerQuery = query.toLowerCase()
-    
+
     // Look for judge names (simple pattern matching)
     if (lowerQuery.includes('judge')) {
       // Extract potential judge name
       const nameMatch = query.match(/judge\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i)
-      
+
       if (nameMatch) {
         const judgeName = nameMatch[1]
-        
+
         // Search for judge in database
         const { data: judges } = await supabase
           .from('judges')
           .select('id, name, court_name, appointed_date, case_analytics')
           .ilike('name', `%${judgeName}%`)
           .limit(3)
-        
+
         if (judges && judges.length > 0) {
-          const judgeInfo = judges.map(j => 
-            `Judge ${j.name} - ${j.court_name || 'Court not specified'}, appointed ${j.appointed_date || 'date unknown'}`
-          ).join('\n')
-          
+          const judgeInfo = judges
+            .map(
+              (j) =>
+                `Judge ${j.name} - ${j.court_name || 'Court not specified'}, appointed ${j.appointed_date || 'date unknown'}`
+            )
+            .join('\n')
+
           context.push({
             role: 'system',
-            content: `Relevant judges found:\n${judgeInfo}`
+            content: `Relevant judges found:\n${judgeInfo}`,
           })
         }
       }
     }
-    
+
     // Look for court mentions
     if (lowerQuery.includes('court')) {
       const { data: courts } = await supabase
@@ -182,21 +178,28 @@ async function getRelevantContext(query: string): Promise<ChatMessage[]> {
         .select('id, name, location, annual_filings')
         .limit(5)
         .order('annual_filings', { ascending: false })
-      
+
       if (courts && courts.length > 0) {
-        const courtInfo = courts.map(c => 
-          `${c.name} - ${c.location || 'Location not specified'}, ${c.annual_filings || 0} annual filings`
-        ).join('\n')
-        
+        const courtInfo = courts
+          .map(
+            (c) =>
+              `${c.name} - ${c.location || 'Location not specified'}, ${c.annual_filings || 0} annual filings`
+          )
+          .join('\n')
+
         context.push({
           role: 'system',
-          content: `Top California courts by activity:\n${courtInfo}`
+          content: `Top California courts by activity:\n${courtInfo}`,
         })
       }
     }
-    
+
     // Add platform statistics as context
-    if (lowerQuery.includes('how many') || lowerQuery.includes('statistics') || lowerQuery.includes('data')) {
+    if (
+      lowerQuery.includes('how many') ||
+      lowerQuery.includes('statistics') ||
+      lowerQuery.includes('data')
+    ) {
       context.push({
         role: 'system',
         content: `Platform statistics:
@@ -204,12 +207,12 @@ async function getRelevantContext(query: string): Promise<ChatMessage[]> {
 - Total courts: comprehensive jurisdiction coverage
 - Total cases analyzed: expanding case library
 - AI bias metrics: 5 key indicators (Consistency, Decision Speed, Settlement Preference, Risk Tolerance, Predictability)
-- Coverage: All California jurisdictions`
+- Coverage: All California jurisdictions`,
       })
     }
   } catch (error) {
     console.error('Error fetching context:', error)
   }
-  
+
   return context
 }

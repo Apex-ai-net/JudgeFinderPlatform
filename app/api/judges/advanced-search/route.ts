@@ -36,9 +36,9 @@ interface AdvancedJudgeSearchResponse {
   search_took_ms: number
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now()
-  
+
   try {
     const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
     const rl = buildRateLimiter({ tokens: 30, window: '1 m', prefix: 'api:judges:advanced-search' })
@@ -47,23 +47,31 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
     }
     const { searchParams } = new URL(request.url)
-    
+
     // Parse search parameters
     const query = sanitizeSearchQuery(searchParams.get('q') || '')
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20')))
-    
+
     // Parse advanced filters
     const filters: AdvancedJudgeFilters = {
       case_types: searchParams.get('case_types')?.split(',').filter(Boolean) || [],
-      min_experience: searchParams.get('min_experience') ? parseInt(searchParams.get('min_experience')!) : undefined,
-      max_experience: searchParams.get('max_experience') ? parseInt(searchParams.get('max_experience')!) : undefined,
+      min_experience: searchParams.get('min_experience')
+        ? parseInt(searchParams.get('min_experience')!)
+        : undefined,
+      max_experience: searchParams.get('max_experience')
+        ? parseInt(searchParams.get('max_experience')!)
+        : undefined,
       case_value_range: searchParams.get('case_value_range') || undefined,
       efficiency_level: searchParams.get('efficiency_level') || undefined,
-      settlement_rate_min: searchParams.get('settlement_rate_min') ? parseInt(searchParams.get('settlement_rate_min')!) : undefined,
-      settlement_rate_max: searchParams.get('settlement_rate_max') ? parseInt(searchParams.get('settlement_rate_max')!) : undefined,
+      settlement_rate_min: searchParams.get('settlement_rate_min')
+        ? parseInt(searchParams.get('settlement_rate_min')!)
+        : undefined,
+      settlement_rate_max: searchParams.get('settlement_rate_max')
+        ? parseInt(searchParams.get('settlement_rate_max')!)
+        : undefined,
       specialization: searchParams.get('specialization') || undefined,
-      court_types: searchParams.get('court_types')?.split(',').filter(Boolean) || []
+      court_types: searchParams.get('court_types')?.split(',').filter(Boolean) || [],
     }
 
     logger.apiRequest('GET', '/api/judges/advanced-search', { query, filters, page, limit })
@@ -75,7 +83,8 @@ export async function GET(request: NextRequest) {
     // Build the search query with joins to get case statistics
     let queryBuilder = supabase
       .from('judges')
-      .select(`
+      .select(
+        `
         *,
         courts:court_id (
           id,
@@ -83,7 +92,9 @@ export async function GET(request: NextRequest) {
           type,
           jurisdiction
         )
-      `, { count: 'exact' })
+      `,
+        { count: 'exact' }
+      )
       .order('name')
       .range(from, to)
 
@@ -92,7 +103,9 @@ export async function GET(request: NextRequest) {
       const { sanitizeLikePattern } = await import('@/lib/utils/sql-sanitize')
       const sanitizedQuery = sanitizeLikePattern(query)
       if (sanitizedQuery) {
-        queryBuilder = queryBuilder.or(`name.ilike.%${sanitizedQuery}%,court_name.ilike.%${sanitizedQuery}%`)
+        queryBuilder = queryBuilder.or(
+          `name.ilike.%${sanitizedQuery}%,court_name.ilike.%${sanitizedQuery}%`
+        )
       }
     }
 
@@ -112,13 +125,20 @@ export async function GET(request: NextRequest) {
     // Apply court type filters
     if (filters.court_types && filters.court_types.length > 0) {
       const { sanitizeFilterArray } = await import('@/lib/utils/sql-sanitize')
-      const allowedCourtTypes = ['Superior', 'Supreme', 'District', 'Circuit', 'Appellate', 'Municipal']
+      const allowedCourtTypes = [
+        'Superior',
+        'Supreme',
+        'District',
+        'Circuit',
+        'Appellate',
+        'Municipal',
+      ]
       const sanitizedTypes = sanitizeFilterArray(filters.court_types, allowedCourtTypes)
 
       if (sanitizedTypes.length > 0) {
-        const courtTypeConditions = sanitizedTypes.map(type =>
-          `court_name.ilike.%${type}%`
-        ).join(',')
+        const courtTypeConditions = sanitizedTypes
+          .map((type) => `court_name.ilike.%${type}%`)
+          .join(',')
         queryBuilder = queryBuilder.or(courtTypeConditions)
       }
     }
@@ -128,10 +148,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       logger.error('Advanced judge search error', { query, filters, error: error.message })
-      return NextResponse.json(
-        { error: 'Failed to search judges' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Failed to search judges' }, { status: 500 })
     }
 
     // Enhance results with calculated metrics
@@ -142,47 +159,55 @@ export async function GET(request: NextRequest) {
       total_count: count || 0,
       page,
       per_page: limit,
-      has_more: (from + enhancedJudges.length) < (count || 0),
+      has_more: from + enhancedJudges.length < (count || 0),
       applied_filters: filters,
-      search_took_ms: Date.now() - startTime
+      search_took_ms: Date.now() - startTime,
     }
 
     // Set cache headers
     const response = NextResponse.json({ ...result, rate_limit_remaining: remaining })
     if (query.trim()) {
-      response.headers.set('Cache-Control', 'public, s-maxage=300, max-age=60, stale-while-revalidate=180')
+      response.headers.set(
+        'Cache-Control',
+        'public, s-maxage=300, max-age=60, stale-while-revalidate=180'
+      )
     } else {
-      response.headers.set('Cache-Control', 'public, s-maxage=1800, max-age=900, stale-while-revalidate=900')
+      response.headers.set(
+        'Cache-Control',
+        'public, s-maxage=1800, max-age=900, stale-while-revalidate=900'
+      )
     }
 
     logger.apiResponse('GET', '/api/judges/advanced-search', 200, Date.now() - startTime, {
       resultsCount: enhancedJudges.length,
       totalCount: count,
-      hasFilters: Object.values(filters).some(v => v !== undefined && v !== '' && (!Array.isArray(v) || v.length > 0))
+      hasFilters: Object.values(filters).some(
+        (v) => v !== undefined && v !== '' && (!Array.isArray(v) || v.length > 0)
+      ),
     })
 
     return response
-
   } catch (error) {
     const duration = Date.now() - startTime
-    logger.error('Advanced judge search API error', { duration }, error instanceof Error ? error : undefined)
-    
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+    logger.error(
+      'Advanced judge search API error',
+      { duration },
+      error instanceof Error ? error : undefined
     )
+
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 async function enhanceJudgeResults(
-  supabase: any, 
-  judges: any[], 
+  supabase: any,
+  judges: any[],
   filters: AdvancedJudgeFilters
 ): Promise<JudgeSearchResult[]> {
   if (judges.length === 0) return []
 
-  const judgeIds = judges.map(j => j.id)
-  
+  const judgeIds = judges.map((j) => j.id)
+
   // Get case statistics for filtering - we'll get a sample of cases for each judge
   const { data: caseSamples } = await supabase
     .from('cases')
@@ -191,31 +216,31 @@ async function enhanceJudgeResults(
     .limit(1000) // Limit to prevent massive queries
 
   // Group cases by judge
-  const casesByJudge = caseSamples?.reduce((groups: any, case_: any) => {
-    if (!groups[case_.judge_id]) {
-      groups[case_.judge_id] = []
-    }
-    groups[case_.judge_id].push(case_)
-    return groups
-  }, {}) || {}
+  const casesByJudge =
+    caseSamples?.reduce((groups: any, case_: any) => {
+      if (!groups[case_.judge_id]) {
+        groups[case_.judge_id] = []
+      }
+      groups[case_.judge_id].push(case_)
+      return groups
+    }, {}) || {}
 
   // Calculate basic metrics from available data
   const enhancedResults = judges.map((judge): JudgeSearchResult => {
     // Calculate experience years
-    const experienceYears = judge.appointed_date 
+    const experienceYears = judge.appointed_date
       ? new Date().getFullYear() - new Date(judge.appointed_date).getFullYear()
       : 0
 
     // Get cases for this judge
     const judgeCases = casesByJudge[judge.id] || []
-    
+
     // Calculate efficiency score (cases per month estimate)
-    const efficiencyScore = judgeCases.length > 0 
-      ? judgeCases.length / 12 
-      : (judge.total_cases || 0) / 12
+    const efficiencyScore =
+      judgeCases.length > 0 ? judgeCases.length / 12 : (judge.total_cases || 0) / 12
 
     // Calculate settlement rate
-    const settledCases = judgeCases.filter((c: any) => 
+    const settledCases = judgeCases.filter((c: any) =>
       (c.outcome || c.status || '').toLowerCase().includes('settl')
     ).length
     const settlementRate = judgeCases.length > 0 ? settledCases / judgeCases.length : 0.4
@@ -226,18 +251,19 @@ async function enhanceJudgeResults(
       types[type] = (types[type] || 0) + 1
       return types
     }, {})
-    
-    const primarySpecialization = Object.keys(caseTypes).length > 0 
-      ? Object.entries(caseTypes).sort(([,a], [,b]) => (b as number) - (a as number))[0][0]
-      : 'General Practice'
+
+    const primarySpecialization =
+      Object.keys(caseTypes).length > 0
+        ? Object.entries(caseTypes).sort(([, a], [, b]) => (b as number) - (a as number))[0][0]
+        : 'General Practice'
 
     // Calculate match score based on filters
     let matchScore = 1.0
-    
+
     // Apply case type filter
     if (filters.case_types && filters.case_types.length > 0) {
-      const hasMatchingCaseType = filters.case_types.some(filterType =>
-        judgeCases.some((c: any) => 
+      const hasMatchingCaseType = filters.case_types.some((filterType) =>
+        judgeCases.some((c: any) =>
           (c.case_type || '').toLowerCase().includes(filterType.toLowerCase())
         )
       )
@@ -245,28 +271,38 @@ async function enhanceJudgeResults(
         matchScore *= 0.3
       }
     }
-    
+
     // Apply settlement rate filter
-    if (filters.settlement_rate_min !== undefined && settlementRate < filters.settlement_rate_min / 100) {
+    if (
+      filters.settlement_rate_min !== undefined &&
+      settlementRate < filters.settlement_rate_min / 100
+    ) {
       matchScore *= 0.5
     }
-    if (filters.settlement_rate_max !== undefined && settlementRate > filters.settlement_rate_max / 100) {
+    if (
+      filters.settlement_rate_max !== undefined &&
+      settlementRate > filters.settlement_rate_max / 100
+    ) {
       matchScore *= 0.5
     }
-    
+
     // Apply efficiency filter
     if (filters.efficiency_level) {
       const isHighEfficiency = filters.efficiency_level.includes('High') && efficiencyScore >= 15
-      const isAverageEfficiency = filters.efficiency_level.includes('Average') && efficiencyScore >= 5 && efficiencyScore < 15
+      const isAverageEfficiency =
+        filters.efficiency_level.includes('Average') && efficiencyScore >= 5 && efficiencyScore < 15
       const isLowEfficiency = filters.efficiency_level.includes('Low') && efficiencyScore < 5
-      
+
       if (!(isHighEfficiency || isAverageEfficiency || isLowEfficiency)) {
         matchScore *= 0.3
       }
     }
-    
+
     // Apply specialization filter
-    if (filters.specialization && !primarySpecialization.toLowerCase().includes(filters.specialization.toLowerCase())) {
+    if (
+      filters.specialization &&
+      !primarySpecialization.toLowerCase().includes(filters.specialization.toLowerCase())
+    ) {
       matchScore *= 0.6
     }
 
@@ -274,7 +310,7 @@ async function enhanceJudgeResults(
     if (filters.case_value_range) {
       const hasMatchingCaseValue = judgeCases.some((c: any) => {
         if (!c.case_value) return false
-        
+
         const value = c.case_value
         switch (filters.case_value_range) {
           case 'Under $50k':
@@ -291,7 +327,7 @@ async function enhanceJudgeResults(
             return true
         }
       })
-      
+
       if (!hasMatchingCaseValue && judgeCases.some((c: any) => c.case_value)) {
         matchScore *= 0.4
       }
@@ -303,12 +339,12 @@ async function enhanceJudgeResults(
       experience_years: experienceYears,
       efficiency_score: efficiencyScore,
       settlement_rate: settlementRate,
-      primary_specialization: primarySpecialization
+      primary_specialization: primarySpecialization,
     }
   })
 
   // Filter out results with very low match scores and sort by match score
   return enhancedResults
-    .filter(judge => judge.match_score > 0.2) // Remove very poor matches
+    .filter((judge) => judge.match_score > 0.2) // Remove very poor matches
     .sort((a, b) => b.match_score - a.match_score)
 }

@@ -4,7 +4,7 @@ import { createServerClient } from '@/lib/supabase/server'
 export const dynamic = 'force-dynamic'
 export const revalidate = 300
 
-export async function GET(request: Request) {
+export async function GET(request: Request): Promise<NextResponse> {
   try {
     const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
     const rl = buildRateLimiter({ tokens: 120, window: '1 m', prefix: 'api:stats:cases' })
@@ -37,18 +37,24 @@ export async function GET(request: Request) {
 
     const lastUpdate = latestDecision?.[0]?.date_filed || new Date().toISOString()
 
-    return NextResponse.json({
-      totalCases: typeof totalCases === 'number' ? totalCases : null,
-      lastUpdate,
-      rate_limit_remaining: remaining
-    }, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60'
+    return NextResponse.json(
+      {
+        totalCases: typeof totalCases === 'number' ? totalCases : null,
+        lastUpdate,
+        rate_limit_remaining: remaining,
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+        },
       }
-    })
+    )
   } catch (e) {
     console.error('Cases stats error:', e)
-    return NextResponse.json({ totalCases: null, lastUpdate: new Date().toISOString(), error: 'Unable to load case stats' })
+    return NextResponse.json({
+      totalCases: null,
+      lastUpdate: new Date().toISOString(),
+      error: 'Unable to load case stats',
+    })
   }
 }
-

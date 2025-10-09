@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 /**
  * Standard API response structure for successful responses.
  */
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   /** Response data */
   data?: T
   /** Success message */
@@ -16,7 +16,7 @@ export interface ApiResponse<T = any> {
     has_more: boolean
   }
   /** Additional metadata */
-  meta?: Record<string, any>
+  meta?: Record<string, unknown>
 }
 
 /**
@@ -28,7 +28,7 @@ export interface ApiErrorResponse {
   /** Error code for programmatic handling */
   code?: string
   /** Additional error details */
-  details?: any
+  details?: unknown
   /** Field-level validation errors */
   fields?: Record<string, string[]>
 }
@@ -56,17 +56,17 @@ export function success<T>(
     message?: string
     status?: number
     headers?: Record<string, string>
-    meta?: Record<string, any>
+    meta?: Record<string, unknown>
   }
 ): NextResponse {
   const response: ApiResponse<T> = {
     data,
     ...(options?.message && { message: options.message }),
-    ...(options?.meta && { meta: options.meta })
+    ...(options?.meta && { meta: options.meta }),
   }
 
   const nextResponse = NextResponse.json(response, {
-    status: options?.status ?? 200
+    status: options?.status ?? 200,
   })
 
   if (options?.headers) {
@@ -103,18 +103,18 @@ export function paginated<T>(
     message?: string
     status?: number
     headers?: Record<string, string>
-    meta?: Record<string, any>
+    meta?: Record<string, unknown>
   }
 ): NextResponse {
   const response: ApiResponse<T> = {
     data,
     pagination,
     ...(options?.message && { message: options.message }),
-    ...(options?.meta && { meta: options.meta })
+    ...(options?.meta && { meta: options.meta }),
   }
 
   const nextResponse = NextResponse.json(response, {
-    status: options?.status ?? 200
+    status: options?.status ?? 200,
   })
 
   if (options?.headers) {
@@ -138,12 +138,12 @@ export function error(
   message: string,
   status: number = 500,
   code?: string,
-  details?: any
+  details?: unknown
 ): NextResponse {
   const response: ApiErrorResponse = {
     error: message,
     ...(code && { code }),
-    ...(details && { details })
+    ...(details && { details }),
   }
 
   return NextResponse.json(response, { status })
@@ -163,13 +163,13 @@ export function error(
 export function validationError(
   message: string = 'Validation failed',
   fields?: Record<string, string[]>,
-  details?: any
+  details?: unknown
 ): NextResponse {
   const response: ApiErrorResponse = {
     error: message,
     code: 'VALIDATION_ERROR',
     ...(fields && { fields }),
-    ...(details && { details })
+    ...(details && { details }),
   }
 
   return NextResponse.json(response, { status: 400 })
@@ -219,7 +219,7 @@ export function forbidden(message: string = 'Forbidden'): NextResponse {
  * return conflict('Resource already exists')
  * ```
  */
-export function conflict(message: string, details?: any): NextResponse {
+export function conflict(message: string, details?: unknown): NextResponse {
   return error(message, 409, 'CONFLICT', details)
 }
 
@@ -236,7 +236,7 @@ export function rateLimitExceeded(retryAfter?: number): NextResponse {
     {
       error: 'Rate limit exceeded',
       code: 'RATE_LIMIT_EXCEEDED',
-      ...(retryAfter && { retry_after: retryAfter })
+      ...(retryAfter && { retry_after: retryAfter }),
     },
     { status: 429 }
   )
@@ -307,16 +307,10 @@ export function getPaginationParams(
   const maxLimit = options?.maxLimit ?? 100
   const defaultPage = options?.defaultPage ?? 1
 
-  const page = Math.max(
-    parseInt(searchParams.get('page') || String(defaultPage)),
-    1
-  )
+  const page = Math.max(parseInt(searchParams.get('page') || String(defaultPage)), 1)
 
   const limit = Math.min(
-    Math.max(
-      parseInt(searchParams.get('limit') || String(defaultLimit)),
-      1
-    ),
+    Math.max(parseInt(searchParams.get('limit') || String(defaultLimit)), 1),
     maxLimit
   )
 
@@ -365,13 +359,13 @@ export function getQueryParam(
  * })
  * ```
  */
-export async function parseJsonBody<T = any>(
+export async function parseJsonBody<T = unknown>(
   request: Request,
   options?: {
     required?: string[]
   }
 ): Promise<T> {
-  let body: any
+  let body: unknown
 
   try {
     body = await request.json()

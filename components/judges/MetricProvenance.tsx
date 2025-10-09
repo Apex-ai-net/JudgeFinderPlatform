@@ -11,7 +11,7 @@ interface MetricProvenanceProps {
   className?: string
 }
 
-function formatDate(value?: string | null) {
+function formatDate(value?: string | null): JSX.Element {
   if (!value) return null
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return null
@@ -22,15 +22,22 @@ function formatDate(value?: string | null) {
   })
 }
 
-export function MetricProvenance({ source, lastUpdated, n, quality, className }: MetricProvenanceProps) {
+export function MetricProvenance({
+  source,
+  lastUpdated,
+  n,
+  quality,
+  className,
+}: MetricProvenanceProps): JSX.Element {
   const formattedDate = formatDate(lastUpdated)
-  const countLabel = typeof n === 'number' && n >= 0 ? `${n.toLocaleString()} cases` : 'Sample size unavailable'
+  const countLabel =
+    typeof n === 'number' && n >= 0 ? `${n.toLocaleString()} cases` : 'Sample size unavailable'
 
   return (
     <div
       className={cn(
         'mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-border/60 bg-[hsl(var(--bg-1))] px-4 py-3 text-xs text-muted-foreground',
-        className,
+        className
       )}
     >
       <QualityBadge level={quality} />

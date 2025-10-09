@@ -13,7 +13,9 @@ interface JudgesDirectoryHeaderProps {
   showSkeleton?: boolean
 }
 
-export function JudgesDirectoryHeader({ showSkeleton = false }: JudgesDirectoryHeaderProps) {
+export function JudgesDirectoryHeader({
+  showSkeleton = false,
+}: JudgesDirectoryHeaderProps): JSX.Element {
   const { scrollYProgress } = useScroll()
   const y = useTransform(scrollYProgress, [0, 1], [0, -50])
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.3])
@@ -22,7 +24,10 @@ export function JudgesDirectoryHeader({ showSkeleton = false }: JudgesDirectoryH
     <section className="relative min-h-[45vh] md:min-h-[60vh] flex items-center justify-center">
       <div className="absolute inset-0 bg-gradient-to-br from-enterprise-primary/10 via-enterprise-deep/10 to-background" />
 
-      <motion.div className="relative z-10 text-center px-4 max-w-7xl mx-auto w-full" style={{ y, opacity }}>
+      <motion.div
+        className="relative z-10 text-center px-4 max-w-7xl mx-auto w-full"
+        style={{ y, opacity }}
+      >
         <motion.div
           className="mb-6 flex items-center justify-center gap-2 text-sm"
           initial={{ opacity: 0, y: -20 }}
@@ -36,7 +41,11 @@ export function JudgesDirectoryHeader({ showSkeleton = false }: JudgesDirectoryH
           <span className="text-foreground font-medium">Judges</span>
         </motion.div>
 
-        <motion.div initial={heroMotionInitial} animate={heroMotionAnimate} transition={{ duration: 0.8 }}>
+        <motion.div
+          initial={heroMotionInitial}
+          animate={heroMotionAnimate}
+          transition={{ duration: 0.8 }}
+        >
           <h1 className="mb-6 text-5xl md:text-7xl font-bold tracking-tight">
             <span className="bg-gradient-to-r from-enterprise-primary to-enterprise-deep bg-clip-text text-transparent">
               California Judges
@@ -54,7 +63,8 @@ export function JudgesDirectoryHeader({ showSkeleton = false }: JudgesDirectoryH
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.8 }}
         >
-          Research judicial profiles, decision patterns, and case histories for pattern analysis and transparency
+          Research judicial profiles, decision patterns, and case histories for pattern analysis and
+          transparency
         </motion.p>
 
         <motion.div
@@ -72,4 +82,3 @@ export function JudgesDirectoryHeader({ showSkeleton = false }: JudgesDirectoryH
     </section>
   )
 }
-

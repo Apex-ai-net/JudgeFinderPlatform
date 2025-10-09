@@ -75,7 +75,10 @@ export class JudgesDirectoryStore {
   }
 
   increaseVisibleCount() {
-    this.state.visibleCount = Math.min(this.state.visibleCount + VISIBLE_INCREMENT, this.state.judges.length)
+    this.state.visibleCount = Math.min(
+      this.state.visibleCount + VISIBLE_INCREMENT,
+      this.state.judges.length
+    )
   }
 
   clearError() {
@@ -108,7 +111,10 @@ export class JudgesDirectoryStore {
     }
   }
 
-  private applyResponse(response: JudgeDirectoryFetchResult['response'], { append }: { append: boolean }) {
+  private applyResponse(
+    response: JudgeDirectoryFetchResult['response'],
+    { append }: { append: boolean }
+  ) {
     const nextJudges = append ? [...this.state.judges, ...response.judges] : response.judges
     this.state.judges = nextJudges
     this.state.total_count = response.total_count
@@ -116,7 +122,10 @@ export class JudgesDirectoryStore {
     this.state.per_page = response.per_page
     this.state.has_more = response.has_more
     if (append) {
-      this.state.visibleCount = Math.min(this.state.visibleCount + response.judges.length, nextJudges.length)
+      this.state.visibleCount = Math.min(
+        this.state.visibleCount + response.judges.length,
+        nextJudges.length
+      )
     } else {
       this.state.visibleCount = Math.min(DEFAULT_VISIBLE, nextJudges.length)
       this.state.appliedSearchTerm = this.state.searchTerm
@@ -187,7 +196,10 @@ export class JudgesDirectoryStore {
 
 let sharedStore: JudgesDirectoryStore | null = null
 
-export function getJudgesDirectoryStore(manager: JudgesDirectoryDataManager, initialState?: JudgeDirectoryFetchResult['response']) {
+export function getJudgesDirectoryStore(
+  manager: JudgesDirectoryDataManager,
+  initialState?: JudgeDirectoryFetchResult['response']
+): void {
   if (!sharedStore) {
     sharedStore = new JudgesDirectoryStore({ manager, initialState })
   } else if (initialState && !sharedStore.state.initialized) {

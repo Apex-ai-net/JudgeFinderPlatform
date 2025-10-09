@@ -4,7 +4,7 @@ import { logger } from '@/lib/utils/logger'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const start = Date.now()
 
   try {
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       message:
         result.source === 'rpc'
           ? 'Case counts based on actual case data'
-          : 'Case counts estimated from judge and filings data'
+          : 'Case counts estimated from judge and filings data',
     })
 
     response.headers.set('Cache-Control', 'public, s-maxage=1800, stale-while-revalidate=300')
@@ -35,18 +35,15 @@ export async function GET(request: NextRequest) {
       jurisdiction,
       limit: limit ?? undefined,
       source: result.source,
-      count: result.courts.length
+      count: result.courts.length,
     })
 
     return response
   } catch (error) {
     logger.apiResponse('GET', '/api/courts/top-by-cases', 500, Date.now() - start, {
-      error: error instanceof Error ? error.message : 'unknown'
+      error: error instanceof Error ? error.message : 'unknown',
     })
 
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

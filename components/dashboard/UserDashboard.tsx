@@ -2,16 +2,16 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import { 
-  BookmarkIcon, 
-  ClockIcon, 
-  SearchIcon, 
+import {
+  BookmarkIcon,
+  ClockIcon,
+  SearchIcon,
   TrendingUpIcon,
   UserIcon,
   BuildingIcon,
   BarChart3Icon,
   StarIcon,
-  Megaphone
+  Megaphone,
 } from 'lucide-react'
 import AdPurchaseModal from './AdPurchaseModal'
 
@@ -65,7 +65,7 @@ interface ActivityEntry {
   search_query?: string | null
 }
 
-export function UserDashboard({ user }: UserDashboardProps) {
+export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
   const [stats, setStats] = useState<DashboardStats>({
     totalSearches: 0,
     judgesViewed: 0,
@@ -73,7 +73,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
     comparisonsRun: 0,
     recentActivity: 0,
     daysSinceJoin: 0,
-    memberSince: ''
+    memberSince: '',
   })
   const [loading, setLoading] = useState(true)
   const [showAdPurchaseModal, setShowAdPurchaseModal] = useState(false)
@@ -103,7 +103,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
   }
 
   useEffect(() => {
-    async function fetchUserStats() {
+    async function fetchUserStats(): JSX.Element {
       if (!user) {
         setLoading(false)
         return
@@ -118,7 +118,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
             setStats(data.stats)
           }
         } else if (response.status === 401) {
-          setStats(prev => ({ ...prev, memberSince: '', daysSinceJoin: 0 }))
+          setStats((prev) => ({ ...prev, memberSince: '', daysSinceJoin: 0 }))
         }
       } catch (error) {
         console.error('Failed to fetch user stats:', error)
@@ -205,8 +205,11 @@ export function UserDashboard({ user }: UserDashboardProps) {
     if (savedLoading) {
       return (
         <div className="space-y-3">
-          {[0, 1, 2].map(key => (
-            <div key={key} className="flex items-center justify-between p-3 bg-card/30 rounded-lg animate-pulse">
+          {[0, 1, 2].map((key) => (
+            <div
+              key={key}
+              className="flex items-center justify-between p-3 bg-card/30 rounded-lg animate-pulse"
+            >
               <div className="w-full space-y-2">
                 <div className="h-4 bg-muted-foreground/60 rounded" />
                 <div className="h-3 bg-muted-foreground/40 rounded w-1/2" />
@@ -226,12 +229,15 @@ export function UserDashboard({ user }: UserDashboardProps) {
       )
     }
 
-    return savedJudges.map(bookmark => {
+    return savedJudges.map((bookmark) => {
       const judge = bookmark.judges
       const courtLabel = judge.court_name || judge.court || 'Court information unavailable'
 
       return (
-        <div key={bookmark.id} className="flex items-center justify-between p-3 bg-card/30 rounded-lg">
+        <div
+          key={bookmark.id}
+          className="flex items-center justify-between p-3 bg-card/30 rounded-lg"
+        >
           <div>
             <p className="font-medium text-white">{judge.name}</p>
             <p className="text-sm text-muted-foreground">{courtLabel}</p>
@@ -246,8 +252,11 @@ export function UserDashboard({ user }: UserDashboardProps) {
     if (searchLoading) {
       return (
         <div className="space-y-3">
-          {[0, 1, 2].map(key => (
-            <div key={key} className="flex items-center justify-between p-3 bg-card/30 rounded-lg animate-pulse">
+          {[0, 1, 2].map((key) => (
+            <div
+              key={key}
+              className="flex items-center justify-between p-3 bg-card/30 rounded-lg animate-pulse"
+            >
               <div className="w-full space-y-2">
                 <div className="h-4 bg-muted-foreground/60 rounded" />
                 <div className="h-3 bg-muted-foreground/40 rounded w-1/2" />
@@ -269,14 +278,22 @@ export function UserDashboard({ user }: UserDashboardProps) {
 
     return recentSearches.map((activity, index) => {
       const query = activity.search_query || activity.activity_data?.query || 'Search'
-      const context = activity.activity_data?.context || activity.activity_data?.jurisdiction || activity.activity_data?.court_name || ''
+      const context =
+        activity.activity_data?.context ||
+        activity.activity_data?.jurisdiction ||
+        activity.activity_data?.court_name ||
+        ''
 
       return (
-        <div key={activity.id ?? index} className="flex items-center justify-between p-3 bg-card/30 rounded-lg">
+        <div
+          key={activity.id ?? index}
+          className="flex items-center justify-between p-3 bg-card/30 rounded-lg"
+        >
           <div>
             <p className="font-medium text-white">{query}</p>
             <p className="text-sm text-muted-foreground">
-              {context ? `${context} • ` : ''}{formatRelativeTime(activity.created_at)}
+              {context ? `${context} • ` : ''}
+              {formatRelativeTime(activity.created_at)}
             </p>
           </div>
           <SearchIcon className="h-5 w-5 text-muted-foreground" />
@@ -296,7 +313,9 @@ export function UserDashboard({ user }: UserDashboardProps) {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-muted-foreground">Saved Judges</p>
-              <p className="text-2xl font-bold text-white">{loading ? '...' : stats.bookmarkedJudges}</p>
+              <p className="text-2xl font-bold text-white">
+                {loading ? '...' : stats.bookmarkedJudges}
+              </p>
             </div>
           </div>
         </div>
@@ -308,7 +327,9 @@ export function UserDashboard({ user }: UserDashboardProps) {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-muted-foreground">Total Searches</p>
-              <p className="text-2xl font-bold text-white">{loading ? '...' : stats.totalSearches}</p>
+              <p className="text-2xl font-bold text-white">
+                {loading ? '...' : stats.totalSearches}
+              </p>
             </div>
           </div>
         </div>
@@ -320,7 +341,9 @@ export function UserDashboard({ user }: UserDashboardProps) {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-muted-foreground">Judges Viewed</p>
-              <p className="text-2xl font-bold text-white">{loading ? '...' : stats.judgesViewed}</p>
+              <p className="text-2xl font-bold text-white">
+                {loading ? '...' : stats.judgesViewed}
+              </p>
             </div>
           </div>
         </div>
@@ -332,7 +355,9 @@ export function UserDashboard({ user }: UserDashboardProps) {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-muted-foreground">Days Active</p>
-              <p className="text-2xl font-bold text-white">{loading ? '...' : stats.daysSinceJoin}</p>
+              <p className="text-2xl font-bold text-white">
+                {loading ? '...' : stats.daysSinceJoin}
+              </p>
             </div>
           </div>
         </div>
@@ -432,9 +457,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
               View All
             </Link>
           </div>
-          <div className="space-y-3">
-            {renderSavedJudges()}
-          </div>
+          <div className="space-y-3">{renderSavedJudges()}</div>
         </div>
 
         {/* Recent Searches */}
@@ -445,9 +468,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
               New Search
             </Link>
           </div>
-          <div className="space-y-3">
-            {renderRecentSearches()}
-          </div>
+          <div className="space-y-3">{renderRecentSearches()}</div>
         </div>
       </div>
 
@@ -461,9 +482,7 @@ export function UserDashboard({ user }: UserDashboardProps) {
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground mb-1">Member Since</p>
-            <p className="text-white">
-              {loading ? 'Loading...' : formattedMemberSince}
-            </p>
+            <p className="text-white">{loading ? 'Loading...' : formattedMemberSince}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground mb-1">Account Type</p>
@@ -477,13 +496,10 @@ export function UserDashboard({ user }: UserDashboardProps) {
           </div>
         </div>
       </div>
-      
+
       {/* Ad Purchase Modal */}
       {showAdPurchaseModal && (
-        <AdPurchaseModal
-          onClose={() => setShowAdPurchaseModal(false)}
-          userId={user?.id || ''}
-        />
+        <AdPurchaseModal onClose={() => setShowAdPurchaseModal(false)} userId={user?.id || ''} />
       )}
     </div>
   )

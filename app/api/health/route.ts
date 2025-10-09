@@ -30,7 +30,7 @@ interface HealthCheckResponse {
   details?: string
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now()
   const checks: HealthCheckResponse = {
     timestamp: new Date().toISOString(),
@@ -50,7 +50,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { buildRateLimiter, getClientIp, isRateLimitConfigured } = await import('@/lib/security/rate-limit')
+    const { buildRateLimiter, getClientIp, isRateLimitConfigured } = await import(
+      '@/lib/security/rate-limit'
+    )
     const rl = buildRateLimiter({ tokens: 60, window: '1 m', prefix: 'api:health' })
     const { success, remaining } = await rl.limit(`${getClientIp(request)}:global`)
     if (!success) {
@@ -124,7 +126,7 @@ export async function GET(request: NextRequest) {
         const response = await fetch('https://www.courtlistener.com/api/rest/v3/', {
           method: 'HEAD',
           headers: {
-            'Authorization': `Token ${process.env.COURTLISTENER_API_KEY}`,
+            Authorization: `Token ${process.env.COURTLISTENER_API_KEY}`,
           },
           signal: controller.signal,
         })
@@ -141,7 +143,8 @@ export async function GET(request: NextRequest) {
       } catch (error) {
         checks.checks.external_apis = 'degraded'
         checks.performance.courtListenerLatency = Date.now() - clCheckStart
-        checks.performance.courtListenerError = error instanceof Error ? error.message : 'Unknown error'
+        checks.performance.courtListenerError =
+          error instanceof Error ? error.message : 'Unknown error'
       }
     } else {
       checks.checks.external_apis = 'degraded'
@@ -177,8 +180,8 @@ export async function GET(request: NextRequest) {
     checks.performance.responseTime = Date.now() - startTime
 
     // Determine overall status from all checks
-    const unhealthyChecks = Object.values(checks.checks).filter(status => status === 'unhealthy')
-    const degradedChecks = Object.values(checks.checks).filter(status => status === 'degraded')
+    const unhealthyChecks = Object.values(checks.checks).filter((status) => status === 'unhealthy')
+    const degradedChecks = Object.values(checks.checks).filter((status) => status === 'degraded')
 
     if (unhealthyChecks.length > 0) {
       checks.status = 'unhealthy'
@@ -191,14 +194,16 @@ export async function GET(request: NextRequest) {
     // 503 for unhealthy (system is down)
     const httpStatus = checks.status === 'unhealthy' ? 503 : 200
 
-    return NextResponse.json({ ...checks, rate_limit_remaining: remaining }, {
-      status: httpStatus,
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Content-Type': 'application/json',
+    return NextResponse.json(
+      { ...checks, rate_limit_remaining: remaining },
+      {
+        status: httpStatus,
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Content-Type': 'application/json',
+        },
       }
-    })
-
+    )
   } catch (error) {
     console.error('Health check error:', error)
 
@@ -208,16 +213,19 @@ export async function GET(request: NextRequest) {
     checks.checks.external_apis = 'unhealthy'
     checks.performance.responseTime = Date.now() - startTime
 
-    return NextResponse.json({
-      ...checks,
-      error: 'Health check failed',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, {
-      status: 503,
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Content-Type': 'application/json',
+    return NextResponse.json(
+      {
+        ...checks,
+        error: 'Health check failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      {
+        status: 503,
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Content-Type': 'application/json',
+        },
       }
-    })
+    )
   }
 }

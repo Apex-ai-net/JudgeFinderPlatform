@@ -4,6 +4,6 @@ import ComparePageClient from './compare-client'
 
 export const metadata: Metadata = compareMetadata
 
-export default function ComparePage() {
+export default function ComparePage(): JSX.Element {
   return <ComparePageClient />
 }

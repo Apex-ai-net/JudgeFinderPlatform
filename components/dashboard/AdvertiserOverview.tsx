@@ -2,16 +2,16 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { 
-  TrendingUp, 
-  Target, 
-  DollarSign, 
+import {
+  TrendingUp,
+  Target,
+  DollarSign,
   MousePointer,
   Eye,
   Calendar,
   ArrowRight,
   Plus,
-  BarChart3
+  BarChart3,
 } from 'lucide-react'
 import type { AdvertiserDashboardStats, AdvertiserProfile } from '@/types/advertising'
 
@@ -20,7 +20,10 @@ interface AdvertiserOverviewProps {
   advertiserProfile: AdvertiserProfile
 }
 
-export default function AdvertiserOverview({ stats, advertiserProfile }: AdvertiserOverviewProps) {
+export default function AdvertiserOverview({
+  stats,
+  advertiserProfile,
+}: AdvertiserOverviewProps): JSX.Element {
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d')
 
   const statCards = [
@@ -31,7 +34,7 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
       change: '+12%',
       changeType: 'positive' as const,
       bgColor: 'bg-green-50',
-      iconColor: 'text-green-600'
+      iconColor: 'text-green-600',
     },
     {
       title: 'Active Campaigns',
@@ -40,7 +43,7 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
       change: `${stats.total_campaigns} total`,
       changeType: 'neutral' as const,
       bgColor: 'bg-primary/5',
-      iconColor: 'text-primary'
+      iconColor: 'text-primary',
     },
     {
       title: 'Total Impressions',
@@ -49,7 +52,7 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
       change: '+25%',
       changeType: 'positive' as const,
       bgColor: 'bg-purple-50',
-      iconColor: 'text-purple-600'
+      iconColor: 'text-purple-600',
     },
     {
       title: 'Click-through Rate',
@@ -58,8 +61,8 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
       change: '+0.5%',
       changeType: 'positive' as const,
       bgColor: 'bg-yellow-50',
-      iconColor: 'text-yellow-600'
-    }
+      iconColor: 'text-yellow-600',
+    },
   ]
 
   return (
@@ -72,11 +75,15 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
               <div>
                 <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
                 <p className="mt-2 text-3xl font-bold text-foreground">{stat.value}</p>
-                <p className={`mt-2 text-sm ${
-                  stat.changeType === 'positive' ? 'text-green-600' :
-                  stat.changeType === 'neutral' ? 'text-muted-foreground' :
-                  'text-red-600'
-                }`}>
+                <p
+                  className={`mt-2 text-sm ${
+                    stat.changeType === 'positive'
+                      ? 'text-green-600'
+                      : stat.changeType === 'neutral'
+                        ? 'text-muted-foreground'
+                        : 'text-red-600'
+                  }`}
+                >
                   {stat.change}
                 </p>
               </div>
@@ -133,7 +140,10 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
         <div className="bg-white rounded-lg shadow-sm border border-border p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-foreground">Active Ad Spots</h2>
-            <Link href="/dashboard/advertiser/bookings" className="text-sm text-primary hover:text-blue-700">
+            <Link
+              href="/dashboard/advertiser/bookings"
+              className="text-sm text-primary hover:text-blue-700"
+            >
               View all
             </Link>
           </div>
@@ -161,8 +171,11 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
               </>
             ) : (
               <p className="text-muted-foreground text-center py-8">
-                No active ad spots. 
-                <Link href="/dashboard/advertiser/ad-spots" className="text-primary hover:text-blue-700 ml-1">
+                No active ad spots.
+                <Link
+                  href="/dashboard/advertiser/ad-spots"
+                  className="text-primary hover:text-blue-700 ml-1"
+                >
                   Book your first spot
                 </Link>
               </p>
@@ -222,7 +235,10 @@ export default function AdvertiserOverview({ stats, advertiserProfile }: Adverti
           <div className="text-center">
             <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
             <p className="text-muted-foreground">Performance chart will be displayed here</p>
-            <p className="text-sm text-muted-foreground mt-1">Showing data for the last {timeRange === '7d' ? '7 days' : timeRange === '30d' ? '30 days' : '90 days'}</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Showing data for the last{' '}
+              {timeRange === '7d' ? '7 days' : timeRange === '30d' ? '30 days' : '90 days'}
+            </p>
           </div>
         </div>
       </div>

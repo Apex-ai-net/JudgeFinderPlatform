@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
  * CSP Violation Reporting Endpoint
  * Handles Content Security Policy violation reports from browsers
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const contentType = request.headers.get('content-type') || ''
 
@@ -21,10 +21,7 @@ export async function POST(request: NextRequest) {
     } else if (contentType.includes('application/json')) {
       violationReport = await request.json()
     } else {
-      return NextResponse.json(
-        { error: 'Invalid content type' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Invalid content type' }, { status: 400 })
     }
 
     // Extract client information
@@ -67,9 +64,7 @@ export async function POST(request: NextRequest) {
 /**
  * Assess the severity of a CSP violation
  */
-function assessViolationSeverity(
-  report: any
-): 'low' | 'medium' | 'high' | 'critical' {
+function assessViolationSeverity(report: any): 'low' | 'medium' | 'high' | 'critical' {
   const violatedDirective = report['violated-directive'] || ''
   const blockedUri = report['blocked-uri'] || ''
   const documentUri = report['document-uri'] || ''
@@ -98,10 +93,7 @@ function assessViolationSeverity(
   }
 
   // Medium: img-src or style-src violations
-  if (
-    violatedDirective.includes('img-src') ||
-    violatedDirective.includes('style-src')
-  ) {
+  if (violatedDirective.includes('img-src') || violatedDirective.includes('style-src')) {
     return 'medium'
   }
 
@@ -112,7 +104,7 @@ function assessViolationSeverity(
 /**
  * OPTIONS handler for CORS preflight
  */
-export async function OPTIONS() {
+export async function OPTIONS(): Promise<void> {
   return new NextResponse(null, {
     status: 204,
     headers: {

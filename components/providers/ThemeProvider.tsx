@@ -17,6 +17,6 @@ interface ThemeProviderProps extends PropsWithChildren {
   nonce?: string
 }
 
-export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+export function ThemeProvider({ children, ...props }: ThemeProviderProps): JSX.Element {
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>
 }

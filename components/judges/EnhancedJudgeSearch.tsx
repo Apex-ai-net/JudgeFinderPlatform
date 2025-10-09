@@ -1,12 +1,28 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Search, Scale, Calendar, Target, TrendingUp, Clock, Users, Filter, Sparkles, ArrowRight } from 'lucide-react'
+import {
+  Search,
+  Scale,
+  Calendar,
+  Target,
+  TrendingUp,
+  Clock,
+  Users,
+  Filter,
+  Sparkles,
+  ArrowRight,
+} from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AdvancedSearchFilters } from './AdvancedSearchFilters'
 import { generateSlug } from '@/lib/utils/slug'
-import { AnimatedInput, AnimatedCard, AnimatedButton, AnimatedNumber } from '@/components/micro-interactions'
+import {
+  AnimatedInput,
+  AnimatedCard,
+  AnimatedButton,
+  AnimatedNumber,
+} from '@/components/micro-interactions'
 import { ProgressRing } from '@/components/charts'
 import type { Judge } from '@/types'
 
@@ -40,7 +56,7 @@ interface AdvancedJudgeSearchResponse {
   search_took_ms: number
 }
 
-export function EnhancedJudgeSearch() {
+export function EnhancedJudgeSearch(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<AdvancedJudgeSearchResponse | null>(null)
   const [loading, setLoading] = useState(false)
@@ -56,7 +72,7 @@ export function EnhancedJudgeSearch() {
     try {
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: '20'
+        limit: '20',
       })
 
       if (query.trim()) {
@@ -77,7 +93,7 @@ export function EnhancedJudgeSearch() {
       }
 
       const response = await fetch(`/api/judges/advanced-search?${params.toString()}`)
-      
+
       if (response.ok) {
         const data: AdvancedJudgeSearchResponse = await response.json()
         setSearchResults(data)
@@ -134,14 +150,18 @@ export function EnhancedJudgeSearch() {
       const res = await fetch(`/api/judges/advanced-search?${params.toString()}`)
       if (!res.ok) return
       const data: AdvancedJudgeSearchResponse = await res.json()
-      setSearchResults(prev => prev ? {
-        ...prev,
-        judges: [...prev.judges, ...data.judges],
-        page: data.page,
-        per_page: data.per_page,
-        has_more: data.has_more,
-        total_count: data.total_count
-      } : data)
+      setSearchResults((prev) =>
+        prev
+          ? {
+              ...prev,
+              judges: [...prev.judges, ...data.judges],
+              page: data.page,
+              per_page: data.per_page,
+              has_more: data.has_more,
+              total_count: data.total_count,
+            }
+          : data
+      )
     } finally {
       setLoading(false)
     }
@@ -171,9 +191,10 @@ export function EnhancedJudgeSearch() {
     return 'text-red-400'
   }
 
-  const totalCountDisplay = typeof searchResults?.total_count === 'number'
-    ? searchResults.total_count.toLocaleString()
-    : 'statewide'
+  const totalCountDisplay =
+    typeof searchResults?.total_count === 'number'
+      ? searchResults.total_count.toLocaleString()
+      : 'statewide'
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -193,8 +214,8 @@ export function EnhancedJudgeSearch() {
             Find the Right Judge for Your Case
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Search through {totalCountDisplay} California judges with advanced filtering
-            by case type, experience, settlement rates, and judicial patterns.
+            Search through {totalCountDisplay} California judges with advanced filtering by case
+            type, experience, settlement rates, and judicial patterns.
           </p>
         </motion.div>
 
@@ -257,11 +278,10 @@ export function EnhancedJudgeSearch() {
                 </span>
               )}
             </div>
-            {searchResults.applied_filters && Object.values(searchResults.applied_filters).some(v => v && v !== '' && (!Array.isArray(v) || v.length > 0)) && (
-              <div className="text-primary text-sm">
-                Advanced filters applied
-              </div>
-            )}
+            {searchResults.applied_filters &&
+              Object.values(searchResults.applied_filters).some(
+                (v) => v && v !== '' && (!Array.isArray(v) || v.length > 0)
+              ) && <div className="text-primary text-sm">Advanced filters applied</div>}
           </div>
         )}
 
@@ -269,7 +289,10 @@ export function EnhancedJudgeSearch() {
         {loading && !searchResults && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {Array.from({ length: 6 }).map((_, idx) => (
-              <div key={idx} className="animate-pulse rounded-lg border border-gray-800 bg-card/60 p-6">
+              <div
+                key={idx}
+                className="animate-pulse rounded-lg border border-gray-800 bg-card/60 p-6"
+              >
                 <div className="h-4 w-1/2 bg-card rounded mb-3" />
                 <div className="h-3 w-2/3 bg-card rounded mb-2" />
                 <div className="h-3 w-1/3 bg-card rounded mb-6" />
@@ -301,11 +324,11 @@ export function EnhancedJudgeSearch() {
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                   layout
                 >
-                  <Link
-                    href={`/judges/${generateSlug(judge.name)}`}
-                    className="block h-full"
-                  >
-                    <AnimatedCard intensity="medium" className="h-full p-6 shadow-card hover:shadow-elevated">
+                  <Link href={`/judges/${generateSlug(judge.name)}`} className="block h-full">
+                    <AnimatedCard
+                      intensity="medium"
+                      className="h-full p-6 shadow-card hover:shadow-elevated"
+                    >
                       {/* Match Score Indicator */}
                       {judge.match_score < 1.0 && (
                         <motion.div
@@ -326,7 +349,9 @@ export function EnhancedJudgeSearch() {
                         <h3 className="text-lg font-semibold text-foreground mb-1.5 group-hover:text-primary transition-colors line-clamp-1">
                           {judge.name}
                         </h3>
-                        <p className="text-muted-foreground text-sm mb-2 line-clamp-1">{judge.court_name}</p>
+                        <p className="text-muted-foreground text-sm mb-2 line-clamp-1">
+                          {judge.court_name}
+                        </p>
                         <div className="flex items-center gap-2 text-muted-foreground text-sm">
                           <Scale className="h-3.5 w-3.5 flex-shrink-0" />
                           <span>{judge.jurisdiction}</span>
@@ -340,7 +365,9 @@ export function EnhancedJudgeSearch() {
                             <Calendar className="h-3.5 w-3.5" />
                             Experience
                           </span>
-                          <span className={`font-semibold ${getExperienceColor(judge.experience_years)}`}>
+                          <span
+                            className={`font-semibold ${getExperienceColor(judge.experience_years)}`}
+                          >
                             {judge.experience_years} yrs
                           </span>
                         </div>
@@ -350,7 +377,9 @@ export function EnhancedJudgeSearch() {
                             <Clock className="h-3.5 w-3.5" />
                             Efficiency
                           </span>
-                          <span className={`font-semibold ${getEfficiencyColor(judge.efficiency_score)}`}>
+                          <span
+                            className={`font-semibold ${getEfficiencyColor(judge.efficiency_score)}`}
+                          >
                             {judge.efficiency_score.toFixed(1)}/mo
                           </span>
                         </div>
@@ -360,7 +389,9 @@ export function EnhancedJudgeSearch() {
                             <Target className="h-3.5 w-3.5" />
                             Settlement
                           </span>
-                          <span className={`font-semibold ${getSettlementColor(judge.settlement_rate)}`}>
+                          <span
+                            className={`font-semibold ${getSettlementColor(judge.settlement_rate)}`}
+                          >
                             {(judge.settlement_rate * 100).toFixed(0)}%
                           </span>
                         </div>

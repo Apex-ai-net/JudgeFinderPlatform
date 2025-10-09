@@ -22,19 +22,21 @@ interface JudgeFiltersProps {
   onReset?: () => void
 }
 
-export function JudgeFilters({ value, onChange, onReset }: JudgeFiltersProps) {
+export function JudgeFilters({ value, onChange, onReset }: JudgeFiltersProps): JSX.Element {
   const [sheetOpen, setSheetOpen] = useState(false)
 
   const pills = useMemo(
     () =>
-      (Object.entries(JUDGE_FILTER_LABELS) as Array<[JudgeFilterKey, string]>).map(([key, label]) => {
-        const rawValue = value[key] ?? JUDGE_FILTER_DEFAULTS[key]
-        const displayValue = JUDGE_FILTER_VALUES[key][rawValue] ?? rawValue
-        const baseValue = JUDGE_FILTER_DEFAULTS[key]
-        const isActive = rawValue !== baseValue
-        return { key, label, rawValue, displayValue, isActive }
-      }),
-    [value],
+      (Object.entries(JUDGE_FILTER_LABELS) as Array<[JudgeFilterKey, string]>).map(
+        ([key, label]) => {
+          const rawValue = value[key] ?? JUDGE_FILTER_DEFAULTS[key]
+          const displayValue = JUDGE_FILTER_VALUES[key][rawValue] ?? rawValue
+          const baseValue = JUDGE_FILTER_DEFAULTS[key]
+          const isActive = rawValue !== baseValue
+          return { key, label, rawValue, displayValue, isActive }
+        }
+      ),
+    [value]
   )
 
   const handleReset = () => {
@@ -61,7 +63,7 @@ export function JudgeFilters({ value, onChange, onReset }: JudgeFiltersProps) {
               'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition-colors',
               isActive
                 ? 'bg-[rgba(110,168,254,0.18)] text-[color:hsl(var(--text-1))]'
-                : 'text-[color:hsl(var(--text-2))] hover:text-[color:hsl(var(--text-1))]',
+                : 'text-[color:hsl(var(--text-2))] hover:text-[color:hsl(var(--text-1))]'
             )}
             onClick={() => setSheetOpen(true)}
             aria-label={`${label} filter: ${displayValue}`}
@@ -104,7 +106,9 @@ export function JudgeFilters({ value, onChange, onReset }: JudgeFiltersProps) {
         >
           <div className="relative w-full max-w-xl rounded-2xl border border-border bg-[hsl(var(--bg-1))] p-6 shadow-2xl">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-[color:hsl(var(--text-1))]">Advanced filters</h2>
+              <h2 className="text-base font-semibold text-[color:hsl(var(--text-1))]">
+                Advanced filters
+              </h2>
               <button
                 type="button"
                 onClick={() => setSheetOpen(false)}
@@ -115,27 +119,31 @@ export function JudgeFilters({ value, onChange, onReset }: JudgeFiltersProps) {
               </button>
             </div>
             <p className="mt-2 text-sm text-[color:hsl(var(--text-3))]">
-              Configure date ranges, motion types, party roles, and saved views. Additional filters are coming online
-              during Phase 3.
+              Configure date ranges, motion types, party roles, and saved views. Additional filters
+              are coming online during Phase 3.
             </p>
 
             <div className="mt-6 space-y-4 text-sm text-[color:hsl(var(--text-2))]">
-              {(Object.entries(JUDGE_FILTER_LABELS) as Array<[JudgeFilterKey, string]>).map(([key, label]) => (
-                <label key={key} className="grid gap-2">
-                  <span className="text-xs uppercase tracking-[0.18em] text-[color:hsl(var(--text-3))]">{label}</span>
-                  <select
-                    value={value[key] ?? JUDGE_FILTER_DEFAULTS[key]}
-                    onChange={(event) => handleSelectChange(key, event.target.value)}
-                    className={selectClass}
-                  >
-                    {Object.entries(JUDGE_FILTER_VALUES[key]).map(([filterValue, display]) => (
-                      <option key={filterValue} value={filterValue}>
-                        {display}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ))}
+              {(Object.entries(JUDGE_FILTER_LABELS) as Array<[JudgeFilterKey, string]>).map(
+                ([key, label]) => (
+                  <label key={key} className="grid gap-2">
+                    <span className="text-xs uppercase tracking-[0.18em] text-[color:hsl(var(--text-3))]">
+                      {label}
+                    </span>
+                    <select
+                      value={value[key] ?? JUDGE_FILTER_DEFAULTS[key]}
+                      onChange={(event) => handleSelectChange(key, event.target.value)}
+                      className={selectClass}
+                    >
+                      {Object.entries(JUDGE_FILTER_VALUES[key]).map(([filterValue, display]) => (
+                        <option key={filterValue} value={filterValue}>
+                          {display}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )
+              )}
             </div>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">

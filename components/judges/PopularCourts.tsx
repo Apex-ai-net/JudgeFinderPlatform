@@ -24,13 +24,13 @@ interface TopCourtsResponse {
   message: string
 }
 
-export function PopularCourts() {
+export function PopularCourts(): JSX.Element {
   const [courts, setCourts] = useState<Court[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    async function fetchTopCourts() {
+    async function fetchTopCourts(): JSX.Element {
       try {
         setLoading(true)
         const response = await fetch('/api/courts/top-by-cases')
@@ -59,7 +59,7 @@ export function PopularCourts() {
 
   return (
     <div>
-      <motion.div 
+      <motion.div
         className="mb-8 flex items-center justify-between"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -76,7 +76,7 @@ export function PopularCourts() {
 
       <AnimatePresence mode="wait">
         {loading ? (
-          <motion.div 
+          <motion.div
             className="flex items-center justify-center py-12"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -87,7 +87,7 @@ export function PopularCourts() {
             <span className="ml-2 text-muted-foreground">Loading top courts...</span>
           </motion.div>
         ) : error ? (
-          <motion.div 
+          <motion.div
             className="rounded-lg border border-destructive bg-destructive/20 p-6 text-center"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -96,7 +96,7 @@ export function PopularCourts() {
             <p className="text-destructive">{error}</p>
           </motion.div>
         ) : (
-          <motion.div 
+          <motion.div
             className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -118,15 +118,21 @@ export function PopularCourts() {
                 >
                   <div className="mb-4 flex items-center justify-between">
                     <Building className="h-8 w-8 text-primary" />
-                    <span className={`flex items-center text-sm ${
-                      court.yearly_trend.startsWith('+') ? 'text-green-400' : 'text-red-400'
-                    }`}>
+                    <span
+                      className={`flex items-center text-sm ${
+                        court.yearly_trend.startsWith('+') ? 'text-green-400' : 'text-red-400'
+                      }`}
+                    >
                       <TrendingUp className="mr-1 h-3 w-3" />
                       {court.yearly_trend}
                     </span>
                   </div>
-                  <h3 className="mb-2 font-semibold group-hover:text-primary text-sm leading-tight">{court.name}</h3>
-                  <p className="mb-3 text-sm text-muted-foreground capitalize">{court.type} Court</p>
+                  <h3 className="mb-2 font-semibold group-hover:text-primary text-sm leading-tight">
+                    {court.name}
+                  </h3>
+                  <p className="mb-3 text-sm text-muted-foreground capitalize">
+                    {court.type} Court
+                  </p>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span className="flex items-center">
                       <Users className="mr-1 h-3 w-3" />

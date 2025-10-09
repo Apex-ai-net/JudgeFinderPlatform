@@ -6,28 +6,30 @@ interface SuggestedPromptsProps {
   onSelectPrompt: (prompt: string) => void
 }
 
-export default function SuggestedPrompts({ onSelectPrompt }: SuggestedPromptsProps) {
+export default function SuggestedPrompts({ onSelectPrompt }: SuggestedPromptsProps): JSX.Element {
   const prompts = [
     {
       icon: Search,
-      text: "Search for Judge Thompson in Los Angeles",
-      shortText: "Search judge"
+      text: 'Search for Judge Thompson in Los Angeles',
+      shortText: 'Search judge',
     },
     {
       icon: Scale,
-      text: "Show bias analysis for Judge Martinez",
-      shortText: "Bias analysis"
+      text: 'Show bias analysis for Judge Martinez',
+      shortText: 'Bias analysis',
     },
     {
       icon: MapPin,
-      text: "Find judges in Orange County Superior Court",
-      shortText: "Find by court"
-    }
+      text: 'Find judges in Orange County Superior Court',
+      shortText: 'Find by court',
+    },
   ]
 
   return (
     <div className="px-3 sm:px-4 py-3 border-t border-slate-200 dark:border-border bg-slate-50 dark:bg-surface-sunken">
-      <p className="text-xs text-slate-500 dark:text-muted-foreground mb-2 font-medium">Suggested queries:</p>
+      <p className="text-xs text-slate-500 dark:text-muted-foreground mb-2 font-medium">
+        Suggested queries:
+      </p>
       <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {prompts.map((prompt, index) => (
           <button

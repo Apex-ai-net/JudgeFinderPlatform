@@ -20,20 +20,21 @@ export class FormErrorBoundary extends Component<Props, State> {
     super(props)
     this.state = {
       hasError: false,
-      error: null
+      error: null,
     }
   }
 
   static getDerivedStateFromError(error: Error): Partial<State> {
     // Check if error is form-related
-    const isFormError = error.message.includes('validation') ||
-                       error.message.includes('required') ||
-                       error.message.includes('invalid')
+    const isFormError =
+      error.message.includes('validation') ||
+      error.message.includes('required') ||
+      error.message.includes('invalid')
 
     return {
       hasError: true,
       error,
-      errorField: isFormError ? error.message : undefined
+      errorField: isFormError ? error.message : undefined,
     }
   }
 
@@ -45,9 +46,9 @@ export class FormErrorBoundary extends Component<Props, State> {
     this.setState({
       hasError: false,
       error: null,
-      errorField: undefined
+      errorField: undefined,
     })
-    
+
     if (this.props.onReset) {
       this.props.onReset()
     }
@@ -66,15 +67,12 @@ export class FormErrorBoundary extends Component<Props, State> {
               <AlertTriangle className="h-5 w-5 text-red-400" />
             </div>
             <div className="ml-3 flex-1">
-              <h3 className="text-sm font-medium text-red-800">
-                Form Error Occurred
-              </h3>
+              <h3 className="text-sm font-medium text-red-800">Form Error Occurred</h3>
               <div className="mt-2 text-sm text-red-700">
                 <p>
-                  {this.state.errorField 
+                  {this.state.errorField
                     ? `Form validation error: ${this.state.errorField}`
-                    : 'An error occurred while processing the form. Please check your input and try again.'
-                  }
+                    : 'An error occurred while processing the form. Please check your input and try again.'}
                 </p>
               </div>
               <div className="mt-4">
@@ -95,9 +93,7 @@ export class FormErrorBoundary extends Component<Props, State> {
                 Error Details (Development)
               </summary>
               <div className="mt-2 p-3 bg-red-100 rounded text-xs font-mono overflow-auto max-h-32">
-                <div className="text-red-800 font-semibold">
-                  {this.state.error.message}
-                </div>
+                <div className="text-red-800 font-semibold">{this.state.error.message}</div>
                 {this.state.error.stack && (
                   <pre className="mt-2 text-red-700 whitespace-pre-wrap">
                     {this.state.error.stack}
@@ -123,7 +119,7 @@ interface FormErrorProps {
   className?: string
 }
 
-export function FormError({ error, field, className = '' }: FormErrorProps) {
+export function FormError({ error, field, className = '' }: FormErrorProps): JSX.Element {
   if (!error) return null
 
   const errors = Array.isArray(error) ? error : [error]
@@ -134,7 +130,8 @@ export function FormError({ error, field, className = '' }: FormErrorProps) {
         <div key={index} className="flex items-center text-sm text-red-600">
           <AlertCircle className="h-4 w-4 mr-1 flex-shrink-0" />
           <span>
-            {field && `${field}: `}{err}
+            {field && `${field}: `}
+            {err}
           </span>
         </div>
       ))}
@@ -145,18 +142,18 @@ export function FormError({ error, field, className = '' }: FormErrorProps) {
 /**
  * Hook for managing form errors
  */
-export function useFormErrors() {
+export function useFormErrors(): JSX.Element {
   const [errors, setErrors] = React.useState<Record<string, string | string[]>>({})
 
   const setError = React.useCallback((field: string, error: string | string[]) => {
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
-      [field]: error
+      [field]: error,
     }))
   }, [])
 
   const clearError = React.useCallback((field: string) => {
-    setErrors(prev => {
+    setErrors((prev) => {
       const newErrors = { ...prev }
       delete newErrors[field]
       return newErrors
@@ -169,9 +166,12 @@ export function useFormErrors() {
 
   const hasErrors = Object.keys(errors).length > 0
 
-  const getError = React.useCallback((field: string) => {
-    return errors[field]
-  }, [errors])
+  const getError = React.useCallback(
+    (field: string) => {
+      return errors[field]
+    },
+    [errors]
+  )
 
   return {
     errors,
@@ -179,6 +179,6 @@ export function useFormErrors() {
     clearError,
     clearAllErrors,
     hasErrors,
-    getError
+    getError,
   }
 }

@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react'
 
-export default function ForgotPasswordPage() {
+export default function ForgotPasswordPage(): JSX.Element {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -41,12 +41,10 @@ export default function ForgotPasswordPage() {
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             <div className="text-center">
               <CheckCircle className="mx-auto h-12 w-12 text-green-500 mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Reset link sent!
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Reset link sent!</h2>
               <p className="text-gray-600 mb-6">
-                We've sent a password reset link to <strong>{email}</strong>. 
-                Check your inbox and follow the instructions to reset your password.
+                We've sent a password reset link to <strong>{email}</strong>. Check your inbox and
+                follow the instructions to reset your password.
               </p>
               <div className="space-y-3">
                 <Link
@@ -75,17 +73,15 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <Link 
+        <Link
           href="/login"
           className="flex items-center text-blue-600 hover:text-blue-500 mb-6 transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to login
         </Link>
-        
-        <h2 className="text-center text-3xl font-extrabold text-gray-900">
-          Reset your password
-        </h2>
+
+        <h2 className="text-center text-3xl font-extrabold text-gray-900">Reset your password</h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Enter your email address and we'll send you a link to reset your password.
         </p>
@@ -133,8 +129,8 @@ export default function ForgotPasswordPage() {
             </div>
 
             <div className="text-center">
-              <Link 
-                href="/login" 
+              <Link
+                href="/login"
                 className="text-sm text-blue-600 hover:text-blue-500 transition-colors"
               >
                 Remember your password? Sign in

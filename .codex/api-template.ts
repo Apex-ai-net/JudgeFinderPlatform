@@ -8,16 +8,13 @@ export const dynamic = 'force-dynamic'
  * API template for Next.js App Router endpoint
  * Endpoint: %%ENDPOINT_PATH%%
  */
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   const start = Date.now()
   try {
     const supabase = await createServerClient()
 
     // Example query: list a few judges
-    const { data, error } = await supabase
-      .from('judges')
-      .select('id, name, court_name')
-      .limit(10)
+    const { data, error } = await supabase.from('judges').select('id, name, court_name').limit(10)
 
     if (error) {
       logger.error('DB error in template endpoint', { error: error.message })
@@ -26,7 +23,9 @@ export async function GET(req: NextRequest) {
 
     const res = NextResponse.json({ success: true, data })
     res.headers.set('Cache-Control', 'no-store')
-    logger.apiResponse('GET', '%%ENDPOINT_PATH%%', 200, Date.now() - start, { count: data?.length || 0 })
+    logger.apiResponse('GET', '%%ENDPOINT_PATH%%', 200, Date.now() - start, {
+      count: data?.length || 0,
+    })
     return res
   } catch (err) {
     logger.error(
@@ -38,4 +37,3 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
-

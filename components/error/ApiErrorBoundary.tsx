@@ -28,25 +28,26 @@ export class ApiErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       isNetworkError: false,
-      retryCount: 0
+      retryCount: 0,
     }
   }
 
   static getDerivedStateFromError(error: Error): Partial<State> {
-    const isNetworkError = error.message.includes('fetch') || 
-                          error.message.includes('network') ||
-                          error.message.includes('Failed to load')
+    const isNetworkError =
+      error.message.includes('fetch') ||
+      error.message.includes('network') ||
+      error.message.includes('Failed to load')
 
     return {
       hasError: true,
       error,
-      isNetworkError
+      isNetworkError,
     }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('API Error Boundary caught an error:', error, errorInfo)
-    
+
     // Log to external service in production
     if (process.env.NODE_ENV === 'production') {
       this.logApiError(error, errorInfo)
@@ -69,7 +70,7 @@ export class ApiErrorBoundary extends Component<Props, State> {
       url: window.location.href,
       userAgent: navigator.userAgent,
       isOnline: navigator.onLine,
-      retryCount: this.state.retryCount
+      retryCount: this.state.retryCount,
     }
 
     // Send to logging service (replace with actual service)
@@ -77,11 +78,11 @@ export class ApiErrorBoundary extends Component<Props, State> {
   }
 
   private handleRetry = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       hasError: false,
       error: null,
       isNetworkError: false,
-      retryCount: prevState.retryCount + 1
+      retryCount: prevState.retryCount + 1,
     }))
 
     // Call custom retry handler if provided
@@ -113,7 +114,7 @@ export class ApiErrorBoundary extends Component<Props, State> {
 
       const { isNetworkError, retryCount } = this.state
       const canAutoRetry = isNetworkError && retryCount < 3
-      
+
       return (
         <div className="min-h-[400px] flex items-center justify-center px-4 py-8">
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg border border-border p-6 text-center">
@@ -134,11 +135,10 @@ export class ApiErrorBoundary extends Component<Props, State> {
             </h3>
 
             <p className="text-muted-foreground mb-6">
-              {this.props.description || (
-                isNetworkError 
+              {this.props.description ||
+                (isNetworkError
                   ? 'Unable to connect to the server. Please check your internet connection and try again.'
-                  : 'We encountered an error while loading the data. Please try again.'
-              )}
+                  : 'We encountered an error while loading the data. Please try again.')}
             </p>
 
             {canAutoRetry && (
@@ -147,7 +147,7 @@ export class ApiErrorBoundary extends Component<Props, State> {
                   Automatically retrying... (Attempt {retryCount + 1}/3)
                 </p>
                 <div className="mt-2 w-full bg-blue-200 rounded-full h-2">
-                  <div 
+                  <div
                     className="bg-primary h-2 rounded-full transition-all duration-2000"
                     style={{ width: '100%' }}
                   />
@@ -205,9 +205,7 @@ export class ApiErrorBoundary extends Component<Props, State> {
                   Error Details (Development)
                 </summary>
                 <div className="mt-2 p-3 bg-muted rounded text-xs font-mono overflow-auto max-h-32">
-                  <div className="text-red-600 font-semibold">
-                    {this.state.error.message}
-                  </div>
+                  <div className="text-red-600 font-semibold">{this.state.error.message}</div>
                   {this.state.error.stack && (
                     <pre className="mt-2 text-foreground whitespace-pre-wrap">
                       {this.state.error.stack}
@@ -228,7 +226,7 @@ export class ApiErrorBoundary extends Component<Props, State> {
 /**
  * Hook for handling API errors in functional components
  */
-export function useApiErrorHandler() {
+export function useApiErrorHandler(): JSX.Element {
   const [error, setError] = React.useState<Error | null>(null)
   const [isRetrying, setIsRetrying] = React.useState(false)
 
@@ -240,7 +238,7 @@ export function useApiErrorHandler() {
   const retry = React.useCallback(async (retryFn: () => Promise<void>) => {
     setIsRetrying(true)
     setError(null)
-    
+
     try {
       await retryFn()
     } catch (error) {
@@ -259,6 +257,6 @@ export function useApiErrorHandler() {
     isRetrying,
     handleError,
     retry,
-    clearError
+    clearError,
   }
 }

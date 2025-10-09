@@ -52,8 +52,8 @@ export interface AdCampaign {
   budget_daily_limit?: number
   start_date: string
   end_date: string
-  targeting_criteria?: Record<string, any>
-  ad_content?: Record<string, any>
+  targeting_criteria?: Record<string, unknown>
+  ad_content?: Record<string, unknown>
   impressions_total: number
   clicks_total: number
   approval_notes?: string
@@ -122,7 +122,7 @@ export interface BillingTransaction {
   stripe_charge_id?: string
   stripe_refund_id?: string
   description?: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   created_at: string
 }
 

@@ -7,7 +7,9 @@ interface UseJudgesDirectoryViewModelOptions {
   initialData?: JudgeDirectoryApiResponse
 }
 
-export function useJudgesDirectoryViewModel(options: UseJudgesDirectoryViewModelOptions = {}) {
+export function useJudgesDirectoryViewModel(
+  options: UseJudgesDirectoryViewModelOptions = {}
+): void {
   const managerRef = useRef<JudgesDirectoryDataManager>()
   const viewModelRef = useRef<JudgesDirectoryViewModel>()
 
@@ -37,4 +39,3 @@ export function useJudgesDirectoryViewModel(options: UseJudgesDirectoryViewModel
 
   return useMemo(() => viewModel, [viewModel])
 }
-

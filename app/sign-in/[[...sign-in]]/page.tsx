@@ -14,13 +14,13 @@ const hasValidClerkKeys = () => {
 }
 
 const SignIn = hasValidClerkKeys()
-  ? dynamicImport(() => import('@clerk/nextjs').then(mod => mod.SignIn), {
+  ? dynamicImport(() => import('@clerk/nextjs').then((mod) => mod.SignIn), {
       ssr: false,
       loading: () => (
         <div className="text-center py-8">
           <span className="text-gray-400">Loading...</span>
         </div>
-      )
+      ),
     })
   : () => (
       <div className="text-center py-8">
@@ -37,7 +37,7 @@ const SignIn = hasValidClerkKeys()
 
 export const dynamic = 'force-dynamic'
 
-export default function Page() {
+export default function Page(): JSX.Element {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       <div className="flex min-h-screen">
@@ -56,10 +56,34 @@ export default function Page() {
                     <rect x="19" y="10" width="2" height="20" fill="url(#signInGradient)" />
                     <path d="M 20 10 L 17 7 L 23 7 Z" fill="url(#signInGradient)" />
                     <rect x="10" y="13" width="20" height="1" fill="url(#signInGradient)" />
-                    <line x1="13" y1="13" x2="13" y2="18" stroke="url(#signInGradient)" strokeWidth="1" />
-                    <path d="M 11 18 Q 13 20 15 18" fill="none" stroke="url(#signInGradient)" strokeWidth="1.5" />
-                    <line x1="27" y1="13" x2="27" y2="18" stroke="url(#signInGradient)" strokeWidth="1" />
-                    <path d="M 25 18 Q 27 20 29 18" fill="none" stroke="url(#signInGradient)" strokeWidth="1.5" />
+                    <line
+                      x1="13"
+                      y1="13"
+                      x2="13"
+                      y2="18"
+                      stroke="url(#signInGradient)"
+                      strokeWidth="1"
+                    />
+                    <path
+                      d="M 11 18 Q 13 20 15 18"
+                      fill="none"
+                      stroke="url(#signInGradient)"
+                      strokeWidth="1.5"
+                    />
+                    <line
+                      x1="27"
+                      y1="13"
+                      x2="27"
+                      y2="18"
+                      stroke="url(#signInGradient)"
+                      strokeWidth="1"
+                    />
+                    <path
+                      d="M 25 18 Q 27 20 29 18"
+                      fill="none"
+                      stroke="url(#signInGradient)"
+                      strokeWidth="1.5"
+                    />
                     <rect x="16" y="30" width="8" height="2" rx="1" fill="url(#signInGradient)" />
                   </svg>
                 </div>
@@ -80,12 +104,14 @@ export default function Page() {
             <h1 className="text-3xl font-bold mb-4">
               Welcome Back to
               <span className="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-                {' '}JudgeFinder
+                {' '}
+                JudgeFinder
               </span>
             </h1>
 
             <p className="text-lg text-gray-300 mb-8">
-              Access comprehensive analytics on judges' ruling patterns, decision trends, and case outcomes.
+              Access comprehensive analytics on judges' ruling patterns, decision trends, and case
+              outcomes.
             </p>
 
             <div className="space-y-4 text-left">
@@ -135,20 +161,25 @@ export default function Page() {
                     card: 'bg-transparent shadow-none border-none',
                     headerTitle: 'text-white text-xl font-semibold',
                     headerSubtitle: 'text-gray-300',
-                    socialButtonsBlockButton: 'bg-gray-700/50 border border-gray-600 hover:bg-gray-600/50 text-white',
+                    socialButtonsBlockButton:
+                      'bg-gray-700/50 border border-gray-600 hover:bg-gray-600/50 text-white',
                     socialButtonsBlockButtonText: 'text-white font-medium',
                     dividerLine: 'bg-gray-600',
                     dividerText: 'text-gray-400',
                     formFieldLabel: 'text-gray-300 font-medium',
-                    formFieldInput: 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500/20',
-                    formButtonPrimary: 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium shadow-lg',
+                    formFieldInput:
+                      'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500/20',
+                    formButtonPrimary:
+                      'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium shadow-lg',
                     footerActionText: 'text-gray-400',
                     footerActionLink: 'text-blue-400 hover:text-blue-300',
                     identityPreviewText: 'text-gray-300',
-                    identityPreviewEditButton: 'text-blue-400 hover:text-blue-300'
-                  }
+                    identityPreviewEditButton: 'text-blue-400 hover:text-blue-300',
+                  },
                 }}
-                fallbackRedirectUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL || '/dashboard'}
+                fallbackRedirectUrl={
+                  process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL || '/dashboard'
+                }
                 forceRedirectUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL || '/dashboard'}
               />
             </div>
@@ -167,4 +198,3 @@ export default function Page() {
     </div>
   )
 }
-

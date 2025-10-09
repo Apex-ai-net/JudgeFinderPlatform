@@ -3,7 +3,8 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Advanced Judge Search - JudgeFinder.io',
-  description: 'Find the perfect judge for your case using advanced filters including case types, experience, settlement rates, efficiency scores, and specializations.',
+  description:
+    'Find the perfect judge for your case using advanced filters including case types, experience, settlement rates, efficiency scores, and specializations.',
   keywords: [
     'advanced judge search',
     'judge filtering',
@@ -11,15 +12,16 @@ export const metadata: Metadata = {
     'judge experience',
     'settlement rates',
     'judicial analytics',
-    'legal research'
+    'legal research',
   ].join(', '),
   openGraph: {
     title: 'Advanced Judge Search - JudgeFinder.io',
-    description: 'Advanced judge search with comprehensive filtering options for legal professionals',
-    type: 'website'
-  }
+    description:
+      'Advanced judge search with comprehensive filtering options for legal professionals',
+    type: 'website',
+  },
 }
 
-export default function AdvancedSearchPage() {
+export default function AdvancedSearchPage(): JSX.Element {
   return <EnhancedJudgeSearch />
 }

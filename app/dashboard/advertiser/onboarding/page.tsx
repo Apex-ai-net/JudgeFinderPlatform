@@ -4,12 +4,12 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Building, User, Shield, ArrowRight, Check, TrendingUp } from 'lucide-react'
 
-export default function AdvertiserOnboardingPage() {
+export default function AdvertiserOnboardingPage(): JSX.Element {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  
+
   const [formData, setFormData] = useState({
     firm_name: '',
     firm_type: 'small' as 'solo' | 'small' | 'medium' | 'large' | 'enterprise',
@@ -21,7 +21,7 @@ export default function AdvertiserOnboardingPage() {
     description: '',
     specializations: [] as string[],
     billing_email: '',
-    billing_address: ''
+    billing_address: '',
   })
 
   const firmTypes = [
@@ -29,16 +29,25 @@ export default function AdvertiserOnboardingPage() {
     { value: 'small', label: 'Small Firm', description: '2-10 attorneys' },
     { value: 'medium', label: 'Medium Firm', description: '11-50 attorneys' },
     { value: 'large', label: 'Large Firm', description: '51-200 attorneys' },
-    { value: 'enterprise', label: 'Enterprise', description: '200+ attorneys' }
+    { value: 'enterprise', label: 'Enterprise', description: '200+ attorneys' },
   ]
 
   const specializations = [
-    'Personal Injury', 'Criminal Defense', 'Family Law', 'Business Law',
-    'Real Estate', 'Estate Planning', 'Immigration', 'Bankruptcy',
-    'Employment Law', 'Intellectual Property', 'Tax Law', 'Civil Litigation'
+    'Personal Injury',
+    'Criminal Defense',
+    'Family Law',
+    'Business Law',
+    'Real Estate',
+    'Estate Planning',
+    'Immigration',
+    'Bankruptcy',
+    'Employment Law',
+    'Intellectual Property',
+    'Tax Law',
+    'Civil Litigation',
   ]
 
-  async function handleSubmit() {
+  async function handleSubmit(): JSX.Element {
     try {
       setLoading(true)
       setError('')
@@ -46,7 +55,7 @@ export default function AdvertiserOnboardingPage() {
       const response = await fetch('/api/advertising/advertiser/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       })
 
       if (!response.ok) {
@@ -81,10 +90,12 @@ export default function AdvertiserOnboardingPage() {
           <div className="flex items-center space-x-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex items-center">
-                <div className={`
+                <div
+                  className={`
                   w-10 h-10 rounded-full flex items-center justify-center font-semibold
                   ${step >= i ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'}
-                `}>
+                `}
+                >
                   {step > i ? <Check className="h-5 w-5" /> : i}
                 </div>
                 {i < 3 && (
@@ -105,9 +116,7 @@ export default function AdvertiserOnboardingPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Firm Name *
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Firm Name *</label>
                 <input
                   type="text"
                   value={formData.firm_name}
@@ -119,9 +128,7 @@ export default function AdvertiserOnboardingPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Firm Type *
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Firm Type *</label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {firmTypes.map((type) => (
                     <button
@@ -129,9 +136,10 @@ export default function AdvertiserOnboardingPage() {
                       onClick={() => setFormData({ ...formData, firm_type: type.value as any })}
                       className={`
                         p-3 rounded-lg border-2 text-left transition-colors
-                        ${formData.firm_type === type.value
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                        ${
+                          formData.firm_type === type.value
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300'
                         }
                       `}
                     >
@@ -172,9 +180,7 @@ export default function AdvertiserOnboardingPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Website
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
                 <input
                   type="url"
                   value={formData.website}
@@ -250,12 +256,12 @@ export default function AdvertiserOnboardingPage() {
                           if (e.target.checked) {
                             setFormData({
                               ...formData,
-                              specializations: [...formData.specializations, spec]
+                              specializations: [...formData.specializations, spec],
                             })
                           } else {
                             setFormData({
                               ...formData,
-                              specializations: formData.specializations.filter(s => s !== spec)
+                              specializations: formData.specializations.filter((s) => s !== spec),
                             })
                           }
                         }}

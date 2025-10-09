@@ -1,7 +1,20 @@
 'use client'
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
-import { Search, X, Mic, MicOff, Sparkles, Brain, ChevronRight, Loader2, History, Scale, Building, MapPin } from 'lucide-react'
+import {
+  Search,
+  X,
+  Mic,
+  MicOff,
+  Sparkles,
+  Brain,
+  ChevronRight,
+  Loader2,
+  History,
+  Scale,
+  Building,
+  MapPin,
+} from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { SearchResult } from '@/types/search'
@@ -15,7 +28,7 @@ interface AIUnifiedSearchProps {
 }
 
 // Debounce hook
-function useDebounce(value: string, delay: number) {
+function useDebounce(value: string, delay: number): JSX.Element {
   const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {
@@ -32,11 +45,11 @@ function useDebounce(value: string, delay: number) {
 }
 
 const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
-  placeholder = "Ask me anything about judges...",
-  className = "",
+  placeholder = 'Ask me anything about judges...',
+  className = '',
   autoFocus = false,
   showVoiceSearch = true,
-  showHistory = true
+  showHistory = true,
 }) => {
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -65,12 +78,18 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
   }, [])
 
   // Save query to recent queries
-  const saveToHistory = useCallback((searchQuery: string) => {
-    if (!searchQuery.trim()) return
-    const updatedQueries = [searchQuery, ...recentQueries.filter(q => q !== searchQuery)].slice(0, 5)
-    setRecentQueries(updatedQueries)
-    localStorage.setItem('recentSearchQueries', JSON.stringify(updatedQueries))
-  }, [recentQueries])
+  const saveToHistory = useCallback(
+    (searchQuery: string) => {
+      if (!searchQuery.trim()) return
+      const updatedQueries = [searchQuery, ...recentQueries.filter((q) => q !== searchQuery)].slice(
+        0,
+        5
+      )
+      setRecentQueries(updatedQueries)
+      localStorage.setItem('recentSearchQueries', JSON.stringify(updatedQueries))
+    },
+    [recentQueries]
+  )
 
   // Clear search history
   const clearHistory = useCallback(() => {
@@ -89,7 +108,9 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
 
       setIsLoading(true)
       try {
-        const response = await fetch(`/api/judges/search?q=${encodeURIComponent(debouncedQuery)}&limit=8`)
+        const response = await fetch(
+          `/api/judges/search?q=${encodeURIComponent(debouncedQuery)}&limit=8`
+        )
         if (response.ok) {
           const data = await response.json()
           setSearchResults(data.results || [])
@@ -112,27 +133,31 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
     router.push(`/search?q=${encodeURIComponent(query)}`)
   }, [query, router, saveToHistory])
 
-  const handleSelectResult = useCallback((searchQuery: string | SearchResult) => {
-    if (typeof searchQuery === 'string') {
-      // If it's a string (from voice or history), navigate to search page
-      saveToHistory(searchQuery)
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
-    } else {
-      // If it's a SearchResult object, navigate directly to the profile
-      saveToHistory(searchQuery.title)
-      router.push(searchQuery.url)
-    }
-    setQuery('')
-    setSearchResults([])
-    setShowHistoryDropdown(false)
-    setIsFocused(false)
-  }, [router, saveToHistory])
+  const handleSelectResult = useCallback(
+    (searchQuery: string | SearchResult) => {
+      if (typeof searchQuery === 'string') {
+        // If it's a string (from voice or history), navigate to search page
+        saveToHistory(searchQuery)
+        router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
+      } else {
+        // If it's a SearchResult object, navigate directly to the profile
+        saveToHistory(searchQuery.title)
+        router.push(searchQuery.url)
+      }
+      setQuery('')
+      setSearchResults([])
+      setShowHistoryDropdown(false)
+      setIsFocused(false)
+    },
+    [router, saveToHistory]
+  )
 
   // Voice search setup (after handleSelectResult so it's in scope)
   useEffect(() => {
     if (!showVoiceSearch || typeof window === 'undefined') return
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SpeechRecognition) return
 
     const recognition = new SpeechRecognition()
@@ -178,14 +203,17 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
     }
   }, [isListening, showVoiceSearch, voiceTranscript, handleSelectResult])
 
-  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch()
-    } else if (e.key === 'Escape') {
-      setQuery('')
-      setShowHistoryDropdown(false)
-    }
-  }, [handleSearch])
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        handleSearch()
+      } else if (e.key === 'Escape') {
+        setQuery('')
+        setShowHistoryDropdown(false)
+      }
+    },
+    [handleSearch]
+  )
 
   const clearSearch = useCallback(() => {
     setQuery('')
@@ -219,9 +247,10 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
           rounded-2xl shadow-2xl
           border-2 transition-all duration-300
           min-h-[60px] lg:min-h-[64px]
-          ${isFocused
-            ? 'border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3)] scale-[1.02]'
-            : 'border-border/50 dark:border-border/50 hover:border-blue-400/50'
+          ${
+            isFocused
+              ? 'border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3)] scale-[1.02]'
+              : 'border-border/50 dark:border-border/50 hover:border-blue-400/50'
           }
         `}
         initial={{ opacity: 0, y: 20 }}
@@ -238,9 +267,11 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
             <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
           ) : (
             <div className="relative">
-              <Brain className={`w-5 h-5 transition-colors ${
-                isFocused ? 'text-blue-500' : 'text-muted-foreground'
-              }`} />
+              <Brain
+                className={`w-5 h-5 transition-colors ${
+                  isFocused ? 'text-blue-500' : 'text-muted-foreground'
+                }`}
+              />
               {isFocused && (
                 <motion.div
                   className="absolute inset-0 w-5 h-5 bg-primary/50 rounded-full opacity-30"
@@ -271,7 +302,7 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
               setShowHistoryDropdown(false)
             }, 200)
           }}
-          placeholder={isListening ? "Listening..." : placeholder}
+          placeholder={isListening ? 'Listening...' : placeholder}
           autoFocus={autoFocus}
           autoComplete="off"
           className="
@@ -294,9 +325,7 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
               exit={{ opacity: 0, x: -10 }}
               className="absolute bottom-full mb-2 left-4 right-4 p-2 bg-primary/5 dark:bg-blue-900/20 rounded-lg"
             >
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                {voiceTranscript}
-              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-300">{voiceTranscript}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -330,11 +359,7 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
                   : 'hover:bg-muted dark:hover:bg-accent text-muted-foreground'
               }`}
             >
-              {isListening ? (
-                <MicOff className="w-5 h-5" />
-              ) : (
-                <Mic className="w-5 h-5" />
-              )}
+              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </motion.button>
           )}
 
@@ -363,12 +388,15 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
 
       {/* Real Search Results & History Dropdown */}
       <AnimatePresence>
-        {isFocused && ((searchResults.length > 0 || isLoading) || (showHistoryDropdown && recentQueries.length > 0 && !query)) && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="
+        {isFocused &&
+          (searchResults.length > 0 ||
+            isLoading ||
+            (showHistoryDropdown && recentQueries.length > 0 && !query)) && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="
               absolute z-50 w-full mt-2
               bg-white/95 dark:bg-surface-sunken/95 backdrop-blur-xl
               rounded-xl shadow-2xl
@@ -376,34 +404,34 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
               overflow-hidden
               max-h-96 overflow-y-auto
             "
-          >
-            {/* Loading State */}
-            {isLoading && (
-              <div className="flex items-center justify-center p-4">
-                <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                <span className="ml-2 text-muted-foreground">Searching...</span>
-              </div>
-            )}
-
-            {/* Search Results */}
-            {!isLoading && searchResults.length > 0 && (
-              <div className="border-b border-border dark:border-border">
-                <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary dark:text-primary" />
-                    <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
-                      Search Results
-                    </span>
-                  </div>
+            >
+              {/* Loading State */}
+              {isLoading && (
+                <div className="flex items-center justify-center p-4">
+                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                  <span className="ml-2 text-muted-foreground">Searching...</span>
                 </div>
-                {searchResults.map((result, index) => (
-                  <motion.button
-                    key={`${result.type}-${result.id}-${index}`}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    onClick={() => handleSelectResult(result)}
-                    className="
+              )}
+
+              {/* Search Results */}
+              {!isLoading && searchResults.length > 0 && (
+                <div className="border-b border-border dark:border-border">
+                  <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-primary dark:text-primary" />
+                      <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                        Search Results
+                      </span>
+                    </div>
+                  </div>
+                  {searchResults.map((result, index) => (
+                    <motion.button
+                      key={`${result.type}-${result.id}-${index}`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      onClick={() => handleSelectResult(result)}
+                      className="
                       w-full px-5 py-3 text-left
                       hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50
                       dark:hover:from-blue-900/20 dark:hover:to-purple-900/20
@@ -412,31 +440,29 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
                       group
                       border-b border-gray-100 dark:border-gray-800 last:border-b-0
                     "
-                  >
-                    <div className="flex-shrink-0">
-                      {getResultIcon(result.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-foreground dark:text-foreground truncate group-hover:text-primary dark:group-hover:text-primary">
-                        {result.title}
+                    >
+                      <div className="flex-shrink-0">{getResultIcon(result.type)}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm text-foreground dark:text-foreground truncate group-hover:text-primary dark:group-hover:text-primary">
+                          {result.title}
+                        </div>
+                        {result.subtitle && (
+                          <div className="text-xs text-muted-foreground dark:text-muted-foreground truncate">
+                            {result.subtitle}
+                          </div>
+                        )}
+                        {result.description && (
+                          <div className="text-xs text-muted-foreground dark:text-muted-foreground truncate">
+                            {result.description}
+                          </div>
+                        )}
                       </div>
-                      {result.subtitle && (
-                        <div className="text-xs text-muted-foreground dark:text-muted-foreground truncate">
-                          {result.subtitle}
-                        </div>
-                      )}
-                      {result.description && (
-                        <div className="text-xs text-muted-foreground dark:text-muted-foreground truncate">
-                          {result.description}
-                        </div>
-                      )}
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-                  </motion.button>
-                ))}
-                <button
-                  onClick={handleSearch}
-                  className="
+                      <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                    </motion.button>
+                  ))}
+                  <button
+                    onClick={handleSearch}
+                    className="
                     w-full px-5 py-3 text-center
                     bg-muted dark:bg-card/50
                     hover:bg-muted dark:hover:bg-accent
@@ -444,77 +470,74 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
                     text-sm text-primary dark:text-primary
                     font-medium
                   "
-                >
-                  View all results for "{query}" →
-                </button>
-              </div>
-            )}
-
-            {/* Search History */}
-            {!isLoading && showHistoryDropdown && recentQueries.length > 0 && !query && (
-              <div>
-                <div className="px-4 py-2 bg-muted dark:bg-card/50 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <History className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
-                      Recent Searches
-                    </span>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      clearHistory()
-                    }}
-                    className="text-xs text-muted-foreground hover:text-red-500 transition-colors"
                   >
-                    Clear
+                    View all results for "{query}" →
                   </button>
                 </div>
-                {recentQueries.map((historyQuery, index) => (
-                  <motion.button
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    onClick={() => {
-                      setQuery(historyQuery)
-                      handleSelectResult(historyQuery)
-                    }}
-                    className="
+              )}
+
+              {/* Search History */}
+              {!isLoading && showHistoryDropdown && recentQueries.length > 0 && !query && (
+                <div>
+                  <div className="px-4 py-2 bg-muted dark:bg-card/50 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <History className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                        Recent Searches
+                      </span>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        clearHistory()
+                      }}
+                      className="text-xs text-muted-foreground hover:text-red-500 transition-colors"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  {recentQueries.map((historyQuery, index) => (
+                    <motion.button
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      onClick={() => {
+                        setQuery(historyQuery)
+                        handleSelectResult(historyQuery)
+                      }}
+                      className="
                       w-full px-5 py-3 text-left
                       hover:bg-muted dark:hover:bg-accent/50
                       transition-colors
                       flex items-center gap-3
                       group
                     "
-                  >
-                    <History className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground dark:text-muted-foreground group-hover:text-foreground dark:group-hover:text-gray-200">
-                      {historyQuery}
-                    </span>
-                  </motion.button>
-                ))}
-              </div>
-            )}
-          </motion.div>
-        )}
+                    >
+                      <History className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground dark:text-muted-foreground group-hover:text-foreground dark:group-hover:text-gray-200">
+                        {historyQuery}
+                      </span>
+                    </motion.button>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
       </AnimatePresence>
     </div>
   )
 }
 
-const AIUnifiedSearch = React.memo(
-  AIUnifiedSearchComponent,
-  (prevProps, nextProps) => {
-    return (
-      prevProps.placeholder === nextProps.placeholder &&
-      prevProps.className === nextProps.className &&
-      prevProps.autoFocus === nextProps.autoFocus &&
-      prevProps.showVoiceSearch === nextProps.showVoiceSearch &&
-      prevProps.showHistory === nextProps.showHistory
-    )
-  }
-)
+const AIUnifiedSearch = React.memo(AIUnifiedSearchComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.placeholder === nextProps.placeholder &&
+    prevProps.className === nextProps.className &&
+    prevProps.autoFocus === nextProps.autoFocus &&
+    prevProps.showVoiceSearch === nextProps.showVoiceSearch &&
+    prevProps.showHistory === nextProps.showHistory
+  )
+})
 
 AIUnifiedSearch.displayName = 'AIUnifiedSearch'
 

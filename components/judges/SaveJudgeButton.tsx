@@ -1,6 +1,6 @@
 /**
  * Save Judge Button with iOS Push Notification Integration
- * 
+ *
  * Allows users to bookmark/follow a judge and optionally enable
  * push notifications for updates. Demonstrates iOS native integration.
  */
@@ -18,11 +18,7 @@ interface SaveJudgeButtonProps {
   className?: string
 }
 
-export function SaveJudgeButton({ 
-  judgeId, 
-  judgeName,
-  className 
-}: SaveJudgeButtonProps) {
+export function SaveJudgeButton({ judgeId, judgeName, className }: SaveJudgeButtonProps) {
   const [isSaved, setIsSaved] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false)
@@ -34,24 +30,26 @@ export function SaveJudgeButton({
   const widgetManager = { updateWidgetData: async () => {} } as const
 
   const supabase = createClient()
-  
+
   // Check if judge is already saved on mount
   useEffect(() => {
     checkIfSaved()
   }, [judgeId])
-  
-  async function checkIfSaved() {
+
+  async function checkIfSaved(): JSX.Element {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (!user) return
-      
+
       const { data, error } = await supabase
         .from('user_bookmarks')
         .select('id')
         .eq('user_id', user.id)
         .eq('judge_id', judgeId)
         .maybeSingle()
-      
+
       if (!error && data) {
         setIsSaved(true)
       }
@@ -59,19 +57,21 @@ export function SaveJudgeButton({
       console.error('[SaveJudgeButton] Error checking saved status:', error)
     }
   }
-  
-  async function handleSave() {
+
+  async function handleSave(): JSX.Element {
     setIsLoading(true)
-    
+
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       if (!user) {
         // Redirect to login
         window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname)
         return
       }
-      
+
       if (isSaved) {
         // Unsave
         const { error } = await supabase
@@ -79,10 +79,10 @@ export function SaveJudgeButton({
           .delete()
           .eq('user_id', user.id)
           .eq('judge_id', judgeId)
-        
+
         if (!error) {
           setIsSaved(false)
-          
+
           // Update iOS widgets after unsaving
           if (isNative) {
             widgetManager.updateWidgetData().catch(console.error)
@@ -90,23 +90,21 @@ export function SaveJudgeButton({
         }
       } else {
         // Save
-        const { error } = await supabase
-          .from('user_bookmarks')
-          .insert({
-            user_id: user.id,
-            judge_id: judgeId,
-            judge_name: judgeName,
-            created_at: new Date().toISOString()
-          })
-        
+        const { error } = await supabase.from('user_bookmarks').insert({
+          user_id: user.id,
+          judge_id: judgeId,
+          judge_name: judgeName,
+          created_at: new Date().toISOString(),
+        })
+
         if (!error) {
           setIsSaved(true)
-          
+
           // Update iOS widgets with new saved judge
           if (isNative) {
             widgetManager.updateWidgetData().catch(console.error)
           }
-          
+
           // Show notification prompt if in native iOS and not enabled
           if (isNative && !pushEnabled) {
             setShowNotificationPrompt(true)
@@ -119,13 +117,13 @@ export function SaveJudgeButton({
       setIsLoading(false)
     }
   }
-  
-  async function handleEnableNotifications() {
+
+  async function handleEnableNotifications(): JSX.Element {
     setIsLoading(true)
-    
+
     try {
       const success = await enableNotifications()
-      
+
       if (success) {
         console.log('[SaveJudgeButton] Notifications enabled successfully')
         setShowNotificationPrompt(false)
@@ -138,11 +136,11 @@ export function SaveJudgeButton({
       setIsLoading(false)
     }
   }
-  
-  function handleMaybeLater() {
+
+  function handleMaybeLater(): JSX.Element {
     setShowNotificationPrompt(false)
   }
-  
+
   if (showNotificationPrompt) {
     return (
       <div className="rounded-lg border border-blue-200 bg-primary/5 p-4 dark:border-blue-900 dark:bg-blue-950">
@@ -153,8 +151,8 @@ export function SaveJudgeButton({
               Get Notified About {judgeName}
             </h4>
             <p className="mt-1 text-sm text-blue-800 dark:text-blue-200">
-              Receive instant alerts when this judge has new decisions, court assignment changes, 
-              or profile updates.
+              Receive instant alerts when this judge has new decisions, court assignment changes, or
+              profile updates.
             </p>
             <div className="mt-3 flex gap-2">
               <Button
@@ -166,12 +164,7 @@ export function SaveJudgeButton({
                 <BellIcon className="h-4 w-4 mr-2" />
                 Enable Alerts
               </Button>
-              <Button
-                onClick={handleMaybeLater}
-                disabled={isLoading}
-                variant="ghost"
-                size="sm"
-              >
+              <Button onClick={handleMaybeLater} disabled={isLoading} variant="ghost" size="sm">
                 Maybe Later
               </Button>
             </div>
@@ -180,7 +173,7 @@ export function SaveJudgeButton({
       </div>
     )
   }
-  
+
   return (
     <Button
       onClick={handleSave}
@@ -192,9 +185,7 @@ export function SaveJudgeButton({
         <>
           <CheckIcon className="h-4 w-4 mr-2" />
           Saved
-          {isNative && pushEnabled && (
-            <BellIcon className="h-4 w-4 ml-2 text-green-500" />
-          )}
+          {isNative && pushEnabled && <BellIcon className="h-4 w-4 ml-2 text-green-500" />}
         </>
       ) : (
         <>

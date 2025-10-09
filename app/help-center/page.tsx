@@ -1,10 +1,20 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { Search, BookOpen, Scale, Users, MessageCircle, Video, FileText, HelpCircle } from 'lucide-react'
+import {
+  Search,
+  BookOpen,
+  Scale,
+  Users,
+  MessageCircle,
+  Video,
+  FileText,
+  HelpCircle,
+} from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Help Center | JudgeFinder',
-  description: 'Get help with JudgeFinder. Browse guides, tutorials, and FAQs to make the most of your judicial research.',
+  description:
+    'Get help with JudgeFinder. Browse guides, tutorials, and FAQs to make the most of your judicial research.',
 }
 
 const categories = [
@@ -86,7 +96,7 @@ const popularArticles = [
   },
 ]
 
-export default function HelpCenterPage() {
+export default function HelpCenterPage(): JSX.Element {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -133,12 +143,13 @@ export default function HelpCenterPage() {
                       <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
                         {category.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {category.description}
-                      </p>
+                      <p className="text-sm text-muted-foreground mb-4">{category.description}</p>
                       <ul className="space-y-2">
                         {category.articles.map((article, index) => (
-                          <li key={index} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                          <li
+                            key={index}
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          >
                             • {article}
                           </li>
                         ))}
@@ -167,9 +178,7 @@ export default function HelpCenterPage() {
                     <h3 className="font-medium text-foreground group-hover:text-primary transition-colors">
                       {article.title}
                     </h3>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {article.category}
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">{article.category}</p>
                   </div>
                 </div>
               </Link>

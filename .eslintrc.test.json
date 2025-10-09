@@ -1,0 +1,7 @@
+{
+  "extends": "./.eslintrc.json",
+  "rules": {
+    "max-lines-per-function": "off",
+    "@typescript-eslint/no-explicit-any": "warn"
+  }
+}

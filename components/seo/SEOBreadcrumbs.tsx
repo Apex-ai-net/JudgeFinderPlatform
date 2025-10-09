@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import Link from 'next/link'
 import { ChevronRight, Home } from 'lucide-react'
@@ -18,10 +18,17 @@ interface SEOBreadcrumbsProps {
   jurisdiction?: string
 }
 
-export function SEOBreadcrumbs({ items, judgeName, jurisdiction }: SEOBreadcrumbsProps) {
+export function SEOBreadcrumbs({
+  items,
+  judgeName,
+  jurisdiction,
+}: SEOBreadcrumbsProps): JSX.Element {
   const baseUrl = getBaseUrl()
   return (
-    <nav aria-label="Breadcrumb" className="bg-muted dark:bg-surface-sunken border-b border-border dark:border-gray-800 py-3">
+    <nav
+      aria-label="Breadcrumb"
+      className="bg-muted dark:bg-surface-sunken border-b border-border dark:border-gray-800 py-3"
+    >
       <div className="mx-auto max-w-7xl px-4">
         <ol className="flex items-center flex-wrap gap-2 text-sm">
           <li>
@@ -33,13 +40,13 @@ export function SEOBreadcrumbs({ items, judgeName, jurisdiction }: SEOBreadcrumb
               <span>Home</span>
             </Link>
           </li>
-          
+
           {items.map((item, index) => (
             <li key={index} className="flex items-center">
               <ChevronRight className="h-4 w-4 text-muted-foreground dark:text-muted-foreground mx-1" />
-              
+
               {item.current ? (
-                <span 
+                <span
                   className="font-medium text-foreground dark:text-gray-100"
                   aria-current="page"
                 >
@@ -65,21 +72,21 @@ export function SEOBreadcrumbs({ items, judgeName, jurisdiction }: SEOBreadcrumb
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'BreadcrumbList',
-            'itemListElement': [
+            itemListElement: [
               {
                 '@type': 'ListItem',
-                'position': 1,
-                'name': 'Home',
-                'item': baseUrl
+                position: 1,
+                name: 'Home',
+                item: baseUrl,
               },
               ...items.map((item, index) => ({
                 '@type': 'ListItem',
-                'position': index + 2,
-                'name': item.label,
-                'item': `${baseUrl}${item.href}`
-              }))
-            ]
-          })
+                position: index + 2,
+                name: item.label,
+                item: `${baseUrl}${item.href}`,
+              })),
+            ],
+          }),
         }}
       />
 
@@ -88,8 +95,8 @@ export function SEOBreadcrumbs({ items, judgeName, jurisdiction }: SEOBreadcrumb
         <div className="hidden">
           {/* Hidden content for search engines */}
           <span>
-            Judge {judgeName} serves in {jurisdiction}. Research judicial analytics, 
-            ruling patterns, and find qualified attorneys with experience before this judge.
+            Judge {judgeName} serves in {jurisdiction}. Research judicial analytics, ruling
+            patterns, and find qualified attorneys with experience before this judge.
           </span>
         </div>
       )}
@@ -109,20 +116,20 @@ export function generateCourtBreadcrumbs(
   const jurisdictionSlug = jurisdiction.toLowerCase().replace(/\s+/g, '-')
   const preferredCourtSlug =
     courtSlug || resolveCourtSlug({ slug: courtSlug, name: courtName }) || 'unknown-court'
-  
+
   return [
     {
       label: 'Courts',
-      href: '/courts'
+      href: '/courts',
     },
     {
       label: jurisdiction,
-      href: `/jurisdictions/${jurisdictionSlug}`
+      href: `/jurisdictions/${jurisdictionSlug}`,
     },
     {
       label: courtName,
       href: `/courts/${preferredCourtSlug}`,
-      current: true
-    }
+      current: true,
+    },
   ]
 }

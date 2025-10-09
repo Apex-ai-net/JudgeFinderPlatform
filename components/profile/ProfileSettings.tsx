@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import { User } from '@clerk/nextjs/server'
-import { 
-  UserIcon, 
-  MailIcon, 
-  BellIcon, 
+import {
+  UserIcon,
+  MailIcon,
+  BellIcon,
   ShieldCheckIcon,
   CreditCardIcon,
   DownloadIcon,
-  TrashIcon
+  TrashIcon,
 } from 'lucide-react'
 import { useSafeUser } from '@/lib/auth/safe-clerk-components'
 
@@ -17,7 +17,7 @@ interface ProfileSettingsProps {
   user: User | null
 }
 
-export function ProfileSettings({ user: serverUser }: ProfileSettingsProps) {
+export function ProfileSettings({ user: serverUser }: ProfileSettingsProps): JSX.Element {
   const { user: clientUser, isLoaded } = useSafeUser()
   const user = clientUser || serverUser
 
@@ -25,14 +25,14 @@ export function ProfileSettings({ user: serverUser }: ProfileSettingsProps) {
     emailUpdates: true,
     judgeAlerts: false,
     weeklyDigest: true,
-    securityAlerts: true
+    securityAlerts: true,
   })
 
   const [preferences, setPreferences] = useState({
     defaultJurisdiction: 'CA',
     resultsPerPage: 20,
     darkMode: true,
-    emailFrequency: 'weekly'
+    emailFrequency: 'weekly',
   })
 
   if (!isLoaded || !user) {
@@ -101,13 +101,17 @@ export function ProfileSettings({ user: serverUser }: ProfileSettingsProps) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white font-medium">Email Updates</p>
-              <p className="text-sm text-muted-foreground">Receive updates about new features and platform changes</p>
+              <p className="text-sm text-muted-foreground">
+                Receive updates about new features and platform changes
+              </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={notifications.emailUpdates}
-                onChange={(e) => setNotifications({...notifications, emailUpdates: e.target.checked})}
+                onChange={(e) =>
+                  setNotifications({ ...notifications, emailUpdates: e.target.checked })
+                }
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-muted-foreground peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
@@ -117,13 +121,17 @@ export function ProfileSettings({ user: serverUser }: ProfileSettingsProps) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white font-medium">Judge Alerts</p>
-              <p className="text-sm text-muted-foreground">Get notified when saved judges have new cases or updates</p>
+              <p className="text-sm text-muted-foreground">
+                Get notified when saved judges have new cases or updates
+              </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={notifications.judgeAlerts}
-                onChange={(e) => setNotifications({...notifications, judgeAlerts: e.target.checked})}
+                onChange={(e) =>
+                  setNotifications({ ...notifications, judgeAlerts: e.target.checked })
+                }
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-muted-foreground peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
@@ -133,13 +141,17 @@ export function ProfileSettings({ user: serverUser }: ProfileSettingsProps) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white font-medium">Weekly Digest</p>
-              <p className="text-sm text-muted-foreground">Weekly summary of judicial activity and platform updates</p>
+              <p className="text-sm text-muted-foreground">
+                Weekly summary of judicial activity and platform updates
+              </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={notifications.weeklyDigest}
-                onChange={(e) => setNotifications({...notifications, weeklyDigest: e.target.checked})}
+                onChange={(e) =>
+                  setNotifications({ ...notifications, weeklyDigest: e.target.checked })
+                }
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-muted-foreground peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
@@ -149,13 +161,17 @@ export function ProfileSettings({ user: serverUser }: ProfileSettingsProps) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white font-medium">Security Alerts</p>
-              <p className="text-sm text-muted-foreground">Important security notifications about your account</p>
+              <p className="text-sm text-muted-foreground">
+                Important security notifications about your account
+              </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={notifications.securityAlerts}
-                onChange={(e) => setNotifications({...notifications, securityAlerts: e.target.checked})}
+                onChange={(e) =>
+                  setNotifications({ ...notifications, securityAlerts: e.target.checked })
+                }
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-muted-foreground peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
@@ -178,7 +194,9 @@ export function ProfileSettings({ user: serverUser }: ProfileSettingsProps) {
             </label>
             <select
               value={preferences.defaultJurisdiction}
-              onChange={(e) => setPreferences({...preferences, defaultJurisdiction: e.target.value})}
+              onChange={(e) =>
+                setPreferences({ ...preferences, defaultJurisdiction: e.target.value })
+              }
               className="w-full px-3 py-2 bg-card/50 border border-border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="CA">California</option>
@@ -194,7 +212,9 @@ export function ProfileSettings({ user: serverUser }: ProfileSettingsProps) {
             </label>
             <select
               value={preferences.resultsPerPage}
-              onChange={(e) => setPreferences({...preferences, resultsPerPage: parseInt(e.target.value)})}
+              onChange={(e) =>
+                setPreferences({ ...preferences, resultsPerPage: parseInt(e.target.value) })
+              }
               className="w-full px-3 py-2 bg-card/50 border border-border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="10">10</option>
@@ -210,7 +230,7 @@ export function ProfileSettings({ user: serverUser }: ProfileSettingsProps) {
             </label>
             <select
               value={preferences.emailFrequency}
-              onChange={(e) => setPreferences({...preferences, emailFrequency: e.target.value})}
+              onChange={(e) => setPreferences({ ...preferences, emailFrequency: e.target.value })}
               className="w-full px-3 py-2 bg-card/50 border border-border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="daily">Daily</option>
@@ -271,7 +291,9 @@ export function ProfileSettings({ user: serverUser }: ProfileSettingsProps) {
               <DownloadIcon className="h-5 w-5 text-primary mr-3" />
               <div className="text-left">
                 <p className="text-white font-medium">Download Your Data</p>
-                <p className="text-sm text-muted-foreground">Export all your saved data and preferences</p>
+                <p className="text-sm text-muted-foreground">
+                  Export all your saved data and preferences
+                </p>
               </div>
             </div>
           </button>
@@ -281,7 +303,9 @@ export function ProfileSettings({ user: serverUser }: ProfileSettingsProps) {
               <TrashIcon className="h-5 w-5 text-red-400 mr-3" />
               <div className="text-left">
                 <p className="text-white font-medium group-hover:text-red-400">Delete Account</p>
-                <p className="text-sm text-muted-foreground">Permanently delete your account and all data</p>
+                <p className="text-sm text-muted-foreground">
+                  Permanently delete your account and all data
+                </p>
               </div>
             </div>
           </button>

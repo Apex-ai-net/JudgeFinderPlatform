@@ -5,13 +5,17 @@ import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { transitions } from '@/lib/animations/presets'
 
-type GlassCardProps = {
+interface GlassCardProps {
   children: ReactNode
   className?: string
   hover?: boolean
 }
 
-export default function GlassCard({ children, className, hover = true }: GlassCardProps) {
+export default function GlassCard({
+  children,
+  className,
+  hover = true,
+}: GlassCardProps): JSX.Element {
   return (
     <motion.div
       className={cn(
@@ -32,5 +36,3 @@ export default function GlassCard({ children, className, hover = true }: GlassCa
     </motion.div>
   )
 }
-
-

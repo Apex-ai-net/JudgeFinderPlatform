@@ -63,7 +63,11 @@ const panelClass = 'rounded-2xl border border-border bg-card p-5 shadow-sm'
 const selectClass =
   'rounded-full border border-border/60 bg-surface-elevated px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-0'
 
-export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Phase2CaseHistoryProps) {
+export default function Phase2CaseHistory({
+  judgeId,
+  judgeName,
+  courtName,
+}: Phase2CaseHistoryProps): JSX.Element {
   const [cases, setCases] = useState<CaseData[]>([])
   const [analytics, setAnalytics] = useState<JudgeAnalytics[]>([])
   const [loading, setLoading] = useState(true)
@@ -103,7 +107,7 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
         if (value) params.set(key, value)
       })
       const response = await fetch(
-        `/api/judges/${judgeId}/analytics${params.toString() ? `?${params.toString()}` : ''}`,
+        `/api/judges/${judgeId}/analytics${params.toString() ? `?${params.toString()}` : ''}`
       )
       if (response.ok) {
         const data = await response.json()
@@ -139,11 +143,15 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
   }, [practiceAreas])
 
   const getPracticeColor = useCallback(
-    (area: string) => practiceAreaColorMap.get(area) ?? chartTheme.getSeriesColor(practiceAreaColorMap.size + 1),
-    [practiceAreaColorMap],
+    (area: string) =>
+      practiceAreaColorMap.get(area) ?? chartTheme.getSeriesColor(practiceAreaColorMap.size + 1),
+    [practiceAreaColorMap]
   )
 
-  const filteredCases = selectedPracticeArea === 'All' ? cases : cases.filter((c) => c.practice_area === selectedPracticeArea)
+  const filteredCases =
+    selectedPracticeArea === 'All'
+      ? cases
+      : cases.filter((c) => c.practice_area === selectedPracticeArea)
 
   const totalCases = analytics.reduce((sum, a) => sum + a.total_cases, 0)
   const totalValue = cases.reduce((sum, c) => sum + (c.case_value || 0), 0)
@@ -152,7 +160,7 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
     : 0
   const uniqueAttorneys = useMemo(
     () => Array.from(new Set(cases.flatMap((c) => c.attorneys.map((a) => a.name)))).length,
-    [cases],
+    [cases]
   )
 
   const compactCurrency = useMemo(
@@ -163,7 +171,7 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
         notation: 'compact',
         maximumFractionDigits: 1,
       }),
-    [],
+    []
   )
 
   if (loading) {
@@ -188,7 +196,9 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
       <header className={cn(panelClass, 'space-y-5')}>
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
-            <div className="text-xs uppercase tracking-[0.28em] text-muted-foreground/70">Phase 2 · Case history</div>
+            <div className="text-xs uppercase tracking-[0.28em] text-muted-foreground/70">
+              Phase 2 · Case history
+            </div>
             <h2 className="mt-2 text-2xl font-semibold text-foreground">
               Case patterns for {judgeName}
             </h2>
@@ -235,7 +245,11 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Calendar className="h-4 w-4" aria-hidden />
             Time range
-            <select value={timeRange} onChange={(event) => setTimeRange(event.target.value)} className={selectClass}>
+            <select
+              value={timeRange}
+              onChange={(event) => setTimeRange(event.target.value)}
+              className={selectClass}
+            >
               <option value="6-months">Last 6 months</option>
               <option value="1-year">Last year</option>
               <option value="2-years">Last 2 years</option>
@@ -245,15 +259,30 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
       </header>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricTile label="Total decisions" value={totalCases.toLocaleString()} icon={FileText} tone="info" />
+        <MetricTile
+          label="Total decisions"
+          value={totalCases.toLocaleString()}
+          icon={FileText}
+          tone="info"
+        />
         <MetricTile
           label="Total case value"
           value={compactCurrency.format(totalValue || 0)}
           icon={DollarSign}
           tone="accent"
         />
-        <MetricTile label="Median duration" value={`${avgDuration} days`} icon={Calendar} tone="warn" />
-        <MetricTile label="Active attorneys" value={uniqueAttorneys.toString()} icon={Users} tone="muted" />
+        <MetricTile
+          label="Median duration"
+          value={`${avgDuration} days`}
+          icon={Calendar}
+          tone="warn"
+        />
+        <MetricTile
+          label="Active attorneys"
+          value={uniqueAttorneys.toString()}
+          icon={Users}
+          tone="muted"
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -278,7 +307,10 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number, name: string) => [`${value.toLocaleString()} cases`, name]}
+                formatter={(value: number, name: string) => [
+                  `${value.toLocaleString()} cases`,
+                  name,
+                ]}
                 contentStyle={{
                   backgroundColor: chartTheme.tooltip.backgroundColor,
                   border: `1px solid ${chartTheme.tooltip.borderColor}`,
@@ -299,7 +331,9 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
 
         <article className={panelClass}>
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-foreground">Ruling patterns by practice area</h3>
+            <h3 className="text-lg font-semibold text-foreground">
+              Ruling patterns by practice area
+            </h3>
             <span className="text-xs text-muted-foreground/70">Stacked outcomes</span>
           </div>
           <ResponsiveContainer width="100%" height={280}>
@@ -335,9 +369,27 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
                   </span>
                 )}
               />
-              <Bar dataKey="plaintiff_wins" stackId="stack" name="Plaintiff wins" fill={chartTheme.getSeriesColor(1)} radius={[6, 6, 0, 0]} />
-              <Bar dataKey="defendant_wins" stackId="stack" name="Defendant wins" fill={chartTheme.getSeriesColor(5)} radius={[0, 0, 0, 0]} />
-              <Bar dataKey="settlements" stackId="stack" name="Settlements" fill={chartTheme.getSeriesColor(2)} radius={[0, 0, 6, 6]} />
+              <Bar
+                dataKey="plaintiff_wins"
+                stackId="stack"
+                name="Plaintiff wins"
+                fill={chartTheme.getSeriesColor(1)}
+                radius={[6, 6, 0, 0]}
+              />
+              <Bar
+                dataKey="defendant_wins"
+                stackId="stack"
+                name="Defendant wins"
+                fill={chartTheme.getSeriesColor(5)}
+                radius={[0, 0, 0, 0]}
+              />
+              <Bar
+                dataKey="settlements"
+                stackId="stack"
+                name="Settlements"
+                fill={chartTheme.getSeriesColor(2)}
+                radius={[0, 0, 6, 6]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </article>
@@ -348,7 +400,8 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
           <div>
             <h3 className="text-lg font-semibold text-foreground">Recent cases</h3>
             <p className="text-sm text-muted-foreground/70">
-              {filteredCases.length} cases{selectedPracticeArea !== 'All' ? ` in ${selectedPracticeArea}` : ''}
+              {filteredCases.length} cases
+              {selectedPracticeArea !== 'All' ? ` in ${selectedPracticeArea}` : ''}
             </p>
           </div>
         </div>
@@ -381,7 +434,7 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
                     className={cn(
                       item.status === 'decided'
                         ? 'bg-success/10 text-success'
-                        : 'bg-surface-elevated text-muted-foreground',
+                        : 'bg-surface-elevated text-muted-foreground'
                     )}
                   >
                     {item.status}
@@ -391,13 +444,17 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
 
               <div className="mt-4 grid gap-4 text-sm text-muted-foreground md:grid-cols-3">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground/70">Parties</p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground/70">
+                    Parties
+                  </p>
                   <p className="mt-1">
                     {item.parties.plaintiff} v. {item.parties.defendant}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground/70">Attorneys</p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground/70">
+                    Attorneys
+                  </p>
                   <ul className="mt-1 space-y-1">
                     {item.attorneys.map((attorney, index) => (
                       <li key={`${attorney.name}-${index}`}>
@@ -408,7 +465,9 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
                   </ul>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground/70">Details</p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground/70">
+                    Details
+                  </p>
                   {item.case_value ? <p>Value: {compactCurrency.format(item.case_value)}</p> : null}
                   {item.outcome ? <p>Outcome: {item.outcome}</p> : null}
                   {item.decision_date ? <p>Decided: {formatDate(item.decision_date)}</p> : null}
@@ -422,7 +481,9 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
           <div className="flex flex-col items-center justify-center rounded-2xl border border-border/60 bg-surface-elevated p-12 text-center">
             <FileText className="mb-4 h-12 w-12 text-muted-foreground/70" aria-hidden />
             <p className="text-sm text-muted-foreground">No cases match the current filters.</p>
-            <p className="mt-1 text-xs text-muted-foreground/70">Adjust the practice area or time range to broaden your scope.</p>
+            <p className="mt-1 text-xs text-muted-foreground/70">
+              Adjust the practice area or time range to broaden your scope.
+            </p>
           </div>
         )}
       </article>
@@ -436,7 +497,9 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from(
-            new Map(cases.flatMap((c) => c.attorneys.map((attorney) => [attorney.name, attorney]))).values(),
+            new Map(
+              cases.flatMap((c) => c.attorneys.map((attorney) => [attorney.name, attorney]))
+            ).values()
           )
             .slice(0, 6)
             .map((attorney) => (
@@ -455,8 +518,10 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
                   🎯 Advertising target
                 </Badge>
                 <div className="mt-3 text-xs text-muted-foreground/70">
-                  Cases linked: {
-                    cases.filter((c) => c.attorneys.some((entry) => entry.name === attorney.name)).length
+                  Cases linked:{' '}
+                  {
+                    cases.filter((c) => c.attorneys.some((entry) => entry.name === attorney.name))
+                      .length
                   }
                 </div>
               </div>
@@ -467,14 +532,14 @@ export default function Phase2CaseHistory({ judgeId, judgeName, courtName }: Pha
   )
 }
 
-function formatDate(value?: string) {
+function formatDate(value?: string): JSX.Element {
   if (!value) return '—'
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return value
   return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-function timeRangeLabel(range: string) {
+function timeRangeLabel(range: string): JSX.Element {
   switch (range) {
     case '6-months':
       return 'Six month'
@@ -601,10 +666,10 @@ function MetricTile({
     tone === 'info'
       ? 'bg-surface-elevated/70 text-foreground'
       : tone === 'accent'
-      ? 'bg-interactive/15 text-primary'
-      : tone === 'warn'
-      ? 'bg-warning/15 text-warning'
-      : 'bg-surface-elevated text-muted-foreground'
+        ? 'bg-interactive/15 text-primary'
+        : tone === 'warn'
+          ? 'bg-warning/15 text-warning'
+          : 'bg-surface-elevated text-muted-foreground'
 
   return (
     <article className={panelClass}>
@@ -612,7 +677,11 @@ function MetricTile({
         <Icon className="h-4 w-4" aria-hidden />
         {label}
       </div>
-      <div className={cn('mt-3 inline-flex rounded-full px-4 py-2 text-base font-semibold', toneClass)}>{value}</div>
+      <div
+        className={cn('mt-3 inline-flex rounded-full px-4 py-2 text-base font-semibold', toneClass)}
+      >
+        {value}
+      </div>
     </article>
   )
 }

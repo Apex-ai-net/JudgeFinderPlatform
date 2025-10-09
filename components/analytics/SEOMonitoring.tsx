@@ -1,7 +1,10 @@
-"use client"
+'use client'
 
 import { useEffect } from 'react'
-import { initializeSEOMonitoring, trackJudgeSearchPerformance } from '@/lib/analytics/seo-monitoring'
+import {
+  initializeSEOMonitoring,
+  trackJudgeSearchPerformance,
+} from '@/lib/analytics/seo-monitoring'
 
 interface SEOMonitoringProps {
   judgeName: string
@@ -9,14 +12,14 @@ interface SEOMonitoringProps {
   slug: string
 }
 
-export function SEOMonitoring({ judgeName, jurisdiction, slug }: SEOMonitoringProps) {
+export function SEOMonitoring({ judgeName, jurisdiction, slug }: SEOMonitoringProps): JSX.Element {
   useEffect(() => {
     // Initialize SEO monitoring when component mounts
     initializeSEOMonitoring(judgeName)
-    
+
     // Track search performance data
     trackJudgeSearchPerformance(judgeName, jurisdiction)
-    
+
     // Set up Google Analytics 4 tracking if available
     if (typeof window !== 'undefined' && window.gtag) {
       // Track custom dimensions for better analytics
@@ -24,10 +27,10 @@ export function SEOMonitoring({ judgeName, jurisdiction, slug }: SEOMonitoringPr
         custom_map: {
           custom_parameter_1: 'judge_name',
           custom_parameter_2: 'jurisdiction',
-          custom_parameter_3: 'page_type'
-        }
+          custom_parameter_3: 'page_type',
+        },
       })
-      
+
       // Send enhanced page view
       window.gtag('event', 'page_view', {
         page_title: `Judge ${judgeName}`,
@@ -40,12 +43,14 @@ export function SEOMonitoring({ judgeName, jurisdiction, slug }: SEOMonitoringPr
         content_group3: jurisdiction,
       })
     }
-    
+
     // Track search console performance (would require API integration)
     const trackSearchConsoleData = async () => {
       try {
         // This would call your backend API that interfaces with Google Search Console
-        const response = await fetch(`/api/seo/search-console?judge=${encodeURIComponent(judgeName)}`)
+        const response = await fetch(
+          `/api/seo/search-console?judge=${encodeURIComponent(judgeName)}`
+        )
         if (response.ok) {
           const data = await response.json()
           console.log('Search Console data:', data)
@@ -54,9 +59,8 @@ export function SEOMonitoring({ judgeName, jurisdiction, slug }: SEOMonitoringPr
         console.debug('Search Console API not configured:', error)
       }
     }
-    
+
     trackSearchConsoleData()
-    
   }, [judgeName, jurisdiction])
 
   // This component doesn't render anything visible
@@ -64,7 +68,7 @@ export function SEOMonitoring({ judgeName, jurisdiction, slug }: SEOMonitoringPr
 }
 
 // Additional monitoring for attorney interactions
-export function trackAttorneySlotClick(judgeName: string, slotPosition: number) {
+export function trackAttorneySlotClick(judgeName: string, slotPosition: number): JSX.Element {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', 'attorney_slot_click', {
       event_category: 'attorney_directory',
@@ -77,7 +81,11 @@ export function trackAttorneySlotClick(judgeName: string, slotPosition: number) 
 }
 
 // Track related judge clicks for internal linking analysis
-export function trackRelatedJudgeClick(fromJudge: string, toJudge: string, linkPosition: number) {
+export function trackRelatedJudgeClick(
+  fromJudge: string,
+  toJudge: string,
+  linkPosition: number
+): JSX.Element {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', 'related_judge_click', {
       event_category: 'internal_linking',
@@ -90,7 +98,11 @@ export function trackRelatedJudgeClick(fromJudge: string, toJudge: string, linkP
 }
 
 // Track breadcrumb navigation
-export function trackBreadcrumbClick(judgeName: string, breadcrumbLabel: string, position: number) {
+export function trackBreadcrumbClick(
+  judgeName: string,
+  breadcrumbLabel: string,
+  position: number
+): JSX.Element {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', 'breadcrumb_navigation', {
       event_category: 'navigation',

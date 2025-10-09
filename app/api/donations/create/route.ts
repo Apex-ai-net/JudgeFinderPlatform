@@ -13,7 +13,7 @@ const bodySchema = z.object({
   recurring: z.boolean().optional().default(false),
 })
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const started = Date.now()
 
   if (!isStripeEnabled()) {
@@ -29,7 +29,10 @@ export async function POST(request: NextRequest) {
 
   const parsed = bodySchema.safeParse(payload)
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message ?? 'Invalid donation request' }, { status: 400 })
+    return NextResponse.json(
+      { error: parsed.error.errors[0]?.message ?? 'Invalid donation request' },
+      { status: 400 }
+    )
   }
 
   const { amount, recurring } = parsed.data
@@ -42,7 +45,9 @@ export async function POST(request: NextRequest) {
 
   const paymentLink = process.env.STRIPE_DONATION_PAYMENT_LINK
   if (paymentLink) {
-    logger.apiResponse('POST', '/api/donations/create', 200, Date.now() - started, { method: 'payment_link' })
+    logger.apiResponse('POST', '/api/donations/create', 200, Date.now() - started, {
+      method: 'payment_link',
+    })
     return NextResponse.json({ url: paymentLink })
   }
 
@@ -72,7 +77,9 @@ export async function POST(request: NextRequest) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://judgefinder.io'}/`,
     })
 
-    logger.apiResponse('POST', '/api/donations/create', 200, Date.now() - started, { session: session.id })
+    logger.apiResponse('POST', '/api/donations/create', 200, Date.now() - started, {
+      session: session.id,
+    })
 
     return NextResponse.json({ url: session.url })
   } catch (error) {

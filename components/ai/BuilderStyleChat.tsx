@@ -18,15 +18,15 @@ export interface Message {
   timestamp: Date
 }
 
-export default function BuilderStyleChat() {
+export default function BuilderStyleChat(): JSX.Element {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'assistant',
-      content: "Ask me about any California judge or court.",
+      content: 'Ask me about any California judge or court.',
       type: 'text',
-      timestamp: new Date()
-    }
+      timestamp: new Date(),
+    },
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -57,7 +57,7 @@ export default function BuilderStyleChat() {
   const handleSubmit = async (e: React.FormEvent, overrideInput?: string) => {
     e.preventDefault()
     const queryText = overrideInput || input.trim()
-    
+
     if (!queryText || isLoading) return
 
     // Add user message
@@ -66,10 +66,10 @@ export default function BuilderStyleChat() {
       role: 'user',
       content: queryText,
       type: 'text',
-      timestamp: new Date()
+      timestamp: new Date(),
     }
 
-    setMessages(prev => [...prev, userMessage])
+    setMessages((prev) => [...prev, userMessage])
     setInput('')
     setIsLoading(true)
     setIsStreaming(true)
@@ -84,13 +84,13 @@ export default function BuilderStyleChat() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          messages: [...messages, userMessage].map(m => ({
+          messages: [...messages, userMessage].map((m) => ({
             role: m.role,
-            content: m.content
+            content: m.content,
           })),
-          stream: true
+          stream: true,
         }),
-        signal: abortControllerRef.current.signal
+        signal: abortControllerRef.current.signal,
       })
 
       if (!response.ok) {
@@ -104,13 +104,16 @@ export default function BuilderStyleChat() {
       const assistantMessageId = Date.now().toString()
 
       // Add empty assistant message that we'll update
-      setMessages(prev => [...prev, {
-        id: assistantMessageId,
-        role: 'assistant',
-        content: '',
-        type: 'text',
-        timestamp: new Date()
-      }])
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: assistantMessageId,
+          role: 'assistant',
+          content: '',
+          type: 'text',
+          timestamp: new Date(),
+        },
+      ])
 
       if (reader) {
         while (true) {
@@ -119,7 +122,7 @@ export default function BuilderStyleChat() {
 
           const chunk = decoder.decode(value)
           const lines = chunk.split('\n')
-          
+
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               const data = line.slice(6)
@@ -129,18 +132,18 @@ export default function BuilderStyleChat() {
                 await checkForJudgeData(accumulatedContent, assistantMessageId)
                 continue
               }
-              
+
               try {
                 const parsed = JSON.parse(data)
                 if (parsed.text) {
                   accumulatedContent += parsed.text
-                  
+
                   // Update the assistant message with accumulated content
-                  setMessages(prev => prev.map(msg => 
-                    msg.id === assistantMessageId
-                      ? { ...msg, content: accumulatedContent }
-                      : msg
-                  ))
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === assistantMessageId ? { ...msg, content: accumulatedContent } : msg
+                    )
+                  )
                 }
               } catch (e) {
                 console.error('Error parsing SSE data:', e)
@@ -154,13 +157,16 @@ export default function BuilderStyleChat() {
         console.log('Request aborted')
       } else {
         console.error('Chat error:', error)
-        setMessages(prev => [...prev, {
-          id: Date.now().toString(),
-          role: 'assistant',
-          content: 'Sorry, I encountered an error. Please try again.',
-          type: 'text',
-          timestamp: new Date()
-        }])
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            role: 'assistant',
+            content: 'Sorry, I encountered an error. Please try again.',
+            type: 'text',
+            timestamp: new Date(),
+          },
+        ])
       }
     } finally {
       setIsLoading(false)
@@ -172,36 +178,44 @@ export default function BuilderStyleChat() {
   const checkForJudgeData = async (content: string, messageId: string) => {
     // Check if the response mentions a specific judge
     const judgeNameMatch = content.match(/Judge\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/g)
-    
+
     if (judgeNameMatch && judgeNameMatch.length > 0) {
       // Search for judge data
       try {
         const judgeName = judgeNameMatch[0].replace('Judge ', '')
-        const searchResponse = await fetch(`/api/judges/chat-search?name=${encodeURIComponent(judgeName)}`)
-        
+        const searchResponse = await fetch(
+          `/api/judges/chat-search?name=${encodeURIComponent(judgeName)}`
+        )
+
         if (searchResponse.ok) {
           const data = await searchResponse.json()
-          
+
           if (data.judge) {
             // Add a judge card after the text message
-            setMessages(prev => [...prev, {
-              id: Date.now().toString(),
-              role: 'assistant',
-              content: '',
-              type: 'judge_card',
-              judgeData: data.judge,
-              timestamp: new Date()
-            }])
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: Date.now().toString(),
+                role: 'assistant',
+                content: '',
+                type: 'judge_card',
+                judgeData: data.judge,
+                timestamp: new Date(),
+              },
+            ])
           } else if (data.judges && data.judges.length > 0) {
             // Add multiple judge cards
-            setMessages(prev => [...prev, {
-              id: Date.now().toString(),
-              role: 'assistant',
-              content: '',
-              type: 'judge_list',
-              judgesData: data.judges,
-              timestamp: new Date()
-            }])
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: Date.now().toString(),
+                role: 'assistant',
+                content: '',
+                type: 'judge_list',
+                judgesData: data.judges,
+                timestamp: new Date(),
+              },
+            ])
           }
         }
       } catch (error) {
@@ -223,34 +237,35 @@ export default function BuilderStyleChat() {
       {/* AI Disclaimer - Simplified */}
       <div className="mb-2 p-2 bg-primary/5 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
         <p className="text-[10px] sm:text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
-          <span className="font-semibold">ℹ️ Note:</span> AI analysis for informational purposes only.
+          <span className="font-semibold">ℹ️ Note:</span> AI analysis for informational purposes
+          only.
         </p>
       </div>
-      
+
       {/* Suggested Prompts - Moved outside and simplified */}
       <div className="mb-3">
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => handleSuggestedPrompt("Search for Judge Thompson in Los Angeles")}
+            onClick={() => handleSuggestedPrompt('Search for Judge Thompson in Los Angeles')}
             className="px-3 py-1.5 text-xs bg-white dark:bg-card hover:bg-primary/5 dark:hover:bg-card border border-border dark:border-border rounded-full transition-colors"
           >
             🔍 Search judge
           </button>
           <button
-            onClick={() => handleSuggestedPrompt("Show bias analysis for Judge Martinez")}
+            onClick={() => handleSuggestedPrompt('Show bias analysis for Judge Martinez')}
             className="px-3 py-1.5 text-xs bg-white dark:bg-card hover:bg-primary/5 dark:hover:bg-card border border-border dark:border-border rounded-full transition-colors"
           >
             📊 Bias analysis
           </button>
           <button
-            onClick={() => handleSuggestedPrompt("Find judges in Orange County Superior Court")}
+            onClick={() => handleSuggestedPrompt('Find judges in Orange County Superior Court')}
             className="px-3 py-1.5 text-xs bg-white dark:bg-card hover:bg-primary/5 dark:hover:bg-card border border-border dark:border-border rounded-full transition-colors"
           >
             📍 Find by court
           </button>
         </div>
       </div>
-      
+
       <div className="flex flex-col h-[450px] sm:h-[500px] lg:h-[550px] bg-white dark:bg-surface-sunken rounded-xl shadow-lg border border-border dark:border-border overflow-hidden">
         {/* Header */}
         <ChatHeader />
@@ -263,7 +278,9 @@ export default function BuilderStyleChat() {
                 <JudgeCard judge={message.judgeData} />
               ) : message.type === 'judge_list' && message.judgesData ? (
                 <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground mb-2">I found multiple judges matching your query:</p>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    I found multiple judges matching your query:
+                  </p>
                   {message.judgesData.slice(0, 3).map((judge, idx) => (
                     <JudgeCard key={idx} judge={judge} compact />
                   ))}
@@ -273,14 +290,14 @@ export default function BuilderStyleChat() {
               )}
             </div>
           ))}
-          
+
           {isLoading && !isStreaming && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span className="text-sm">AI is thinking...</span>
             </div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
 

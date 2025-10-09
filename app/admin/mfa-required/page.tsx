@@ -6,7 +6,7 @@ import { Shield, Lock, ArrowRight } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
-export default async function MFARequiredPage() {
+export default async function MFARequiredPage(): Promise<JSX.Element> {
   const { userId } = await auth()
 
   if (!userId) {

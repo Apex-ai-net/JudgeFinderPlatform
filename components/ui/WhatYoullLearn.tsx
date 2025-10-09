@@ -1,37 +1,38 @@
 import { BookOpen, TrendingUp, Clock, Users, Scale, FileText } from 'lucide-react'
 
-export function WhatYoullLearn() {
+export function WhatYoullLearn(): JSX.Element {
   const features = [
     {
       icon: TrendingUp,
       title: 'Ruling Patterns',
-      description: 'Analyze historical ruling patterns and decision trends across different case types'
+      description:
+        'Analyze historical ruling patterns and decision trends across different case types',
     },
     {
       icon: Clock,
       title: 'Decision Timeline',
-      description: 'Track average decision times and identify factors that influence case duration'
+      description: 'Track average decision times and identify factors that influence case duration',
     },
     {
       icon: Scale,
       title: 'Reversal Rates',
-      description: 'View appellate reversal rates and understand judicial decision stability'
+      description: 'View appellate reversal rates and understand judicial decision stability',
     },
     {
       icon: Users,
       title: 'Attorney Success',
-      description: 'See which attorneys have the highest success rates before specific judges'
+      description: 'See which attorneys have the highest success rates before specific judges',
     },
     {
       icon: FileText,
       title: 'Case Precedents',
-      description: 'Access relevant case precedents and citations frequently used by judges'
+      description: 'Access relevant case precedents and citations frequently used by judges',
     },
     {
       icon: BookOpen,
       title: 'Legal Preferences',
-      description: 'Understand judges\' legal philosophies and interpretation preferences'
-    }
+      description: "Understand judges' legal philosophies and interpretation preferences",
+    },
   ]
 
   return (

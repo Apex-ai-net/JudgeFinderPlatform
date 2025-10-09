@@ -7,13 +7,14 @@ import Link from 'next/link'
 import type { SearchResponse, SearchResult } from '@/types/search'
 import { SponsoredTile } from '@/components/search/SponsoredTile'
 
-
-function SearchResults() {
+function SearchResults(): JSX.Element {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [searchData, setSearchData] = useState<SearchResponse | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeFilter, setActiveFilter] = useState<'all' | 'judge' | 'court' | 'jurisdiction'>('all')
+  const [activeFilter, setActiveFilter] = useState<'all' | 'judge' | 'court' | 'jurisdiction'>(
+    'all'
+  )
   const [searchQuery, setSearchQuery] = useState('')
 
   const query = searchParams.get('q') || ''
@@ -34,7 +35,7 @@ function SearchResults() {
         results_by_type: { judges: [], courts: [], jurisdictions: [], sponsored: [] },
         counts_by_type: { judges: 0, courts: 0, jurisdictions: 0, sponsored: 0 },
         query: '',
-        took_ms: 0
+        took_ms: 0,
       })
       setLoading(false)
       return
@@ -59,7 +60,7 @@ function SearchResults() {
           results_by_type: { judges: [], courts: [], jurisdictions: [], sponsored: [] },
           counts_by_type: { judges: 0, courts: 0, jurisdictions: 0, sponsored: 0 },
           query: query,
-          took_ms: 0
+          took_ms: 0,
         })
       }
     } catch (error) {
@@ -71,7 +72,7 @@ function SearchResults() {
         results_by_type: { judges: [], courts: [], jurisdictions: [], sponsored: [] },
         counts_by_type: { judges: 0, courts: 0, jurisdictions: 0, sponsored: 0 },
         query: query,
-        took_ms: 0
+        took_ms: 0,
       })
     } finally {
       setLoading(false)
@@ -106,7 +107,7 @@ function SearchResults() {
       console.log('No search data available')
       return []
     }
-    
+
     let results: SearchResult[] = []
     switch (activeFilter) {
       case 'judge':
@@ -121,7 +122,7 @@ function SearchResults() {
       default:
         results = searchData.results
     }
-    
+
     console.log(`Filtered results for '${activeFilter}':`, results.length, 'items')
     return results
   }
@@ -197,7 +198,7 @@ function SearchResults() {
           <div className="lg:col-span-1">
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Filter Results</h3>
-              
+
               <div className="space-y-2">
                 <button
                   onClick={() => handleFilterChange('all')}
@@ -214,7 +215,7 @@ function SearchResults() {
                     </span>
                   )}
                 </button>
-                
+
                 <button
                   onClick={() => handleFilterChange('judge')}
                   className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
@@ -233,7 +234,7 @@ function SearchResults() {
                     </span>
                   )}
                 </button>
-                
+
                 <button
                   onClick={() => handleFilterChange('court')}
                   className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
@@ -252,7 +253,7 @@ function SearchResults() {
                     </span>
                   )}
                 </button>
-                
+
                 <button
                   onClick={() => handleFilterChange('jurisdiction')}
                   className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
@@ -287,10 +288,9 @@ function SearchResults() {
                 <Search className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-white mb-2">No results found</h3>
                 <p className="text-gray-300">
-                  {query 
+                  {query
                     ? `No results found for "${query}"${activeFilter !== 'all' ? ` in ${activeFilter}s` : ''}`
-                    : 'Enter a search term to get started'
-                  }
+                    : 'Enter a search term to get started'}
                 </p>
               </div>
             ) : (
@@ -302,31 +302,33 @@ function SearchResults() {
                     className="block bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-6 hover:bg-gray-700/50 hover:border-blue-500/30 transition-all duration-200"
                   >
                     <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 mt-1">
-                        {getResultIcon(result.type)}
-                      </div>
+                      <div className="flex-shrink-0 mt-1">{getResultIcon(result.type)}</div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-1">
                           <h3 className="text-lg font-semibold text-white truncate">
                             {result.title}
                           </h3>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
-                            result.type === 'judge' ? 'bg-blue-600/20 text-blue-400' :
-                            result.type === 'court' ? 'bg-green-600/20 text-green-400' :
-                            'bg-purple-600/20 text-purple-400'
-                          }`}>
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
+                              result.type === 'judge'
+                                ? 'bg-blue-600/20 text-blue-400'
+                                : result.type === 'court'
+                                  ? 'bg-green-600/20 text-green-400'
+                                  : 'bg-purple-600/20 text-purple-400'
+                            }`}
+                          >
                             {result.type}
                           </span>
                         </div>
-                        
+
                         {result.subtitle && (
                           <p className="text-blue-400 font-medium mb-2">{result.subtitle}</p>
                         )}
-                        
+
                         {result.description && (
                           <p className="text-gray-300 mb-3">{result.description}</p>
                         )}
-                        
+
                         <div className="flex items-center text-sm text-gray-400">
                           <span className="truncate">{result.url}</span>
                         </div>
@@ -351,16 +353,18 @@ function SearchResults() {
   )
 }
 
-export default function SearchPage() {
+export default function SearchPage(): JSX.Element {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-400 mx-auto mb-4" />
-          <p className="text-gray-300">Loading search...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-400 mx-auto mb-4" />
+            <p className="text-gray-300">Loading search...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <SearchResults />
     </Suspense>
   )

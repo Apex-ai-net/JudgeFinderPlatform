@@ -4,14 +4,14 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { User } from '@clerk/nextjs/server'
 import { useSafeUser } from '@/lib/auth/safe-clerk-components'
-import { 
-  CheckCircleIcon, 
-  ArrowRightIcon, 
-  UserIcon, 
-  BriefcaseIcon, 
+import {
+  CheckCircleIcon,
+  ArrowRightIcon,
+  UserIcon,
+  BriefcaseIcon,
   MapPinIcon,
   BellIcon,
-  BookmarkIcon
+  BookmarkIcon,
 } from 'lucide-react'
 
 interface OnboardingWizardProps {
@@ -29,7 +29,7 @@ interface OnboardingData {
   }
 }
 
-export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
+export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps): JSX.Element {
   const { user: clientUser } = useSafeUser()
   const user = clientUser || serverUser
   const router = useRouter()
@@ -43,8 +43,8 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
     notifications: {
       emailUpdates: true,
       judgeAlerts: false,
-      weeklyDigest: true
-    }
+      weeklyDigest: true,
+    },
   })
 
   const professions = [
@@ -54,7 +54,7 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
     { id: 'researcher', label: 'Legal Researcher', icon: BookmarkIcon },
     { id: 'journalist', label: 'Journalist', icon: UserIcon },
     { id: 'student', label: 'Law Student', icon: UserIcon },
-    { id: 'other', label: 'Other', icon: UserIcon }
+    { id: 'other', label: 'Other', icon: UserIcon },
   ]
 
   const useCases = [
@@ -65,7 +65,7 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
     'Monitor judicial appointments',
     'Academic research',
     'Journalism and transparency',
-    'General legal research'
+    'General legal research',
   ]
 
   const jurisdictions = [
@@ -73,15 +73,15 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
     { code: 'NY', name: 'New York' },
     { code: 'TX', name: 'Texas' },
     { code: 'FL', name: 'Florida' },
-    { code: 'federal', name: 'Federal Courts' }
+    { code: 'federal', name: 'Federal Courts' },
   ]
 
   const handleUseCaseToggle = (useCase: string) => {
-    setOnboardingData(prev => ({
+    setOnboardingData((prev) => ({
       ...prev,
       useCase: prev.useCase.includes(useCase)
-        ? prev.useCase.filter(uc => uc !== useCase)
-        : [...prev.useCase, useCase]
+        ? prev.useCase.filter((uc) => uc !== useCase)
+        : [...prev.useCase, useCase],
     }))
   }
 
@@ -99,8 +99,8 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
             onboardingCompleted: true,
             profession: onboardingData.profession,
             useCase: onboardingData.useCase,
-            primaryJurisdiction: onboardingData.jurisdiction
-          })
+            primaryJurisdiction: onboardingData.jurisdiction,
+          }),
         })
       }
 
@@ -114,7 +114,7 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
           default_jurisdiction: onboardingData.jurisdiction,
           email_notifications: onboardingData.notifications.emailUpdates,
           judge_alerts: onboardingData.notifications.judgeAlerts,
-          weekly_digest: onboardingData.notifications.weeklyDigest
+          weekly_digest: onboardingData.notifications.weeklyDigest,
         }),
       })
 
@@ -129,8 +129,8 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
           activity_data: {
             profession: onboardingData.profession,
             useCase: onboardingData.useCase,
-            jurisdiction: onboardingData.jurisdiction
-          }
+            jurisdiction: onboardingData.jurisdiction,
+          },
         }),
       })
 
@@ -142,23 +142,21 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
     }
   }
 
-  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 4))
-  const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1))
+  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 4))
+  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1))
 
   return (
     <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-8">
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm font-medium text-muted-foreground">
-            Step {currentStep} of 4
-          </span>
+          <span className="text-sm font-medium text-muted-foreground">Step {currentStep} of 4</span>
           <span className="text-sm font-medium text-muted-foreground">
             {Math.round((currentStep / 4) * 100)}% Complete
           </span>
         </div>
         <div className="w-full bg-card rounded-full h-2">
-          <div 
+          <div
             className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep / 4) * 100}%` }}
           />
@@ -179,7 +177,9 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
               return (
                 <button
                   key={profession.id}
-                  onClick={() => setOnboardingData(prev => ({ ...prev, profession: profession.id }))}
+                  onClick={() =>
+                    setOnboardingData((prev) => ({ ...prev, profession: profession.id }))
+                  }
                   className={`flex items-center p-4 rounded-lg border transition-colors ${
                     onboardingData.profession === profession.id
                       ? 'bg-primary/50/20 border-blue-500/50 text-primary'
@@ -241,7 +241,9 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
             {jurisdictions.map((jurisdiction) => (
               <button
                 key={jurisdiction.code}
-                onClick={() => setOnboardingData(prev => ({ ...prev, jurisdiction: jurisdiction.code }))}
+                onClick={() =>
+                  setOnboardingData((prev) => ({ ...prev, jurisdiction: jurisdiction.code }))
+                }
                 className={`flex items-center p-4 rounded-lg border transition-colors ${
                   onboardingData.jurisdiction === jurisdiction.code
                     ? 'bg-green-500/20 border-green-500/50 text-green-400'
@@ -280,10 +282,12 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
                 <input
                   type="checkbox"
                   checked={onboardingData.notifications.emailUpdates}
-                  onChange={(e) => setOnboardingData(prev => ({
-                    ...prev,
-                    notifications: { ...prev.notifications, emailUpdates: e.target.checked }
-                  }))}
+                  onChange={(e) =>
+                    setOnboardingData((prev) => ({
+                      ...prev,
+                      notifications: { ...prev.notifications, emailUpdates: e.target.checked },
+                    }))
+                  }
                   className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-muted-foreground peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
@@ -302,10 +306,12 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
                 <input
                   type="checkbox"
                   checked={onboardingData.notifications.judgeAlerts}
-                  onChange={(e) => setOnboardingData(prev => ({
-                    ...prev,
-                    notifications: { ...prev.notifications, judgeAlerts: e.target.checked }
-                  }))}
+                  onChange={(e) =>
+                    setOnboardingData((prev) => ({
+                      ...prev,
+                      notifications: { ...prev.notifications, judgeAlerts: e.target.checked },
+                    }))
+                  }
                   className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-muted-foreground peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
@@ -324,10 +330,12 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
                 <input
                   type="checkbox"
                   checked={onboardingData.notifications.weeklyDigest}
-                  onChange={(e) => setOnboardingData(prev => ({
-                    ...prev,
-                    notifications: { ...prev.notifications, weeklyDigest: e.target.checked }
-                  }))}
+                  onChange={(e) =>
+                    setOnboardingData((prev) => ({
+                      ...prev,
+                      notifications: { ...prev.notifications, weeklyDigest: e.target.checked },
+                    }))
+                  }
                   className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-muted-foreground peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
@@ -356,7 +364,7 @@ export function OnboardingWizard({ user: serverUser }: OnboardingWizardProps) {
             onClick={nextStep}
             disabled={currentStep === 1 && !onboardingData.profession}
             className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
-              (currentStep === 1 && !onboardingData.profession)
+              currentStep === 1 && !onboardingData.profession
                 ? 'bg-card text-muted-foreground cursor-not-allowed'
                 : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white'
             }`}

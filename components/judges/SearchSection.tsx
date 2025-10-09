@@ -7,7 +7,7 @@ import { Search, MapPin, Building, Filter, Users, Scale, Clock, ChevronRight } f
 import type { SearchResult } from '@/types/search'
 
 // Debounce hook for performance optimization
-function useDebounce(value: string, delay: number) {
+function useDebounce(value: string, delay: number): JSX.Element {
   const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {
@@ -23,7 +23,7 @@ function useDebounce(value: string, delay: number) {
   return debouncedValue
 }
 
-export function SearchSection() {
+export function SearchSection(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
@@ -84,18 +84,21 @@ export function SearchSection() {
   }, [debouncedSearchQuery, fetchSearchResults])
 
   // Handle search submission
-  const handleSearch = useCallback((query?: string, directUrl?: string) => {
-    const searchTerm = query || searchQuery.trim()
-    
-    if (directUrl) {
-      router.push(directUrl)
-    } else if (searchTerm) {
-      router.push(`/search?q=${encodeURIComponent(searchTerm)}`)
-    }
-    
-    setShowSuggestions(false)
-    setSelectedIndex(-1)
-  }, [searchQuery, router])
+  const handleSearch = useCallback(
+    (query?: string, directUrl?: string) => {
+      const searchTerm = query || searchQuery.trim()
+
+      if (directUrl) {
+        router.push(directUrl)
+      } else if (searchTerm) {
+        router.push(`/search?q=${encodeURIComponent(searchTerm)}`)
+      }
+
+      setShowSuggestions(false)
+      setSelectedIndex(-1)
+    },
+    [searchQuery, router]
+  )
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -109,11 +112,11 @@ export function SearchSection() {
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault()
-        setSelectedIndex(prev => (prev < searchResults.length - 1 ? prev + 1 : -1))
+        setSelectedIndex((prev) => (prev < searchResults.length - 1 ? prev + 1 : -1))
         break
       case 'ArrowUp':
         e.preventDefault()
-        setSelectedIndex(prev => (prev > -1 ? prev - 1 : searchResults.length - 1))
+        setSelectedIndex((prev) => (prev > -1 ? prev - 1 : searchResults.length - 1))
         break
       case 'Enter':
         e.preventDefault()
@@ -179,7 +182,7 @@ export function SearchSection() {
     <div className="mx-auto max-w-4xl">
       {/* Search Bar */}
       <div className="relative">
-        <motion.div 
+        <motion.div
           className="relative"
           whileHover={{ scale: 1.01 }}
           transition={{ duration: 0.2 }}
@@ -199,7 +202,7 @@ export function SearchSection() {
             placeholder="Search judges, courts, or jurisdictions..."
             className="w-full rounded-lg border border-border bg-card py-4 pl-12 pr-20 text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/30 transition-all duration-300"
           />
-          <motion.button 
+          <motion.button
             onClick={() => handleSearch()}
             className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-primary px-6 py-2 font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
             whileHover={{ scale: 1.05 }}
@@ -212,7 +215,7 @@ export function SearchSection() {
         {/* Search Suggestions Dropdown */}
         <AnimatePresence>
           {showSuggestions && (searchResults.length > 0 || isLoading) && (
-            <motion.div 
+            <motion.div
               ref={suggestionsRef}
               className="absolute top-full left-0 right-0 z-50 mt-2 max-h-96 overflow-y-auto rounded-lg border border-border bg-card shadow-xl"
               initial={{ opacity: 0, y: -10 }}
@@ -220,54 +223,60 @@ export function SearchSection() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-            {isLoading ? (
-              <div className="flex items-center justify-center p-4">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                <span className="ml-2 text-muted-foreground">Searching...</span>
-              </div>
-            ) : (
-              <>
-                {searchResults.map((result, index) => (
-                  <button
-                    key={`${result.type}-${result.id}`}
-                    onClick={() => handleSearch(result.title, result.url)}
-                    className={`w-full text-left p-4 hover:bg-muted transition-colors border-b border-border last:border-b-0 ${
-                      index === selectedIndex ? 'bg-muted' : ''
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3 min-w-0 flex-1">
-                        {getResultIcon(result.type)}
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center space-x-2">
-                            <h4 className="font-medium text-foreground truncate">{result.title}</h4>
-                            <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
-                              {getResultTypeLabel(result.type)}
-                            </span>
+              {isLoading ? (
+                <div className="flex items-center justify-center p-4">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                  <span className="ml-2 text-muted-foreground">Searching...</span>
+                </div>
+              ) : (
+                <>
+                  {searchResults.map((result, index) => (
+                    <button
+                      key={`${result.type}-${result.id}`}
+                      onClick={() => handleSearch(result.title, result.url)}
+                      className={`w-full text-left p-4 hover:bg-muted transition-colors border-b border-border last:border-b-0 ${
+                        index === selectedIndex ? 'bg-muted' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3 min-w-0 flex-1">
+                          {getResultIcon(result.type)}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center space-x-2">
+                              <h4 className="font-medium text-foreground truncate">
+                                {result.title}
+                              </h4>
+                              <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                                {getResultTypeLabel(result.type)}
+                              </span>
+                            </div>
+                            {result.subtitle && (
+                              <p className="text-sm text-muted-foreground truncate">
+                                {result.subtitle}
+                              </p>
+                            )}
+                            {result.description && (
+                              <p className="text-xs text-muted-foreground/70 truncate mt-1">
+                                {result.description}
+                              </p>
+                            )}
                           </div>
-                          {result.subtitle && (
-                            <p className="text-sm text-muted-foreground truncate">{result.subtitle}</p>
-                          )}
-                          {result.description && (
-                            <p className="text-xs text-muted-foreground/70 truncate mt-1">{result.description}</p>
-                          )}
                         </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    </div>
-                  </button>
-                ))}
-                
-                {searchResults.length > 0 && (
-                  <button
-                    onClick={() => handleSearch()}
-                    className="w-full p-4 text-center text-primary hover:bg-muted transition-colors border-t border-border"
-                  >
-                    View all results for "{searchQuery}" →
-                  </button>
-                )}
-              </>
-            )}
+                    </button>
+                  ))}
+
+                  {searchResults.length > 0 && (
+                    <button
+                      onClick={() => handleSearch()}
+                      className="w-full p-4 text-center text-primary hover:bg-muted transition-colors border-t border-border"
+                    >
+                      View all results for "{searchQuery}" →
+                    </button>
+                  )}
+                </>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -329,10 +338,18 @@ export function SearchSection() {
         <p className="text-sm text-muted-foreground mb-4">Popular searches:</p>
         <div className="flex flex-wrap justify-center gap-2">
           {[
-            { term: 'California Superior Court', type: 'court', url: '/search?q=California%20Superior%20Court&type=court' },
-            { term: 'Los Angeles County', type: 'jurisdiction', url: '/jurisdictions/los-angeles-county' },
+            {
+              term: 'California Superior Court',
+              type: 'court',
+              url: '/search?q=California%20Superior%20Court&type=court',
+            },
+            {
+              term: 'Los Angeles County',
+              type: 'jurisdiction',
+              url: '/jurisdictions/los-angeles-county',
+            },
             { term: 'Federal Court', type: 'court', url: '/search?q=Federal%20Court&type=court' },
-            { term: 'Orange County', type: 'jurisdiction', url: '/jurisdictions/orange-county' }
+            { term: 'Orange County', type: 'jurisdiction', url: '/jurisdictions/orange-county' },
           ].map(({ term, type, url }, index) => (
             <motion.button
               key={term}

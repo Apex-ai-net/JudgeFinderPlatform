@@ -4,7 +4,7 @@ import { createServerClient } from '@/lib/supabase/server'
 export const dynamic = 'force-dynamic'
 export const revalidate = 300
 
-export async function GET(request: Request) {
+export async function GET(request: Request): Promise<NextResponse> {
   try {
     const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
     const rl = buildRateLimiter({ tokens: 120, window: '1 m', prefix: 'api:stats:freshness' })
@@ -38,18 +38,19 @@ export async function GET(request: Request) {
       .select('id, name')
       .eq('jurisdiction', 'CA')
 
-    const rows = (courts || []).map(c => ({
+    const rows = (courts || []).map((c) => ({
       court_id: c.id,
       court_name: c.name,
-      last_update: map.get(c.id) || null
+      last_update: map.get(c.id) || null,
     }))
 
-    return NextResponse.json({ rows, timestamp: new Date().toISOString(), rate_limit_remaining: remaining }, {
-      headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60' }
-    })
+    return NextResponse.json(
+      { rows, timestamp: new Date().toISOString(), rate_limit_remaining: remaining },
+      {
+        headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60' },
+      }
+    )
   } catch (e) {
     return NextResponse.json({ rows: [], error: 'Internal server error' }, { status: 500 })
   }
 }
-
-

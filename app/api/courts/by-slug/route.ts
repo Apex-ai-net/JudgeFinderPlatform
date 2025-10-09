@@ -15,7 +15,7 @@ interface CourtLookupResult {
 /**
  * Enhanced court lookup API with multiple fallback strategies
  */
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
     const rl = buildRateLimiter({ tokens: 60, window: '1 m', prefix: 'api:courts:by-slug' })
@@ -27,19 +27,16 @@ export async function GET(request: NextRequest) {
     const slug = searchParams.get('slug')
 
     if (!slug || typeof slug !== 'string') {
-      return NextResponse.json(
-        { error: 'Invalid or missing slug parameter' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Invalid or missing slug parameter' }, { status: 400 })
     }
 
     // Validate slug format
     if (!isValidSlug(slug)) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid slug format',
           code: 'INVALID_SLUG',
-          message: `Slug "${slug}" contains invalid characters`
+          message: `Slug "${slug}" contains invalid characters`,
         },
         { status: 400 }
       )
@@ -55,7 +52,7 @@ export async function GET(request: NextRequest) {
           message: `No court found for slug: ${slug}`,
           searched_slug: slug,
           suggestions: result.alternatives || [],
-          found_by: result.found_by
+          found_by: result.found_by,
         },
         { status: 404 }
       )
@@ -66,7 +63,7 @@ export async function GET(request: NextRequest) {
       court: result.court,
       found_by: result.found_by,
       alternatives: result.alternatives || [],
-      rate_limit_remaining: remaining
+      rate_limit_remaining: remaining,
     })
 
     // Set cache headers for performance (court data is stable)
@@ -78,13 +75,12 @@ export async function GET(request: NextRequest) {
     response.headers.set('Vary', 'Accept-Encoding')
 
     return response
-
   } catch (error) {
     console.error('Error in court lookup API:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error',
-        code: 'INTERNAL_ERROR'
+        code: 'INTERNAL_ERROR',
       },
       { status: 500 }
     )
@@ -96,7 +92,7 @@ export async function GET(request: NextRequest) {
  */
 async function lookupCourt(slug: string): Promise<CourtLookupResult> {
   const cacheKey = `court_lookup:${slug}`
-  
+
   // Check cache first
   const cachedResult = cache.get<CourtLookupResult>(cacheKey)
   if (cachedResult) {
@@ -111,15 +107,11 @@ async function lookupCourt(slug: string): Promise<CourtLookupResult> {
     // Strategy 1: Direct slug lookup (O(1) with index) - if slug column exists
     let slugCourt = null
     let slugError = null
-    
+
     try {
       // PERFORMANCE: Select all fields - primary court lookup returning full court data
-      const result = await supabase
-        .from('courts')
-        .select('*')
-        .eq('slug', slug)
-        .maybeSingle()
-      
+      const result = await supabase.from('courts').select('*').eq('slug', slug).maybeSingle()
+
       slugCourt = result.data
       slugError = result.error
     } catch (error) {
@@ -131,12 +123,12 @@ async function lookupCourt(slug: string): Promise<CourtLookupResult> {
     if (!slugError && slugCourt) {
       const result = {
         court: slugCourt as Court,
-        found_by: 'slug'
+        found_by: 'slug',
       }
-      
+
       // Cache successful lookup for 30 minutes
       cache.set(cacheKey, result, 1800)
-      
+
       await logQueryPerformance('court_slug_lookup', Date.now() - startTime, { slug })
       return result
     }
@@ -144,7 +136,7 @@ async function lookupCourt(slug: string): Promise<CourtLookupResult> {
     // Strategy 2: Name-based lookup using slug conversion (optimized)
     const slugToName = slug
       .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
 
     // Try exact name match first
@@ -157,20 +149,18 @@ async function lookupCourt(slug: string): Promise<CourtLookupResult> {
 
     if (!exactError && exactMatch && exactMatch.length > 0) {
       // Find best match by comparing generated slugs
-      const bestMatch = exactMatch.find(court => 
-        generateSlug(court.name) === slug
-      ) || exactMatch[0]
+      const bestMatch =
+        exactMatch.find((court) => generateSlug(court.name) === slug) || exactMatch[0]
 
-      const alternatives = exactMatch.length > 1 
-        ? exactMatch.filter(c => c.id !== bestMatch.id).slice(0, 3)
-        : []
+      const alternatives =
+        exactMatch.length > 1 ? exactMatch.filter((c) => c.id !== bestMatch.id).slice(0, 3) : []
 
       const result = {
         court: bestMatch as Court,
         found_by: 'name_exact',
-        alternatives: alternatives as Court[]
+        alternatives: alternatives as Court[],
       }
-      
+
       // Cache name-based lookup for 30 minutes
       cache.set(cacheKey, result, 1800)
 
@@ -190,13 +180,16 @@ async function lookupCourt(slug: string): Promise<CourtLookupResult> {
       const result = {
         court: fuzzyMatches[0] as Court,
         found_by: 'fuzzy_name',
-        alternatives: fuzzyMatches.slice(1, 4) as Court[]
+        alternatives: fuzzyMatches.slice(1, 4) as Court[],
       }
-      
+
       // Cache fuzzy match for 15 minutes (shorter since it's less certain)
       cache.set(cacheKey, result, 900)
-      
-      await logQueryPerformance('court_fuzzy_match', Date.now() - startTime, { slug, matches: fuzzyMatches.length })
+
+      await logQueryPerformance('court_fuzzy_match', Date.now() - startTime, {
+        slug,
+        matches: fuzzyMatches.length,
+      })
       return result
     }
 
@@ -211,20 +204,25 @@ async function lookupCourt(slug: string): Promise<CourtLookupResult> {
       suggestions = findSimilarCourtSlugs(slug, limitedCourts).slice(0, 5)
     }
 
-    await logQueryPerformance('court_not_found', Date.now() - startTime, { slug, suggestions: suggestions.length })
-    
+    await logQueryPerformance('court_not_found', Date.now() - startTime, {
+      slug,
+      suggestions: suggestions.length,
+    })
+
     return {
       court: null,
       found_by: 'not_found',
-      alternatives: suggestions
+      alternatives: suggestions,
     }
-
   } catch (error) {
     console.error('Error in lookupCourt:', error)
-    await logQueryPerformance('court_error', Date.now() - startTime, { slug, error: (error as Error).message })
+    await logQueryPerformance('court_error', Date.now() - startTime, {
+      slug,
+      error: (error as Error).message,
+    })
     return {
       court: null,
-      found_by: 'not_found'
+      found_by: 'not_found',
     }
   }
 }
@@ -240,7 +238,7 @@ function findSimilarCourtSlugs(targetSlug: string, courts: any[]): Court[] {
     const court = courts[i]
     const courtSlug = resolveCourtSlug(court) || generateSlug(court.name)
     const similarity = calculateStringSimilarity(targetSlug, courtSlug)
-    
+
     if (similarity > 0.5) {
       suggestions.push({ court: court as Court, similarity })
     }
@@ -249,7 +247,7 @@ function findSimilarCourtSlugs(targetSlug: string, courts: any[]): Court[] {
   return suggestions
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, 5)
-    .map(s => s.court)
+    .map((s) => s.court)
 }
 
 /**
@@ -297,21 +295,23 @@ function levenshteinDistance(str1: string, str2: string): number {
 /**
  * Log query performance for monitoring
  */
-async function logQueryPerformance(queryType: string, executionTime: number, params: any) {
+async function logQueryPerformance(
+  queryType: string,
+  executionTime: number,
+  params: any
+): Promise<void> {
   try {
     const supabase = await createServerClient()
-    
+
     // Try to log to performance_metrics table
-    await supabase
-      .from('performance_metrics')
-      .insert({
-        metric_name: `court_lookup_${queryType}`,
-        metric_value: executionTime,
-        page_url: '/api/courts/by-slug',
-        page_type: 'api',
-        metric_id: queryType,
-        rating: executionTime < 100 ? 'good' : executionTime < 500 ? 'needs-improvement' : 'poor'
-      })
+    await supabase.from('performance_metrics').insert({
+      metric_name: `court_lookup_${queryType}`,
+      metric_value: executionTime,
+      page_url: '/api/courts/by-slug',
+      page_type: 'api',
+      metric_id: queryType,
+      rating: executionTime < 100 ? 'good' : executionTime < 500 ? 'needs-improvement' : 'poor',
+    })
   } catch (error) {
     // Silent fail - don't impact user experience
     console.log('Query performance logging failed:', (error as Error).message)

@@ -43,8 +43,8 @@ async function getJudge(slug: string): Promise<Judge | null> {
     const response = await fetch(`${baseUrl}/api/judges/by-slug?slug=${encodeURIComponent(slug)}`, {
       next: { revalidate: 3600 }, // Cache for 1 hour (judge data is stable)
       headers: {
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=1800'
-      }
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=1800',
+      },
     })
 
     if (!response.ok) {
@@ -53,7 +53,9 @@ async function getJudge(slug: string): Promise<Judge | null> {
         try {
           const errorData = await response.json()
           if (errorData.suggestions && errorData.suggestions.length > 0) {
-            console.log(`Judge not found for slug: ${slug}, but found ${errorData.suggestions.length} suggestions`)
+            console.log(
+              `Judge not found for slug: ${slug}, but found ${errorData.suggestions.length} suggestions`
+            )
             // Could potentially redirect to the first suggestion, but for now return null
           }
         } catch (parseError) {
@@ -65,7 +67,7 @@ async function getJudge(slug: string): Promise<Judge | null> {
     }
 
     const data: JudgeLookupResult = await response.json()
-    
+
     if (data.judge) {
       console.log(`Found judge via API: ${data.judge.name} (method: ${data.found_by})`)
       return data.judge
@@ -74,7 +76,7 @@ async function getJudge(slug: string): Promise<Judge | null> {
     return null
   } catch (error) {
     console.error('Error fetching judge from API:', error)
-    
+
     // Fallback to direct database access if API fails
     console.log('Attempting fallback to direct database access...')
     return await getJudgeFallback(slug)
@@ -113,7 +115,7 @@ async function getRelatedJudges(currentJudge: Judge): Promise<Judge[]> {
         .select('id, name, slug, court_name, jurisdiction, total_cases, appointed_date')
         .eq('jurisdiction', currentJudge.jurisdiction)
         .neq('id', currentJudge.id)
-        .not('id', 'in', `(${relatedJudges.map(j => j.id).join(',') || '0'})`)
+        .not('id', 'in', `(${relatedJudges.map((j) => j.id).join(',') || '0'})`)
         .limit(5 - relatedJudges.length)
 
       if (sameJurisdictionJudges) {
@@ -135,9 +137,9 @@ async function getRelatedJudges(currentJudge: Judge): Promise<Judge[]> {
 async function getJudgeFallback(slug: string): Promise<Judge | null> {
   try {
     const { slugToName, generateNameVariations } = await import('@/lib/utils/slug')
-    
+
     const supabase = await createServerClient()
-    
+
     // Try direct slug lookup first
     // PERFORMANCE: Select all fields for fallback lookup (needed for full judge profile)
     const { data: slugJudge, error: slugError } = await supabase
@@ -153,10 +155,11 @@ async function getJudgeFallback(slug: string): Promise<Judge | null> {
     // Convert slug to name and try variations
     const primaryName = slugToName(slug)
     const nameVariations = generateNameVariations(primaryName)
-    
+
     // Try exact name matches
     // PERFORMANCE: Select all fields for fallback lookup (needed for full judge profile)
-    for (const nameVariation of nameVariations.slice(0, 5)) { // Limit for performance
+    for (const nameVariation of nameVariations.slice(0, 5)) {
+      // Limit for performance
       const { data: judges, error } = await supabase
         .from('judges')
         .select('*')
@@ -175,7 +178,9 @@ async function getJudgeFallback(slug: string): Promise<Judge | null> {
   }
 }
 
-type SlugParams = { slug: string }
+interface SlugParams {
+  slug: string
+}
 
 // Next.js currently passes params as a Promise that is also directly readable.
 // Use an intersection type so we stay compatible with both behaviors.
@@ -185,7 +190,7 @@ interface JudgePageProps {
   params: SlugParamsPromise
 }
 
-export default async function JudgePage({ params }: JudgePageProps) {
+export default async function JudgePage({ params }: JudgePageProps): Promise<JSX.Element> {
   const resolvedParams = await params
   const slug = resolvedParams.slug ?? params.slug
 
@@ -236,7 +241,7 @@ export default async function JudgePage({ params }: JudgePageProps) {
     } catch (error) {
       console.warn('Failed to resolve court slug for judge', {
         judgeId: judge.id,
-        error: error instanceof Error ? error.message : error
+        error: error instanceof Error ? error.message : error,
       })
     }
   }
@@ -251,13 +256,11 @@ export default async function JudgePage({ params }: JudgePageProps) {
   let structuredDataJson = '[]'
 
   try {
-    structuredDataJson = JSON.stringify(
-      generateJudgeStructuredData(judge, canonicalSlug, baseUrl)
-    )
+    structuredDataJson = JSON.stringify(generateJudgeStructuredData(judge, canonicalSlug, baseUrl))
   } catch (error) {
     console.error('Failed to generate structured data JSON for judge', {
       slug: canonicalSlug,
-      message: error instanceof Error ? error.message : error
+      message: error instanceof Error ? error.message : error,
     })
     structuredDataJson = '[]'
   }
@@ -268,57 +271,50 @@ export default async function JudgePage({ params }: JudgePageProps) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* SEO Monitoring and Analytics */}
-      <SEOMonitoring
-        judgeName={safeName}
-        jurisdiction={safeJurisdiction}
-        slug={slug}
-      />
+      <SEOMonitoring judgeName={safeName} jurisdiction={safeJurisdiction} slug={slug} />
 
       {/* AEO-Optimized Structured Data (2025) - ChatGPT, Claude, Perplexity */}
-      <JudgeStructuredData
-        judge={judge}
-        caseCount={0}
-        avgDecisionTime={null}
-        courtAddress={null}
-      />
+      <JudgeStructuredData judge={judge} caseCount={0} avgDecisionTime={null} courtAddress={null} />
 
       {/* Legacy Structured Data - Keeping for backward compatibility */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: structuredDataJson
+          __html: structuredDataJson,
         }}
       />
-      
+
       {/* SEO Breadcrumbs - Moved to top for better visibility */}
-      <SEOBreadcrumbs 
+      <SEOBreadcrumbs
         items={generateJudgeBreadcrumbs(safeName, safeJurisdiction, safeCourtName, courtSlug)}
         judgeName={safeName}
         jurisdiction={safeJurisdiction}
       />
-      
+
       {/* Hero Section with Enhanced Gradient */}
       <div className="bg-gradient-to-br from-enterprise-primary/20 via-enterprise-deep/10 to-background px-4 py-12 text-white relative overflow-hidden">
         {/* Background pattern */}
         <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
         <div className="mx-auto max-w-7xl relative z-10">
           <h1 className="mb-2 text-4xl md:text-5xl font-bold bg-gradient-to-r from-enterprise-primary to-enterprise-deep bg-clip-text text-transparent">
-            Judge {safeName.replace(/^(judge|justice|the honorable)\s+/i, '')} - {safeJurisdiction} {safeCourtName.includes('Superior') ? 'Superior Court' : 'Court'} Judge
+            Judge {safeName.replace(/^(judge|justice|the honorable)\s+/i, '')} - {safeJurisdiction}{' '}
+            {safeCourtName.includes('Superior') ? 'Superior Court' : 'Court'} Judge
           </h1>
           <p className="text-xl text-muted-foreground">
             {safeCourtName} • Official Judicial Profile & Analytics
-            {judge.appointed_date && (() => {
-              try {
-                const years = new Date().getFullYear() - new Date(judge.appointed_date).getFullYear()
-                return years > 0 ? ` • ${years}+ Years Experience` : ''
-              } catch {
-                return ''
-              }
-            })()}
+            {judge.appointed_date &&
+              (() => {
+                try {
+                  const years =
+                    new Date().getFullYear() - new Date(judge.appointed_date).getFullYear()
+                  return years > 0 ? ` • ${years}+ Years Experience` : ''
+                } catch {
+                  return ''
+                }
+              })()}
           </p>
         </div>
       </div>
-
 
       {/* Main Content */}
       <div className="mx-auto max-w-7xl px-4 py-8 pb-12">
@@ -437,9 +433,9 @@ function getCoordinatesForJurisdiction(jurisdiction: string): string {
     'Calaveras County': '38.1191,-120.5542',
     'Tuolumne County': '37.9499,-120.2324',
     'Mariposa County': '37.4849,-119.9464',
-    'California': '36.7783,-119.4179', // State center
+    California: '36.7783,-119.4179', // State center
   }
-  
+
   return coords[jurisdiction] || coords['California'] || '36.7783,-119.4179'
 }
 
@@ -447,7 +443,7 @@ interface MetadataProps {
   params: SlugParamsPromise
 }
 
-export async function generateMetadata({ params }: MetadataProps) {
+export async function generateMetadata({ params }: MetadataProps): JSX.Element {
   const resolvedParams = await params
   const slug = resolvedParams.slug ?? params.slug
 
@@ -464,11 +460,12 @@ export async function generateMetadata({ params }: MetadataProps) {
   }
 
   const judge = await getJudge(slug)
-  
+
   if (!judge) {
     return {
       title: 'Judge Not Found | JudgeFinder',
-      description: 'The requested judge profile could not be found. Search our statewide database of California judges.',
+      description:
+        'The requested judge profile could not be found. Search our statewide database of California judges.',
       robots: {
         index: false,
         follow: false,
@@ -480,7 +477,7 @@ export async function generateMetadata({ params }: MetadataProps) {
   const baseUrl = getBaseUrl()
 
   const seoData = generateJudgeMetadata(judge, resolvedParams, baseUrl)
-  
+
   // Additional safety checks for metadata generation
   const safeName = judge.name || 'Unknown Judge'
   const safeCourtName = judge.court_name || 'Unknown Court'
@@ -488,22 +485,22 @@ export async function generateMetadata({ params }: MetadataProps) {
 
   // Extract name components for social sharing
   const nameWithoutTitle = safeName.replace(/^(judge|justice|the honorable)\s+/i, '').trim()
-  const nameParts = nameWithoutTitle.split(' ').filter(part => part.length > 1)
+  const nameParts = nameWithoutTitle.split(' ').filter((part) => part.length > 1)
   const firstName = nameParts[0] || ''
   const lastName = nameParts[nameParts.length - 1] || ''
 
   // Calculate canonical slug for metadata
   const canonicalSlug = judge.slug || createCanonicalSlug(judge.name)
-  
+
   // Determine court type for metadata
-  const courtType = safeCourtName.includes('Superior') 
-    ? 'Superior Court' 
+  const courtType = safeCourtName.includes('Superior')
+    ? 'Superior Court'
     : safeCourtName.includes('Appellate') || safeCourtName.includes('Appeal')
       ? 'Appellate Court'
       : safeCourtName.includes('Supreme')
         ? 'Supreme Court'
         : 'Trial Court'
-  
+
   // Calculate years of service for additional metadata
   let serviceYears = 0
   if (judge.appointed_date) {
@@ -518,7 +515,7 @@ export async function generateMetadata({ params }: MetadataProps) {
     title: seoData.title,
     description: seoData.description,
     keywords: seoData.keywords.join(', '),
-    
+
     // Canonical and alternate URLs for SEO authority
     alternates: {
       canonical: seoData.canonicalUrl,
@@ -526,7 +523,7 @@ export async function generateMetadata({ params }: MetadataProps) {
         'en-US': seoData.canonicalUrl,
       },
     },
-    
+
     // Optimized robots directives for maximum visibility
     robots: {
       index: true,
@@ -563,7 +560,7 @@ export async function generateMetadata({ params }: MetadataProps) {
           height: 1200,
           alt: `Judge ${nameWithoutTitle} Profile`,
           type: 'image/png',
-        }
+        },
       ],
       locale: 'en_US',
       countryName: 'United States',
@@ -579,7 +576,7 @@ export async function generateMetadata({ params }: MetadataProps) {
     twitter: {
       card: 'summary_large_image',
       site: '@JudgeFinder',
-      creator: '@JudgeFinder', 
+      creator: '@JudgeFinder',
       title: seoData.socialTitle,
       description: seoData.socialDescription,
       images: {
@@ -593,7 +590,7 @@ export async function generateMetadata({ params }: MetadataProps) {
     publisher: 'JudgeFinder',
     category: 'Legal Research and Judicial Analytics',
     classification: 'Professional Legal Intelligence Platform',
-    
+
     // Advanced SEO and verification tags
     other: {
       // Technical SEO
@@ -603,14 +600,14 @@ export async function generateMetadata({ params }: MetadataProps) {
       'mobile-web-app-capable': 'yes',
       'apple-mobile-web-app-capable': 'yes',
       'apple-mobile-web-app-status-bar-style': 'default',
-      
+
       // Rich snippets and schema coordination
       'article:author': 'JudgeFinder Legal Research Team',
       'article:section': 'Judicial Profiles and Legal Analytics',
       'article:tag': `Judge ${nameWithoutTitle}, ${safeCourtName}, ${safeJurisdiction}, Judicial Analytics`,
       'article:published_time': judge.appointed_date || new Date().toISOString(),
       'article:modified_time': new Date().toISOString(),
-      
+
       // Professional legal metadata
       'judge:name': nameWithoutTitle,
       'judge:title': `The Honorable ${nameWithoutTitle}`,
@@ -620,38 +617,38 @@ export async function generateMetadata({ params }: MetadataProps) {
       'judge:canonical-slug': canonicalSlug,
       'judge:service-years': serviceYears.toString(),
       'judge:appointed-date': judge.appointed_date || '',
-      
+
       // Geo-targeting for local SEO
       'geo.region': 'US-CA',
       'geo.placename': safeJurisdiction,
-      'ICBM': getCoordinatesForJurisdiction(safeJurisdiction),
+      ICBM: getCoordinatesForJurisdiction(safeJurisdiction),
       'geo.position': getCoordinatesForJurisdiction(safeJurisdiction),
-      
+
       // Legal industry targeting
-      'industry': 'Legal Services',
-      'audience': 'Legal Professionals, Attorneys, Citizens',
+      industry: 'Legal Services',
+      audience: 'Legal Professionals, Attorneys, Citizens',
       'content-language': 'en-US',
-      'distribution': 'global',
-      'rating': 'general',
-      
+      distribution: 'global',
+      rating: 'general',
+
       // Verification and analytics
       'google-site-verification': process.env.GOOGLE_SITE_VERIFICATION || '',
       'msvalidate.01': process.env.BING_SITE_VERIFICATION || '',
-      
+
       // Voice search optimization
-      'speakable': 'true',
+      speakable: 'true',
       'voice-search-optimized': 'true',
-      
+
       // Professional credentials and authority
       'legal-resource': 'true',
       'judicial-profile': 'true',
       'court-verified': 'true',
       'professional-grade': 'true',
-      
+
       // International and accessibility
-      'hreflang': 'en-us',
-      'language': 'English',
-      'charset': 'UTF-8',
+      hreflang: 'en-us',
+      language: 'English',
+      charset: 'UTF-8',
     },
 
     // Verification metadata for search engines
@@ -661,7 +658,7 @@ export async function generateMetadata({ params }: MetadataProps) {
       yahoo: process.env.YAHOO_VERIFICATION || '',
       other: {
         'msvalidate.01': process.env.BING_SITE_VERIFICATION || '',
-      }
+      },
     },
 
     // Additional metadata for rich results
@@ -684,7 +681,7 @@ export async function generateMetadata({ params }: MetadataProps) {
 function generateJudgeUrlVariations(judgeName: string, baseUrl: string): string[] {
   const baseName = judgeName.replace(/^(judge|justice|the honorable)\s+/i, '')
   const canonicalSlug = createCanonicalSlug(baseName)
-  
+
   const variations = [
     `${baseUrl}/judges/${canonicalSlug}`,
     `${baseUrl}/judges/judge-${canonicalSlug}`,
@@ -692,7 +689,7 @@ function generateJudgeUrlVariations(judgeName: string, baseUrl: string): string[
   ]
 
   // Add variations without middle names/initials for common search patterns
-  const nameParts = baseName.split(' ').filter(part => part.length > 1)
+  const nameParts = baseName.split(' ').filter((part) => part.length > 1)
   if (nameParts.length > 2) {
     const firstLast = `${nameParts[0]} ${nameParts[nameParts.length - 1]}`
     const firstLastSlug = createCanonicalSlug(firstLast)

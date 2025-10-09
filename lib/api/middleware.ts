@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
  * Context object passed through the middleware chain.
  * Middlewares can add properties to share data with handlers and other middlewares.
  */
-export type RouteContext = {
+export interface RouteContext {
   /** Route parameters (e.g., dynamic route segments) */
   params?: Record<string, string>
   /** Remaining rate limit tokens after rate limit check */
@@ -12,11 +12,11 @@ export type RouteContext = {
   /** Rate limit reset timestamp */
   rateLimitReset?: number
   /** Cached response data (for cache middleware) */
-  cachedData?: any
+  cachedData?: unknown
   /** Request start time for performance tracking */
   startTime?: number
   /** Custom context properties that middlewares can add */
-  [key: string]: any
+  [key: string]: unknown
 }
 
 /**
@@ -37,9 +37,7 @@ export type RouteHandler = (
  * - Execute code after the handler (e.g., logging, adding headers)
  * - Handle errors from the wrapped handler
  */
-export type Middleware = (
-  handler: RouteHandler
-) => RouteHandler
+export type Middleware = (handler: RouteHandler) => RouteHandler
 
 /**
  * Compose multiple middlewares into a single middleware function.
@@ -68,10 +66,7 @@ export type Middleware = (
  */
 export function compose(...middlewares: Middleware[]) {
   return (handler: RouteHandler): RouteHandler => {
-    return middlewares.reduceRight(
-      (next, middleware) => middleware(next),
-      handler
-    )
+    return middlewares.reduceRight((next, middleware) => middleware(next), handler)
   }
 }
 

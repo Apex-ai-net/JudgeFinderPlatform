@@ -19,7 +19,7 @@ function toSlugCity(name: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-export function CitiesTab() {
+export function CitiesTab(): JSX.Element {
   const [items, setItems] = useState<CityItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -27,7 +27,7 @@ export function CitiesTab() {
 
   useEffect(() => {
     let mounted = true
-    async function run() {
+    async function run(): JSX.Element {
       try {
         setLoading(true)
         setError(null)
@@ -42,14 +42,14 @@ export function CitiesTab() {
       }
     }
     run()
-    return () => { mounted = false }
+    return () => {
+      mounted = false
+    }
   }, [])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    const base = q
-      ? items.filter(i => i.city.toLowerCase().includes(q))
-      : items
+    const base = q ? items.filter((i) => i.city.toLowerCase().includes(q)) : items
     return [...base].sort((a, b) => a.city.localeCompare(b.city))
   }, [items, query])
 
@@ -77,7 +77,12 @@ export function CitiesTab() {
 
       <div className="flex flex-wrap gap-2 unstyled-list justify-center">
         {filtered.map((c, idx) => (
-          <motion.div key={`${c.city}-${idx}`} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(idx * 0.003, 0.2) }}>
+          <motion.div
+            key={`${c.city}-${idx}`}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: Math.min(idx * 0.003, 0.2) }}
+          >
             <Link
               href={`/cities/${toSlugCity(c.city)}`}
               className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm hover:border-primary/40 hover:text-primary transition-colors"
@@ -93,5 +98,3 @@ export function CitiesTab() {
 }
 
 export default CitiesTab
-
-

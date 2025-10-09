@@ -59,27 +59,38 @@ const redressSteps = [
   },
 ]
 
-export default function GovernancePage() {
+export default function GovernancePage(): JSX.Element {
   return (
     <div className="bg-background">
       <div className="mx-auto w-full max-w-4xl px-4 py-12">
         <header className="mb-10 space-y-3">
-          <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Accountability</p>
-          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">Governance, Ethics &amp; Redress</h1>
+          <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+            Accountability
+          </p>
+          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
+            Governance, Ethics &amp; Redress
+          </h1>
           <p className="text-base text-muted-foreground sm:text-lg">
-            Judicial transparency works only when the people impacted can see how decisions are made and challenge mistakes. These
-            commitments govern how we run JudgeFinder, who can use the data, and how anyone can request a correction.
+            Judicial transparency works only when the people impacted can see how decisions are made
+            and challenge mistakes. These commitments govern how we run JudgeFinder, who can use the
+            data, and how anyone can request a correction.
           </p>
         </header>
 
         <section className="space-y-8">
           {commitments.map(({ title, points }) => (
-            <article key={title} className="rounded-2xl border border-border bg-card/90 p-6 shadow-sm">
+            <article
+              key={title}
+              className="rounded-2xl border border-border bg-card/90 p-6 shadow-sm"
+            >
               <h2 className="text-xl font-semibold text-foreground">{title}</h2>
               <ul className="mt-4 space-y-2 text-sm text-foreground/90 sm:text-base">
                 {points.map((point) => (
                   <li key={point} className="flex gap-2">
-                    <span aria-hidden className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
+                    <span
+                      aria-hidden
+                      className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary"
+                    />
                     <span>{point}</span>
                   </li>
                 ))}
@@ -91,13 +102,17 @@ export default function GovernancePage() {
         <section className="mt-12 rounded-2xl border border-border bg-muted/40 p-6">
           <h2 className="text-xl font-semibold text-foreground">Prohibited uses</h2>
           <p className="mt-3 text-sm text-muted-foreground">
-            JudgeFinder content is licensed for civic transparency and responsible legal research. Using the platform in any of the
-            ways below will result in access being revoked and, where required, referral to the appropriate authorities.
+            JudgeFinder content is licensed for civic transparency and responsible legal research.
+            Using the platform in any of the ways below will result in access being revoked and,
+            where required, referral to the appropriate authorities.
           </p>
           <ul className="mt-4 space-y-3 text-sm text-foreground/90 sm:text-base">
             {prohibited.map((item) => (
               <li key={item} className="flex gap-2">
-                <span aria-hidden className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-destructive" />
+                <span
+                  aria-hidden
+                  className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-destructive"
+                />
                 <span>{item}</span>
               </li>
             ))}
@@ -109,14 +124,16 @@ export default function GovernancePage() {
           <ol className="mt-4 space-y-4 text-sm text-foreground/90 sm:text-base">
             {redressSteps.map(({ label, text }) => (
               <li key={label} className="rounded-xl border border-border/60 bg-background/80 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {label}
+                </p>
                 <p className="mt-2">{text}</p>
               </li>
             ))}
           </ol>
           <p className="mt-4 text-sm text-muted-foreground">
-            If you believe a correction was mishandled, escalate to ethics@judgefinder.io. Appeals are reviewed by an external
-            advisor with no product reporting line.
+            If you believe a correction was mishandled, escalate to ethics@judgefinder.io. Appeals
+            are reviewed by an external advisor with no product reporting line.
           </p>
           <p className="mt-4 text-sm text-muted-foreground">
             Want to understand the technical controls behind our metrics? Visit the{' '}

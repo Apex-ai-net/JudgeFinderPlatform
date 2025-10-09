@@ -8,7 +8,7 @@ export const revalidate = 0
 export const runtime = 'nodejs'
 export const maxDuration = 300 // 5 minutes for court sync
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now()
 
   try {
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       batchSize: body.batchSize || 20,
       jurisdiction: body.jurisdiction || 'CA',
       forceRefresh: body.forceRefresh || false,
-      ...body
+      ...body,
     }
 
     logger.info('Starting court sync via API', { options })
@@ -35,12 +35,12 @@ export async function POST(request: NextRequest) {
 
     const duration = Date.now() - startTime
 
-    logger.info('Court sync API completed', { 
+    logger.info('Court sync API completed', {
       result: {
         ...result,
-        errors: result.errors.length
+        errors: result.errors.length,
       },
-      duration 
+      duration,
     })
 
     // Return detailed result
@@ -51,19 +51,18 @@ export async function POST(request: NextRequest) {
         courtsUpdated: result.courtsUpdated,
         courtsCreated: result.courtsCreated,
         duration: result.duration,
-        apiDuration: duration
+        apiDuration: duration,
       },
       errors: result.errors,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
 
     return NextResponse.json(response, {
-      status: result.success ? 200 : 207 // 207 for partial success
+      status: result.success ? 200 : 207, // 207 for partial success
     })
-
   } catch (error) {
     const duration = Date.now() - startTime
-    
+
     logger.error('Court sync API failed', { error, duration })
 
     return NextResponse.json(
@@ -72,22 +71,19 @@ export async function POST(request: NextRequest) {
         error: 'Court sync failed',
         message: error instanceof Error ? error.message : 'Unknown error',
         duration,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       },
       { status: 500 }
     )
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Verify API key
     const apiKey = request.headers.get('x-api-key')
     if (!apiKey || apiKey !== process.env.SYNC_API_KEY) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Return sync status/info
@@ -98,26 +94,22 @@ export async function GET(request: NextRequest) {
       options: {
         batchSize: 'Number of courts to process in each batch (default: 20)',
         jurisdiction: 'Filter by jurisdiction (default: CA)',
-        forceRefresh: 'Force refresh all courts regardless of last update (default: false)'
+        forceRefresh: 'Force refresh all courts regardless of last update (default: false)',
       },
       example: {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': 'your-sync-api-key'
+          'x-api-key': 'your-sync-api-key',
         },
         body: {
           batchSize: 20,
           jurisdiction: 'CA',
-          forceRefresh: false
-        }
-      }
+          forceRefresh: false,
+        },
+      },
     })
-
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to get sync info' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to get sync info' }, { status: 500 })
   }
 }

@@ -2,7 +2,12 @@
 
 import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { queueSyncJob, cancelSyncJobs, restartSyncQueue, transitionProfileIssue } from '@/app/admin/actions'
+import {
+  queueSyncJob,
+  cancelSyncJobs,
+  restartSyncQueue,
+  transitionProfileIssue,
+} from '@/app/admin/actions'
 import type { SyncStatusResponse } from '@/lib/admin/sync-status'
 import {
   AlertTriangle,
@@ -15,7 +20,7 @@ import {
   BarChart3,
   PlayCircle,
   Square,
-  Triangle
+  Triangle,
 } from 'lucide-react'
 
 type ProfileIssueStatus = 'new' | 'researching' | 'resolved' | 'dismissed'
@@ -49,35 +54,38 @@ interface AdminDashboardProps {
 
 type ActionType = 'queue-decisions' | 'cancel-decisions' | 'restart-queue'
 
-type Feedback = {
+interface Feedback {
   type: 'success' | 'error'
   message: string
 }
 
-const ACTION_META: Record<ActionType, { title: string; description: string; confirmLabel: string }> = {
+const ACTION_META: Record<
+  ActionType,
+  { title: string; description: string; confirmLabel: string }
+> = {
   'queue-decisions': {
     title: 'Queue CA decision document sync',
     description: 'Adds a high-priority job to pull recent CourtListener decisions for California.',
-    confirmLabel: 'Queue job'
+    confirmLabel: 'Queue job',
   },
   'cancel-decisions': {
     title: 'Cancel pending decision jobs',
     description: 'Stops queued decision document jobs to prevent duplicates.',
-    confirmLabel: 'Cancel jobs'
+    confirmLabel: 'Cancel jobs',
   },
   'restart-queue': {
     title: 'Restart sync queue processor',
     description: 'Stops and restarts the queue worker to clear stuck jobs.',
-    confirmLabel: 'Restart queue'
-  }
+    confirmLabel: 'Restart queue',
+  },
 }
 
-function formatNumber(value: number | null | undefined, fallback = '0') {
+function formatNumber(value: number | null | undefined, fallback = '0'): JSX.Element {
   if (typeof value !== 'number' || Number.isNaN(value)) return fallback
   return value.toLocaleString()
 }
 
-function formatRelative(dateString: string | null | undefined) {
+function formatRelative(dateString: string | null | undefined): JSX.Element {
   if (!dateString) return 'Unknown'
   const target = new Date(dateString)
   if (Number.isNaN(target.getTime())) return 'Unknown'
@@ -116,7 +124,7 @@ function formatDuration(ms: number): string {
   return `${days} day${days === 1 ? '' : 's'}`
 }
 
-function formatSeverity(severity: string) {
+function formatSeverity(severity: string): JSX.Element {
   switch (severity) {
     case 'high':
       return { label: 'High', className: 'bg-red-50 text-red-600 border border-red-200' }
@@ -127,7 +135,7 @@ function formatSeverity(severity: string) {
   }
 }
 
-function isIssueOverdue(issue: ProfileIssueSummary) {
+function isIssueOverdue(issue: ProfileIssueSummary): JSX.Element {
   if (!issue.sla_due_at) return false
   if (issue.status === 'resolved' || issue.status === 'dismissed') return false
   const due = new Date(issue.sla_due_at)
@@ -135,9 +143,10 @@ function isIssueOverdue(issue: ProfileIssueSummary) {
   return due.getTime() < Date.now()
 }
 
-function resolveSlaDescriptor(slaDue: string | null, status: ProfileIssueStatus) {
+function resolveSlaDescriptor(slaDue: string | null, status: ProfileIssueStatus): JSX.Element {
   if (!slaDue) return { label: 'Not set', tone: 'muted' as const }
-  if (status === 'resolved' || status === 'dismissed') return { label: 'Closed', tone: 'muted' as const }
+  if (status === 'resolved' || status === 'dismissed')
+    return { label: 'Closed', tone: 'muted' as const }
 
   const due = new Date(slaDue)
   if (Number.isNaN(due.getTime())) return { label: 'Invalid', tone: 'muted' as const }
@@ -202,45 +211,53 @@ function deriveCircuitSeverity(external: {
   const opens = external?.courtlistener_circuit_opens_24h ?? 0
   const shortCircuits = external?.courtlistener_circuit_shortcircuits_24h ?? 0
   if (shortCircuits > 0) {
-    return { tone: 'critical' as const, label: 'Short-circuiting', message: `${shortCircuits} short-circuit${shortCircuits === 1 ? '' : 's'} in 24h` }
+    return {
+      tone: 'critical' as const,
+      label: 'Short-circuiting',
+      message: `${shortCircuits} short-circuit${shortCircuits === 1 ? '' : 's'} in 24h`,
+    }
   }
   if (opens > 0) {
-    return { tone: 'warn' as const, label: 'Circuit open', message: `${opens} open event${opens === 1 ? '' : 's'} in 24h` }
+    return {
+      tone: 'warn' as const,
+      label: 'Circuit open',
+      message: `${opens} open event${opens === 1 ? '' : 's'} in 24h`,
+    }
   }
   return { tone: 'good' as const, label: 'Stable', message: 'No circuit interrupts in 24h' }
 }
 
-function healthPill(status: SyncStatusResponse['health']['status']) {
+function healthPill(status: SyncStatusResponse['health']['status']): JSX.Element {
   switch (status) {
     case 'healthy':
       return {
         label: 'Healthy',
         className: 'bg-green-50 text-green-700 border border-green-200',
-        icon: CheckCircle2
+        icon: CheckCircle2,
       }
     case 'warning':
       return {
         label: 'Warning',
         className: 'bg-yellow-50 text-yellow-700 border border-yellow-200',
-        icon: AlertTriangle
+        icon: AlertTriangle,
       }
     case 'critical':
       return {
         label: 'Critical',
         className: 'bg-red-50 text-red-700 border border-red-200',
-        icon: AlertTriangle
+        icon: AlertTriangle,
       }
     case 'caution':
       return {
         label: 'Caution',
         className: 'bg-orange-50 text-orange-700 border border-orange-200',
-        icon: AlertTriangle
+        icon: AlertTriangle,
       }
     default:
       return {
         label: 'Unknown',
         className: 'bg-muted text-foreground border border-border',
-        icon: Clock
+        icon: Clock,
       }
   }
 }
@@ -248,15 +265,18 @@ function healthPill(status: SyncStatusResponse['health']['status']) {
 const ISSUE_STATUS_META: Record<ProfileIssueStatus, { label: string; className: string }> = {
   new: {
     label: 'New',
-    className: 'border-[rgba(110,168,254,0.45)] bg-[rgba(110,168,254,0.14)] text-[color:hsl(var(--accent))]',
+    className:
+      'border-[rgba(110,168,254,0.45)] bg-[rgba(110,168,254,0.14)] text-[color:hsl(var(--accent))]',
   },
   researching: {
     label: 'Researching',
-    className: 'border-[rgba(251,211,141,0.45)] bg-[rgba(251,211,141,0.2)] text-[color:hsl(var(--warn))]',
+    className:
+      'border-[rgba(251,211,141,0.45)] bg-[rgba(251,211,141,0.2)] text-[color:hsl(var(--warn))]',
   },
   resolved: {
     label: 'Resolved',
-    className: 'border-[rgba(103,232,169,0.4)] bg-[rgba(103,232,169,0.14)] text-[color:hsl(var(--pos))]',
+    className:
+      'border-[rgba(103,232,169,0.4)] bg-[rgba(103,232,169,0.14)] text-[color:hsl(var(--pos))]',
   },
   dismissed: {
     label: 'Dismissed',
@@ -281,7 +301,12 @@ const ISSUE_FILTERS: Array<{ id: 'all' | 'overdue' | ProfileIssueStatus; label: 
   { id: 'dismissed', label: 'Dismissed' },
 ]
 
-export default function AdminDashboard({ status, profileIssues, profileIssueCounts, overdueCount }: AdminDashboardProps) {
+export default function AdminDashboard({
+  status,
+  profileIssues,
+  profileIssueCounts,
+  overdueCount,
+}: AdminDashboardProps): JSX.Element {
   const router = useRouter()
   const [pendingAction, setPendingAction] = useState<ActionType | null>(null)
   const [feedback, setFeedback] = useState<Feedback | null>(null)
@@ -290,7 +315,10 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
   const [issuePendingId, setIssuePendingId] = useState<string | null>(null)
   const [issueTransitionPending, startIssueTransition] = useTransition()
 
-  const health = useMemo(() => healthPill(status?.health.status || 'caution'), [status?.health.status])
+  const health = useMemo(
+    () => healthPill(status?.health.status || 'caution'),
+    [status?.health.status]
+  )
 
   const handleAction = (action: ActionType) => {
     setPendingAction(action)
@@ -310,9 +338,9 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                 jurisdiction: 'CA',
                 schedule: 'daily',
                 priority: 'high',
-                forceRefresh: true
+                forceRefresh: true,
               },
-              priority: 80
+              priority: 80,
             })
             setFeedback({ type: 'success', message: 'Decision job queued successfully.' })
             break
@@ -339,7 +367,11 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
     setPendingAction(null)
   }
 
-  const handleIssueTransition = (issueId: string, nextStatus: ProfileIssueStatus, actionLabel: string) => {
+  const handleIssueTransition = (
+    issueId: string,
+    nextStatus: ProfileIssueStatus,
+    actionLabel: string
+  ) => {
     setIssuePendingId(issueId)
     startIssueTransition(async () => {
       try {
@@ -347,7 +379,10 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
         setFeedback({ type: 'success', message: `Issue ${actionLabel.toLowerCase()}.` })
       } catch (error) {
         console.error(error)
-        setFeedback({ type: 'error', message: 'Failed to update issue. Check server logs for details.' })
+        setFeedback({
+          type: 'error',
+          message: 'Failed to update issue. Check server logs for details.',
+        })
       } finally {
         setIssuePendingId(null)
         router.refresh()
@@ -369,13 +404,16 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
         <AlertTriangle className="h-10 w-10 text-red-500" />
         <div className="text-center">
           <p className="text-lg font-medium text-foreground">Unable to load operations data</p>
-          <p className="text-sm text-muted-foreground">Verify SYNC_API_KEY and admin API availability.</p>
+          <p className="text-sm text-muted-foreground">
+            Verify SYNC_API_KEY and admin API availability.
+          </p>
         </div>
         <button
           onClick={() => router.refresh()}
           className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700"
         >
-          <RefreshCcw className="h-4 w-4 mr-2" />Try again
+          <RefreshCcw className="h-4 w-4 mr-2" />
+          Try again
         </button>
       </div>
     )
@@ -385,7 +423,7 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
   const external = status.performance?.external_api || {
     courtlistener_failures_24h: 0,
     courtlistener_circuit_opens_24h: 0,
-    courtlistener_circuit_shortcircuits_24h: 0
+    courtlistener_circuit_shortcircuits_24h: 0,
   }
   const uptime = toNumber(status.health?.uptime)
   const combinedMetrics: Record<string, unknown>[] = [
@@ -395,14 +433,19 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
 
   const cacheMetric = combinedMetrics.find((metric) => {
     const name = extractMetricName(metric as Record<string, unknown>).toLowerCase()
-    return name.includes('cache') && (name.includes('hit') || name.includes('ttl') || name.includes('efficiency'))
+    return (
+      name.includes('cache') &&
+      (name.includes('hit') || name.includes('ttl') || name.includes('efficiency'))
+    )
   }) as Record<string, unknown> | undefined
 
   const cacheHitValue = cacheMetric ? extractMetricValue(cacheMetric) : null
   const cacheHitLabel = cacheHitValue === null ? '—' : formatPercent(cacheHitValue)
 
   const rateLimitMetrics = combinedMetrics
-    .filter((metric): metric is Record<string, unknown> => Boolean(metric) && typeof metric === 'object')
+    .filter(
+      (metric): metric is Record<string, unknown> => Boolean(metric) && typeof metric === 'object'
+    )
     .filter((metric) => isRateLimitMetric(metric))
     .map((metric) => ({
       name: extractMetricName(metric),
@@ -414,7 +457,12 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
     ? status.queue.status
         .map((entry: any) => {
           const labelCandidate =
-            entry?.job_type || entry?.type || entry?.entity_type || entry?.queue_name || entry?.queue || entry?.worker
+            entry?.job_type ||
+            entry?.type ||
+            entry?.entity_type ||
+            entry?.queue_name ||
+            entry?.queue ||
+            entry?.worker
           const label = typeof labelCandidate === 'string' ? labelCandidate : null
           return {
             label: label || 'Queue',
@@ -439,10 +487,14 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold text-foreground">Operations Dashboard</h1>
-          <p className="text-muted-foreground">Monitor sync pipelines, queue health, and CourtListener integrations.</p>
+          <p className="text-muted-foreground">
+            Monitor sync pipelines, queue health, and CourtListener integrations.
+          </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${health.className}`}>
+          <div
+            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${health.className}`}
+          >
             <health.icon className="h-4 w-4" />
             {health.label}
           </div>
@@ -453,7 +505,8 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
             onClick={() => router.refresh()}
             className="inline-flex items-center rounded-md border border-border bg-white px-3 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-muted"
           >
-            <RefreshCw className="h-4 w-4 mr-2" />Refresh
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
           </button>
         </div>
       </div>
@@ -475,12 +528,15 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">System uptime</p>
-              <p className="mt-2 text-3xl font-semibold text-foreground">{formatPercent(uptime, '—')}</p>
+              <p className="mt-2 text-3xl font-semibold text-foreground">
+                {formatPercent(uptime, '—')}
+              </p>
             </div>
             <CheckCircle2 className="h-10 w-10 text-emerald-500" />
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
-            {formatNumber(status.performance?.daily?.total_runs)} jobs today · {formatNumber(status.recent_logs?.length ?? 0)} recent runs tracked
+            {formatNumber(status.performance?.daily?.total_runs)} jobs today ·{' '}
+            {formatNumber(status.recent_logs?.length ?? 0)} recent runs tracked
           </p>
         </div>
         <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
@@ -499,21 +555,25 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">CourtListener circuit</p>
-              <p className={`mt-2 text-2xl font-semibold ${
-                circuitSeverity.tone === 'critical'
-                  ? 'text-red-600'
-                  : circuitSeverity.tone === 'warn'
-                  ? 'text-amber-600'
-                  : 'text-emerald-600'
-              }`}>{circuitSeverity.label}</p>
+              <p
+                className={`mt-2 text-2xl font-semibold ${
+                  circuitSeverity.tone === 'critical'
+                    ? 'text-red-600'
+                    : circuitSeverity.tone === 'warn'
+                      ? 'text-amber-600'
+                      : 'text-emerald-600'
+                }`}
+              >
+                {circuitSeverity.label}
+              </p>
             </div>
             <AlertTriangle
               className={`h-10 w-10 ${
                 circuitSeverity.tone === 'critical'
                   ? 'text-red-500'
                   : circuitSeverity.tone === 'warn'
-                  ? 'text-amber-500'
-                  : 'text-emerald-500'
+                    ? 'text-amber-500'
+                    : 'text-emerald-500'
               }`}
             />
           </div>
@@ -545,19 +605,27 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
             <dl className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
               <div className="rounded-md bg-muted p-4">
                 <dt className="font-medium text-muted-foreground">Pending</dt>
-                <dd className="mt-1 text-xl font-semibold text-foreground">{formatNumber(queueStats.pending)}</dd>
+                <dd className="mt-1 text-xl font-semibold text-foreground">
+                  {formatNumber(queueStats.pending)}
+                </dd>
               </div>
               <div className="rounded-md bg-muted p-4">
                 <dt className="font-medium text-muted-foreground">Running</dt>
-                <dd className="mt-1 text-xl font-semibold text-foreground">{formatNumber(queueStats.running)}</dd>
+                <dd className="mt-1 text-xl font-semibold text-foreground">
+                  {formatNumber(queueStats.running)}
+                </dd>
               </div>
               <div className="rounded-md bg-muted p-4">
                 <dt className="font-medium text-muted-foreground">Succeeded (24h)</dt>
-                <dd className="mt-1 text-xl font-semibold text-foreground">{formatNumber(queueStats.succeeded)}</dd>
+                <dd className="mt-1 text-xl font-semibold text-foreground">
+                  {formatNumber(queueStats.succeeded)}
+                </dd>
               </div>
               <div className="rounded-md bg-muted p-4">
                 <dt className="font-medium text-muted-foreground">Failed (24h)</dt>
-                <dd className="mt-1 text-xl font-semibold text-foreground">{formatNumber(queueStats.failed)}</dd>
+                <dd className="mt-1 text-xl font-semibold text-foreground">
+                  {formatNumber(queueStats.failed)}
+                </dd>
               </div>
             </dl>
             {queueBreakdown.length > 0 && (
@@ -565,10 +633,18 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                 <table className="min-w-full divide-y divide-gray-200 text-xs">
                   <thead className="bg-muted text-muted-foreground">
                     <tr>
-                      <th scope="col" className="px-3 py-2 text-left font-semibold">Queue</th>
-                      <th scope="col" className="px-3 py-2 text-right font-semibold">Pending</th>
-                      <th scope="col" className="px-3 py-2 text-right font-semibold">Running</th>
-                      <th scope="col" className="px-3 py-2 text-right font-semibold">Failed</th>
+                      <th scope="col" className="px-3 py-2 text-left font-semibold">
+                        Queue
+                      </th>
+                      <th scope="col" className="px-3 py-2 text-right font-semibold">
+                        Pending
+                      </th>
+                      <th scope="col" className="px-3 py-2 text-right font-semibold">
+                        Running
+                      </th>
+                      <th scope="col" className="px-3 py-2 text-right font-semibold">
+                        Failed
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 bg-white text-muted-foreground">
@@ -595,17 +671,25 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
           <div className="grid grid-cols-1 gap-4 px-6 py-4 md:grid-cols-2">
             <div className="rounded-md bg-muted p-4">
               <p className="text-xs font-medium uppercase text-muted-foreground">Daily</p>
-              <p className="mt-2 text-3xl font-semibold text-foreground">{formatNumber(status.performance?.daily?.total_runs)}</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Success {formatPercent(status.performance?.daily?.success_rate ?? null, '—')} · Failures {formatNumber(dailyFailedRuns)}
+              <p className="mt-2 text-3xl font-semibold text-foreground">
+                {formatNumber(status.performance?.daily?.total_runs)}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">Avg duration {formatNumber(status.performance?.daily?.avg_duration_ms)} ms</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Success {formatPercent(status.performance?.daily?.success_rate ?? null, '—')} ·
+                Failures {formatNumber(dailyFailedRuns)}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Avg duration {formatNumber(status.performance?.daily?.avg_duration_ms)} ms
+              </p>
             </div>
             <div className="rounded-md bg-muted p-4">
               <p className="text-xs font-medium uppercase text-muted-foreground">Weekly</p>
-              <p className="mt-2 text-3xl font-semibold text-foreground">{formatNumber(status.performance?.weekly?.total_runs)}</p>
+              <p className="mt-2 text-3xl font-semibold text-foreground">
+                {formatNumber(status.performance?.weekly?.total_runs)}
+              </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Success {formatPercent(status.performance?.weekly?.success_rate ?? null, '—')} · Failures {formatNumber(weeklyFailedRuns)}
+                Success {formatPercent(status.performance?.weekly?.success_rate ?? null, '—')} ·
+                Failures {formatNumber(weeklyFailedRuns)}
               </p>
             </div>
           </div>
@@ -621,15 +705,25 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-muted">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Sync type</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Status</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Started</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Duration (ms)</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Error</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  Sync type
+                </th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  Status
+                </th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  Started
+                </th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  Duration (ms)
+                </th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  Error
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
-              {status.recent_logs.slice(0, 8).map(log => (
+              {status.recent_logs.slice(0, 8).map((log) => (
                 <tr key={log.id}>
                   <td className="px-6 py-3 text-foreground">{log.sync_type}</td>
                   <td className="px-6 py-3">
@@ -642,12 +736,22 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                             : 'bg-muted text-foreground'
                       }`}
                     >
-                      {log.status === 'completed' ? <CheckCircle2 className="h-3 w-3" /> : log.status === 'failed' ? <AlertTriangle className="h-3 w-3" /> : <Square className="h-3 w-3" />}
+                      {log.status === 'completed' ? (
+                        <CheckCircle2 className="h-3 w-3" />
+                      ) : log.status === 'failed' ? (
+                        <AlertTriangle className="h-3 w-3" />
+                      ) : (
+                        <Square className="h-3 w-3" />
+                      )}
                       {log.status}
                     </span>
                   </td>
-                  <td className="px-6 py-3 text-muted-foreground">{formatRelative(log.started_at)}</td>
-                  <td className="px-6 py-3 text-muted-foreground">{formatNumber(log.duration_ms)}</td>
+                  <td className="px-6 py-3 text-muted-foreground">
+                    {formatRelative(log.started_at)}
+                  </td>
+                  <td className="px-6 py-3 text-muted-foreground">
+                    {formatNumber(log.duration_ms)}
+                  </td>
                   <td className="px-6 py-3 text-muted-foreground">{log.error_message || '—'}</td>
                 </tr>
               ))}
@@ -660,32 +764,41 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
               )}
             </tbody>
           </table>
-      </div>
+        </div>
 
-      <div className="rounded-lg border border-border bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="text-sm font-semibold text-foreground">Rate limit counters</h2>
-          <Clock className="h-5 w-5 text-muted-foreground" />
-        </div>
-        <div className="px-6 py-5 text-sm text-muted-foreground">
-          {rateLimitMetrics.length === 0 ? (
-            <p className="text-xs text-muted-foreground">No active throttling signals from the last 24 hours.</p>
-          ) : (
-            <div className="space-y-3">
-              {rateLimitMetrics.map((metric) => (
-                <div key={metric.name} className="flex items-center justify-between rounded-md bg-muted px-4 py-2">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{metric.name}</p>
-                    {metric.window && <p className="text-xs text-muted-foreground">Window: {metric.window}</p>}
+        <div className="rounded-lg border border-border bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-border px-6 py-4">
+            <h2 className="text-sm font-semibold text-foreground">Rate limit counters</h2>
+            <Clock className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <div className="px-6 py-5 text-sm text-muted-foreground">
+            {rateLimitMetrics.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                No active throttling signals from the last 24 hours.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {rateLimitMetrics.map((metric) => (
+                  <div
+                    key={metric.name}
+                    className="flex items-center justify-between rounded-md bg-muted px-4 py-2"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{metric.name}</p>
+                      {metric.window && (
+                        <p className="text-xs text-muted-foreground">Window: {metric.window}</p>
+                      )}
+                    </div>
+                    <span className="text-sm font-semibold text-foreground">
+                      {formatNumber(metric.value, '—')}
+                    </span>
                   </div>
-                  <span className="text-sm font-semibold text-foreground">{formatNumber(metric.value, '—')}</span>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
 
       <div className="rounded-lg border border-border bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-border px-6 py-4 md:flex-row md:items-center md:justify-between">
@@ -731,15 +844,33 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-muted">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Judge</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Court</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Issue</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Severity</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">SLA</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Status</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Reported</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Contact</th>
-                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">Actions</th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  Judge
+                </th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  Court
+                </th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  Issue
+                </th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  Severity
+                </th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  SLA
+                </th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  Status
+                </th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  Reported
+                </th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  Contact
+                </th>
+                <th scope="col" className="px-6 py-3 text-left font-semibold text-foreground">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
@@ -750,16 +881,20 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                   slaInfo.tone === 'critical'
                     ? 'bg-red-50'
                     : slaInfo.tone === 'warn'
-                    ? 'bg-amber-50'
-                    : undefined
+                      ? 'bg-amber-50'
+                      : undefined
 
                 return (
                   <tr key={issue.id} className={rowClass}>
                     <td className="px-6 py-3 text-foreground">{issue.judge_slug}</td>
                     <td className="px-6 py-3 text-muted-foreground">{issue.court_id || '—'}</td>
-                    <td className="px-6 py-3 text-muted-foreground">{ISSUE_TYPE_LABELS[issue.issue_type] || issue.issue_type}</td>
+                    <td className="px-6 py-3 text-muted-foreground">
+                      {ISSUE_TYPE_LABELS[issue.issue_type] || issue.issue_type}
+                    </td>
                     <td className="px-6 py-3">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${severityMeta.className}`}>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${severityMeta.className}`}
+                      >
                         {severityMeta.label}
                       </span>
                     </td>
@@ -769,30 +904,40 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                           slaInfo.tone === 'critical'
                             ? 'bg-red-100 text-red-700'
                             : slaInfo.tone === 'warn'
-                            ? 'bg-amber-100 text-amber-700'
-                            : 'bg-muted text-foreground'
+                              ? 'bg-amber-100 text-amber-700'
+                              : 'bg-muted text-foreground'
                         }`}
                       >
                         {slaInfo.label}
                       </span>
                     </td>
                     <td className="px-6 py-3">
-                      <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${ISSUE_STATUS_META[issue.status].className}`}>
+                      <span
+                        className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${ISSUE_STATUS_META[issue.status].className}`}
+                      >
                         {ISSUE_STATUS_META[issue.status].label}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-muted-foreground">{formatRelative(issue.created_at)}</td>
-                    <td className="px-6 py-3 text-muted-foreground">{maskEmail(issue.reporter_email)}</td>
+                    <td className="px-6 py-3 text-muted-foreground">
+                      {formatRelative(issue.created_at)}
+                    </td>
+                    <td className="px-6 py-3 text-muted-foreground">
+                      {maskEmail(issue.reporter_email)}
+                    </td>
                     <td className="px-6 py-3">
                       <div className="flex flex-wrap items-center gap-2">
                         {issue.status === 'new' && (
                           <button
                             type="button"
-                            onClick={() => handleIssueTransition(issue.id, 'researching', 'Acknowledged')}
+                            onClick={() =>
+                              handleIssueTransition(issue.id, 'researching', 'Acknowledged')
+                            }
                             className="rounded-full border border-blue-200 bg-primary/5 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60"
                             disabled={issueTransitionPending || issuePendingId === issue.id}
                           >
-                            {issuePendingId === issue.id && issueTransitionPending ? 'Updating…' : 'Acknowledge'}
+                            {issuePendingId === issue.id && issueTransitionPending
+                              ? 'Updating…'
+                              : 'Acknowledge'}
                           </button>
                         )}
                         {(issue.status === 'new' || issue.status === 'researching') && (
@@ -802,27 +947,37 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                             className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-60"
                             disabled={issueTransitionPending || issuePendingId === issue.id}
                           >
-                            {issuePendingId === issue.id && issueTransitionPending ? 'Updating…' : 'Resolve'}
+                            {issuePendingId === issue.id && issueTransitionPending
+                              ? 'Updating…'
+                              : 'Resolve'}
                           </button>
                         )}
                         {(issue.status === 'new' || issue.status === 'researching') && (
                           <button
                             type="button"
-                            onClick={() => handleIssueTransition(issue.id, 'dismissed', 'Dismissed')}
+                            onClick={() =>
+                              handleIssueTransition(issue.id, 'dismissed', 'Dismissed')
+                            }
                             className="rounded-full border border-border bg-muted px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-60"
                             disabled={issueTransitionPending || issuePendingId === issue.id}
                           >
-                            {issuePendingId === issue.id && issueTransitionPending ? 'Updating…' : 'Dismiss'}
+                            {issuePendingId === issue.id && issueTransitionPending
+                              ? 'Updating…'
+                              : 'Dismiss'}
                           </button>
                         )}
                         {(issue.status === 'resolved' || issue.status === 'dismissed') && (
                           <button
                             type="button"
-                            onClick={() => handleIssueTransition(issue.id, 'researching', 'Reopened')}
+                            onClick={() =>
+                              handleIssueTransition(issue.id, 'researching', 'Reopened')
+                            }
                             className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-100 disabled:opacity-60"
                             disabled={issueTransitionPending || issuePendingId === issue.id}
                           >
-                            {issuePendingId === issue.id && issueTransitionPending ? 'Updating…' : 'Reopen'}
+                            {issuePendingId === issue.id && issueTransitionPending
+                              ? 'Updating…'
+                              : 'Reopen'}
                           </button>
                         )}
                         {issue.status === 'researching' && (
@@ -832,7 +987,9 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
                             className="rounded-full border border-border bg-white px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-60"
                             disabled={issueTransitionPending || issuePendingId === issue.id}
                           >
-                            {issuePendingId === issue.id && issueTransitionPending ? 'Updating…' : 'Reset'}
+                            {issuePendingId === issue.id && issueTransitionPending
+                              ? 'Updating…'
+                              : 'Reset'}
                           </button>
                         )}
                       </div>
@@ -856,11 +1013,14 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <div>
             <h2 className="text-sm font-semibold text-foreground">Admin actions</h2>
-            <p className="text-xs text-muted-foreground">Actions run via secure server-side API key.</p>
+            <p className="text-xs text-muted-foreground">
+              Actions run via secure server-side API key.
+            </p>
           </div>
           {isPending && (
             <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-              <RefreshCcw className="h-4 w-4 animate-spin" />Processing…
+              <RefreshCcw className="h-4 w-4 animate-spin" />
+              Processing…
             </div>
           )}
         </div>
@@ -873,7 +1033,9 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
               <PlayCircle className="h-4 w-4" />
               Queue CA decision sync
             </div>
-            <p className="mt-1 text-xs font-normal text-primary/80">Runs the daily high-priority CA decision ingest.</p>
+            <p className="mt-1 text-xs font-normal text-primary/80">
+              Runs the daily high-priority CA decision ingest.
+            </p>
           </button>
           <button
             onClick={() => handleAction('cancel-decisions')}
@@ -883,7 +1045,9 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
               <Square className="h-4 w-4" />
               Cancel decision jobs
             </div>
-            <p className="mt-1 text-xs font-normal text-amber-600/80">Stops duplicate or stale decision sync jobs.</p>
+            <p className="mt-1 text-xs font-normal text-amber-600/80">
+              Stops duplicate or stale decision sync jobs.
+            </p>
           </button>
           <button
             onClick={() => handleAction('restart-queue')}
@@ -893,7 +1057,9 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
               <RefreshCcw className="h-4 w-4" />
               Restart queue processor
             </div>
-            <p className="mt-1 text-xs font-normal text-muted-foreground">Gracefully restarts the queue worker.</p>
+            <p className="mt-1 text-xs font-normal text-muted-foreground">
+              Gracefully restarts the queue worker.
+            </p>
           </button>
         </div>
       </div>
@@ -901,8 +1067,12 @@ export default function AdminDashboard({ status, profileIssues, profileIssueCoun
       {pendingAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-lg border border-border bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-foreground">{ACTION_META[pendingAction].title}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{ACTION_META[pendingAction].description}</p>
+            <h3 className="text-lg font-semibold text-foreground">
+              {ACTION_META[pendingAction].title}
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {ACTION_META[pendingAction].description}
+            </p>
             <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={cancelAction}

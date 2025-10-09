@@ -8,7 +8,9 @@ export interface AdSpotWithRelations extends AdSpot {
   advertiser?: AdvertiserProfile | null
 }
 
-export async function getAdvertiserProfileForUser(userId: string): Promise<AdvertiserProfile | null> {
+export async function getAdvertiserProfileForUser(
+  userId: string
+): Promise<AdvertiserProfile | null> {
   try {
     const supabase = await createServerClient()
     const { data, error } = await supabase
@@ -65,7 +67,8 @@ async function fetchAdSpots(
 
   let query = supabase
     .from('ad_spots')
-    .select(`
+    .select(
+      `
       id,
       entity_type,
       entity_id,
@@ -101,7 +104,8 @@ async function fetchAdSpots(
         created_at,
         updated_at
       )
-    `)
+    `
+    )
     .eq('entity_type', entityType)
     .eq('entity_id', entityId)
 
@@ -115,14 +119,14 @@ async function fetchAdSpots(
     logger.warn('Failed to load ad spots for entity', {
       entityType,
       entityId,
-      error: error.message
+      error: error.message,
     })
     return []
   }
 
-  return (data || []).map((spot: any) => ({
+  return (data || []).map((spot) => ({
     ...(spot as AdSpot),
-    advertiser: spot.advertiser || null
+    advertiser: (spot as Record<string, unknown>).advertiser || null,
   }))
 }
 

@@ -64,7 +64,7 @@ class AdSlotDataManager {
   createPlaceholderSlots(): AdSlot[] {
     return [1, 2, 3].map((position) => ({
       id: `placeholder-${position}`,
-      position
+      position,
     }))
   }
 
@@ -77,7 +77,9 @@ class AdSlotDataManager {
       }
     })
 
-    return [1, 2, 3].map((position) => normalized[position] ?? { id: `placeholder-${position}`, position })
+    return [1, 2, 3].map(
+      (position) => normalized[position] ?? { id: `placeholder-${position}`, position }
+    )
   }
 
   private isValidSlot(slot: AdSlot): boolean {
@@ -100,7 +102,7 @@ class AdvertiserAnalyticsTracker {
     fetch('/api/advertising/track-impression', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slot_id: slotId, court_id: this.courtId })
+      body: JSON.stringify({ slot_id: slotId, court_id: this.courtId }),
     }).catch(() => {
       // Silently ignore tracking errors to avoid blocking UI.
     })
@@ -110,7 +112,7 @@ class AdvertiserAnalyticsTracker {
     fetch('/api/advertising/track-click', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slot_id: slotId, court_id: this.courtId })
+      body: JSON.stringify({ slot_id: slotId, court_id: this.courtId }),
     }).catch(() => {
       // Tracking failures should not impact user navigation.
     })
@@ -121,7 +123,10 @@ class AdvertiserAnalyticsTracker {
 
 const placeholderManager = new AdSlotDataManager()
 
-export function CourtAdvertiserSlots({ courtId, courtName }: CourtAdvertiserSlotsProps) {
+export function CourtAdvertiserSlots({
+  courtId,
+  courtName,
+}: CourtAdvertiserSlotsProps): JSX.Element {
   const [slots, setSlots] = useState<AdSlot[]>(placeholderManager.createPlaceholderSlots())
   const [loading, setLoading] = useState(true)
 
@@ -154,12 +159,20 @@ export function CourtAdvertiserSlots({ courtId, courtName }: CourtAdvertiserSlot
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-foreground mb-2" aria-label={`Verified legal professionals serving ${courtName}`}>
+      <h3
+        className="text-lg font-semibold text-foreground mb-2"
+        aria-label={`Verified legal professionals serving ${courtName}`}
+      >
         Legal Professionals Serving {courtName}
       </h3>
 
       {slots.map((slot) => (
-        <AdvertiserSlotCard key={slot.id} slot={slot} courtId={courtId} tracker={analyticsTracker} />
+        <AdvertiserSlotCard
+          key={slot.id}
+          slot={slot}
+          courtId={courtId}
+          tracker={analyticsTracker}
+        />
       ))}
 
       <InfoFooter />
@@ -173,7 +186,7 @@ interface AdvertiserSlotCardProps {
   tracker: AdvertiserAnalyticsTracker
 }
 
-function AdvertiserSlotCard({ slot, tracker, courtId }: AdvertiserSlotCardProps) {
+function AdvertiserSlotCard({ slot, tracker, courtId }: AdvertiserSlotCardProps): JSX.Element {
   const { ref, inView } = useInView({ threshold: 0.5, triggerOnce: true })
   const websiteUrl = slot.advertiser?.website
   const ctaUrl = slot.creative?.cta_url
@@ -205,9 +218,16 @@ function AdvertiserSlotCard({ slot, tracker, courtId }: AdvertiserSlotCardProps)
   }, [slot.id, tracker, ctaUrl])
 
   return (
-    <div ref={ref} className="bg-white rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow">
+    <div
+      ref={ref}
+      className="bg-white rounded-lg border border-border overflow-hidden hover:shadow-md transition-shadow"
+    >
       {slot.advertiser ? (
-        <AdvertiserDetails slot={slot} onWebsiteClick={handleWebsiteClick} onCtaClick={handleCtaClick} />
+        <AdvertiserDetails
+          slot={slot}
+          onWebsiteClick={handleWebsiteClick}
+          onCtaClick={handleCtaClick}
+        />
       ) : (
         <EmptySlotCard courtId={courtId} position={slot.position} />
       )}
@@ -221,7 +241,11 @@ interface AdvertiserDetailsProps {
   onCtaClick: () => void
 }
 
-function AdvertiserDetails({ slot, onWebsiteClick, onCtaClick }: AdvertiserDetailsProps) {
+function AdvertiserDetails({
+  slot,
+  onWebsiteClick,
+  onCtaClick,
+}: AdvertiserDetailsProps): JSX.Element {
   const advertiser = slot.advertiser!
 
   return (
@@ -231,13 +255,21 @@ function AdvertiserDetails({ slot, onWebsiteClick, onCtaClick }: AdvertiserDetai
           <div className="flex items-center gap-2">
             <h4 className="font-semibold text-foreground">{advertiser.firm_name}</h4>
             {advertiser.badge && (
-              <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">{advertiser.badge}</span>
+              <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+                {advertiser.badge}
+              </span>
             )}
           </div>
           <p className="text-sm text-muted-foreground">{advertiser.description}</p>
         </div>
         {advertiser.logo_url && (
-          <Image src={advertiser.logo_url} alt={`${advertiser.firm_name} logo`} width={48} height={48} className="object-contain" />
+          <Image
+            src={advertiser.logo_url}
+            alt={`${advertiser.firm_name} logo`}
+            width={48}
+            height={48}
+            className="object-contain"
+          />
         )}
       </div>
 
@@ -251,7 +283,10 @@ function AdvertiserDetails({ slot, onWebsiteClick, onCtaClick }: AdvertiserDetai
       {advertiser.specializations && advertiser.specializations.length > 0 && (
         <div className="flex flex-wrap gap-1">
           {advertiser.specializations.map((specialization) => (
-            <span key={specialization} className="px-2 py-1 text-xs bg-muted text-foreground rounded">
+            <span
+              key={specialization}
+              className="px-2 py-1 text-xs bg-muted text-foreground rounded"
+            >
               {specialization}
             </span>
           ))}
@@ -299,12 +334,12 @@ interface EmptySlotCardProps {
   position: number
 }
 
-function EmptySlotCard({ courtId, position }: EmptySlotCardProps) {
+function EmptySlotCard({ courtId, position }: EmptySlotCardProps): JSX.Element {
   const bookingParams = new URLSearchParams({
     preselected: 'true',
     entityType: 'court',
     entityId: courtId,
-    position: String(position)
+    position: String(position),
   })
 
   return (
@@ -322,7 +357,7 @@ function EmptySlotCard({ courtId, position }: EmptySlotCardProps) {
   )
 }
 
-function InfoFooter() {
+function InfoFooter(): JSX.Element {
   return (
     <div className="mt-4 p-3 bg-primary/5 rounded-lg">
       <div className="flex items-start gap-2">
@@ -336,11 +371,14 @@ function InfoFooter() {
   )
 }
 
-function SlotsSkeleton() {
+function SlotsSkeleton(): JSX.Element {
   return (
     <div className="space-y-4">
       {[1, 2, 3].map((skeletonKey) => (
-        <div key={`skeleton-${skeletonKey}`} className="bg-muted rounded-lg p-4 animate-pulse space-y-2">
+        <div
+          key={`skeleton-${skeletonKey}`}
+          className="bg-muted rounded-lg p-4 animate-pulse space-y-2"
+        >
           <div className="h-4 bg-muted rounded w-3/4" />
           <div className="h-3 bg-muted rounded w-1/2" />
         </div>
@@ -348,5 +386,3 @@ function SlotsSkeleton() {
     </div>
   )
 }
-
-

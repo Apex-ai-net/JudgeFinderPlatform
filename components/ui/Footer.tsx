@@ -2,10 +2,19 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Scale, TrendingUp, MapPin, FileText, Heart, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import {
+  Scale,
+  TrendingUp,
+  MapPin,
+  FileText,
+  Heart,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+} from 'lucide-react'
 import { DonationButton } from '@/components/fundraising/DonationButton'
 
-export function Footer() {
+export function Footer(): JSX.Element {
   // SEO verification status (dev mode only)
   const isDev = process.env.NODE_ENV === 'development'
   const hasGoogleVerification = !!process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
@@ -18,8 +27,8 @@ export function Footer() {
       links: [
         { href: '/judges', label: 'All CA Judges' },
         { href: '/compare', label: 'Compare Judges' },
-        { href: '/courts', label: 'Courts Directory' }
-      ]
+        { href: '/courts', label: 'Courts Directory' },
+      ],
     },
     {
       title: 'Top Counties',
@@ -27,8 +36,8 @@ export function Footer() {
       links: [
         { href: '/jurisdictions/los-angeles-county', label: 'Los Angeles County' },
         { href: '/jurisdictions/orange-county', label: 'Orange County' },
-        { href: '/jurisdictions/san-diego-county', label: 'San Diego County' }
-      ]
+        { href: '/jurisdictions/san-diego-county', label: 'San Diego County' },
+      ],
     },
     {
       title: 'Resources',
@@ -36,8 +45,8 @@ export function Footer() {
       links: [
         { href: '/about', label: 'About Us' },
         { href: '/analytics', label: 'Analytics' },
-        { href: '/sitemap.xml', label: 'Sitemap' }
-      ]
+        { href: '/sitemap.xml', label: 'Sitemap' },
+      ],
     },
     {
       title: 'Legal',
@@ -45,9 +54,9 @@ export function Footer() {
       links: [
         { href: '/privacy', label: 'Privacy Policy' },
         { href: '/terms', label: 'Terms of Service' },
-        { href: '/contact', label: 'Contact' }
-      ]
-    }
+        { href: '/contact', label: 'Contact' },
+      ],
+    },
   ]
 
   return (
@@ -93,7 +102,7 @@ export function Footer() {
             )
           })}
         </div>
-        
+
         {/* SEO Description */}
         <motion.div
           className="text-center py-4 border-t border-border/50 space-y-4"
@@ -112,7 +121,10 @@ export function Footer() {
             transition={{ duration: 0.4, delay: 0.5 }}
           >
             <Heart className="h-3.5 w-3.5 text-primary fill-primary" />
-            <span>JudgeFinder.io - Research California judges with comprehensive analytics and pattern analysis</span>
+            <span>
+              JudgeFinder.io - Research California judges with comprehensive analytics and pattern
+              analysis
+            </span>
           </motion.div>
 
           <motion.p
@@ -122,7 +134,8 @@ export function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: 0.6 }}
           >
-            &copy; {new Date().getFullYear()} JudgeFinder. Free judicial transparency for California citizens.
+            &copy; {new Date().getFullYear()} JudgeFinder. Free judicial transparency for California
+            citizens.
           </motion.p>
 
           {/* SEO Verification Status - Dev Mode Only */}
@@ -136,7 +149,9 @@ export function Footer() {
             >
               <div className="flex items-center gap-2 mb-2">
                 <AlertCircle className="h-3.5 w-3.5 text-yellow-500" />
-                <span className="text-xs font-semibold text-foreground">SEO Configuration Status</span>
+                <span className="text-xs font-semibold text-foreground">
+                  SEO Configuration Status
+                </span>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-xs">

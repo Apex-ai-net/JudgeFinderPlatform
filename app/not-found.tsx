@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Search, Home, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export default function NotFound() {
+export default function NotFound(): JSX.Element {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted flex items-center justify-center px-4">
       <div className="max-w-2xl w-full text-center">
@@ -15,9 +15,7 @@ export default function NotFound() {
         </div>
 
         {/* Message */}
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-          Page Not Found
-        </h2>
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Page Not Found</h2>
         <p className="text-lg text-muted-foreground mb-8 max-w-md mx-auto">
           The page you're looking for doesn't exist or has been moved. Let's get you back on track.
         </p>

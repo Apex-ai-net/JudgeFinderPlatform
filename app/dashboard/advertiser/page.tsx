@@ -5,7 +5,7 @@ import { getAdvertiserProfileForUser, listAvailableAdSpots } from '@/lib/ads/ser
 
 export const dynamic = 'force-dynamic'
 
-export default async function AdvertiserDashboardPage() {
+export default async function AdvertiserDashboardPage(): Promise<JSX.Element> {
   const user = await currentUser()
   if (!user) {
     redirect('/sign-in')
@@ -25,19 +25,23 @@ export default async function AdvertiserDashboardPage() {
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Advertising Dashboard</h1>
         <p className="mt-2 text-gray-600">
-          Campaign management and billing tools are in private beta. We\'ll notify {advertiserProfile.contact_email} when your workspace is enabled.
+          Campaign management and billing tools are in private beta. We\'ll notify{' '}
+          {advertiserProfile.contact_email} when your workspace is enabled.
         </p>
       </div>
 
       <div className="rounded-lg border border-dashed border-blue-300 bg-blue-50 p-6 text-blue-800">
         <h2 className="text-lg font-semibold mb-2">Ad management is coming soon</h2>
         <p className="text-sm text-blue-700">
-          We\'re finalizing Stripe billing, automated placements, and analytics before opening this dashboard.
+          We\'re finalizing Stripe billing, automated placements, and analytics before opening this
+          dashboard.
         </p>
         <dl className="mt-4 grid gap-3 text-sm">
           <div className="flex items-center justify-between">
             <dt className="font-medium">Stripe connection</dt>
-            <dd className={`px-2 py-1 rounded-full ${stripeReady ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+            <dd
+              className={`px-2 py-1 rounded-full ${stripeReady ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}
+            >
               {stripeReady ? 'Configured' : 'Not configured'}
             </dd>
           </div>
@@ -56,7 +60,8 @@ export default async function AdvertiserDashboardPage() {
         </dl>
         {!stripeReady && (
           <p className="mt-4 text-xs text-blue-700">
-            Add <code className="rounded bg-blue-100 px-1">STRIPE_SECRET_KEY</code> to your environment to enable billing workflows.
+            Add <code className="rounded bg-blue-100 px-1">STRIPE_SECRET_KEY</code> to your
+            environment to enable billing workflows.
           </p>
         )}
       </div>

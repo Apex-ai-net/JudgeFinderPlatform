@@ -8,53 +8,108 @@ import { GET } from '@/app/api/judges/[id]/analytics/route'
 import { mockJudges } from '@/tests/fixtures/judges'
 import { mockCasesList, generateMockCases } from '@/tests/fixtures/cases'
 
+// Types for mock responses
+interface MockSupabaseQueryResponse<T> {
+  data: T | null
+  error: { code?: string } | null
+}
+
+interface MockRateLimiter {
+  limit: (identifier: string) => Promise<{ success: boolean; remaining: number }>
+}
+
+interface MockSupabaseQuery {
+  select: (columns?: string) => MockSupabaseQuery
+  eq: (column: string, value: unknown) => MockSupabaseQuery
+  gte: (column: string, value: unknown) => MockSupabaseQuery
+  order: (column: string, options?: { ascending?: boolean }) => MockSupabaseQuery
+  limit: (count: number) => MockSupabaseQueryResponse<unknown>
+  single: () => MockSupabaseQueryResponse<unknown>
+}
+
+interface MockSupabaseClient {
+  from: (table: string) => MockSupabaseQuery
+}
+
 // Mock dependencies
 vi.mock('@/lib/supabase/server', () => ({
-  createServiceRoleClient: vi.fn(async () => ({
-    from: vi.fn((table: string) => {
-      if (table === 'judges') {
-        return {
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({
-              single: vi.fn(() => ({
-                data: mockJudges.activeJudge,
-                error: null,
-              })),
-            })),
-          })),
+  createServiceRoleClient: vi.fn(
+    async (): Promise<MockSupabaseClient> => ({
+      from: vi.fn((table: string): MockSupabaseQuery => {
+        if (table === 'judges') {
+          return {
+            select: vi.fn(
+              (): MockSupabaseQuery =>
+                ({
+                  eq: vi.fn(
+                    (): MockSupabaseQuery =>
+                      ({
+                        single: vi.fn(
+                          (): MockSupabaseQueryResponse<typeof mockJudges.activeJudge> => ({
+                            data: mockJudges.activeJudge,
+                            error: null,
+                          })
+                        ),
+                      }) as unknown as MockSupabaseQuery
+                  ),
+                }) as unknown as MockSupabaseQuery
+            ),
+          } as unknown as MockSupabaseQuery
         }
-      }
-      if (table === 'cases') {
-        return {
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({
-              gte: vi.fn(() => ({
-                order: vi.fn(() => ({
-                  limit: vi.fn(() => ({
-                    data: generateMockCases(50, 'judge-001'),
-                    error: null,
-                  })),
-                })),
-              })),
-            })),
-          })),
+        if (table === 'cases') {
+          return {
+            select: vi.fn(
+              (): MockSupabaseQuery =>
+                ({
+                  eq: vi.fn(
+                    (): MockSupabaseQuery =>
+                      ({
+                        gte: vi.fn(
+                          (): MockSupabaseQuery =>
+                            ({
+                              order: vi.fn(
+                                (): MockSupabaseQuery =>
+                                  ({
+                                    limit: vi.fn(
+                                      (): MockSupabaseQueryResponse<unknown> => ({
+                                        data: generateMockCases(50, 'judge-001'),
+                                        error: null,
+                                      })
+                                    ),
+                                  }) as unknown as MockSupabaseQuery
+                              ),
+                            }) as unknown as MockSupabaseQuery
+                        ),
+                      }) as unknown as MockSupabaseQuery
+                  ),
+                }) as unknown as MockSupabaseQuery
+            ),
+          } as unknown as MockSupabaseQuery
         }
-      }
-      if (table === 'judge_analytics_cache') {
-        return {
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({
-              single: vi.fn(() => ({
-                data: null,
-                error: { code: 'PGRST116' },
-              })),
-            })),
-          })),
+        if (table === 'judge_analytics_cache') {
+          return {
+            select: vi.fn(
+              (): MockSupabaseQuery =>
+                ({
+                  eq: vi.fn(
+                    (): MockSupabaseQuery =>
+                      ({
+                        single: vi.fn(
+                          (): MockSupabaseQueryResponse<null> => ({
+                            data: null,
+                            error: { code: 'PGRST116' },
+                          })
+                        ),
+                      }) as unknown as MockSupabaseQuery
+                  ),
+                }) as unknown as MockSupabaseQuery
+            ),
+          } as unknown as MockSupabaseQuery
         }
-      }
-      return {}
-    }),
-  })),
+        return {} as MockSupabaseQuery
+      }),
+    })
+  ),
 }))
 
 vi.mock('@/lib/security/rate-limit', () => ({
@@ -79,13 +134,13 @@ vi.mock('@/lib/analytics/cache', () => ({
   isDataFresh: vi.fn(() => false),
 }))
 
-describe('Judge Analytics API Integration', () => {
-  beforeEach(() => {
+describe('Judge Analytics API Integration', (): void => {
+  beforeEach((): void => {
     vi.clearAllMocks()
   })
 
-  describe('GET /api/judges/[id]/analytics', () => {
-    it('should return analytics for judge with cases', async () => {
+  describe('GET /api/judges/[id]/analytics', (): void => {
+    it('should return analytics for judge with cases', async (): Promise<void> => {
       const request = new NextRequest('http://localhost:3000/api/judges/judge-001/analytics')
       const params = Promise.resolve({ id: 'judge-001' })
 
@@ -99,20 +154,31 @@ describe('Judge Analytics API Integration', () => {
       expect(data.data_source).toBe('case_analysis')
     })
 
-    it('should return 404 for non-existent judge', async () => {
+    it('should return 404 for non-existent judge', async (): Promise<void> => {
       const { createServiceRoleClient } = await import('@/lib/supabase/server')
       vi.mocked(createServiceRoleClient).mockResolvedValue({
-        from: vi.fn(() => ({
-          select: vi.fn(() => ({
-            eq: vi.fn(() => ({
-              single: vi.fn(() => ({
-                data: null,
-                error: { code: 'PGRST116' },
-              })),
-            })),
-          })),
-        })),
-      } as any)
+        from: vi.fn(
+          (): MockSupabaseQuery =>
+            ({
+              select: vi.fn(
+                (): MockSupabaseQuery =>
+                  ({
+                    eq: vi.fn(
+                      (): MockSupabaseQuery =>
+                        ({
+                          single: vi.fn(
+                            (): MockSupabaseQueryResponse<null> => ({
+                              data: null,
+                              error: { code: 'PGRST116' },
+                            })
+                          ),
+                        }) as unknown as MockSupabaseQuery
+                    ),
+                  }) as unknown as MockSupabaseQuery
+              ),
+            }) as unknown as MockSupabaseQuery
+        ),
+      } as unknown as MockSupabaseClient)
 
       const request = new NextRequest('http://localhost:3000/api/judges/non-existent/analytics')
       const params = Promise.resolve({ id: 'non-existent' })
@@ -146,7 +212,8 @@ describe('Judge Analytics API Integration', () => {
         },
         created_at: new Date().toISOString(),
       }
-      vi.mocked(getCachedAnalytics).mockResolvedValue(cachedAnalytics as any)
+      type CachedAnalytics = typeof cachedAnalytics
+      vi.mocked(getCachedAnalytics).mockResolvedValue(cachedAnalytics as unknown as CachedAnalytics)
 
       const request = new NextRequest('http://localhost:3000/api/judges/judge-001/analytics')
       const params = Promise.resolve({ id: 'judge-001' })
@@ -160,11 +227,11 @@ describe('Judge Analytics API Integration', () => {
       expect(data.analytics).toBeDefined()
     })
 
-    it('should handle rate limiting', async () => {
+    it('should handle rate limiting', async (): Promise<void> => {
       const { buildRateLimiter } = await import('@/lib/security/rate-limit')
       vi.mocked(buildRateLimiter).mockReturnValue({
         limit: vi.fn(async () => ({ success: false, remaining: 0 })),
-      } as any)
+      } as unknown as MockRateLimiter)
 
       const request = new NextRequest('http://localhost:3000/api/judges/judge-001/analytics')
       const params = Promise.resolve({ id: 'judge-001' })
@@ -218,9 +285,9 @@ describe('Judge Analytics API Integration', () => {
               })),
             }
           }
-          return {}
+          return {} as MockSupabaseQuery
         }),
-      } as any)
+      } as unknown as MockSupabaseClient)
 
       const request = new NextRequest('http://localhost:3000/api/judges/judge-004/analytics')
       const params = Promise.resolve({ id: 'judge-004' })
@@ -301,9 +368,9 @@ describe('Judge Analytics API Integration', () => {
               })),
             }
           }
-          return {}
+          return {} as MockSupabaseQuery
         }),
-      } as any)
+      } as unknown as MockSupabaseClient)
 
       const request = new NextRequest('http://localhost:3000/api/judges/judge-001/analytics')
       const params = Promise.resolve({ id: 'judge-001' })

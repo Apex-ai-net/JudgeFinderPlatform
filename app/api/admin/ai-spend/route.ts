@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
  * GET /api/admin/ai-spend
  * Returns current AI spending and budget status
  */
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Admin authentication check using database-backed authorization
     await requireAdmin()
@@ -38,11 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate projected monthly spend based on daily average
-    const daysInMonth = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth() + 1,
-      0
-    ).getDate()
+    const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
     const dayOfMonth = new Date().getDate()
     const dailyAverage = breakdown.monthly / dayOfMonth
     const projectedMonthly = dailyAverage * daysInMonth
@@ -57,7 +53,7 @@ export async function GET(request: NextRequest) {
         remaining: Math.max(0, AI_BUDGETS.DAILY_LIMIT - breakdown.daily),
         utilization: dailyUtilization,
         requestCount: breakdown.requestCount,
-        averageCostPerRequest: breakdown.averageCostPerRequest
+        averageCostPerRequest: breakdown.averageCostPerRequest,
       },
 
       monthly: {
@@ -67,26 +63,26 @@ export async function GET(request: NextRequest) {
         utilization: monthlyUtilization,
         projected: projectedMonthly,
         daysElapsed: dayOfMonth,
-        daysRemaining: daysInMonth - dayOfMonth
+        daysRemaining: daysInMonth - dayOfMonth,
       },
 
       budgetLimits: {
         daily: AI_BUDGETS.DAILY_LIMIT,
         monthly: AI_BUDGETS.MONTHLY_LIMIT,
         perRequest: AI_BUDGETS.PER_REQUEST_MAX,
-        warningThreshold: AI_BUDGETS.WARNING_THRESHOLD
+        warningThreshold: AI_BUDGETS.WARNING_THRESHOLD,
       },
 
       canProceed: budgetStatus.canProceed,
       warningLevel: budgetStatus.warningLevel,
       message: budgetStatus.message,
 
-      recentActivity: breakdown.recentRecords.map(record => ({
+      recentActivity: breakdown.recentRecords.map((record) => ({
         amount: record.amount,
         judgeName: record.metadata.judgeName || 'Unknown',
         model: record.metadata.model,
         caseCount: record.metadata.caseCount,
-        timestamp: record.recordedAt
+        timestamp: record.recordedAt,
       })),
 
       recommendations: generateRecommendations(
@@ -94,39 +90,34 @@ export async function GET(request: NextRequest) {
         monthlyUtilization,
         projectedMonthly,
         breakdown.averageCostPerRequest
-      )
+      ),
     }
 
     return NextResponse.json(response, {
       headers: {
-        'Cache-Control': 'no-store, max-age=0'
-      }
+        'Cache-Control': 'no-store, max-age=0',
+      },
     })
-
   } catch (error) {
     console.error('Error fetching AI spend data:', error)
 
     // Handle MFA requirement
     if (error instanceof Error && error.message === 'MFA_REQUIRED') {
-      return NextResponse.json(
-        { error: 'MFA required for admin access' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'MFA required for admin access' }, { status: 403 })
     }
 
     // Handle authentication/authorization errors
-    if (error instanceof Error &&
-        (error.message === 'Authentication required' || error.message === 'Admin access required')) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 403 }
-      )
+    if (
+      error instanceof Error &&
+      (error.message === 'Authentication required' || error.message === 'Admin access required')
+    ) {
+      return NextResponse.json({ error: error.message }, { status: 403 })
     }
 
     return NextResponse.json(
       {
         error: 'Failed to fetch AI spending data',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
@@ -137,7 +128,7 @@ export async function GET(request: NextRequest) {
  * POST /api/admin/ai-spend/reset
  * Reset daily costs (for testing/admin purposes)
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Admin authentication check using database-backed authorization
     await requireAdmin()
@@ -146,10 +137,7 @@ export async function POST(request: NextRequest) {
     const { action } = body
 
     if (action !== 'reset-daily') {
-      return NextResponse.json(
-        { error: 'Invalid action. Use: reset-daily' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Invalid action. Use: reset-daily' }, { status: 400 })
     }
 
     const costTracker = getCostTracker()
@@ -158,33 +146,28 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Daily AI costs reset successfully',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
-
   } catch (error) {
     console.error('Error resetting AI costs:', error)
 
     // Handle MFA requirement
     if (error instanceof Error && error.message === 'MFA_REQUIRED') {
-      return NextResponse.json(
-        { error: 'MFA required for admin access' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'MFA required for admin access' }, { status: 403 })
     }
 
     // Handle authentication/authorization errors
-    if (error instanceof Error &&
-        (error.message === 'Authentication required' || error.message === 'Admin access required')) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 403 }
-      )
+    if (
+      error instanceof Error &&
+      (error.message === 'Authentication required' || error.message === 'Admin access required')
+    ) {
+      return NextResponse.json({ error: error.message }, { status: 403 })
     }
 
     return NextResponse.json(
       {
         error: 'Failed to reset AI costs',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
@@ -206,7 +189,9 @@ function generateRecommendations(
   if (dailyUtilization >= 100) {
     recommendations.push('🚫 CRITICAL: Daily budget exceeded - AI analytics temporarily disabled')
   } else if (monthlyUtilization >= 100) {
-    recommendations.push('🚫 CRITICAL: Monthly budget exceeded - AI analytics disabled until next month')
+    recommendations.push(
+      '🚫 CRITICAL: Monthly budget exceeded - AI analytics disabled until next month'
+    )
   }
 
   // Warning level recommendations
@@ -220,12 +205,16 @@ function generateRecommendations(
 
   // Projection warnings
   if (projectedMonthly > AI_BUDGETS.MONTHLY_LIMIT * 1.2) {
-    recommendations.push(`📊 Projected monthly spend ($${projectedMonthly.toFixed(2)}) exceeds budget - reduce generation frequency`)
+    recommendations.push(
+      `📊 Projected monthly spend ($${projectedMonthly.toFixed(2)}) exceeds budget - reduce generation frequency`
+    )
   }
 
   // Cost efficiency recommendations
   if (avgCostPerRequest > 0.06) {
-    recommendations.push('💡 Average cost high - consider reducing case document limit per analysis')
+    recommendations.push(
+      '💡 Average cost high - consider reducing case document limit per analysis'
+    )
   }
 
   // Positive feedback

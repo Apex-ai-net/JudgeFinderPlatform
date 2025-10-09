@@ -7,55 +7,63 @@ import Link from 'next/link'
 
 const faqData = [
   {
-    question: "What is JudgeFinder.io?",
-    answer: "JudgeFinder.io is California's most comprehensive judicial analytics platform, providing free access to statewide judge profiles with data-driven pattern analysis, ruling insights, and case outcome analytics. We help attorneys, litigants, and citizens research judges before court appearances."
+    question: 'What is JudgeFinder.io?',
+    answer:
+      "JudgeFinder.io is California's most comprehensive judicial analytics platform, providing free access to statewide judge profiles with data-driven pattern analysis, ruling insights, and case outcome analytics. We help attorneys, litigants, and citizens research judges before court appearances.",
   },
   {
-    question: "How do I find information about my judge?",
-    answer: "Simply enter your judge's name in the search bar on our homepage. You can also browse by jurisdiction, court, or use our advanced search filters. Each judge profile includes comprehensive analytics, recent decisions, and ruling patterns."
+    question: 'How do I find information about my judge?',
+    answer:
+      "Simply enter your judge's name in the search bar on our homepage. You can also browse by jurisdiction, court, or use our advanced search filters. Each judge profile includes comprehensive analytics, recent decisions, and ruling patterns.",
   },
   {
-    question: "Is JudgeFinder.io really free?",
-    answer: "Yes, JudgeFinder.io is 100% free for all users. We believe in judicial transparency and making legal information accessible to everyone. No sign-up or payment is required to access our complete database of California judges."
+    question: 'Is JudgeFinder.io really free?',
+    answer:
+      'Yes, JudgeFinder.io is 100% free for all users. We believe in judicial transparency and making legal information accessible to everyone. No sign-up or payment is required to access our complete database of California judges.',
   },
   {
-    question: "What information is available for each judge?",
-    answer: "Each judge profile includes: professional background, court assignments, appointment history, data-driven judicial tendency analysis, ruling patterns, recent case decisions, reversal rates, case type specializations, and comparative analytics with other judges in the same jurisdiction."
+    question: 'What information is available for each judge?',
+    answer:
+      'Each judge profile includes: professional background, court assignments, appointment history, data-driven judicial tendency analysis, ruling patterns, recent case decisions, reversal rates, case type specializations, and comparative analytics with other judges in the same jurisdiction.',
   },
   {
-    question: "How accurate is the judicial pattern analysis?",
-    answer: "Our pattern analysis system examines thousands of cases with confidence scoring between 60-95% depending on data quality. We use advanced analytics to identify consistency patterns, decision speed, settlement preferences, and risk tolerance. All analytics are based on publicly available court records."
+    question: 'How accurate is the judicial pattern analysis?',
+    answer:
+      'Our pattern analysis system examines thousands of cases with confidence scoring between 60-95% depending on data quality. We use advanced analytics to identify consistency patterns, decision speed, settlement preferences, and risk tolerance. All analytics are based on publicly available court records.',
   },
   {
-    question: "Can I compare multiple judges?",
-    answer: "Yes! Our comparison tool allows you to analyze up to 3 judges side-by-side. Compare their ruling patterns, case outcomes, reversal rates, and judicial tendencies to make informed decisions about your legal strategy."
+    question: 'Can I compare multiple judges?',
+    answer:
+      'Yes! Our comparison tool allows you to analyze up to 3 judges side-by-side. Compare their ruling patterns, case outcomes, reversal rates, and judicial tendencies to make informed decisions about your legal strategy.',
   },
   {
-    question: "How often is the data updated?",
-    answer: "Our database is updated weekly with new court decisions and judicial assignments. We continuously sync with official court records to ensure you have access to the most current information about California judges."
+    question: 'How often is the data updated?',
+    answer:
+      'Our database is updated weekly with new court decisions and judicial assignments. We continuously sync with official court records to ensure you have access to the most current information about California judges.',
   },
   {
-    question: "Is my search history private?",
-    answer: "Absolutely. JudgeFinder.io prioritizes user privacy. We don't require sign-ups, don't track individual searches, and don't store personal information. All searches are anonymous and secure."
+    question: 'Is my search history private?',
+    answer:
+      "Absolutely. JudgeFinder.io prioritizes user privacy. We don't require sign-ups, don't track individual searches, and don't store personal information. All searches are anonymous and secure.",
   },
   {
-    question: "Which California courts are covered?",
-    answer: "We cover courts across California including Superior Courts, Courts of Appeal, and the Supreme Court. Our database tracks judges across all counties with continuing expansion of court locations."
+    question: 'Which California courts are covered?',
+    answer:
+      'We cover courts across California including Superior Courts, Courts of Appeal, and the Supreme Court. Our database tracks judges across all counties with continuing expansion of court locations.',
   },
   {
-    question: "Can attorneys use this for case preparation?",
-    answer: "Yes, JudgeFinder.io is an essential tool for legal professionals. Attorneys use our platform to research judicial tendencies, prepare case strategies, understand ruling patterns, and identify decision-making patterns that might affect their cases."
-  }
+    question: 'Can attorneys use this for case preparation?',
+    answer:
+      'Yes, JudgeFinder.io is an essential tool for legal professionals. Attorneys use our platform to research judicial tendencies, prepare case strategies, understand ruling patterns, and identify decision-making patterns that might affect their cases.',
+  },
 ]
 
-export function HomepageFAQ() {
+export function HomepageFAQ(): JSX.Element {
   const [openItems, setOpenItems] = useState<number[]>([0, 1]) // First two open by default
 
   const toggleItem = (index: number) => {
-    setOpenItems(prev => 
-      prev.includes(index) 
-        ? prev.filter(i => i !== index)
-        : [...prev, index]
+    setOpenItems((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     )
   }
 
@@ -63,14 +71,14 @@ export function HomepageFAQ() {
   const faqStructuredData = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faqData.map(item => ({
+    mainEntity: faqData.map((item) => ({
       '@type': 'Question',
       name: item.question,
       acceptedAnswer: {
         '@type': 'Answer',
-        text: item.answer
-      }
-    }))
+        text: item.answer,
+      },
+    })),
   }
 
   return (
@@ -80,10 +88,10 @@ export function HomepageFAQ() {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(faqStructuredData)
+            __html: JSON.stringify(faqStructuredData),
           }}
         />
-        
+
         {/* Section Header */}
         <div className="text-center mb-12">
           <motion.div
@@ -133,7 +141,7 @@ export function HomepageFAQ() {
                     <ChevronDown className="w-5 h-5 text-muted-foreground dark:text-muted-foreground" />
                   </motion.div>
                 </button>
-                
+
                 <AnimatePresence>
                   {openItems.includes(index) && (
                     <motion.div

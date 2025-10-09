@@ -56,7 +56,7 @@ export function JudicialDataDisclaimer({
   variant = 'prominent',
   showMethodologyLink = true,
   lastUpdated,
-  className = ''
+  className = '',
 }: JudicialDataDisclaimerProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -64,7 +64,7 @@ export function JudicialDataDisclaimer({
     ? new Date(lastUpdated).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       })
     : null
 
@@ -95,17 +95,13 @@ export function JudicialDataDisclaimer({
           <div className="flex items-start gap-2">
             <Info className="h-4 w-4 text-amber-700 mt-0.5 flex-shrink-0" />
             <div className="flex-1 text-sm">
-              <p className="font-semibold text-amber-900 mb-1">
-                Data Disclaimer
-              </p>
+              <p className="font-semibold text-amber-900 mb-1">Data Disclaimer</p>
               <p className="text-amber-800 text-xs leading-relaxed">
                 Bias indicators are statistical analyses of case outcomes, not character judgments.
                 Data sourced from public court records via CourtListener.
               </p>
               {formattedDate && (
-                <p className="text-amber-700 text-xs mt-2">
-                  Last updated: {formattedDate}
-                </p>
+                <p className="text-amber-700 text-xs mt-2">Last updated: {formattedDate}</p>
               )}
               {showMethodologyLink && (
                 <Button
@@ -135,8 +131,9 @@ export function JudicialDataDisclaimer({
       </AlertTitle>
       <AlertDescription className="text-amber-800">
         <p className="font-medium mb-2">
-          The bias indicators and statistical metrics displayed are mathematical analyses of publicly available
-          case outcome data, not character judgments or assessments of judicial fitness.
+          The bias indicators and statistical metrics displayed are mathematical analyses of
+          publicly available case outcome data, not character judgments or assessments of judicial
+          fitness.
         </p>
 
         {isExpanded ? (
@@ -144,8 +141,13 @@ export function JudicialDataDisclaimer({
             <div>
               <p className="font-semibold mb-1">What These Analytics Represent:</p>
               <ul className="list-disc list-inside space-y-1 ml-2">
-                <li>Statistical correlations that may reflect case mix, jurisdiction characteristics, or procedural factors</li>
-                <li>Aggregated patterns that do not account for case-specific facts or applicable law</li>
+                <li>
+                  Statistical correlations that may reflect case mix, jurisdiction characteristics,
+                  or procedural factors
+                </li>
+                <li>
+                  Aggregated patterns that do not account for case-specific facts or applicable law
+                </li>
                 <li>Historical trend indicators that may not predict future outcomes</li>
               </ul>
             </div>
@@ -162,8 +164,8 @@ export function JudicialDataDisclaimer({
 
             <div className="bg-white/60 p-3 rounded border border-amber-200 mt-3">
               <p className="font-semibold text-amber-900 mb-1">
-                These analytics should be interpreted as one data point among many factors when researching
-                judicial backgrounds.
+                These analytics should be interpreted as one data point among many factors when
+                researching judicial backgrounds.
               </p>
               <p className="text-xs">
                 They do not constitute evidence of judicial misconduct, unfitness, or impropriety.
@@ -179,7 +181,8 @@ export function JudicialDataDisclaimer({
           </div>
         ) : (
           <p className="text-sm mt-2">
-            These analytics do not constitute evidence of judicial misconduct or character deficiencies.
+            These analytics do not constitute evidence of judicial misconduct or character
+            deficiencies.
           </p>
         )}
 
@@ -225,7 +228,7 @@ export function JudicialDataDisclaimer({
 /**
  * Simplified disclaimer specifically for bias indicator tooltips and popovers
  */
-export function BiasIndicatorTooltip({ className = '' }: { className?: string }) {
+export function BiasIndicatorTooltip({ className = '' }: { className?: string }): JSX.Element {
   return (
     <div className={`text-xs space-y-1 ${className}`}>
       <p className="font-semibold">Statistical Analysis Only</p>
@@ -250,7 +253,7 @@ export function BiasIndicatorTooltip({ className = '' }: { className?: string })
  */
 export function DataAccuracyDisclaimer({
   caseCount,
-  className = ''
+  className = '',
 }: {
   caseCount?: number
   className?: string
@@ -261,15 +264,15 @@ export function DataAccuracyDisclaimer({
       <AlertDescription className="text-gray-700 text-sm">
         {caseCount !== undefined && caseCount < 500 ? (
           <p>
-            <strong>Limited Data:</strong> This judge has {caseCount} publicly available cases.
-            Bias analytics require a minimum of 500 cases for statistical reliability.
-            Data may not be representative of overall judicial patterns.
+            <strong>Limited Data:</strong> This judge has {caseCount} publicly available cases. Bias
+            analytics require a minimum of 500 cases for statistical reliability. Data may not be
+            representative of overall judicial patterns.
           </p>
         ) : (
           <p>
-            Data is sourced from public court records and may be 30-90 days behind real-time court activity.
-            Historical records prior to 2010 may be incomplete. Always verify critical information through
-            official court sources.
+            Data is sourced from public court records and may be 30-90 days behind real-time court
+            activity. Historical records prior to 2010 may be incomplete. Always verify critical
+            information through official court sources.
           </p>
         )}
       </AlertDescription>

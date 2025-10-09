@@ -8,21 +8,21 @@ import { getMaxJudgeRotations } from '@/lib/ads/service'
 export const dynamic = 'force-dynamic'
 
 const querySchema = z.object({
-  entity_type: z.enum(['', 'judge', 'court']).default(''),
-  court_level: z.enum(['', 'federal', 'state']).default(''),
-  price_range: z.enum(['all', 'budget', 'standard', 'premium']).default('all'),
+  entityType: z.enum(['', 'judge', 'court']).default(''),
+  courtLevel: z.enum(['', 'federal', 'state']).default(''),
+  priceRange: z.enum(['all', 'budget', 'standard', 'premium']).default('all'),
   jurisdiction: z.string().optional().default(''),
   status: z.enum(['available', 'reserved', 'booked', 'maintenance', '']).default('available'),
 })
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const startedAt = Date.now()
   try {
     const { searchParams } = new URL(request.url)
     const parsed = querySchema.safeParse({
-      entity_type: searchParams.get('entity_type') ?? '',
-      court_level: searchParams.get('court_level') ?? '',
-      price_range: (searchParams.get('price_range') as any) ?? 'all',
+      entityType: searchParams.get('entity_type') ?? '',
+      courtLevel: searchParams.get('court_level') ?? '',
+      priceRange: (searchParams.get('price_range') as any) ?? 'all',
       jurisdiction: searchParams.get('jurisdiction') ?? '',
       status: (searchParams.get('status') as any) ?? 'available',
     })
@@ -31,26 +31,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid query parameters' }, { status: 400 })
     }
 
-    const { entity_type, court_level, price_range, jurisdiction, status } = parsed.data
+    const { entityType, courtLevel, priceRange, jurisdiction, status } = parsed.data
     const supabase = await createServerClient()
 
-    let query = supabase
-      .from('ad_spots')
-      .select('*')
-      .order('position', { ascending: true })
+    let query = supabase.from('ad_spots').select('*').order('position', { ascending: true })
 
     if (status) query = query.eq('status', status)
-    if (entity_type) query = query.eq('entity_type', entity_type)
-    if (court_level) query = query.eq('court_level', court_level)
+    if (entityType) query = query.eq('entity_type', entityType)
+    if (courtLevel) query = query.eq('court_level', courtLevel)
 
-    if (!entity_type || entity_type === 'judge') {
+    if (!entityType || entityType === 'judge') {
       query = query.lte('position', getMaxJudgeRotations())
     }
 
     // Coarse price filters aligned with AdSpotsExplorer hints
-    if (price_range === 'budget') query = query.lte('base_price_monthly', 200)
-    if (price_range === 'standard') query = query.gte('base_price_monthly', 201).lte('base_price_monthly', 500)
-    if (price_range === 'premium') query = query.gte('base_price_monthly', 501)
+    if (priceRange === 'budget') query = query.lte('base_price_monthly', 200)
+    if (priceRange === 'standard')
+      query = query.gte('base_price_monthly', 201).lte('base_price_monthly', 500)
+    if (priceRange === 'premium') query = query.gte('base_price_monthly', 501)
 
     const { data: spots, error } = await query
 
@@ -60,8 +58,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Partition ids for entity enrichment
-    const judgeIds = (spots || []).filter(s => s.entity_type === 'judge').map(s => s.entity_id)
-    const courtIds = (spots || []).filter(s => s.entity_type === 'court').map(s => s.entity_id)
+    const judgeIds = (spots || [])
+      .filter((spot) => spot.entity_type === 'judge')
+      .map((spot) => spot.entity_id)
+    const courtIds = (spots || [])
+      .filter((spot) => spot.entity_type === 'court')
+      .map((spot) => spot.entity_id)
 
     const [judgesRes, courtsRes] = await Promise.all([
       judgeIds.length
@@ -132,7 +134,9 @@ export async function GET(request: NextRequest) {
 
     if (jurisdiction) {
       const q = jurisdiction.toLowerCase()
-      results = results.filter(r => (r.entity_details.jurisdiction || '').toLowerCase().includes(q))
+      results = results.filter((r) =>
+        (r.entity_details.jurisdiction || '').toLowerCase().includes(q)
+      )
     }
 
     const res = NextResponse.json({ spots: results })
@@ -145,5 +149,3 @@ export async function GET(request: NextRequest) {
     logger.apiResponse('GET', '/api/advertising/spots/available', 200, Date.now() - startedAt)
   }
 }
-
-

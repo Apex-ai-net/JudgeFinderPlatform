@@ -9,7 +9,12 @@ interface CountyAdSectionProps {
   className?: string
 }
 
-export function CountyAdSection({ title, slot, format = 'auto', className = '' }: CountyAdSectionProps) {
+export function CountyAdSection({
+  title,
+  slot,
+  format = 'auto',
+  className = '',
+}: CountyAdSectionProps): JSX.Element {
   return (
     <section className={`max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 ${className}`}>
       <div className="rounded-xl border border-gray-200 bg-white/90 p-4 shadow-sm dark:border-white/10 dark:bg-white/5">
@@ -27,5 +32,3 @@ export function CountyAdSection({ title, slot, format = 'auto', className = '' }
 }
 
 export default CountyAdSection
-
-

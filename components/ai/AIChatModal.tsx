@@ -14,13 +14,14 @@ interface AIChatModalProps {
   onClose: () => void
 }
 
-export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
+export default function AIChatModal({ isOpen, onClose }: AIChatModalProps): JSX.Element {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Hello! I'm your AI legal assistant. I can help you find information about judges, analyze bias patterns, and guide you through the legal process. How can I assist you today?",
-      timestamp: new Date()
-    }
+      content:
+        "Hello! I'm your AI legal assistant. I can help you find information about judges, analyze bias patterns, and guide you through the legal process. How can I assist you today?",
+      timestamp: new Date(),
+    },
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -50,10 +51,10 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
     const userMessage: Message = {
       role: 'user',
       content: input.trim(),
-      timestamp: new Date()
+      timestamp: new Date(),
     }
 
-    setMessages(prev => [...prev, userMessage])
+    setMessages((prev) => [...prev, userMessage])
     setInput('')
     setIsLoading(true)
 
@@ -62,28 +63,31 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
       const assistantMessage: Message = {
         role: 'assistant',
         content: getAIResponse(userMessage.content),
-        timestamp: new Date()
+        timestamp: new Date(),
       }
-      setMessages(prev => [...prev, assistantMessage])
+      setMessages((prev) => [...prev, assistantMessage])
       setIsLoading(false)
     }, 1000)
   }
 
   const getAIResponse = (query: string): string => {
     const lowerQuery = query.toLowerCase()
-    
-    if (lowerQuery.includes('judge') && (lowerQuery.includes('find') || lowerQuery.includes('search'))) {
+
+    if (
+      lowerQuery.includes('judge') &&
+      (lowerQuery.includes('find') || lowerQuery.includes('search'))
+    ) {
       return "I can help you find judges in California. You can search by name, county, or court type. Try clicking the 'Search Judges' button in the navigation or describe what kind of judge you're looking for."
     }
-    
+
     if (lowerQuery.includes('bias')) {
-      return "Our platform uses AI to analyze judicial bias across multiple dimensions including consistency, speed, settlement preference, risk tolerance, and predictability. Each judge receives a bias score based on their historical case decisions."
+      return 'Our platform uses AI to analyze judicial bias across multiple dimensions including consistency, speed, settlement preference, risk tolerance, and predictability. Each judge receives a bias score based on their historical case decisions.'
     }
-    
+
     if (lowerQuery.includes('compare')) {
-      return "You can compare up to 3 judges side-by-side using our comparison tool. This helps you understand differences in their decision patterns, case handling times, and reversal rates."
+      return 'You can compare up to 3 judges side-by-side using our comparison tool. This helps you understand differences in their decision patterns, case handling times, and reversal rates.'
     }
-    
+
     return "I understand you're looking for legal information. Our platform provides comprehensive data on California judges, including bias analysis, case history, and court assignments. How can I help you navigate this information?"
   }
 
@@ -92,11 +96,8 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center p-4">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+
       {/* Modal */}
       <div className="relative w-full max-w-2xl bg-white dark:bg-surface-sunken rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[85vh] flex flex-col">
         {/* Header */}
@@ -107,7 +108,9 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
             </div>
             <div>
               <h3 className="font-semibold text-foreground dark:text-white">AI Legal Assistant</h3>
-              <p className="text-xs text-muted-foreground dark:text-muted-foreground">Powered by Advanced AI</p>
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                Powered by Advanced AI
+              </p>
             </div>
           </div>
           <button
@@ -123,9 +126,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`flex gap-3 ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
+              className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {message.role === 'assistant' && (
                 <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -140,9 +141,13 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
                 }`}
               >
                 <p className="text-sm leading-relaxed">{message.content}</p>
-                <p className={`text-xs mt-1 ${
-                  message.role === 'user' ? 'text-blue-100' : 'text-muted-foreground dark:text-muted-foreground'
-                }`}>
+                <p
+                  className={`text-xs mt-1 ${
+                    message.role === 'user'
+                      ? 'text-blue-100'
+                      : 'text-muted-foreground dark:text-muted-foreground'
+                  }`}
+                >
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
@@ -153,7 +158,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               )}
             </div>
           ))}
-          
+
           {isLoading && (
             <div className="flex gap-3 justify-start">
               <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -161,33 +166,40 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               </div>
               <div className="bg-muted dark:bg-card px-4 py-3 rounded-2xl">
                 <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <span
+                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                    style={{ animationDelay: '0ms' }}
+                  />
+                  <span
+                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                    style={{ animationDelay: '150ms' }}
+                  />
+                  <span
+                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                    style={{ animationDelay: '300ms' }}
+                  />
                 </div>
               </div>
             </div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
 
         {/* Suggested Questions */}
         <div className="px-4 py-2 border-t border-border dark:border-border">
           <div className="flex gap-2 overflow-x-auto pb-2">
-            {[
-              "How do I find a judge?",
-              "What is bias analysis?",
-              "Compare judges in my area"
-            ].map((question, index) => (
-              <button
-                key={index}
-                onClick={() => setInput(question)}
-                className="flex-shrink-0 px-3 py-1.5 text-xs bg-muted dark:bg-card hover:bg-muted dark:hover:bg-card rounded-full transition-colors text-foreground dark:text-muted-foreground"
-              >
-                {question}
-              </button>
-            ))}
+            {['How do I find a judge?', 'What is bias analysis?', 'Compare judges in my area'].map(
+              (question, index) => (
+                <button
+                  key={index}
+                  onClick={() => setInput(question)}
+                  className="flex-shrink-0 px-3 py-1.5 text-xs bg-muted dark:bg-card hover:bg-muted dark:hover:bg-card rounded-full transition-colors text-foreground dark:text-muted-foreground"
+                >
+                  {question}
+                </button>
+              )
+            )}
           </div>
         </div>
 

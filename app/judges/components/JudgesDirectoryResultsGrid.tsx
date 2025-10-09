@@ -2,7 +2,11 @@
 
 import { useEffect, useMemo, useRef } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { FixedSizeGrid as Grid, type GridChildComponentProps, type GridOnItemsRenderedProps } from 'react-window'
+import {
+  FixedSizeGrid as Grid,
+  type GridChildComponentProps,
+  type GridOnItemsRenderedProps,
+} from 'react-window'
 import { motion } from 'framer-motion'
 import { JudgeCardSkeleton } from '@/components/ui/Skeleton'
 import type { JudgesDirectoryViewModel } from '@/lib/judges/directory/JudgesDirectoryViewModel'
@@ -17,7 +21,9 @@ interface JudgesDirectoryResultsGridProps {
   viewModel: JudgesDirectoryViewModel
 }
 
-export function JudgesDirectoryResultsGrid({ viewModel }: JudgesDirectoryResultsGridProps) {
+export function JudgesDirectoryResultsGrid({
+  viewModel,
+}: JudgesDirectoryResultsGridProps): JSX.Element {
   const judges = viewModel.visibleJudges
   const count = judges.length
   const loading = viewModel.state.loading
@@ -36,7 +42,7 @@ export function JudgesDirectoryResultsGrid({ viewModel }: JudgesDirectoryResults
           void viewModel.loadMore()
         }
       },
-      { root: null, rootMargin: '200px', threshold: 0 },
+      { root: null, rootMargin: '200px', threshold: 0 }
     )
     observer.observe(el)
     return () => observer.disconnect()
@@ -60,10 +66,13 @@ export function JudgesDirectoryResultsGrid({ viewModel }: JudgesDirectoryResults
         {({ width }) => {
           // Responsive column calculation with a smaller minimum card width on mobile
           const MIN_CARD_WIDTH = 280
-          const gridColumnCount = Math.max(1, Math.floor((width + GRID_COLUMN_GAP) / (MIN_CARD_WIDTH + GRID_COLUMN_GAP)))
+          const gridColumnCount = Math.max(
+            1,
+            Math.floor((width + GRID_COLUMN_GAP) / (MIN_CARD_WIDTH + GRID_COLUMN_GAP))
+          )
           const rowCount = Math.ceil(count / gridColumnCount)
           const perColumnWidth = Math.floor(
-            (width - GRID_COLUMN_GAP * (gridColumnCount + 1)) / gridColumnCount,
+            (width - GRID_COLUMN_GAP * (gridColumnCount + 1)) / gridColumnCount
           )
 
           const handleItemsRendered = ({ visibleRowStopIndex }: GridOnItemsRenderedProps) => {
@@ -153,4 +162,3 @@ export function JudgesDirectoryResultsGrid({ viewModel }: JudgesDirectoryResults
     </div>
   )
 }
-

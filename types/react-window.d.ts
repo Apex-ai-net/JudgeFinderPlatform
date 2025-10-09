@@ -7,11 +7,11 @@
 declare module 'react-window' {
   import { ComponentType, CSSProperties, ReactElement, Ref } from 'react'
 
-  export interface GridChildComponentProps {
+  export interface GridChildComponentProps<T = unknown> {
     columnIndex: number
     rowIndex: number
     style: CSSProperties
-    data?: any
+    data?: T
   }
 
   export interface GridOnItemsRenderedProps {
@@ -33,28 +33,29 @@ declare module 'react-window' {
     verticalScrollDirection: 'forward' | 'backward'
   }
 
-  export interface FixedSizeGridProps {
-    children: ComponentType<GridChildComponentProps>
+  export interface FixedSizeGridProps<T = unknown> {
+    children: ComponentType<GridChildComponentProps<T>>
     columnCount: number
     columnWidth: number
     height: number
     rowCount: number
     rowHeight: number
     width: number
-    itemData?: any
-    itemKey?: (props: { columnIndex: number; rowIndex: number; data?: any }) => string | number
+    itemData?: T
+    itemKey?: (props: { columnIndex: number; rowIndex: number; data?: T }) => string | number
     overscanColumnCount?: number
     overscanRowCount?: number
     onItemsRendered?: (props: GridOnItemsRenderedProps) => void
     onScroll?: (props: GridOnScrollProps) => void
     className?: string
     style?: CSSProperties
-    ref?: Ref<any>
+    ref?: Ref<unknown>
   }
 
   export const FixedSizeGrid: ComponentType<FixedSizeGridProps>
 
-  export interface VariableSizeGridProps extends Omit<FixedSizeGridProps, 'columnWidth' | 'rowHeight'> {
+  export interface VariableSizeGridProps
+    extends Omit<FixedSizeGridProps, 'columnWidth' | 'rowHeight'> {
     columnWidth: (index: number) => number
     rowHeight: (index: number) => number
   }

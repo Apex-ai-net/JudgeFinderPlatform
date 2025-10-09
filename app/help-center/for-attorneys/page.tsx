@@ -15,7 +15,7 @@ const sections = [
     description: 'Integrate JudgeFinder into your case preparation process',
     content: [
       'Start research as soon as you receive a case assignment or hearing date.',
-      'Review the judge\'s professional background to understand their legal philosophy.',
+      "Review the judge's professional background to understand their legal philosophy.",
       'Analyze bias patterns and decision trends relevant to your case type.',
       'Compare your assigned judge with others in the same jurisdiction for context.',
       'Export a comprehensive report to share with your legal team.',
@@ -44,7 +44,7 @@ const sections = [
     content: [
       'Bias indicators show statistical patterns, not personal prejudice.',
       'Higher plaintiff favorability means statistically more plaintiff victories in similar cases.',
-      'Settlement preference indicates the judge\'s tendency to encourage pre-trial resolution.',
+      "Settlement preference indicates the judge's tendency to encourage pre-trial resolution.",
       'Decision consistency helps predict how the judge may rule in your case.',
       'Always consider confidence intervals - larger sample sizes are more reliable.',
       'Combine analytics with legal research for comprehensive case strategy.',
@@ -104,7 +104,7 @@ const bestPractices = [
   'Set up alerts at least 2 weeks before scheduled hearings',
 ]
 
-export default function ForAttorneysPage() {
+export default function ForAttorneysPage(): JSX.Element {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -173,7 +173,8 @@ export default function ForAttorneysPage() {
         <div className="p-6 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
           <h3 className="text-xl font-semibold text-foreground mb-3">Ready to upgrade?</h3>
           <p className="text-muted-foreground mb-4">
-            Get unlimited access to all premium features including exports, advanced analytics, and priority support.
+            Get unlimited access to all premium features including exports, advanced analytics, and
+            priority support.
           </p>
           <Link
             href="/pricing"

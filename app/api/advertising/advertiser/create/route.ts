@@ -4,7 +4,12 @@ import { auth } from '@clerk/nextjs/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { updateUserRole } from '@/lib/auth/roles'
 import { encrypt } from '@/lib/security/encryption'
-import { extractAuditContext, logPIIAccess, logPIIModification, logEncryptionOperation } from '@/lib/audit/logger'
+import {
+  extractAuditContext,
+  logPIIAccess,
+  logPIIModification,
+  logEncryptionOperation,
+} from '@/lib/audit/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,7 +27,7 @@ const payloadSchema = z.object({
   billing_address: z.string().optional(),
 })
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const { userId } = await auth()
     if (!userId) {
@@ -49,12 +54,12 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       // Log PII access
-      await logPIIAccess(
-        auditContext,
-        'advertiser_profile',
-        existing.id,
-        ['bar_number', 'contact_email', 'contact_phone', 'billing_email']
-      )
+      await logPIIAccess(auditContext, 'advertiser_profile', existing.id, [
+        'bar_number',
+        'contact_email',
+        'contact_phone',
+        'billing_email',
+      ])
       return NextResponse.json({ profile: existing })
     }
 
@@ -62,13 +67,9 @@ export async function POST(request: NextRequest) {
     const encryptedBarNumber = encrypt(parsed.data.bar_number)
 
     // Log encryption operation
-    await logEncryptionOperation(
-      auditContext,
-      'encrypt',
-      'advertiser_profile',
-      'new_profile',
-      ['bar_number']
-    )
+    await logEncryptionOperation(auditContext, 'encrypt', 'advertiser_profile', 'new_profile', [
+      'bar_number',
+    ])
 
     const insertPayload = {
       user_id: userId,
@@ -106,5 +107,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: e?.message || 'Internal error' }, { status: 500 })
   }
 }
-
-

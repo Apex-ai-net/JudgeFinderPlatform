@@ -1,25 +1,25 @@
-export function WhyJudgeResearch() {
+export function WhyJudgeResearch(): JSX.Element {
   const benefits = [
     {
       number: '73%',
       title: 'Higher Success Rate',
-      description: 'Attorneys using judge analytics report significantly higher case success rates'
+      description: 'Attorneys using judge analytics report significantly higher case success rates',
     },
     {
       number: '2.5x',
       title: 'Faster Preparation',
-      description: 'Reduce case preparation time with instant access to judicial insights'
+      description: 'Reduce case preparation time with instant access to judicial insights',
     },
     {
       number: '89%',
       title: 'Client Satisfaction',
-      description: 'Improved client confidence through data-driven legal strategies'
+      description: 'Improved client confidence through data-driven legal strategies',
     },
     {
       number: '$2.3M',
       title: 'Average Case Value',
-      description: 'Higher settlement values achieved through strategic judge selection'
-    }
+      description: 'Higher settlement values achieved through strategic judge selection',
+    },
   ]
 
   return (
@@ -44,8 +44,8 @@ export function WhyJudgeResearch() {
       <div className="mt-12 rounded-lg bg-gradient-to-r from-blue-600/20 to-purple-600/20 p-8">
         <blockquote className="text-center">
           <p className="mb-4 text-lg italic">
-            "JudgeFinder transformed how we approach litigation. Having detailed insights into judicial 
-            patterns has given us a significant competitive advantage in the courtroom."
+            "JudgeFinder transformed how we approach litigation. Having detailed insights into
+            judicial patterns has given us a significant competitive advantage in the courtroom."
           </p>
           <footer className="text-sm text-muted-foreground">
             — Sarah Mitchell, Senior Partner at Mitchell & Associates

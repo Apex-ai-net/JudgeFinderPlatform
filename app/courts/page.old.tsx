@@ -23,7 +23,7 @@ interface CourtsResponse {
   has_more: boolean
 }
 
-export default function CourtsPage() {
+export default function CourtsPage(): JSX.Element {
   const [selectedType, setSelectedType] = useState('')
   const [selectedJurisdiction, setSelectedJurisdiction] = useState('CA')
   const [searchQuery, setSearchQuery] = useState('')
@@ -38,24 +38,24 @@ export default function CourtsPage() {
     try {
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: '20'
+        limit: '20',
       })
-      
+
       if (searchQuery.trim()) params.append('q', searchQuery)
       if (selectedType) params.append('type', selectedType)
       if (selectedJurisdiction) params.append('jurisdiction', selectedJurisdiction)
 
       const response = await fetch(`/api/courts?${params}`)
       if (!response.ok) throw new Error('Failed to fetch courts')
-      
+
       const data: CourtsResponse = await response.json()
-      
+
       if (reset || page === 1) {
         setCourts(data.courts)
       } else {
-        setCourts(prev => [...prev, ...data.courts])
+        setCourts((prev) => [...prev, ...data.courts])
       }
-      
+
       setTotalCount(data.total_count)
       setCurrentPage(data.page)
       setHasMore(data.has_more)
@@ -90,9 +90,9 @@ export default function CourtsPage() {
       return court.address
     }
     // Extract location from court name if address not available
-    const nameMatch = court.name.match(/(.*?),\s*([A-Z]{2}\.?\s*[A-Za-z]*)/);
+    const nameMatch = court.name.match(/(.*?),\s*([A-Z]{2}\.?\s*[A-Za-z]*)/)
     if (nameMatch) {
-      return nameMatch[2];
+      return nameMatch[2]
     }
     return court.jurisdiction || 'Location not specified'
   }
@@ -105,7 +105,8 @@ export default function CourtsPage() {
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">Courts Directory</h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover courts across all jurisdictions and explore detailed information about judicial systems nationwide
+              Discover courts across all jurisdictions and explore detailed information about
+              judicial systems nationwide
             </p>
           </div>
         </div>
@@ -158,7 +159,7 @@ export default function CourtsPage() {
               </select>
             </div>
           </div>
-          
+
           {/* Results Summary */}
           <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <div className="flex items-center justify-between">

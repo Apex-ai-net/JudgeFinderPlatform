@@ -12,7 +12,7 @@ import CountyAdSection from './components/CountyAdSection'
 import { jurisdictionMap } from './constants'
 import { CourtInfo, CourtsQueryResult } from './types'
 
-export default function CountyCourtsPage() {
+export default function CountyCourtsPage(): JSX.Element {
   const params = useParams()
   const county = params.county as string
   const [searchQuery, setSearchQuery] = useState('')
@@ -25,38 +25,41 @@ export default function CountyCourtsPage() {
   // Get jurisdiction info
   const jurisdictionInfo = jurisdictionMap[county]
 
-  const fetchCourts = useCallback(async (page = 1, reset = false) => {
-    if (!jurisdictionInfo) return
-    setLoading(true)
-    try {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: '20',
-        jurisdiction: jurisdictionInfo.jurisdictionValue
-      })
-      
-      if (searchQuery.trim()) params.append('q', searchQuery)
+  const fetchCourts = useCallback(
+    async (page = 1, reset = false) => {
+      if (!jurisdictionInfo) return
+      setLoading(true)
+      try {
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: '20',
+          jurisdiction: jurisdictionInfo.jurisdictionValue,
+        })
 
-      const response = await fetch(`/api/courts?${params}`)
-      if (!response.ok) throw new Error('Failed to fetch courts')
-      
-      const data: CourtsQueryResult = await response.json()
-      
-      if (reset || page === 1) {
-        setCourts(data.courts)
-      } else {
-        setCourts(prev => [...prev, ...data.courts])
+        if (searchQuery.trim()) params.append('q', searchQuery)
+
+        const response = await fetch(`/api/courts?${params}`)
+        if (!response.ok) throw new Error('Failed to fetch courts')
+
+        const data: CourtsQueryResult = await response.json()
+
+        if (reset || page === 1) {
+          setCourts(data.courts)
+        } else {
+          setCourts((prev) => [...prev, ...data.courts])
+        }
+
+        setTotalCount(data.total_count)
+        setCurrentPage(data.page)
+        setHasMore(data.has_more)
+      } catch (error) {
+        console.error('Error fetching courts:', error)
+      } finally {
+        setLoading(false)
       }
-      
-      setTotalCount(data.total_count)
-      setCurrentPage(data.page)
-      setHasMore(data.has_more)
-    } catch (error) {
-      console.error('Error fetching courts:', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [searchQuery, jurisdictionInfo])
+    },
+    [searchQuery, jurisdictionInfo]
+  )
 
   useEffect(() => {
     fetchCourts(1, true)
@@ -67,7 +70,9 @@ export default function CountyCourtsPage() {
       <div className="min-h-screen bg-muted flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Jurisdiction Not Found</h1>
-          <p className="text-muted-foreground mb-6">The requested jurisdiction could not be found.</p>
+          <p className="text-muted-foreground mb-6">
+            The requested jurisdiction could not be found.
+          </p>
           <Link
             href="/jurisdictions"
             className="bg-interactive text-primary-foreground px-6 py-3 rounded-lg font-medium hover:bg-interactive-hover"
@@ -128,10 +133,7 @@ export default function CountyCourtsPage() {
 
         {/* Bottom Inline Ad */}
         <div className="mt-8">
-          <CountyAdSection
-            title="Local Legal Services"
-            slot={`jurisdiction-bottom-${county}`}
-          />
+          <CountyAdSection title="Local Legal Services" slot={`jurisdiction-bottom-${county}`} />
         </div>
       </section>
 

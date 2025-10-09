@@ -14,13 +14,15 @@ const BASE_URL = getBaseUrl()
 
 export const metadata: Metadata = {
   title: 'California Judges Directory | JudgeFinder',
-  description: 'Search California judges with comprehensive profiles, judicial analytics, and comparison tools. Filter by court, jurisdiction, experience, and bias indicators.',
+  description:
+    'Search California judges with comprehensive profiles, judicial analytics, and comparison tools. Filter by court, jurisdiction, experience, and bias indicators.',
   alternates: {
     canonical: `${BASE_URL}/judges`,
   },
   openGraph: {
     title: 'California Judges Directory | JudgeFinder',
-    description: 'Explore detailed judge profiles, court assignments, and comprehensive analytics for California courts.',
+    description:
+      'Explore detailed judge profiles, court assignments, and comprehensive analytics for California courts.',
     url: `${BASE_URL}/judges`,
     type: 'website',
     siteName: 'JudgeFinder',
@@ -33,14 +35,14 @@ export const metadata: Metadata = {
 }
 
 // Loading fallback component for Suspense
-function JudgesLoading() {
+function JudgesLoading(): JSX.Element {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
       {/* Enhanced Hero Section with Animations */}
       <section className="relative min-h-[60vh] flex items-center justify-center">
         {/* Gradient Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-enterprise-primary/10 via-enterprise-deep/10 to-background" />
-        
+
         <div className="relative z-10 text-center px-4 max-w-7xl mx-auto w-full">
           <div>
             <h1 className="mb-6 text-5xl md:text-7xl font-bold tracking-tight">
@@ -53,12 +55,12 @@ function JudgesLoading() {
               </span>
             </h1>
           </div>
-          
+
           <p className="mx-auto mb-12 max-w-2xl text-lg md:text-xl text-muted-foreground">
             Loading judicial profiles and analytics...
           </p>
         </div>
-        
+
         <ScrollIndicator />
       </section>
 
@@ -81,13 +83,16 @@ function JudgesLoading() {
   )
 }
 
-async function getInitialJudges() {
+async function getInitialJudges(): JSX.Element {
   try {
     const baseUrl = getBaseUrl()
-    const response = await fetch(`${baseUrl}/api/judges/list?limit=24&page=1&jurisdiction=CA&include_decisions=true`, {
-      cache: 'force-cache',
-      next: { revalidate: 600 }
-    })
+    const response = await fetch(
+      `${baseUrl}/api/judges/list?limit=24&page=1&jurisdiction=CA&include_decisions=true`,
+      {
+        cache: 'force-cache',
+        next: { revalidate: 600 },
+      }
+    )
     if (!response.ok) return null
     const data = await response.json()
     return data
@@ -96,7 +101,7 @@ async function getInitialJudges() {
   }
 }
 
-export default async function JudgesPage() {
+export default async function JudgesPage(): Promise<JSX.Element> {
   const initialData = await getInitialJudges()
   return (
     <Suspense fallback={<JudgesLoading />}>

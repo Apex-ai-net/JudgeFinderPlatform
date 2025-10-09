@@ -4,33 +4,40 @@ import { motion } from 'framer-motion'
 import dynamic from 'next/dynamic'
 import { useMemo } from 'react'
 
-type BuilderStyleChatProps = {
+interface BuilderStyleChatProps {
   headline?: string
   description?: string
   defaultPrompt?: string
   variant?: string
 }
 
-const BuilderStyleChat = dynamic<BuilderStyleChatProps>(() => import('@/components/ai/BuilderStyleChat'), {
-  ssr: false,
-  loading: () => null,
-})
+const BuilderStyleChat = dynamic<BuilderStyleChatProps>(
+  () => import('@/components/ai/BuilderStyleChat'),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+)
 
 export function LiveInsightsSection(): JSX.Element {
-  const benefits = useMemo(() => ([
-    {
-      title: 'Bias Radar',
-      description: 'Detects plaintiff/defendant leanings, plea approvals, and sentencing severity.',
-    },
-    {
-      title: 'Real-time Context',
-      description: 'Daily sync jobs pull the newest rulings, so you never rely on stale data.',
-    },
-    {
-      title: 'AI Co-Pilot',
-      description: 'Ask natural-language questions about your judge and receive instant answers.',
-    },
-  ]), [])
+  const benefits = useMemo(
+    () => [
+      {
+        title: 'Bias Radar',
+        description:
+          'Detects plaintiff/defendant leanings, plea approvals, and sentencing severity.',
+      },
+      {
+        title: 'Real-time Context',
+        description: 'Daily sync jobs pull the newest rulings, so you never rely on stale data.',
+      },
+      {
+        title: 'AI Co-Pilot',
+        description: 'Ask natural-language questions about your judge and receive instant answers.',
+      },
+    ],
+    []
+  )
 
   return (
     <section className="bg-gradient-to-br from-blue-950 via-slate-900 to-black py-16 text-white">
@@ -41,10 +48,15 @@ export function LiveInsightsSection(): JSX.Element {
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.6 }}
         >
-          <p className="text-sm font-semibold uppercase tracking-widest text-blue-200">Live analytics</p>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight lg:text-4xl">See how your judge rules before you walk into court.</h2>
+          <p className="text-sm font-semibold uppercase tracking-widest text-blue-200">
+            Live analytics
+          </p>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight lg:text-4xl">
+            See how your judge rules before you walk into court.
+          </h2>
           <p className="mt-4 text-base text-blue-100">
-            Every judge profile merges historical decisions, current assignments, and AI summarization. Our Edge cache keeps results snappy.
+            Every judge profile merges historical decisions, current assignments, and AI
+            summarization. Our Edge cache keeps results snappy.
           </p>
 
           <ul className="mt-8 space-y-4 text-sm text-blue-100">

@@ -1,7 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Filter, X, ChevronDown, Search, Scale, Calendar, DollarSign, TrendingUp, Users } from 'lucide-react'
+import {
+  Filter,
+  X,
+  ChevronDown,
+  Search,
+  Scale,
+  Calendar,
+  DollarSign,
+  TrendingUp,
+  Users,
+} from 'lucide-react'
 
 interface FilterOptions {
   case_types: string[]
@@ -39,10 +49,15 @@ const DEFAULT_FILTERS: AdvancedFilters = {
   settlement_rate_min: 0,
   settlement_rate_max: 100,
   specialization: '',
-  court_types: []
+  court_types: [],
 }
 
-export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen, onToggle }: AdvancedSearchFiltersProps) {
+export function AdvancedSearchFilters({
+  onFiltersChange,
+  onClearFilters,
+  isOpen,
+  onToggle,
+}: AdvancedSearchFiltersProps): JSX.Element {
   const [filters, setFilters] = useState<AdvancedFilters>(DEFAULT_FILTERS)
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     case_types: [
@@ -57,26 +72,14 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
       'Intellectual Property',
       'Immigration',
       'Bankruptcy',
-      'Tax Law'
+      'Tax Law',
     ],
-    experience_ranges: [
-      '0-5 years',
-      '5-10 years',
-      '10-15 years',
-      '15-20 years',
-      '20+ years'
-    ],
-    case_value_ranges: [
-      'Under $50k',
-      '$50k - $250k',
-      '$250k - $1M',
-      '$1M - $5M',
-      '$5M+'
-    ],
+    experience_ranges: ['0-5 years', '5-10 years', '10-15 years', '15-20 years', '20+ years'],
+    case_value_ranges: ['Under $50k', '$50k - $250k', '$250k - $1M', '$1M - $5M', '$5M+'],
     efficiency_levels: [
       'High (15+ cases/month)',
       'Average (5-15 cases/month)',
-      'Low (Under 5 cases/month)'
+      'Low (Under 5 cases/month)',
     ],
     specializations: [
       'Commercial Litigation',
@@ -87,27 +90,24 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
       'Business Law',
       'Real Estate Law',
       'Employment Law',
-      'Immigration Court'
-    ]
+      'Immigration Court',
+    ],
   })
 
   useEffect(() => {
     onFiltersChange(filters)
   }, [filters, onFiltersChange])
 
-  const updateFilter = <K extends keyof AdvancedFilters>(
-    key: K,
-    value: AdvancedFilters[K]
-  ) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
+  const updateFilter = <K extends keyof AdvancedFilters>(key: K, value: AdvancedFilters[K]) => {
+    setFilters((prev) => ({ ...prev, [key]: value }))
   }
 
   const toggleArrayFilter = (key: 'case_types' | 'court_types', value: string) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       [key]: prev[key].includes(value)
-        ? prev[key].filter(item => item !== value)
-        : [...prev[key], value]
+        ? prev[key].filter((item) => item !== value)
+        : [...prev[key], value],
     }))
   }
 
@@ -145,7 +145,11 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
           Advanced Filters
           {hasActiveFilters() && (
             <span className="ml-2 px-2 py-1 bg-interactive/50 text-white text-xs rounded-full">
-              {Object.values(filters).flat().filter(v => v && v !== 0 && v !== 100 && v !== 50 && v !== '').length}
+              {
+                Object.values(filters)
+                  .flat()
+                  .filter((v) => v && v !== 0 && v !== 100 && v !== 50 && v !== '').length
+              }
             </span>
           )}
         </button>
@@ -169,10 +173,7 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
               Clear All
             </button>
           )}
-          <button
-            onClick={onToggle}
-            className="text-muted-foreground hover:text-gray-200"
-          >
+          <button onClick={onToggle} className="text-muted-foreground hover:text-gray-200">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -181,11 +182,9 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Case Types */}
         <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-2">
-            Case Types
-          </label>
+          <label className="block text-sm font-medium text-muted-foreground mb-2">Case Types</label>
           <div className="space-y-2 max-h-48 overflow-y-auto">
-            {filterOptions.case_types.map(caseType => (
+            {filterOptions.case_types.map((caseType) => (
               <label key={caseType} className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
@@ -206,7 +205,9 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
           </label>
           <div className="space-y-3">
             <div>
-              <label className="text-xs text-muted-foreground">Minimum: {filters.min_experience} years</label>
+              <label className="text-xs text-muted-foreground">
+                Minimum: {filters.min_experience} years
+              </label>
               <input
                 type="range"
                 min="0"
@@ -243,8 +244,10 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
             className="w-full p-2 bg-card border border-border rounded text-muted-foreground"
           >
             <option value="">Any Value</option>
-            {filterOptions.case_value_ranges.map(range => (
-              <option key={range} value={range}>{range}</option>
+            {filterOptions.case_value_ranges.map((range) => (
+              <option key={range} value={range}>
+                {range}
+              </option>
             ))}
           </select>
         </div>
@@ -256,7 +259,9 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
           </label>
           <div className="space-y-3">
             <div>
-              <label className="text-xs text-muted-foreground">Minimum: {filters.settlement_rate_min}%</label>
+              <label className="text-xs text-muted-foreground">
+                Minimum: {filters.settlement_rate_min}%
+              </label>
               <input
                 type="range"
                 min="0"
@@ -267,7 +272,9 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground">Maximum: {filters.settlement_rate_max}%</label>
+              <label className="text-xs text-muted-foreground">
+                Maximum: {filters.settlement_rate_max}%
+              </label>
               <input
                 type="range"
                 min="0"
@@ -291,8 +298,10 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
             className="w-full p-2 bg-card border border-border rounded text-muted-foreground"
           >
             <option value="">Any Level</option>
-            {filterOptions.efficiency_levels.map(level => (
-              <option key={level} value={level}>{level}</option>
+            {filterOptions.efficiency_levels.map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
             ))}
           </select>
         </div>
@@ -308,8 +317,10 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
             className="w-full p-2 bg-card border border-border rounded text-muted-foreground"
           >
             <option value="">Any Specialization</option>
-            {filterOptions.specializations.map(spec => (
-              <option key={spec} value={spec}>{spec}</option>
+            {filterOptions.specializations.map((spec) => (
+              <option key={spec} value={spec}>
+                {spec}
+              </option>
             ))}
           </select>
         </div>
@@ -320,8 +331,11 @@ export function AdvancedSearchFilters({ onFiltersChange, onClearFilters, isOpen,
         <div className="mt-6 pt-4 border-t border-border">
           <h4 className="text-sm font-medium text-muted-foreground mb-2">Active Filters:</h4>
           <div className="flex flex-wrap gap-2">
-            {filters.case_types.map(caseType => (
-              <span key={caseType} className="inline-flex items-center gap-1 px-2 py-1 bg-primary text-white text-xs rounded">
+            {filters.case_types.map((caseType) => (
+              <span
+                key={caseType}
+                className="inline-flex items-center gap-1 px-2 py-1 bg-primary text-white text-xs rounded"
+              >
                 {caseType}
                 <button onClick={() => toggleArrayFilter('case_types', caseType)}>
                   <X className="h-3 w-3" />

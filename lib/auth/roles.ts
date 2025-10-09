@@ -93,8 +93,8 @@ export async function updateUserRole(userId: string, role: UserRole): Promise<vo
     const clerk = await clerkClient()
     await clerk.users.updateUserMetadata(userId, {
       publicMetadata: {
-        role: role
-      }
+        role: role,
+      },
     })
   } catch (error) {
     console.error('Error updating user role:', error)
@@ -105,7 +105,7 @@ export async function updateUserRole(userId: string, role: UserRole): Promise<vo
 /**
  * Get user permissions based on role
  */
-export function getRolePermissions(role: UserRole) {
+export function getRolePermissions(role: UserRole): void {
   const permissions = {
     admin: {
       can_create_campaigns: true,
@@ -115,7 +115,7 @@ export function getRolePermissions(role: UserRole) {
       can_approve_campaigns: true,
       can_manage_all_advertisers: true,
       can_view_revenue_reports: true,
-      can_manage_ad_spots: true
+      can_manage_ad_spots: true,
     },
     law_firm: {
       can_create_campaigns: true,
@@ -125,7 +125,7 @@ export function getRolePermissions(role: UserRole) {
       can_approve_campaigns: false,
       can_manage_all_advertisers: false,
       can_view_revenue_reports: false,
-      can_manage_ad_spots: false
+      can_manage_ad_spots: false,
     },
     attorney: {
       can_create_campaigns: true,
@@ -135,7 +135,7 @@ export function getRolePermissions(role: UserRole) {
       can_approve_campaigns: false,
       can_manage_all_advertisers: false,
       can_view_revenue_reports: false,
-      can_manage_ad_spots: false
+      can_manage_ad_spots: false,
     },
     advertiser: {
       can_create_campaigns: true,
@@ -145,7 +145,7 @@ export function getRolePermissions(role: UserRole) {
       can_approve_campaigns: false,
       can_manage_all_advertisers: false,
       can_view_revenue_reports: false,
-      can_manage_ad_spots: false
+      can_manage_ad_spots: false,
     },
     user: {
       can_create_campaigns: false,
@@ -155,8 +155,8 @@ export function getRolePermissions(role: UserRole) {
       can_approve_campaigns: false,
       can_manage_all_advertisers: false,
       can_view_revenue_reports: false,
-      can_manage_ad_spots: false
-    }
+      can_manage_ad_spots: false,
+    },
   }
 
   return permissions[role]
@@ -167,7 +167,7 @@ export function getRolePermissions(role: UserRole) {
  */
 export async function requireAdvertiser(): Promise<void> {
   const { userId } = await auth()
-  
+
   if (!userId) {
     throw new Error('Authentication required')
   }
@@ -183,7 +183,7 @@ export async function requireAdvertiser(): Promise<void> {
  */
 export async function requireAdmin(): Promise<void> {
   const { userId } = await auth()
-  
+
   if (!userId) {
     throw new Error('Authentication required')
   }
@@ -228,7 +228,7 @@ export async function getOrCreateAdvertiserProfile(userData?: {
         user_id: user.id,
         ...userData,
         account_status: 'pending',
-        verification_status: 'unverified'
+        verification_status: 'unverified',
       })
       .select()
       .single()

@@ -7,9 +7,9 @@ interface ChatMessageProps {
   message: Message
 }
 
-export default function ChatMessage({ message }: ChatMessageProps) {
+export default function ChatMessage({ message }: ChatMessageProps): JSX.Element {
   const isUser = message.role === 'user'
-  
+
   return (
     <div className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
       {!isUser && (
@@ -17,7 +17,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           <Scale className="w-4 h-4 text-white" />
         </div>
       )}
-      
+
       <div className={`max-w-[70%] ${isUser ? 'order-1' : 'order-2'}`}>
         <div
           className={`px-4 py-3 rounded-xl ${
@@ -28,11 +28,13 @@ export default function ChatMessage({ message }: ChatMessageProps) {
         >
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
         </div>
-        <p className={`text-[10px] mt-1 ${isUser ? 'text-right' : 'text-left'} text-muted-foreground dark:text-slate-500`}>
+        <p
+          className={`text-[10px] mt-1 ${isUser ? 'text-right' : 'text-left'} text-muted-foreground dark:text-slate-500`}
+        >
           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>
-      
+
       {isUser && (
         <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-200 dark:bg-surface-elevated flex items-center justify-center order-2 shadow-sm">
           <User className="w-4 h-4 text-slate-600 dark:text-muted-foreground" />

@@ -1,7 +1,12 @@
 import { logger } from '@/lib/utils/logger'
 import type { CaseAnalytics, AnalysisWindow } from './types'
+import type { Judge, Case } from '@/types'
 
-export function analyzeJudicialPatterns(_judge: any, cases: any[], window: AnalysisWindow): CaseAnalytics {
+export function analyzeJudicialPatterns(
+  _judge: Judge,
+  cases: Case[],
+  window: AnalysisWindow
+): CaseAnalytics {
   logger.debug('Analyzing cases for statistical patterns', { caseCount: cases.length })
 
   const stats = {
@@ -14,46 +19,88 @@ export function analyzeJudicialPatterns(_judge: any, cases: any[], window: Analy
     bail: { total: 0, granted: 0 },
     reversal: { total: 0, reversed: 0 },
     settlement: { total: 0, encouraged: 0 },
-    motion: { total: 0, granted: 0 }
+    motion: { total: 0, granted: 0 },
   }
 
-  cases.forEach(caseItem => {
+  cases.forEach((caseItem) => {
     const caseType = (caseItem.case_type || '').toLowerCase()
     const outcome = (caseItem.outcome || '').toLowerCase()
     const summary = (caseItem.summary || '').toLowerCase()
     const status = (caseItem.status || '').toLowerCase()
 
-    if (caseType.includes('civil') || caseType.includes('tort') || caseType.includes('personal injury')) {
+    if (
+      caseType.includes('civil') ||
+      caseType.includes('tort') ||
+      caseType.includes('personal injury')
+    ) {
       stats.civil.total++
-      if (outcome.includes('plaintiff') || outcome.includes('awarded') || summary.includes('in favor of plaintiff')) {
+      if (
+        outcome.includes('plaintiff') ||
+        outcome.includes('awarded') ||
+        summary.includes('in favor of plaintiff')
+      ) {
         stats.civil.plaintiff_wins++
       }
     }
 
-    if (caseType.includes('custody') || caseType.includes('family') || summary.includes('child custody')) {
+    if (
+      caseType.includes('custody') ||
+      caseType.includes('family') ||
+      summary.includes('child custody')
+    ) {
       stats.custody.total++
-      if (outcome.includes('mother') || summary.includes('custody to mother') || summary.includes('maternal custody')) {
+      if (
+        outcome.includes('mother') ||
+        summary.includes('custody to mother') ||
+        summary.includes('maternal custody')
+      ) {
         stats.custody.mother_awards++
       }
     }
 
-    if (caseType.includes('divorce') || caseType.includes('family') || summary.includes('alimony') || summary.includes('spousal support')) {
+    if (
+      caseType.includes('divorce') ||
+      caseType.includes('family') ||
+      summary.includes('alimony') ||
+      summary.includes('spousal support')
+    ) {
       stats.alimony.total++
-      if (outcome.includes('alimony') || outcome.includes('spousal support') || summary.includes('awarded spousal')) {
+      if (
+        outcome.includes('alimony') ||
+        outcome.includes('spousal support') ||
+        summary.includes('awarded spousal')
+      ) {
         stats.alimony.awarded++
       }
     }
 
-    if (caseType.includes('contract') || caseType.includes('breach') || summary.includes('contract dispute')) {
+    if (
+      caseType.includes('contract') ||
+      caseType.includes('breach') ||
+      summary.includes('contract dispute')
+    ) {
       stats.contracts.total++
-      if (outcome.includes('enforced') || outcome.includes('breach found') || summary.includes('contract upheld') || (!outcome.includes('dismissed') && status === 'decided')) {
+      if (
+        outcome.includes('enforced') ||
+        outcome.includes('breach found') ||
+        summary.includes('contract upheld') ||
+        (!outcome.includes('dismissed') && status === 'decided')
+      ) {
         stats.contracts.enforced++
       }
     }
 
-    if (caseType.includes('criminal') || caseType.includes('felony') || caseType.includes('misdemeanor')) {
+    if (
+      caseType.includes('criminal') ||
+      caseType.includes('felony') ||
+      caseType.includes('misdemeanor')
+    ) {
       stats.criminal.total++
-      if (outcome.includes('prison') || outcome.includes('years') || summary.includes('sentenced to')) {
+      if (
+        outcome.includes('prison') ||
+        outcome.includes('years') ||
+        summary.includes('sentenced to')
+      ) {
         stats.criminal.strict_sentences++
       }
     }
@@ -61,7 +108,11 @@ export function analyzeJudicialPatterns(_judge: any, cases: any[], window: Analy
     const mentionsPlea = summary.includes('plea') || outcome.includes('plea')
     if (mentionsPlea) {
       stats.plea.total++
-      if (outcome.includes('plea accepted') || summary.includes('plea approved') || outcome.includes('guilty plea')) {
+      if (
+        outcome.includes('plea accepted') ||
+        summary.includes('plea approved') ||
+        outcome.includes('guilty plea')
+      ) {
         stats.plea.accepted++
       }
     }
@@ -78,14 +129,25 @@ export function analyzeJudicialPatterns(_judge: any, cases: any[], window: Analy
 
     if (mentionsBail) {
       stats.bail.total++
-      if (outcome.includes('bail granted') || outcome.includes('released') || summary.includes('release granted') || summary.includes('bail set') || (!outcome.includes('remanded') && !outcome.includes('detained'))) {
+      if (
+        outcome.includes('bail granted') ||
+        outcome.includes('released') ||
+        summary.includes('release granted') ||
+        summary.includes('bail set') ||
+        (!outcome.includes('remanded') && !outcome.includes('detained'))
+      ) {
         stats.bail.granted++
       }
     }
 
     if (caseType.includes('appeal') || summary.includes('appeal') || outcome.includes('appeal')) {
       stats.reversal.total++
-      if (outcome.includes('reversed') || outcome.includes('overturned') || summary.includes('judgment reversed') || summary.includes('decision overturned')) {
+      if (
+        outcome.includes('reversed') ||
+        outcome.includes('overturned') ||
+        summary.includes('judgment reversed') ||
+        summary.includes('decision overturned')
+      ) {
         stats.reversal.reversed++
       }
     }
@@ -93,7 +155,12 @@ export function analyzeJudicialPatterns(_judge: any, cases: any[], window: Analy
     if (caseType.includes('civil') || caseType.includes('contract') || caseType.includes('tort')) {
       if (summary.includes('settlement') || outcome.includes('settlement')) {
         stats.settlement.total++
-        if (outcome.includes('settled') || summary.includes('settlement reached') || summary.includes('parties settled') || summary.includes('settlement conference')) {
+        if (
+          outcome.includes('settled') ||
+          summary.includes('settlement reached') ||
+          summary.includes('parties settled') ||
+          summary.includes('settlement conference')
+        ) {
           stats.settlement.encouraged++
         }
       }
@@ -101,7 +168,12 @@ export function analyzeJudicialPatterns(_judge: any, cases: any[], window: Analy
 
     if (summary.includes('motion') || outcome.includes('motion')) {
       stats.motion.total++
-      if (outcome.includes('granted') || outcome.includes('motion granted') || summary.includes('granted the motion') || summary.includes('motion approved')) {
+      if (
+        outcome.includes('granted') ||
+        outcome.includes('motion granted') ||
+        summary.includes('granted the motion') ||
+        summary.includes('motion approved')
+      ) {
         stats.motion.granted++
       }
     }
@@ -125,7 +197,13 @@ export function analyzeJudicialPatterns(_judge: any, cases: any[], window: Analy
 
     confidence = Math.min(95, confidence)
 
-    logger.debug('Metric calculation', { label, successCount, total: safeTotal, percentage, confidence })
+    logger.debug('Metric calculation', {
+      label,
+      successCount,
+      total: safeTotal,
+      percentage,
+      confidence,
+    })
 
     return { percentage, confidence, sample: stat.total }
   }
@@ -153,16 +231,36 @@ export function analyzeJudicialPatterns(_judge: any, cases: any[], window: Analy
   const patterns: string[] = []
   const limitations: string[] = []
 
-  if (totalCases > 200) patterns.push(`Comprehensive ${window.lookbackYears}-year analysis: ${totalCases} cases analyzed`)
-  else if (totalCases > 100) patterns.push(`Substantial ${window.lookbackYears}-year dataset: ${totalCases} cases analyzed`)
-  else if (totalCases > 50) patterns.push(`Moderate ${window.lookbackYears}-year dataset: ${totalCases} cases analyzed`)
-  else if (totalCases < 50) limitations.push(`Limited ${window.lookbackYears}-year data: only ${totalCases} cases available`)
+  if (totalCases > 200)
+    patterns.push(
+      `Comprehensive ${window.lookbackYears}-year analysis: ${totalCases} cases analyzed`
+    )
+  else if (totalCases > 100)
+    patterns.push(`Substantial ${window.lookbackYears}-year dataset: ${totalCases} cases analyzed`)
+  else if (totalCases > 50)
+    patterns.push(`Moderate ${window.lookbackYears}-year dataset: ${totalCases} cases analyzed`)
+  else if (totalCases < 50)
+    limitations.push(
+      `Limited ${window.lookbackYears}-year data: only ${totalCases} cases available`
+    )
 
-  if (stats.civil.total > 20) patterns.push(`Civil cases: ${Math.round((stats.civil.total / totalCases) * 100)}% of ${window.lookbackYears}-year caseload`)
-  if (stats.criminal.total > 20) patterns.push(`Criminal cases: ${Math.round((stats.criminal.total / totalCases) * 100)}% of ${window.lookbackYears}-year caseload`)
-  if (stats.custody.total > 10) patterns.push(`Family custody cases: ${Math.round((stats.custody.total / totalCases) * 100)}% of caseload`)
+  if (stats.civil.total > 20)
+    patterns.push(
+      `Civil cases: ${Math.round((stats.civil.total / totalCases) * 100)}% of ${window.lookbackYears}-year caseload`
+    )
+  if (stats.criminal.total > 20)
+    patterns.push(
+      `Criminal cases: ${Math.round((stats.criminal.total / totalCases) * 100)}% of ${window.lookbackYears}-year caseload`
+    )
+  if (stats.custody.total > 10)
+    patterns.push(
+      `Family custody cases: ${Math.round((stats.custody.total / totalCases) * 100)}% of caseload`
+    )
 
-  const timeframeLabel = window.startYear === window.endYear ? `${window.startYear}` : `${window.startYear}-${window.endYear}`
+  const timeframeLabel =
+    window.startYear === window.endYear
+      ? `${window.startYear}`
+      : `${window.startYear}-${window.endYear}`
   patterns.push(`Analysis covers cases filed from ${timeframeLabel}`)
 
   return {
@@ -201,19 +299,35 @@ export function analyzeJudicialPatterns(_judge: any, cases: any[], window: Analy
     sample_size_settlement: settlementMetrics.sample,
     sample_size_motion: motionMetrics.sample,
     total_cases_analyzed: totalCases,
-    analysis_quality: totalCases > 150 ? 'excellent' : totalCases > 100 ? 'high' : totalCases > 50 ? 'medium' : 'low',
-    notable_patterns: patterns.length > 0 ? patterns : ['Statistical analysis based on 3-year case outcomes'],
-    data_limitations: limitations.length > 0 ? limitations : ['Analysis based on available 3-year case outcome data'],
+    analysis_quality:
+      totalCases > 150
+        ? 'excellent'
+        : totalCases > 100
+          ? 'high'
+          : totalCases > 50
+            ? 'medium'
+            : 'low',
+    notable_patterns:
+      patterns.length > 0 ? patterns : ['Statistical analysis based on 3-year case outcomes'],
+    data_limitations:
+      limitations.length > 0
+        ? limitations
+        : ['Analysis based on available 3-year case outcome data'],
     ai_model: 'statistical_analysis_3year',
     generated_at: new Date().toISOString(),
-    last_updated: new Date().toISOString()
+    last_updated: new Date().toISOString(),
   }
 }
 
-export async function generateLegacyAnalytics(judge: any, window: AnalysisWindow): Promise<CaseAnalytics> {
+export async function generateLegacyAnalytics(
+  judge: Judge,
+  window: AnalysisWindow
+): Promise<CaseAnalytics> {
   logger.info('Generating legacy analytics (no cases)', { judgeName: judge.name })
 
-  const isCaliforniaJudge = judge.jurisdiction?.toLowerCase().includes('ca') || judge.jurisdiction?.toLowerCase().includes('california')
+  const isCaliforniaJudge =
+    judge.jurisdiction?.toLowerCase().includes('ca') ||
+    judge.jurisdiction?.toLowerCase().includes('california')
   const baseAdjustment = isCaliforniaJudge ? 5 : 0
 
   return {
@@ -255,17 +369,27 @@ export async function generateLegacyAnalytics(judge: any, window: AnalysisWindow
     analysis_quality: 'profile_based',
     notable_patterns: [
       'Analysis based on judicial profile and jurisdiction patterns',
-      `No case data available within ${window.lookbackYears}-year window (${window.startYear}-${window.endYear})`
+      `No case data available within ${window.lookbackYears}-year window (${window.startYear}-${window.endYear})`,
     ],
-    data_limitations: ['No case data available', 'Estimates based on regional and court type patterns'],
+    data_limitations: [
+      'No case data available',
+      'Estimates based on regional and court type patterns',
+    ],
     ai_model: 'statistical_estimation',
     generated_at: new Date().toISOString(),
-    last_updated: new Date().toISOString()
+    last_updated: new Date().toISOString(),
   }
 }
 
-export function generateConservativeAnalytics(judge: any, caseCount: number, window: AnalysisWindow): CaseAnalytics {
-  logger.warn('Generating conservative analytics (analysis failed)', { judgeName: judge.name, caseCount })
+export function generateConservativeAnalytics(
+  judge: Judge,
+  caseCount: number,
+  window: AnalysisWindow
+): CaseAnalytics {
+  logger.warn('Generating conservative analytics (analysis failed)', {
+    judgeName: judge.name,
+    caseCount,
+  })
 
   return {
     civil_plaintiff_favor: 50,
@@ -308,12 +432,10 @@ export function generateConservativeAnalytics(judge: any, caseCount: number, win
     data_limitations: [
       'AI analysis unavailable',
       'Using statistical defaults',
-      `Window analyzed: ${window.startYear}-${window.endYear}`
+      `Window analyzed: ${window.startYear}-${window.endYear}`,
     ],
     ai_model: 'conservative_fallback',
     generated_at: new Date().toISOString(),
-    last_updated: new Date().toISOString()
+    last_updated: new Date().toISOString(),
   }
 }
-
-

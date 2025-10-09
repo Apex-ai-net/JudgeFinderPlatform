@@ -9,7 +9,9 @@ interface Params {
   county: string
 }
 
-type GenerateParams = { params: Promise<Params> }
+interface GenerateParams {
+  params: Promise<Params>
+}
 
 export async function generateMetadata({ params }: GenerateParams): Promise<Metadata> {
   const { county } = await params
@@ -20,7 +22,8 @@ export async function generateMetadata({ params }: GenerateParams): Promise<Meta
   if (!jurisdictionInfo) {
     return {
       title: 'Jurisdiction Not Found | JudgeFinder',
-      description: 'Explore California courts and jurisdictions with JudgeFinder. Find judges, court details, and legal insights.',
+      description:
+        'Explore California courts and jurisdictions with JudgeFinder. Find judges, court details, and legal insights.',
       alternates: {
         canonical: canonicalUrl,
       },
@@ -55,6 +58,6 @@ export async function generateMetadata({ params }: GenerateParams): Promise<Meta
   }
 }
 
-export default function Page() {
+export default function Page(): JSX.Element {
   return <CountyCourtsPage />
 }

@@ -7,13 +7,14 @@ import { generateSlug } from '@/lib/utils/slug'
 
 export const dynamic = 'force-dynamic'
 
-async function getUserBookmarks(userId: string) {
+async function getUserBookmarks(userId: string): JSX.Element {
   try {
     const supabase = await createClerkSupabaseServerClient()
-    
+
     const { data: bookmarks, error } = await supabase
       .from('user_bookmarks')
-      .select(`
+      .select(
+        `
         id,
         judge_id,
         created_at,
@@ -25,7 +26,8 @@ async function getUserBookmarks(userId: string) {
           total_cases,
           appointed_date
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
@@ -41,7 +43,7 @@ async function getUserBookmarks(userId: string) {
   }
 }
 
-export default async function BookmarksPage() {
+export default async function BookmarksPage(): Promise<JSX.Element> {
   const { userId } = await auth()
 
   if (!userId) {
@@ -55,14 +57,14 @@ export default async function BookmarksPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link 
+          <Link
             href="/dashboard"
             className="inline-flex items-center text-blue-400 hover:text-blue-300 mb-4"
           >
             <ArrowLeftIcon className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Link>
-          
+
           <div className="flex items-center mb-4">
             <BookmarkIcon className="h-8 w-8 text-yellow-400 mr-3" />
             <div>
@@ -159,7 +161,9 @@ export default async function BookmarksPage() {
               className="flex items-center p-4 bg-gray-700/50 rounded-lg border border-gray-600/50 hover:bg-gray-600/50 transition-colors group"
             >
               <div>
-                <p className="font-medium text-white group-hover:text-purple-400">Advanced Search</p>
+                <p className="font-medium text-white group-hover:text-purple-400">
+                  Advanced Search
+                </p>
                 <p className="text-sm text-gray-400">Find judges by specialty</p>
               </div>
             </Link>

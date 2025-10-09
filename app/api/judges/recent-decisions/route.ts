@@ -14,7 +14,7 @@ interface JudgeDecisionSummary {
   total_recent: number
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url)
     const judgeIdsParam = searchParams.get('judge_ids')
@@ -24,9 +24,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'judge_ids parameter required' }, { status: 400 })
     }
 
-    const judgeIds = judgeIdsParam.split(',').filter(id => id.trim())
+    const judgeIds = judgeIdsParam.split(',').filter((id) => id.trim())
     const yearsBack = Math.min(Math.max(parseInt(yearsParam, 10) || 3, 1), 10)
-    
+
     if (judgeIds.length === 0) {
       return NextResponse.json({ decision_summaries: [] })
     }
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     const decisionsByJudge = new Map<string, Map<number, number>>()
 
     // Initialize maps for all requested judges
-    judgeIds.forEach(judgeId => {
+    judgeIds.forEach((judgeId) => {
       const yearMap = new Map<number, number>()
       for (let year = startYear; year <= currentYear; year++) {
         yearMap.set(year, 0)
@@ -62,12 +62,12 @@ export async function GET(request: NextRequest) {
     })
 
     // Count decisions by judge and year
-    data?.forEach(case_record => {
+    data?.forEach((case_record) => {
       if (!case_record.decision_date) return
-      
+
       const year = new Date(case_record.decision_date).getFullYear()
       const judgeMap = decisionsByJudge.get(case_record.judge_id)
-      
+
       if (judgeMap && year >= startYear && year <= currentYear) {
         judgeMap.set(year, (judgeMap.get(year) || 0) + 1)
       }
@@ -89,12 +89,11 @@ export async function GET(request: NextRequest) {
       decision_summaries.push({
         judge_id: judgeId,
         yearly_counts,
-        total_recent
+        total_recent,
       })
     })
 
     return NextResponse.json({ decision_summaries })
-
   } catch (err) {
     console.error('Unexpected error:', err)
     return NextResponse.json({ error: 'Unexpected error occurred' }, { status: 500 })

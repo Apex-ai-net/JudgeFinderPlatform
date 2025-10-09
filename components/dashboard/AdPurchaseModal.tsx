@@ -11,30 +11,30 @@ interface AdPurchaseModalProps {
 
 type PricingPlan = 'federal_monthly' | 'federal_annual' | 'state_monthly' | 'state_annual'
 
-export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProps) {
+export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProps): JSX.Element {
   const router = useRouter()
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null)
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
 
   const federalMonthlyPrice = 500
   const stateMonthlyPrice = 200
-  
+
   // Annual pricing with 2 months free (10 months price for 12 months)
   const federalAnnualPrice = federalMonthlyPrice * 10
   const stateAnnualPrice = stateMonthlyPrice * 10
-  
+
   const federalAnnualSavings = federalMonthlyPrice * 2
   const stateAnnualSavings = stateMonthlyPrice * 2
 
   const handleProceedToSelection = () => {
     if (!selectedPlan) return
-    
+
     // Navigate to ad spots explorer with pricing context
     const params = new URLSearchParams({
       plan: selectedPlan,
-      preselected: 'true'
+      preselected: 'true',
     })
-    
+
     router.push(`/dashboard/advertiser/ad-spots?${params}`)
     onClose()
   }
@@ -45,9 +45,7 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
         {/* Header */}
         <div className="border-b border-border px-8 py-6 flex items-center justify-between sticky top-0 bg-white z-10">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              Advertise on Judge Profiles
-            </h2>
+            <h2 className="text-2xl font-bold text-foreground">Advertise on Judge Profiles</h2>
             <p className="text-muted-foreground mt-1">
               Reach attorneys and litigants researching judges in your jurisdiction
             </p>
@@ -94,13 +92,15 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
           {/* Pricing Cards */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             {/* Federal Judge Card */}
-            <div 
+            <div
               className={`relative rounded-xl border-2 p-6 cursor-pointer transition-all ${
-                (selectedPlan === 'federal_monthly' || selectedPlan === 'federal_annual')
+                selectedPlan === 'federal_monthly' || selectedPlan === 'federal_annual'
                   ? 'border-blue-500 bg-primary/5'
                   : 'border-border hover:border-border'
               }`}
-              onClick={() => setSelectedPlan(billingCycle === 'monthly' ? 'federal_monthly' : 'federal_annual')}
+              onClick={() =>
+                setSelectedPlan(billingCycle === 'monthly' ? 'federal_monthly' : 'federal_annual')
+              }
             >
               {/* Premium Badge */}
               <div className="absolute -top-3 left-6">
@@ -114,17 +114,21 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
                   <Shield className="h-5 w-5 text-primary" />
                   Federal Judge Profiles
                 </h3>
-                
+
                 <div className="mt-4">
                   {billingCycle === 'monthly' ? (
                     <div className="flex items-baseline">
-                      <span className="text-4xl font-bold text-foreground">${federalMonthlyPrice}</span>
+                      <span className="text-4xl font-bold text-foreground">
+                        ${federalMonthlyPrice}
+                      </span>
                       <span className="text-muted-foreground ml-2">/month</span>
                     </div>
                   ) : (
                     <div>
                       <div className="flex items-baseline">
-                        <span className="text-4xl font-bold text-foreground">${federalAnnualPrice}</span>
+                        <span className="text-4xl font-bold text-foreground">
+                          ${federalAnnualPrice}
+                        </span>
                         <span className="text-muted-foreground ml-2">/year</span>
                       </div>
                       <div className="mt-1">
@@ -139,15 +143,21 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
                 <ul className="mt-6 space-y-3">
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-foreground">Premium placement on federal judge profiles</span>
+                    <span className="text-foreground">
+                      Premium placement on federal judge profiles
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-foreground">Higher visibility for complex federal cases</span>
+                    <span className="text-foreground">
+                      Higher visibility for complex federal cases
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-foreground">Reach attorneys handling federal litigation</span>
+                    <span className="text-foreground">
+                      Reach attorneys handling federal litigation
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -171,13 +181,15 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
             </div>
 
             {/* State Judge Card */}
-            <div 
+            <div
               className={`relative rounded-xl border-2 p-6 cursor-pointer transition-all ${
-                (selectedPlan === 'state_monthly' || selectedPlan === 'state_annual')
+                selectedPlan === 'state_monthly' || selectedPlan === 'state_annual'
                   ? 'border-green-500 bg-green-50'
                   : 'border-border hover:border-border'
               }`}
-              onClick={() => setSelectedPlan(billingCycle === 'monthly' ? 'state_monthly' : 'state_annual')}
+              onClick={() =>
+                setSelectedPlan(billingCycle === 'monthly' ? 'state_monthly' : 'state_annual')
+              }
             >
               {/* Popular Badge */}
               <div className="absolute -top-3 left-6">
@@ -191,17 +203,21 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
                   <TrendingUp className="h-5 w-5 text-green-600" />
                   State Judge Profiles
                 </h3>
-                
+
                 <div className="mt-4">
                   {billingCycle === 'monthly' ? (
                     <div className="flex items-baseline">
-                      <span className="text-4xl font-bold text-foreground">${stateMonthlyPrice}</span>
+                      <span className="text-4xl font-bold text-foreground">
+                        ${stateMonthlyPrice}
+                      </span>
                       <span className="text-muted-foreground ml-2">/month</span>
                     </div>
                   ) : (
                     <div>
                       <div className="flex items-baseline">
-                        <span className="text-4xl font-bold text-foreground">${stateAnnualPrice}</span>
+                        <span className="text-4xl font-bold text-foreground">
+                          ${stateAnnualPrice}
+                        </span>
                         <span className="text-muted-foreground ml-2">/year</span>
                       </div>
                       <div className="mt-1">
@@ -216,7 +232,9 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
                 <ul className="mt-6 space-y-3">
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-foreground">Prominent placement on state judge profiles</span>
+                    <span className="text-foreground">
+                      Prominent placement on state judge profiles
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -283,8 +301,9 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
               <div className="text-sm text-blue-900">
                 <p className="font-medium mb-1">Limited Availability</p>
                 <p>
-                  Only 3 advertising slots available per judge profile. Federal judges typically have 
-                  higher case values and complexity, while state judges see higher search volume.
+                  Only 3 advertising slots available per judge profile. Federal judges typically
+                  have higher case values and complexity, while state judges see higher search
+                  volume.
                 </p>
               </div>
             </div>

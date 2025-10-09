@@ -21,7 +21,7 @@ interface JudgeRulingPatternsProps {
   judgeId: string
 }
 
-export function JudgeRulingPatterns({ judgeId }: JudgeRulingPatternsProps) {
+export function JudgeRulingPatterns({ judgeId }: JudgeRulingPatternsProps): JSX.Element {
   const [activeTab, setActiveTab] = useState<'overview' | 'trends'>('overview')
 
   const { data, isLoading } = useSWR<AnalyticsResponse>(
@@ -36,31 +36,31 @@ export function JudgeRulingPatterns({ judgeId }: JudgeRulingPatternsProps) {
     {
       label: 'Plaintiff Favor Rate',
       value: analytics?.civil_plaintiff_favor,
-      tooltip: 'Percentage of civil cases favoring plaintiffs'
+      tooltip: 'Percentage of civil cases favoring plaintiffs',
     },
     {
       label: 'Contract Enforcement Rate',
       value: analytics?.contract_enforcement_rate,
-      tooltip: 'Share of contract disputes resulting in enforcement'
+      tooltip: 'Share of contract disputes resulting in enforcement',
     },
     {
       label: 'Settlement Encouragement',
       value: analytics?.settlement_encouragement_rate,
-      tooltip: 'Cases where settlements were reached or encouraged'
+      tooltip: 'Cases where settlements were reached or encouraged',
     },
     {
       label: 'Sentencing Severity',
       value: analytics?.criminal_sentencing_severity,
-      tooltip: 'Relative severity of criminal sentences (higher is stricter)'
+      tooltip: 'Relative severity of criminal sentences (higher is stricter)',
     },
     {
       label: 'Motion Grant Rate',
       value: analytics?.motion_grant_rate,
-      tooltip: 'Percentage of motions granted'
-    }
+      tooltip: 'Percentage of motions granted',
+    },
   ]
 
-  const hasAnalytics = metrics.some(metric => typeof metric.value === 'number')
+  const hasAnalytics = metrics.some((metric) => typeof metric.value === 'number')
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-sm">
@@ -94,7 +94,7 @@ export function JudgeRulingPatterns({ judgeId }: JudgeRulingPatternsProps) {
         <div className="space-y-6">
           {isLoading && (
             <div className="space-y-3">
-              {[0, 1, 2].map(key => (
+              {[0, 1, 2].map((key) => (
                 <Skeleton key={key} className="h-20 rounded-lg" />
               ))}
             </div>
@@ -102,13 +102,14 @@ export function JudgeRulingPatterns({ judgeId }: JudgeRulingPatternsProps) {
 
           {!isLoading && !hasAnalytics && (
             <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-              Analytics for this judge are still being generated. Check back after the next data refresh.
+              Analytics for this judge are still being generated. Check back after the next data
+              refresh.
             </div>
           )}
 
           {!isLoading && hasAnalytics && (
             <div className="grid gap-4 sm:grid-cols-2">
-              {metrics.map(metric => (
+              {metrics.map((metric) => (
                 <div key={metric.label} className="rounded-lg border border-border p-4">
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">{metric.label}</span>
@@ -123,19 +124,21 @@ export function JudgeRulingPatterns({ judgeId }: JudgeRulingPatternsProps) {
             </div>
           )}
 
-          {!isLoading && Array.isArray(analytics?.notable_patterns) && analytics.notable_patterns.length > 0 && (
-            <div>
-              <h3 className="mb-3 font-semibold text-foreground">Notable Patterns</h3>
-              <ul className="space-y-2 text-sm text-foreground">
-                {analytics.notable_patterns.map(pattern => (
-                  <li key={pattern} className="flex items-start">
-                    <PieChart className="mr-2 h-4 w-4 mt-1 text-muted-foreground" />
-                    <span>{pattern}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          {!isLoading &&
+            Array.isArray(analytics?.notable_patterns) &&
+            analytics.notable_patterns.length > 0 && (
+              <div>
+                <h3 className="mb-3 font-semibold text-foreground">Notable Patterns</h3>
+                <ul className="space-y-2 text-sm text-foreground">
+                  {analytics.notable_patterns.map((pattern) => (
+                    <li key={pattern} className="flex items-start">
+                      <PieChart className="mr-2 h-4 w-4 mt-1 text-muted-foreground" />
+                      <span>{pattern}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
         </div>
       )}
 
@@ -143,8 +146,8 @@ export function JudgeRulingPatterns({ judgeId }: JudgeRulingPatternsProps) {
         <div className="py-8 text-center text-muted-foreground">
           <TrendingUp className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
           <p>
-            Time-series trend visualizations are coming soon. We are aggregating monthly rulings to surface meaningful
-            changes over time.
+            Time-series trend visualizations are coming soon. We are aggregating monthly rulings to
+            surface meaningful changes over time.
           </p>
         </div>
       )}

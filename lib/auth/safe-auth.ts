@@ -15,34 +15,35 @@ const hasValidClerkKeys = () => {
   if (process.env.NODE_ENV === 'production' && !hasConfiguredSecret()) {
     throw new Error('Clerk secret key missing or invalid in production')
   }
-  
+
   if (process.env.SKIP_AUTH_BUILD === 'true') {
     logger.warn('Auth build skip enabled; Clerk auth disabled for this request context', {
       scope: 'auth',
-      reason: 'SKIP_AUTH_BUILD'
+      reason: 'SKIP_AUTH_BUILD',
     })
     return false
   }
-  
-  const isValidPubKey = pubKey.startsWith('pk_') && !pubKey.includes('YOUR') && !pubKey.includes('CONFIGURE')
+
+  const isValidPubKey =
+    pubKey.startsWith('pk_') && !pubKey.includes('YOUR') && !pubKey.includes('CONFIGURE')
   const secretConfigured = hasConfiguredSecret()
 
   if (!isValidPubKey || !secretConfigured) {
     logger.warn('Clerk keys missing or invalid; returning anonymous auth context', {
       scope: 'auth',
       publishableConfigured: isValidPubKey,
-      secretConfigured
+      secretConfigured,
     })
   }
-  
+
   return isValidPubKey && secretConfigured
 }
 
-export async function safeAuth() {
+export async function safeAuth(): Promise<void> {
   if (!hasValidClerkKeys()) {
     return { userId: null }
   }
-  
+
   try {
     const { auth } = await import('@clerk/nextjs/server')
     return await auth()
@@ -52,11 +53,11 @@ export async function safeAuth() {
   }
 }
 
-export async function safeCurrentUser() {
+export async function safeCurrentUser(): Promise<void> {
   if (!hasValidClerkKeys()) {
     return null
   }
-  
+
   try {
     const { currentUser } = await import('@clerk/nextjs/server')
     return await currentUser()

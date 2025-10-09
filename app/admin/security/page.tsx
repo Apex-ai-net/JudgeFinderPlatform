@@ -6,7 +6,7 @@ import { Shield, AlertTriangle, Lock, Activity, Eye, FileKey } from 'lucide-reac
 
 export const dynamic = 'force-dynamic'
 
-export default async function SecurityDashboardPage() {
+export default async function SecurityDashboardPage(): Promise<JSX.Element> {
   const { userId } = await auth()
 
   if (!userId) {
@@ -98,7 +98,8 @@ export default async function SecurityDashboardPage() {
                   Multi-Factor Authentication Not Enabled
                 </h3>
                 <p className="text-sm text-amber-800">
-                  For enhanced security, enable MFA on your account. In production, MFA is required for admin access.
+                  For enhanced security, enable MFA on your account. In production, MFA is required
+                  for admin access.
                 </p>
                 <a
                   href="/admin/mfa-required"
@@ -121,9 +122,7 @@ export default async function SecurityDashboardPage() {
           </div>
           <div className="divide-y divide-gray-200">
             {securityEvents.length === 0 ? (
-              <div className="px-6 py-8 text-center text-gray-500">
-                No recent security events
-              </div>
+              <div className="px-6 py-8 text-center text-gray-500">No recent security events</div>
             ) : (
               securityEvents.slice(0, 10).map((event: any) => (
                 <div key={event.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
@@ -135,10 +134,10 @@ export default async function SecurityDashboardPage() {
                             event.severity === 'critical'
                               ? 'bg-red-100 text-red-800'
                               : event.severity === 'warning'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : event.severity === 'error'
-                              ? 'bg-orange-100 text-orange-800'
-                              : 'bg-blue-100 text-blue-800'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : event.severity === 'error'
+                                  ? 'bg-orange-100 text-orange-800'
+                                  : 'bg-blue-100 text-blue-800'
                           }`}
                         >
                           {event.severity}
@@ -215,10 +214,10 @@ export default async function SecurityDashboardPage() {
                               stat.severity === 'critical'
                                 ? 'bg-red-100 text-red-800'
                                 : stat.severity === 'warning'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : stat.severity === 'error'
-                                ? 'bg-orange-100 text-orange-800'
-                                : 'bg-blue-100 text-blue-800'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : stat.severity === 'error'
+                                    ? 'bg-orange-100 text-orange-800'
+                                    : 'bg-blue-100 text-blue-800'
                             }`}
                           >
                             {stat.severity}
@@ -284,19 +283,17 @@ export default async function SecurityDashboardPage() {
                       <td className="px-4 py-3 text-sm text-gray-900">
                         {log.action_type.replace(/_/g, ' ')}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        {log.resource_type}
-                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600">{log.resource_type}</td>
                       <td className="px-4 py-3 text-sm">
                         <span
                           className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                             log.severity === 'critical'
                               ? 'bg-red-100 text-red-800'
                               : log.severity === 'warning'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : log.severity === 'error'
-                              ? 'bg-orange-100 text-orange-800'
-                              : 'bg-blue-100 text-blue-800'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : log.severity === 'error'
+                                  ? 'bg-orange-100 text-orange-800'
+                                  : 'bg-blue-100 text-blue-800'
                           }`}
                         >
                           {log.severity}
@@ -315,10 +312,7 @@ export default async function SecurityDashboardPage() {
 
         {/* Back to Admin Link */}
         <div className="mt-8 text-center">
-          <a
-            href="/admin"
-            className="text-blue-600 hover:text-blue-700 underline text-sm"
-          >
+          <a href="/admin" className="text-blue-600 hover:text-blue-700 underline text-sm">
             Back to Admin Dashboard
           </a>
         </div>

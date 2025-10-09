@@ -40,17 +40,34 @@ export interface CourtListenerDocket {
   docket_entries_count?: number | null
 }
 
+export interface CourtListenerPosition {
+  id: number
+  position_type?: string
+  date_start?: string
+  date_termination?: string
+  court_id?: string
+  court_full_name?: string
+  [key: string]: unknown
+}
+
+export interface CourtListenerEducation {
+  school?: string
+  degree?: string
+  degree_year?: string
+  [key: string]: unknown
+}
+
 export interface CourtListenerJudge {
   id: string | number
   name: string
   name_full?: string
-  positions?: any[]
-  educations?: any[]
+  positions?: CourtListenerPosition[]
+  educations?: CourtListenerEducation[]
   date_created?: string
   date_modified?: string
   fjc_id?: string
   cl_id?: string
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export interface CourtListenerCourt {
@@ -71,7 +88,7 @@ export interface CourtListenerCourt {
   start_date?: string
   end_date?: string
   location?: string
-  [key: string]: any
+  [key: string]: unknown
 }
 
 interface CourtListenerResponse<T> {
@@ -88,37 +105,74 @@ interface RequestOptions {
 export class CourtListenerClient {
   private baseUrl = 'https://www.courtlistener.com/api/rest/v4'
   private apiToken: string
-  private requestDelay = Math.max(250, parseInt(process.env.COURTLISTENER_REQUEST_DELAY_MS || '1000', 10))
+  private requestDelay = Math.max(
+    250,
+    parseInt(process.env.COURTLISTENER_REQUEST_DELAY_MS || '1000', 10)
+  )
   private maxRetries = Math.max(0, parseInt(process.env.COURTLISTENER_MAX_RETRIES || '5', 10))
-  private requestTimeoutMs = Math.max(5000, parseInt(process.env.COURTLISTENER_REQUEST_TIMEOUT_MS || '30000', 10))
-  private backoffCapMs = Math.max(2000, parseInt(process.env.COURTLISTENER_BACKOFF_CAP_MS || '15000', 10))
-  private retryJitterMaxMs = Math.max(1000, parseInt(process.env.COURTLISTENER_RETRY_JITTER_MAX_MS || '500', 10))
+  private requestTimeoutMs = Math.max(
+    5000,
+    parseInt(process.env.COURTLISTENER_REQUEST_TIMEOUT_MS || '30000', 10)
+  )
+  private backoffCapMs = Math.max(
+    2000,
+    parseInt(process.env.COURTLISTENER_BACKOFF_CAP_MS || '15000', 10)
+  )
+  private retryJitterMaxMs = Math.max(
+    1000,
+    parseInt(process.env.COURTLISTENER_RETRY_JITTER_MAX_MS || '500', 10)
+  )
   private circuitOpenUntil = 0
   private circuitFailures = 0
-  private circuitThreshold = Math.max(3, parseInt(process.env.COURTLISTENER_CIRCUIT_THRESHOLD || '5', 10))
-  private circuitCooldownMs = Math.max(10000, parseInt(process.env.COURTLISTENER_CIRCUIT_COOLDOWN_MS || '60000', 10))
-  private metricsReporter?: (name: string, value: number, meta?: Record<string, any>) => void | Promise<void>
+  private circuitThreshold = Math.max(
+    3,
+    parseInt(process.env.COURTLISTENER_CIRCUIT_THRESHOLD || '5', 10)
+  )
+  private circuitCooldownMs = Math.max(
+    10000,
+    parseInt(process.env.COURTLISTENER_CIRCUIT_COOLDOWN_MS || '60000', 10)
+  )
+  private metricsReporter?: (
+    name: string,
+    value: number,
+    meta?: Record<string, unknown>
+  ) => void | Promise<void>
   private globalRateLimiter: GlobalRateLimiter
 
   constructor() {
     this.apiToken = process.env.COURTLISTENER_API_KEY || process.env.COURTLISTENER_API_TOKEN || ''
     if (!this.apiToken) {
-      throw new Error('COURTLISTENER_API_KEY or COURTLISTENER_API_TOKEN environment variable is required')
+      throw new Error(
+        'COURTLISTENER_API_KEY or COURTLISTENER_API_TOKEN environment variable is required'
+      )
     }
     this.globalRateLimiter = new GlobalRateLimiter()
   }
 
-  setMetricsReporter(reporter: (name: string, value: number, meta?: Record<string, any>) => void | Promise<void>) {
+  setMetricsReporter(
+    reporter: (name: string, value: number, meta?: Record<string, any>) => void | Promise<void>
+  ) {
     this.metricsReporter = reporter
   }
 
-  private async makeRequest<T>(endpoint: string, params: Record<string, string> = {}, options: RequestOptions = {}): Promise<T> {
+  private async makeRequest<T>(
+    endpoint: string,
+    params: Record<string, string> = {},
+    options: RequestOptions = {}
+  ): Promise<T> {
     // Global rate limiter: check hourly quota before proceeding
     const rateLimitCheck = await this.globalRateLimiter.checkLimit()
     if (!rateLimitCheck.allowed) {
       const resetInMinutes = Math.ceil((rateLimitCheck.resetAt.getTime() - Date.now()) / 60000)
-      const err = new Error(`CourtListener hourly quota exceeded: ${rateLimitCheck.currentCount}/${rateLimitCheck.limit}. Reset in ${resetInMinutes} minutes`)
-      try { await this.metricsReporter?.('courtlistener_quota_exceeded', 1, { currentCount: rateLimitCheck.currentCount, limit: rateLimitCheck.limit }) } catch {}
+      const err = new Error(
+        `CourtListener hourly quota exceeded: ${rateLimitCheck.currentCount}/${rateLimitCheck.limit}. Reset in ${resetInMinutes} minutes`
+      )
+      try {
+        await this.metricsReporter?.('courtlistener_quota_exceeded', 1, {
+          currentCount: rateLimitCheck.currentCount,
+          limit: rateLimitCheck.limit,
+        })
+      } catch {}
       throw err
     }
 
@@ -127,7 +181,9 @@ export class CourtListenerClient {
     if (now < this.circuitOpenUntil) {
       const waitMs = this.circuitOpenUntil - now
       const err = new Error(`CourtListener circuit open, retry after ${waitMs}ms`)
-      try { await this.metricsReporter?.('courtlistener_circuit_shortcircuit', 1, { waitMs }) } catch {}
+      try {
+        await this.metricsReporter?.('courtlistener_circuit_shortcircuit', 1, { waitMs })
+      } catch {}
       throw err
     }
 
@@ -151,8 +207,8 @@ export class CourtListenerClient {
     })
 
     const headers: Record<string, string> = {
-      'Accept': 'application/json',
-      'User-Agent': 'JudgeFinder/1.0 (https://judgefinder.io; contact@judgefinder.io)'
+      Accept: 'application/json',
+      'User-Agent': 'JudgeFinder/1.0 (https://judgefinder.io; contact@judgefinder.io)',
     }
 
     // Add authorization header
@@ -163,13 +219,17 @@ export class CourtListenerClient {
     // Exponential backoff with jitter
     const maxRetries = this.maxRetries
     let attempt = 0
-    let lastError: any = null
+    let lastError: Error | null = null
     let lastStatus: number | undefined
     let lastRetryAfterMs: number | null = null
 
     while (attempt <= maxRetries) {
       try {
-        logger.info('CourtListener request', { url: url.toString(), attempt: attempt + 1, retries: maxRetries + 1 })
+        logger.info('CourtListener request', {
+          url: url.toString(),
+          attempt: attempt + 1,
+          retries: maxRetries + 1,
+        })
         const controller = new AbortController()
         const timeoutMs = this.requestTimeoutMs
         const timeout = setTimeout(() => controller.abort(), timeoutMs)
@@ -177,7 +237,7 @@ export class CourtListenerClient {
         const response = await fetch(url.toString(), {
           method: 'GET',
           headers,
-          signal: controller.signal
+          signal: controller.signal,
         })
         clearTimeout(timeout)
 
@@ -191,7 +251,9 @@ export class CourtListenerClient {
           if (status === 429 || (status >= 500 && status < 600)) {
             lastError = new Error(`CourtListener API error ${status}: ${errorText}`)
           } else if (status === 404 && options.allow404) {
-            try { await this.metricsReporter?.('courtlistener_404', 1, { url: url.pathname }) } catch {}
+            try {
+              await this.metricsReporter?.('courtlistener_404', 1, { url: url.pathname })
+            } catch {}
             return null as unknown as T
           } else {
             throw new Error(`CourtListener API error ${status}: ${errorText}`)
@@ -211,9 +273,13 @@ export class CourtListenerClient {
                 remaining,
                 limit: limitHeader,
                 resetAt: resetHeader,
-                url: url.pathname
+                url: url.pathname,
               })
-              try { await this.metricsReporter?.('courtlistener_rate_limit_warning', remaining, { limit: limitHeader }) } catch {}
+              try {
+                await this.metricsReporter?.('courtlistener_rate_limit_warning', remaining, {
+                  limit: limitHeader,
+                })
+              } catch {}
             }
 
             // Critical alert if exhausted
@@ -221,9 +287,11 @@ export class CourtListenerClient {
               const resetTime = resetHeader ? parseInt(resetHeader) * 1000 : Date.now() + 3600000
               logger.error('CourtListener rate limit exhausted', {
                 resetAt: new Date(resetTime).toISOString(),
-                waitMs: resetTime - Date.now()
+                waitMs: resetTime - Date.now(),
               })
-              try { await this.metricsReporter?.('courtlistener_rate_limit_exhausted', 0, { resetTime }) } catch {}
+              try {
+                await this.metricsReporter?.('courtlistener_rate_limit_exhausted', 0, { resetTime })
+              } catch {}
             }
           }
 
@@ -248,8 +316,19 @@ export class CourtListenerClient {
       attempt += 1
       if (attempt > maxRetries) break
       const backoff = this.computeBackoffDelay(attempt, lastStatus, lastRetryAfterMs)
-      logger.warn('CourtListener backoff', { attempt, maxRetries, delayMs: backoff, status: lastStatus ?? 'n/a' })
-      try { await this.metricsReporter?.('courtlistener_retry', 1, { attempt, status: lastStatus, delayMs: backoff }) } catch {}
+      logger.warn('CourtListener backoff', {
+        attempt,
+        maxRetries,
+        delayMs: backoff,
+        status: lastStatus ?? 'n/a',
+      })
+      try {
+        await this.metricsReporter?.('courtlistener_retry', 1, {
+          attempt,
+          status: lastStatus,
+          delayMs: backoff,
+        })
+      } catch {}
       await sleep(backoff)
     }
 
@@ -257,16 +336,31 @@ export class CourtListenerClient {
     this.circuitFailures += 1
     if (this.circuitFailures >= this.circuitThreshold) {
       this.circuitOpenUntil = Date.now() + this.circuitCooldownMs
-      logger.warn('CourtListener circuit opened', { cooldownMs: this.circuitCooldownMs, failures: this.circuitFailures })
-      try { await this.metricsReporter?.('courtlistener_circuit_open', 1, { cooldownMs: this.circuitCooldownMs }) } catch {}
+      logger.warn('CourtListener circuit opened', {
+        cooldownMs: this.circuitCooldownMs,
+        failures: this.circuitFailures,
+      })
+      try {
+        await this.metricsReporter?.('courtlistener_circuit_open', 1, {
+          cooldownMs: this.circuitCooldownMs,
+        })
+      } catch {}
       this.circuitFailures = 0
     }
 
-    logger.error('CourtListener API request failed after retries', { url: url.toString() }, lastError as Error)
+    logger.error(
+      'CourtListener API request failed after retries',
+      { url: url.toString() },
+      lastError as Error
+    )
     throw lastError || new Error('CourtListener API request failed')
   }
 
-  private computeBackoffDelay(attempt: number, lastStatus?: number, retryAfterMs: number | null = null): number {
+  private computeBackoffDelay(
+    attempt: number,
+    lastStatus?: number,
+    retryAfterMs: number | null = null
+  ): number {
     if (retryAfterMs && retryAfterMs > 0) {
       return retryAfterMs
     }
@@ -322,7 +416,7 @@ export class CourtListenerClient {
   ): Promise<CourtListenerResponse<CourtListenerOpinion>> {
     const params: Record<string, string> = {
       author: judgeId,
-      ordering: '-date_created' // Most recent first by creation date
+      ordering: '-date_created', // Most recent first by creation date
     }
 
     if (options.startDate) params.cluster__date_filed__gte = options.startDate
@@ -336,12 +430,15 @@ export class CourtListenerClient {
   /**
    * Get recent opinions for a judge (last 3 years) with cluster details
    */
-  async getRecentOpinionsByJudge(judgeId: string, yearsBack: number = 3): Promise<any[]> {
+  async getRecentOpinionsByJudge(
+    judgeId: string,
+    yearsBack: number = 3
+  ): Promise<CourtListenerOpinion[]> {
     const endDate = new Date()
     const startDate = new Date()
     startDate.setFullYear(endDate.getFullYear() - yearsBack)
 
-    const allCases: any[] = []
+    const allCases: CourtListenerOpinion[] = []
     let offset = 0
     const pageSize = 50
     let hasMore = true
@@ -349,20 +446,25 @@ export class CourtListenerClient {
 
     // Reduced from 200 to 50 to prevent API quota exhaustion
     // Per CourtListener PR #6345, excessive cluster detail fetches caused high CPU usage
-    while (hasMore && allCases.length < 50) { // Limit to 50 cases per judge
+    while (hasMore && allCases.length < 50) {
+      // Limit to 50 cases per judge
       try {
         const response = await this.getOpinionsByJudge(judgeId, {
           startDate: startDate.toISOString().split('T')[0],
           endDate: endDate.toISOString().split('T')[0],
           limit: pageSize,
-          offset
+          offset,
         })
 
         // Batch process cluster details with rate limiting
         // This prevents the nested API call pattern that caused CourtListener CPU issues
         const clusterIds = response.results
-          .filter(opinion => opinion.cluster)
-          .map(opinion => ({ opinionId: opinion.id, clusterId: opinion.cluster, dateField: opinion.date_filed }))
+          .filter((opinion) => opinion.cluster)
+          .map((opinion) => ({
+            opinionId: opinion.id,
+            clusterId: opinion.cluster,
+            dateField: opinion.date_filed,
+          }))
 
         // Process clusters in small batches with delays
         const CLUSTER_BATCH_SIZE = 10
@@ -385,14 +487,13 @@ export class CourtListenerClient {
                 precedential_status: cluster.precedential_status,
                 author_id: null, // Not available in opinion object
                 author_str: null, // Not available in opinion object
-                date_created: dateField // Use date_filed instead
+                date_created: dateField, // Use date_filed instead
               }
 
               allCases.push(caseData)
 
               // Rate limiting delay between cluster fetches
-              await new Promise(resolve => setTimeout(resolve, CLUSTER_FETCH_DELAY_MS))
-
+              await new Promise((resolve) => setTimeout(resolve, CLUSTER_FETCH_DELAY_MS))
             } catch (clusterError) {
               logger.warn('Error fetching cluster', { cluster: clusterId }, clusterError as Error)
               // Add opinion without cluster details
@@ -404,25 +505,31 @@ export class CourtListenerClient {
                 date_filed: null,
                 author_id: null, // Not available in opinion object
                 author_str: null, // Not available in opinion object
-                date_created: dateField // Use date_filed instead
+                date_created: dateField, // Use date_filed instead
               })
             }
           }
 
           // Delay between batches
           if (i + CLUSTER_BATCH_SIZE < clusterIds.length) {
-            await new Promise(resolve => setTimeout(resolve, 1000))
+            await new Promise((resolve) => setTimeout(resolve, 1000))
           }
         }
 
         // Check if there are more results
-        hasMore = response.next !== null && response.results.length === pageSize && allCases.length < 50
+        hasMore =
+          response.next !== null && response.results.length === pageSize && allCases.length < 50
         offset += pageSize
 
-        console.log(`  Fetched ${response.results.length} opinions, total cases: ${allCases.length}`)
-
+        console.log(
+          `  Fetched ${response.results.length} opinions, total cases: ${allCases.length}`
+        )
       } catch (error) {
-        logger.error('Error fetching opinions for judge at offset', { judgeId, offset }, error as Error)
+        logger.error(
+          'Error fetching opinions for judge at offset',
+          { judgeId, offset },
+          error as Error
+        )
         break
       }
     }
@@ -445,7 +552,7 @@ export class CourtListenerClient {
   ): Promise<CourtListenerResponse<CourtListenerDocket>> {
     const params: Record<string, string> = {
       assigned_to_id: judgeId,
-      ordering: options.ordering || '-date_filed'
+      ordering: options.ordering || '-date_filed',
     }
 
     if (options.startDate) params.date_filed__gte = options.startDate
@@ -493,16 +600,19 @@ export class CourtListenerClient {
           endDate: formattedEnd,
           limit: pageSize,
           offset,
-          ordering: '-date_filed'
+          ordering: '-date_filed',
         })
 
         allDockets.push(...response.results)
 
         hasMore = Boolean(response.next) && response.results.length === pageSize
         offset += pageSize
-
       } catch (error) {
-        logger.error('Error fetching dockets for judge at offset', { judgeId, offset }, error as Error)
+        logger.error(
+          'Error fetching dockets for judge at offset',
+          { judgeId, offset },
+          error as Error
+        )
         break
       }
 
@@ -538,12 +648,14 @@ export class CourtListenerClient {
   /**
    * List judges (CourtListener people endpoint) with optional filters and pagination support
    */
-  async listJudges(options: {
-    pageSize?: number
-    ordering?: string
-    cursorUrl?: string | null
-    filters?: Record<string, string>
-  } = {}): Promise<CourtListenerResponse<CourtListenerJudge>> {
+  async listJudges(
+    options: {
+      pageSize?: number
+      ordering?: string
+      cursorUrl?: string | null
+      filters?: Record<string, string>
+    } = {}
+  ): Promise<CourtListenerResponse<CourtListenerJudge>> {
     const { pageSize = 100, ordering = '-date_modified', cursorUrl, filters = {} } = options
 
     const response = await this.makeRequest<CourtListenerResponse<CourtListenerJudge>>(
@@ -554,18 +666,20 @@ export class CourtListenerClient {
     return {
       ...response,
       next: response.next ? new URL(response.next, this.baseUrl).toString() : null,
-      previous: response.previous ? new URL(response.previous, this.baseUrl).toString() : null
+      previous: response.previous ? new URL(response.previous, this.baseUrl).toString() : null,
     }
   }
 
   /**
    * List courts with optional pagination
    */
-  async listCourts(options: {
-    pageSize?: number
-    ordering?: string
-    cursorUrl?: string | null
-  } = {}): Promise<CourtListenerResponse<CourtListenerCourt>> {
+  async listCourts(
+    options: {
+      pageSize?: number
+      ordering?: string
+      cursorUrl?: string | null
+    } = {}
+  ): Promise<CourtListenerResponse<CourtListenerCourt>> {
     const { pageSize = 100, ordering = '-date_modified', cursorUrl } = options
 
     const response = await this.makeRequest<CourtListenerResponse<CourtListenerCourt>>(
@@ -576,17 +690,17 @@ export class CourtListenerClient {
     return {
       ...response,
       next: response.next ? new URL(response.next, this.baseUrl).toString() : null,
-      previous: response.previous ? new URL(response.previous, this.baseUrl).toString() : null
+      previous: response.previous ? new URL(response.previous, this.baseUrl).toString() : null,
     }
   }
 
   /**
    * Transform CourtListener case data to our case format
    */
-  transformOpinionToCase(caseData: any, judgeId: string) {
+  transformOpinionToCase(caseData: CourtListenerOpinion, judgeId: string) {
     const caseName = caseData.case_name || 'Unknown Case'
     const decisionDate = caseData.date_filed
-    
+
     return {
       judge_id: judgeId,
       case_name: caseName.substring(0, 500), // Truncate if too long
@@ -599,7 +713,7 @@ export class CourtListenerClient {
       courtlistener_id: `opinion_${caseData.opinion_id}`,
       filing_date: decisionDate,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }
   }
 
@@ -623,12 +737,12 @@ export async function withRateLimit<T>(
   delayMs: number = 1000
 ): Promise<T[]> {
   const results: T[] = []
-  
+
   for (const request of requests) {
     try {
       const result = await request()
       results.push(result)
-      
+
       if (requests.indexOf(request) < requests.length - 1) {
         await sleep(delayMs)
       }
@@ -637,6 +751,6 @@ export async function withRateLimit<T>(
       throw error
     }
   }
-  
+
   return results
 }

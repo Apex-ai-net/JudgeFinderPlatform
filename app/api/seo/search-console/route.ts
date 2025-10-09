@@ -2,15 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(request.url)
   const judge = searchParams.get('judge')
 
   if (!judge) {
-    return NextResponse.json(
-      { error: 'Judge parameter is required' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: 'Judge parameter is required' }, { status: 400 })
   }
 
   const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
@@ -31,7 +28,7 @@ export async function GET(request: NextRequest) {
     },
     lastUpdated: new Date().toISOString(),
     status: 'development_mock',
-    rate_limit_remaining: remaining
+    rate_limit_remaining: remaining,
   }
 
   return NextResponse.json(mockData)

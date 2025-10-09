@@ -1,7 +1,7 @@
 // Animation configuration and helpers for consistent motion across the app
 // Accessibility: respects prefers-reduced-motion
 
-export type SpringPreset = {
+export interface SpringPreset {
   type: 'spring'
   stiffness: number
   damping: number
@@ -41,9 +41,7 @@ export function prefersReducedMotion(): boolean {
 
 export function withReducedMotion<T extends Record<string, any>>(transition: T): T {
   if (typeof window === 'undefined') return transition
-  return prefersReducedMotion()
-    ? ({ duration: 0, delay: 0 } as unknown as T)
-    : transition
+  return prefersReducedMotion() ? ({ duration: 0, delay: 0 } as unknown as T) : transition
 }
 
 export const defaultPageTransition: TransitionPreset = {
@@ -71,5 +69,3 @@ export const defaultStagger = {
     },
   },
 }
-
-

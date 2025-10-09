@@ -18,7 +18,7 @@ function toSlug(name: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-export function CountiesTab() {
+export function CountiesTab(): JSX.Element {
   const [counties, setCounties] = useState<CountyItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -27,7 +27,7 @@ export function CountiesTab() {
   useEffect(() => {
     let isMounted = true
 
-    async function fetchCountsByJurisdiction() {
+    async function fetchCountsByJurisdiction(): JSX.Element {
       try {
         setLoading(true)
         setError(null)
@@ -37,9 +37,10 @@ export function CountiesTab() {
         if (!res.ok) throw new Error(`Failed to load counts: ${res.status}`)
         const data = await res.json()
 
-        const items: CountyItem[] = (data.counts as Array<{ jurisdiction: string; judge_count: number }> | undefined)?.map(
-          (row) => ({ name: row.jurisdiction, judgeCount: row.judge_count })
-        )?.sort((a, b) => a.name.localeCompare(b.name)) ?? []
+        const items: CountyItem[] =
+          (data.counts as Array<{ jurisdiction: string; judge_count: number }> | undefined)
+            ?.map((row) => ({ name: row.jurisdiction, judgeCount: row.judge_count }))
+            ?.sort((a, b) => a.name.localeCompare(b.name)) ?? []
 
         if (isMounted) setCounties(items)
       } catch (e) {
@@ -50,12 +51,14 @@ export function CountiesTab() {
     }
 
     fetchCountsByJurisdiction()
-    return () => { isMounted = false }
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    const base = q ? counties.filter(c => c.name.toLowerCase().includes(q)) : counties
+    const base = q ? counties.filter((c) => c.name.toLowerCase().includes(q)) : counties
     return [...base].sort((a, b) => a.name.localeCompare(b.name))
   }, [counties, query])
 
@@ -106,5 +109,3 @@ export function CountiesTab() {
 }
 
 export default CountiesTab
-
-

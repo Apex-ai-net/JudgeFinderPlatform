@@ -3,7 +3,7 @@ import { createServerClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Ensure required env is present; mirror judges/list behavior
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
         page: 1,
         per_page: 20,
         has_more: false,
-        error: 'Database configuration pending'
+        error: 'Database configuration pending',
       })
     }
 
@@ -36,7 +36,9 @@ export async function GET(request: NextRequest) {
 
     let queryBuilder = supabase
       .from('courts')
-      .select('id, name, type, jurisdiction, address, phone, website, judge_count', { count: 'exact' })
+      .select('id, name, type, jurisdiction, address, phone, website, judge_count', {
+        count: 'exact',
+      })
       .order('name')
       .range(from, to)
 
@@ -44,7 +46,7 @@ export async function GET(request: NextRequest) {
     if (q.trim()) {
       queryBuilder = queryBuilder.ilike('name', `%${q}%`)
     }
-    
+
     if (type && type !== '') {
       queryBuilder = queryBuilder.eq('type', type)
     }
@@ -57,10 +59,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Supabase error:', error)
-      return NextResponse.json(
-        { error: 'Failed to list courts' }, 
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Failed to list courts' }, { status: 500 })
     }
 
     const totalCount = count || 0
@@ -76,18 +75,11 @@ export async function GET(request: NextRequest) {
 
     // Set cache headers for better performance
     const response = NextResponse.json({ ...result, rate_limit_remaining: remaining })
-    response.headers.set(
-      'Cache-Control', 
-      'public, s-maxage=300, stale-while-revalidate=60'
-    )
-    
-    return response
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=60')
 
+    return response
   } catch (error) {
     console.error('API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

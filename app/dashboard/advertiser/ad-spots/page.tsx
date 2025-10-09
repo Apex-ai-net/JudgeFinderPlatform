@@ -12,14 +12,14 @@ interface PageProps {
   }>
 }
 
-export default async function AdSpotsPage({ searchParams }: PageProps) {
+export default async function AdSpotsPage({ searchParams }: PageProps): Promise<JSX.Element> {
   const user = await currentUser()
   if (!user) {
     redirect('/sign-in')
   }
 
   const advertiserProfile = await getOrCreateAdvertiserProfile()
-  
+
   if (!advertiserProfile) {
     redirect('/dashboard/advertiser/onboarding')
   }
@@ -32,16 +32,14 @@ export default async function AdSpotsPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Browse Ad Spots
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900">Browse Ad Spots</h1>
         <p className="mt-2 text-gray-600">
           Find and book premium advertising positions on judge and court profiles
         </p>
       </div>
 
       {/* Ad Spots Explorer */}
-      <AdSpotsExplorer 
+      <AdSpotsExplorer
         advertiserId={advertiserProfile.id}
         preselectedPlan={plan}
         showPlanContext={showPlanContext}

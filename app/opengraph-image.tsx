@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og'
- 
+
 export const runtime = 'edge'
 export const alt = 'JudgeFinder.io - Find Information About Your Judge'
 export const size = {
@@ -7,8 +7,8 @@ export const size = {
   height: 630,
 }
 export const contentType = 'image/png'
- 
-export default async function Image() {
+
+export default async function Image(): JSX.Element {
   return new ImageResponse(
     (
       <div

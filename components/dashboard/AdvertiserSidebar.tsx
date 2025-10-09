@@ -2,18 +2,18 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { 
-  Home, 
-  Target, 
-  Calendar, 
-  CreditCard, 
-  BarChart3, 
+import {
+  Home,
+  Target,
+  Calendar,
+  CreditCard,
+  BarChart3,
   Settings,
   HelpCircle,
   LogOut,
   Megaphone,
   Users,
-  TrendingUp
+  TrendingUp,
 } from 'lucide-react'
 import { SafeSignOutButton } from '@/lib/auth/safe-clerk-components'
 
@@ -31,7 +31,7 @@ const bottomNav = [
   { name: 'Help & Support', href: '/dashboard/advertiser/support', icon: HelpCircle },
 ]
 
-export default function AdvertiserSidebar() {
+export default function AdvertiserSidebar(): JSX.Element {
   const pathname = usePathname()
 
   return (
@@ -51,18 +51,20 @@ export default function AdvertiserSidebar() {
         {/* Main Navigation */}
         <nav className="flex-1 space-y-1 px-3 py-4">
           {navigation.map((item) => {
-            const isActive = pathname === item.href || 
-                           (item.href !== '/dashboard/advertiser' && pathname.startsWith(item.href))
-            
+            const isActive =
+              pathname === item.href ||
+              (item.href !== '/dashboard/advertiser' && pathname.startsWith(item.href))
+
             return (
               <Link
                 key={item.name}
                 href={item.href}
                 className={`
                   flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors
-                  ${isActive 
-                    ? 'bg-primary text-white' 
-                    : 'text-muted-foreground hover:bg-card hover:text-white'
+                  ${
+                    isActive
+                      ? 'bg-primary text-white'
+                      : 'text-muted-foreground hover:bg-card hover:text-white'
                   }
                 `}
               >
@@ -77,16 +79,17 @@ export default function AdvertiserSidebar() {
         <div className="border-t border-gray-800 px-3 py-4">
           {bottomNav.map((item) => {
             const isActive = pathname === item.href
-            
+
             return (
               <Link
                 key={item.name}
                 href={item.href}
                 className={`
                   flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors
-                  ${isActive 
-                    ? 'bg-card text-white' 
-                    : 'text-muted-foreground hover:bg-card hover:text-white'
+                  ${
+                    isActive
+                      ? 'bg-card text-white'
+                      : 'text-muted-foreground hover:bg-card hover:text-white'
                   }
                 `}
               >
@@ -95,7 +98,7 @@ export default function AdvertiserSidebar() {
               </Link>
             )
           })}
-          
+
           {/* Sign Out */}
           <SafeSignOutButton>
             <button className="mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-card hover:text-white">

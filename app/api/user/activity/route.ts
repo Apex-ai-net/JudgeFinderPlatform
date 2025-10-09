@@ -4,7 +4,7 @@ import { createClerkSupabaseServerClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { userId } = await auth()
 
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const type = url.searchParams.get('type') // 'search', 'view', 'bookmark'
 
     const supabase = await createClerkSupabaseServerClient()
-    
+
     let query = supabase
       .from('user_activity')
       .select('*')
@@ -39,14 +39,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ activity: data || [] })
   } catch (error) {
     console.error('Activity API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const { userId } = await auth()
 
@@ -69,7 +66,7 @@ export async function POST(request: NextRequest) {
         activity_type,
         activity_data,
         judge_id,
-        search_query
+        search_query,
       })
       .select()
       .single()
@@ -82,9 +79,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ activity: data }, { status: 201 })
   } catch (error) {
     console.error('Activity logging error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

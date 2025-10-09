@@ -8,20 +8,21 @@ import * as Sentry from '@sentry/nextjs'
 // Skip authentication during build to prevent errors
 const SKIP_AUTH_BUILD = process.env.SKIP_AUTH_BUILD === 'true'
 
-export function Providers({ children }: { children: ReactNode }) {
+export function Providers({ children }: { children: ReactNode }): JSX.Element {
   // Get the publishable key - Netlify will provide this at runtime
   const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || ''
-  
+
   // Check if we have a valid, non-placeholder key
-  const hasValidKey = clerkPublishableKey && 
-    clerkPublishableKey.startsWith('pk_') && 
-    !clerkPublishableKey.includes('YOUR') && 
+  const hasValidKey =
+    clerkPublishableKey &&
+    clerkPublishableKey.startsWith('pk_') &&
+    !clerkPublishableKey.includes('YOUR') &&
     !clerkPublishableKey.includes('CONFIGURE') &&
     !clerkPublishableKey.includes('dummy')
-  
+
   // Check if we're in a browser environment
   const isClient = typeof window !== 'undefined'
-  
+
   // During build or when auth is disabled, skip ClerkProvider
   const shouldUseClerk = !SKIP_AUTH_BUILD && hasValidKey
 
@@ -60,10 +61,7 @@ export function Providers({ children }: { children: ReactNode }) {
       if (args.length > 0 && typeof args[0] === 'string') {
         const message = args[0]
         if (hydrationPatterns.some((pattern) => pattern.test(message))) {
-          const fingerprint = `${message}-${args
-            .slice(1)
-            .map(serializeArg)
-            .join('|')}`
+          const fingerprint = `${message}-${args.slice(1).map(serializeArg).join('|')}`
 
           if (!seenFingerprints.has(fingerprint)) {
             seenFingerprints.add(fingerprint)
@@ -134,7 +132,7 @@ export function Providers({ children }: { children: ReactNode }) {
       {children}
     </ThemeProvider>
   )
-  
+
   // Always render the same structure on server and client
   if (shouldUseClerk) {
     return (
@@ -148,7 +146,7 @@ export function Providers({ children }: { children: ReactNode }) {
       </ClerkProvider>
     )
   }
-  
+
   // Fallback without ClerkProvider
   return content
 }

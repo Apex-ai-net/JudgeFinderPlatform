@@ -90,7 +90,8 @@ describe('Search Intelligence', () => {
       vi.clearAllMocks()
     })
 
-    it('should process query with AI successfully', async () => {
+    it('should process query with AI successfully', async (): Promise<void> => {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       const { GoogleGenerativeAI } = await import('@google/generative-ai')
       const mockGenerateContent = vi.fn().mockResolvedValue({
         response: {
@@ -181,7 +182,12 @@ describe('Search Intelligence', () => {
         response: {
           text: () =>
             JSON.stringify({
-              intent: { type: 'judge', searchType: 'location', extractedEntities: {}, confidence: 0.8 },
+              intent: {
+                type: 'judge',
+                searchType: 'location',
+                extractedEntities: {},
+                confidence: 0.8,
+              },
               processedQuery: 'judges near me',
               expandedTerms: [],
               suggestions: [],

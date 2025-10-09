@@ -8,7 +8,10 @@ import { fadeInUp, fadeInDown } from '@/lib/animations/presets'
 
 // Lazy load ComparisonContent with charts to reduce initial bundle
 const ComparisonContent = dynamic(
-  () => import('@/components/compare/ComparisonContent').then(mod => ({ default: mod.ComparisonContent })),
+  () =>
+    import('@/components/compare/ComparisonContent').then((mod) => ({
+      default: mod.ComparisonContent,
+    })),
   {
     loading: () => (
       <div className="container mx-auto px-4 py-12">
@@ -20,11 +23,11 @@ const ComparisonContent = dynamic(
         </div>
       </div>
     ),
-    ssr: false
+    ssr: false,
   }
 )
 
-export default function ComparePageClient() {
+export default function ComparePageClient(): JSX.Element {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section with Gradient */}
@@ -39,11 +42,7 @@ export default function ComparePageClient() {
 
         <div className="relative container mx-auto px-4 py-12">
           {/* Back Link */}
-          <motion.div
-            variants={fadeInDown}
-            initial="initial"
-            animate="animate"
-          >
+          <motion.div variants={fadeInDown} initial="initial" animate="animate">
             <Link
               href="/judges"
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors group mb-8"
@@ -83,7 +82,8 @@ export default function ComparePageClient() {
               animate="animate"
               transition={{ delay: 0.3 }}
             >
-              Compare up to 3 judges side-by-side. Analyze judicial profiles, decision patterns, consistency scores, and comprehensive judicial tendency analysis.
+              Compare up to 3 judges side-by-side. Analyze judicial profiles, decision patterns,
+              consistency scores, and comprehensive judicial tendency analysis.
             </motion.p>
 
             {/* Stats Row */}

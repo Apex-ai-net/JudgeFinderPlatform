@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 // Removed edge runtime - incompatible with cookies() API
 export const revalidate = 60
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
     const rl = buildRateLimiter({ tokens: 40, window: '1 m', prefix: 'api:judges:search:get' })
@@ -26,10 +26,7 @@ export async function GET(request: NextRequest) {
     const courtType = searchParams.get('court_type')
 
     if (limit > 500) {
-      return NextResponse.json(
-        { error: 'Limit cannot exceed 500' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Limit cannot exceed 500' }, { status: 400 })
     }
 
     const supabase = await createServerClient()
@@ -54,7 +51,7 @@ export async function GET(request: NextRequest) {
           search_query: normalizedQuery,
           jurisdiction_filter: jurisdiction || null,
           result_limit: limit,
-          similarity_threshold: 0.3
+          similarity_threshold: 0.3,
         })
         judges = data
         error = searchError
@@ -92,7 +89,7 @@ export async function GET(request: NextRequest) {
         title: judge.name,
         subtitle: judge.court_name || '',
         description: `${judge.jurisdiction || 'California'} • ${judge.total_cases || 0} cases`,
-        url: `/judges/${judge.slug || judge.id}`
+        url: `/judges/${judge.slug || judge.id}`,
       }))
 
       return {
@@ -100,7 +97,7 @@ export async function GET(request: NextRequest) {
         total_count: totalCount,
         page,
         per_page: limit,
-        has_more: hasMore
+        has_more: hasMore,
       }
     })
 
@@ -108,17 +105,13 @@ export async function GET(request: NextRequest) {
     response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=60')
 
     return response
-
   } catch (error) {
     console.error('Search error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
     const rl = buildRateLimiter({ tokens: 20, window: '1 m', prefix: 'api:judges:search:post' })
@@ -142,7 +135,7 @@ export async function POST(request: NextRequest) {
         search_query: query,
         jurisdiction_filter: filters.jurisdiction || null,
         result_limit: limit,
-        similarity_threshold: 0.3
+        similarity_threshold: 0.3,
       })
       judges = data
       error = searchError
@@ -171,12 +164,9 @@ export async function POST(request: NextRequest) {
         message: error.message,
         details: error.details,
         hint: error.hint,
-        code: error.code
+        code: error.code,
       })
-      return NextResponse.json(
-        { error: 'Failed to search judges' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Failed to search judges' }, { status: 500 })
     }
 
     // Transform judges to search results format
@@ -186,7 +176,7 @@ export async function POST(request: NextRequest) {
       title: judge.name,
       subtitle: judge.court_name || '',
       description: `${judge.jurisdiction || 'California'} • ${judge.total_cases || 0} cases`,
-      url: `/judges/${judge.slug || judge.id}`
+      url: `/judges/${judge.slug || judge.id}`,
     }))
 
     const totalCount = judges?.length || 0
@@ -198,16 +188,12 @@ export async function POST(request: NextRequest) {
       page,
       per_page: limit,
       has_more: hasMore,
-      rate_limit_remaining: remaining
+      rate_limit_remaining: remaining,
     })
 
     return response
-
   } catch (error) {
     console.error('POST search error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

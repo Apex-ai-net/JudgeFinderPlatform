@@ -11,7 +11,7 @@ interface StatProps {
   delay: number
 }
 
-function Stat({ icon, value, label, delay }: StatProps) {
+function Stat({ icon, value, label, delay }: StatProps): JSX.Element {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -31,7 +31,7 @@ function Stat({ icon, value, label, delay }: StatProps) {
   )
 }
 
-export function StatsTicker() {
+export function StatsTicker(): JSX.Element {
   return (
     <motion.div
       initial={{ opacity: 0 }}

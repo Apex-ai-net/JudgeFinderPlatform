@@ -7,9 +7,9 @@ import { buildRateLimiter, getClientIp } from '@/lib/security/rate-limit'
 export const dynamic = 'force-dynamic'
 
 const bodySchema = z.object({
-  slot_id: z.string().uuid('Invalid slot id'),
-  judge_id: z.string().uuid().optional(),
-  court_id: z.string().uuid().optional(),
+  slotId: z.string().uuid('Invalid slot id'),
+  judgeId: z.string().uuid().optional(),
+  courtId: z.string().uuid().optional(),
 })
 
 function isLikelyBot(req: NextRequest): boolean {
@@ -17,7 +17,7 @@ function isLikelyBot(req: NextRequest): boolean {
   return /(bot|crawler|spider|crawling|preview|facebookexternalhit|slurp|bing)/i.test(ua)
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const started = Date.now()
   if (isLikelyBot(request)) {
     return NextResponse.json({ ok: true, skipped: 'bot' })
@@ -39,10 +39,13 @@ export async function POST(request: NextRequest) {
 
   const parsed = bodySchema.safeParse(payload)
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.errors[0]?.message || 'Invalid payload' }, { status: 400 })
+    return NextResponse.json(
+      { error: parsed.error.errors[0]?.message || 'Invalid payload' },
+      { status: 400 }
+    )
   }
 
-  const { slot_id } = parsed.data
+  const { slotId } = parsed.data
 
   try {
     const supabase = await createServerClient()
@@ -50,19 +53,24 @@ export async function POST(request: NextRequest) {
     const { error: updateError } = await supabase
       .from('ad_spots')
       .update({ impressions_total: supabase.rpc('increment_int', { x: 1 }) as any })
-      .eq('id', slot_id)
+      .eq('id', slotId)
 
     if (updateError) {
-      logger.error('ad impression update failed', { slot_id, error: updateError.message })
+      logger.error('ad impression update failed', { slotId, error: updateError.message })
     }
 
     // Optional: write a lightweight log row for analytics (best-effort)
-    const logEvent = await supabase.rpc('log_ad_event', { p_slot_id: slot_id, p_event: 'impression' })
+    const logEvent = await supabase.rpc('log_ad_event', {
+      p_slot_id: slotId,
+      p_event: 'impression',
+    })
     if (logEvent.error) {
-      logger.error('log_ad_event failed', { slot_id, error: logEvent.error.message })
+      logger.error('log_ad_event failed', { slotId, error: logEvent.error.message })
     }
 
-    logger.apiResponse('POST', '/api/advertising/track-impression', 200, Date.now() - started, { slot_id })
+    logger.apiResponse('POST', '/api/advertising/track-impression', 200, Date.now() - started, {
+      slotId,
+    })
     return NextResponse.json({ ok: true })
   } catch (error) {
     logger.apiResponse('POST', '/api/advertising/track-impression', 500, Date.now() - started, {

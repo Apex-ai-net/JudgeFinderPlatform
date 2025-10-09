@@ -14,25 +14,22 @@ export const revalidate = 120
  * Enhanced judge lookup API with multiple fallback strategies
  * Provides detailed information about how the judge was found
  */
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url)
     const slug = searchParams.get('slug')
 
     if (!slug || !validateStringLength(slug, 1, 200)) {
-      return NextResponse.json(
-        { error: 'Invalid or missing slug parameter' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Invalid or missing slug parameter' }, { status: 400 })
     }
 
     // Validate slug format
     if (!isValidSlug(slug)) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid slug format',
           code: 'INVALID_SLUG',
-          message: `Slug "${slug}" contains invalid characters`
+          message: `Slug "${slug}" contains invalid characters`,
         },
         { status: 400 }
       )
@@ -48,7 +45,7 @@ export async function GET(request: NextRequest) {
           message: `No judge found for slug: ${slug}`,
           searched_slug: slug,
           suggestions: result.alternatives || [],
-          found_by: result.found_by
+          found_by: result.found_by,
         },
         { status: 404 }
       )
@@ -58,7 +55,7 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({
       judge: result.judge,
       found_by: result.found_by,
-      alternatives: result.alternatives || []
+      alternatives: result.alternatives || [],
     })
 
     // Set aggressive cache headers for performance (judge data is stable)
@@ -70,17 +67,20 @@ export async function GET(request: NextRequest) {
     response.headers.set('Vary', 'Accept-Encoding')
 
     return response
-
   } catch (error) {
-    logger.error('Judge lookup API error', { 
-      error: error instanceof Error ? error.message : 'Unknown error',
-      path: request.url 
-    }, error instanceof Error ? error : undefined)
-    
+    logger.error(
+      'Judge lookup API error',
+      {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        path: request.url,
+      },
+      error instanceof Error ? error : undefined
+    )
+
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error',
-        code: 'INTERNAL_ERROR'
+        code: 'INTERNAL_ERROR',
       },
       { status: 500 }
     )
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
  */
 async function lookupJudge(slug: string): Promise<JudgeLookupResult> {
   const cacheKey = `judge_lookup:${slug}`
-  
+
   // Check cache first
   const cachedResult = cache.get<JudgeLookupResult>(cacheKey)
   if (cachedResult) {
@@ -108,15 +108,11 @@ async function lookupJudge(slug: string): Promise<JudgeLookupResult> {
     // Strategy 1: Direct slug lookup (O(1) with index) - if slug column exists
     let slugJudge = null
     let slugError = null
-    
+
     try {
       // PERFORMANCE: Select all fields - this is the primary lookup returning full judge data
-      const result = await supabase
-        .from('judges')
-        .select('*')
-        .eq('slug', slug)
-        .maybeSingle()
-      
+      const result = await supabase.from('judges').select('*').eq('slug', slug).maybeSingle()
+
       slugJudge = result.data
       slugError = result.error
     } catch (error) {
@@ -128,12 +124,12 @@ async function lookupJudge(slug: string): Promise<JudgeLookupResult> {
     if (!slugError && slugJudge && isJudge(slugJudge)) {
       const result: JudgeLookupResult = {
         judge: slugJudge,
-        found_by: 'slug'
+        found_by: 'slug',
       }
-      
+
       // Cache successful lookup for 30 minutes
       cache.set(cacheKey, result, 1800)
-      
+
       await logQueryPerformance('slug_lookup', Date.now() - startTime, { slug })
       return result
     }
@@ -141,15 +137,11 @@ async function lookupJudge(slug: string): Promise<JudgeLookupResult> {
     // Strategy 2: Fuzzy slug matching for similar slugs (if slug column exists)
     let fuzzyMatches = null
     let fuzzyError = null
-    
+
     try {
       // PERFORMANCE: Select all fields - fuzzy matching needs full data for alternatives
-      const result = await supabase
-        .from('judges')
-        .select('*')
-        .ilike('slug', `%${slug}%`)
-        .limit(10)
-      
+      const result = await supabase.from('judges').select('*').ilike('slug', `%${slug}%`).limit(10)
+
       fuzzyMatches = result.data
       fuzzyError = result.error
     } catch (error) {
@@ -159,16 +151,16 @@ async function lookupJudge(slug: string): Promise<JudgeLookupResult> {
 
     if (!fuzzyError && fuzzyMatches && isJudgeArray(fuzzyMatches) && fuzzyMatches.length > 0) {
       // Find exact substring match first
-      const exactMatch = fuzzyMatches.find(judge => judge.slug === slug)
+      const exactMatch = fuzzyMatches.find((judge) => judge.slug === slug)
       if (exactMatch && isJudge(exactMatch)) {
         const result: JudgeLookupResult = {
           judge: exactMatch,
-          found_by: 'name_exact'
+          found_by: 'name_exact',
         }
-        
+
         // Cache successful lookup for 30 minutes
         cache.set(cacheKey, result, 1800)
-        
+
         await logQueryPerformance('fuzzy_exact', Date.now() - startTime, { slug })
         return result
       }
@@ -176,18 +168,21 @@ async function lookupJudge(slug: string): Promise<JudgeLookupResult> {
       // Return best fuzzy match with alternatives
       const bestMatch = fuzzyMatches[0]
       const alternatives = fuzzyMatches.slice(1, 4).filter(isJudge)
-      
+
       if (isJudge(bestMatch)) {
         const result: JudgeLookupResult = {
           judge: bestMatch,
           found_by: 'name_partial',
-          alternatives
+          alternatives,
         }
-        
+
         // Cache fuzzy match for 15 minutes (shorter since it's less certain)
         cache.set(cacheKey, result, 900)
-        
-        await logQueryPerformance('fuzzy_match', Date.now() - startTime, { slug, matches: fuzzyMatches.length })
+
+        await logQueryPerformance('fuzzy_match', Date.now() - startTime, {
+          slug,
+          matches: fuzzyMatches.length,
+        })
         return result
       }
     }
@@ -200,7 +195,7 @@ async function lookupJudge(slug: string): Promise<JudgeLookupResult> {
       `Hon. ${primaryName}`,
       `Hon ${primaryName}`,
       `Judge ${primaryName}`,
-      `Justice ${primaryName}`
+      `Justice ${primaryName}`,
     ]
     const nameVariations = [...new Set([...nameVariationsBase, ...titleVariations])].slice(0, 6) // small, effective set
 
@@ -214,20 +209,18 @@ async function lookupJudge(slug: string): Promise<JudgeLookupResult> {
 
       if (!exactError && exactJudges && exactJudges.length > 0) {
         // Prefer judge whose generated slug matches
-        const bestMatch = exactJudges.find(judge => 
-          generateSlug(judge.name) === slug
-        ) || exactJudges[0]
+        const bestMatch =
+          exactJudges.find((judge) => generateSlug(judge.name) === slug) || exactJudges[0]
 
-        const alternatives = exactJudges.length > 1 
-          ? exactJudges.filter(j => j.id !== bestMatch.id).slice(0, 3)
-          : []
+        const alternatives =
+          exactJudges.length > 1 ? exactJudges.filter((j) => j.id !== bestMatch.id).slice(0, 3) : []
 
         const result: JudgeLookupResult = {
           judge: bestMatch as Judge,
           found_by: 'name_exact',
-          alternatives: alternatives as Judge[]
+          alternatives: alternatives as Judge[],
         }
-        
+
         // Cache name-based lookup for 30 minutes
         cache.set(cacheKey, result, 1800)
 
@@ -247,20 +240,25 @@ async function lookupJudge(slug: string): Promise<JudgeLookupResult> {
       suggestions = findSimilarSlugs(slug, similarJudges).slice(0, 5)
     }
 
-    await logQueryPerformance('not_found', Date.now() - startTime, { slug, suggestions: suggestions.length })
-    
+    await logQueryPerformance('not_found', Date.now() - startTime, {
+      slug,
+      suggestions: suggestions.length,
+    })
+
     return {
       judge: null,
       found_by: 'not_found',
-      alternatives: suggestions
+      alternatives: suggestions,
     }
-
   } catch (error) {
     logger.error('Error in lookupJudge', { slug }, error instanceof Error ? error : undefined)
-    await logQueryPerformance('error', Date.now() - startTime, { slug, error: error instanceof Error ? error.message : 'Unknown error' })
+    await logQueryPerformance('error', Date.now() - startTime, {
+      slug,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
     return {
       judge: null,
-      found_by: 'not_found'
+      found_by: 'not_found',
     }
   }
 }
@@ -268,25 +266,27 @@ async function lookupJudge(slug: string): Promise<JudgeLookupResult> {
 /**
  * Log query performance for monitoring
  */
-async function logQueryPerformance(queryType: string, executionTime: number, params: any) {
+async function logQueryPerformance(
+  queryType: string,
+  executionTime: number,
+  params: any
+): Promise<void> {
   try {
     const supabase = await createServerClient()
-    
+
     // Try to log to performance_metrics table instead of query_performance_log
-    await supabase
-      .from('performance_metrics')
-      .insert({
-        metric_name: `judge_lookup_${queryType}`,
-        metric_value: executionTime,
-        page_url: '/api/judges/by-slug',
-        page_type: 'api',
-        metric_id: queryType,
-        rating: executionTime < 100 ? 'good' : executionTime < 500 ? 'needs-improvement' : 'poor'
-      })
+    await supabase.from('performance_metrics').insert({
+      metric_name: `judge_lookup_${queryType}`,
+      metric_value: executionTime,
+      page_url: '/api/judges/by-slug',
+      page_type: 'api',
+      metric_id: queryType,
+      rating: executionTime < 100 ? 'good' : executionTime < 500 ? 'needs-improvement' : 'poor',
+    })
   } catch (error) {
     // Silent fail - don't impact user experience
-    logger.debug('Query performance logging failed', { 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+    logger.debug('Query performance logging failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
     })
   }
 }
@@ -305,15 +305,16 @@ function findSimilarSlugs(targetSlug: string, judges: any[]): Judge[] {
   for (let i = 0; i < maxProcessed; i++) {
     const judge = judges[i]
     const judgeSlug = judge.slug || generateSlug(judge.name)
-    
+
     // Skip if length difference is too large (quick filter)
     if (Math.abs(judgeSlug.length - targetLength) > lengthThreshold) {
       continue
     }
-    
+
     const similarity = calculateStringSimilarity(targetSlug, judgeSlug)
-    
-    if (similarity > 0.6) { // Higher threshold for better suggestions
+
+    if (similarity > 0.6) {
+      // Higher threshold for better suggestions
       suggestions.push({ judge: judge as Judge, similarity })
     }
   }
@@ -321,7 +322,7 @@ function findSimilarSlugs(targetSlug: string, judges: any[]): Judge[] {
   return suggestions
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, 5)
-    .map(s => s.judge)
+    .map((s) => s.judge)
 }
 
 /**
@@ -356,8 +357,8 @@ function levenshteinDistance(str1: string, str2: string): number {
       } else {
         matrix[i][j] = Math.min(
           matrix[i - 1][j - 1] + 1, // substitution
-          matrix[i][j - 1] + 1,     // insertion
-          matrix[i - 1][j] + 1      // deletion
+          matrix[i][j - 1] + 1, // insertion
+          matrix[i - 1][j] + 1 // deletion
         )
       }
     }

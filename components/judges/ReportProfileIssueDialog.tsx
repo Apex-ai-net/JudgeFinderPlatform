@@ -16,9 +16,13 @@ const ISSUE_OPTIONS = [
   { value: 'other', label: 'Something else' },
 ] as const
 
-export function ReportProfileIssueDialog({ judgeSlug, courtId }: ReportProfileIssueDialogProps) {
+export function ReportProfileIssueDialog({
+  judgeSlug,
+  courtId,
+}: ReportProfileIssueDialogProps): JSX.Element {
   const [open, setOpen] = useState(false)
-  const [issueType, setIssueType] = useState<typeof ISSUE_OPTIONS[number]['value']>('data_accuracy')
+  const [issueType, setIssueType] =
+    useState<(typeof ISSUE_OPTIONS)[number]['value']>('data_accuracy')
   const [details, setDetails] = useState('')
   const [email, setEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -91,7 +95,9 @@ export function ReportProfileIssueDialog({ judgeSlug, courtId }: ReportProfileIs
         if (payload && typeof (payload as any).message === 'string') {
           setMessage((payload as any).message)
         } else {
-          setMessage('Thanks for letting us know — the transparency team will review within 5 business days.')
+          setMessage(
+            'Thanks for letting us know — the transparency team will review within 5 business days.'
+          )
         }
         setTimeout(() => {
           closeDialog()
@@ -104,16 +110,27 @@ export function ReportProfileIssueDialog({ judgeSlug, courtId }: ReportProfileIs
     }
   }
 
-  const issueTypeLabel = useMemo(() => ISSUE_OPTIONS.find((option) => option.value === issueType)?.label, [issueType])
+  const issueTypeLabel = useMemo(
+    () => ISSUE_OPTIONS.find((option) => option.value === issueType)?.label,
+    [issueType]
+  )
 
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 px-4 py-8" role="dialog" aria-modal="true" aria-labelledby="report-issue-title">
+    <div
+      className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 px-4 py-8"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="report-issue-title"
+    >
       <div className="w-full max-w-lg rounded-2xl border border-border/60 bg-[hsl(var(--bg-2))] shadow-xl">
         <div className="flex items-start justify-between border-b border-border/60 px-6 py-4">
           <div>
-            <h2 id="report-issue-title" className="text-lg font-semibold text-[color:hsl(var(--text-1))]">
+            <h2
+              id="report-issue-title"
+              className="text-lg font-semibold text-[color:hsl(var(--text-1))]"
+            >
               Report data concern
             </h2>
             <p className="text-xs text-[color:hsl(var(--text-3))]">
@@ -132,7 +149,10 @@ export function ReportProfileIssueDialog({ judgeSlug, courtId }: ReportProfileIs
 
         <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
           <div className="space-y-2">
-            <label htmlFor="issue-type" className="text-sm font-medium text-[color:hsl(var(--text-2))]">
+            <label
+              htmlFor="issue-type"
+              className="text-sm font-medium text-[color:hsl(var(--text-2))]"
+            >
               Issue type
             </label>
             <select
@@ -150,7 +170,10 @@ export function ReportProfileIssueDialog({ judgeSlug, courtId }: ReportProfileIs
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="issue-details" className="text-sm font-medium text-[color:hsl(var(--text-2))]">
+            <label
+              htmlFor="issue-details"
+              className="text-sm font-medium text-[color:hsl(var(--text-2))]"
+            >
               What needs attention? <span className="text-[color:hsl(var(--neg))]">*</span>
             </label>
             <textarea
@@ -162,11 +185,16 @@ export function ReportProfileIssueDialog({ judgeSlug, courtId }: ReportProfileIs
               className="w-full rounded-lg border border-border/60 bg-[hsl(var(--bg-1))] px-3 py-2 text-sm text-[color:hsl(var(--text-1))] focus:border-[rgba(110,168,254,0.6)] focus:outline-none"
               required
             />
-            <p className="text-xs text-[color:hsl(var(--text-3))]">Provide links or context where possible. Minimum 10 characters.</p>
+            <p className="text-xs text-[color:hsl(var(--text-3))]">
+              Provide links or context where possible. Minimum 10 characters.
+            </p>
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="issue-email" className="text-sm font-medium text-[color:hsl(var(--text-2))]">
+            <label
+              htmlFor="issue-email"
+              className="text-sm font-medium text-[color:hsl(var(--text-2))]"
+            >
               Contact email (optional)
             </label>
             <input
@@ -178,11 +206,21 @@ export function ReportProfileIssueDialog({ judgeSlug, courtId }: ReportProfileIs
               className="w-full rounded-lg border border-border/60 bg-[hsl(var(--bg-1))] px-3 py-2 text-sm text-[color:hsl(var(--text-1))] focus:border-[rgba(110,168,254,0.6)] focus:outline-none"
               autoComplete="email"
             />
-            <p className="text-xs text-[color:hsl(var(--text-3))]">We only use this to follow up if needed.</p>
+            <p className="text-xs text-[color:hsl(var(--text-3))]">
+              We only use this to follow up if needed.
+            </p>
           </div>
 
-          {error && <div className="rounded-lg border border-[rgba(252,165,165,0.4)] bg-[rgba(252,165,165,0.15)] px-3 py-2 text-xs text-[color:hsl(var(--neg))]">{error}</div>}
-          {message && <div className="rounded-lg border border-[rgba(103,232,169,0.35)] bg-[rgba(103,232,169,0.14)] px-3 py-2 text-xs text-[color:hsl(var(--pos))]">{message}</div>}
+          {error && (
+            <div className="rounded-lg border border-[rgba(252,165,165,0.4)] bg-[rgba(252,165,165,0.15)] px-3 py-2 text-xs text-[color:hsl(var(--neg))]">
+              {error}
+            </div>
+          )}
+          {message && (
+            <div className="rounded-lg border border-[rgba(103,232,169,0.35)] bg-[rgba(103,232,169,0.14)] px-3 py-2 text-xs text-[color:hsl(var(--pos))]">
+              {message}
+            </div>
+          )}
 
           <div className="flex items-center justify-end gap-3 pt-2">
             <button

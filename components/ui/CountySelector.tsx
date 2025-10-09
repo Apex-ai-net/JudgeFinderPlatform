@@ -18,32 +18,32 @@ const counties: County[] = [
     name: 'Orange County',
     judges_count: 250,
     status: 'active',
-    phase: 2
+    phase: 2,
   },
   {
     id: 'los-angeles',
     name: 'Los Angeles County',
     judges_count: 600,
     status: 'expanding',
-    phase: 3
+    phase: 3,
   },
   {
     id: 'san-diego',
     name: 'San Diego County',
     judges_count: 150,
     status: 'planned',
-    phase: 4
+    phase: 4,
   },
   {
     id: 'santa-clara',
     name: 'Santa Clara County',
     judges_count: 75,
     status: 'planned',
-    phase: 4
-  }
+    phase: 4,
+  },
 ]
 
-export function CountySelector() {
+export function CountySelector(): JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedCounty, setSelectedCounty] = useState<County>(counties[0])
   const router = useRouter()
@@ -51,7 +51,7 @@ export function CountySelector() {
   const handleCountyChange = (county: County) => {
     setSelectedCounty(county)
     setIsOpen(false)
-    
+
     // Navigate to jurisdiction-specific page
     if (county.status === 'active' || county.status === 'expanding') {
       router.push(`/jurisdictions/${county.id}`)
@@ -62,15 +62,15 @@ export function CountySelector() {
     const badges = {
       active: 'bg-green-100 text-green-800 border-green-200',
       expanding: 'bg-blue-100 text-blue-800 border-blue-200',
-      planned: 'bg-muted text-muted-foreground dark:text-muted-foreground border-border'
+      planned: 'bg-muted text-muted-foreground dark:text-muted-foreground border-border',
     }
-    
+
     const labels = {
       active: 'Active',
       expanding: 'Expanding',
-      planned: 'Planned'
+      planned: 'Planned',
     }
-    
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full border ${badges[status]}`}>
         {labels[status]}
@@ -110,9 +110,11 @@ export function CountySelector() {
                   {county.judges_count} judges • Phase {county.phase}
                 </div>
                 <div className="text-xs text-muted-foreground dark:text-muted-foreground mt-1">
-                  {county.status === 'active' ? 'Data available' : 
-                   county.status === 'expanding' ? 'Expanding coverage' : 
-                   'Coming soon'}
+                  {county.status === 'active'
+                    ? 'Data available'
+                    : county.status === 'expanding'
+                      ? 'Expanding coverage'
+                      : 'Coming soon'}
                 </div>
               </button>
             ))}

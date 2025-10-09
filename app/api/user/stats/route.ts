@@ -4,15 +4,12 @@ import { currentUser } from '@clerk/nextjs/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Get authenticated user from Clerk
     const user = await currentUser()
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const supabase = await createServerClient()
@@ -40,17 +37,15 @@ export async function GET(request: NextRequest) {
 
     // Process activity data
     const activities = activityStats || []
-    const totalSearches = activities.filter(a => a.activity_type === 'search').length
-    const judgesViewed = activities.filter(a => a.activity_type === 'view').length
-    const comparisonsRun = activities.filter(a => a.activity_type === 'compare').length
+    const totalSearches = activities.filter((a) => a.activity_type === 'search').length
+    const judgesViewed = activities.filter((a) => a.activity_type === 'view').length
+    const comparisonsRun = activities.filter((a) => a.activity_type === 'compare').length
 
     // Get recent activity (last 30 days)
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-    
-    const recentActivity = activities.filter(a => 
-      new Date(a.created_at) > thirtyDaysAgo
-    ).length
+
+    const recentActivity = activities.filter((a) => new Date(a.created_at) > thirtyDaysAgo).length
 
     // Calculate join date
     const joinDate = user.createdAt ? new Date(user.createdAt) : new Date()
@@ -66,29 +61,22 @@ export async function GET(request: NextRequest) {
       memberSince: joinDate.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
-      })
+        day: 'numeric',
+      }),
     }
 
     const response = NextResponse.json({
       success: true,
       stats,
-      message: 'User stats retrieved successfully'
+      message: 'User stats retrieved successfully',
     })
 
     // Cache for 5 minutes
-    response.headers.set(
-      'Cache-Control',
-      'private, s-maxage=300, stale-while-revalidate=60'
-    )
+    response.headers.set('Cache-Control', 'private, s-maxage=300, stale-while-revalidate=60')
 
     return response
-
   } catch (error) {
     console.error('User stats API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

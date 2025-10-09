@@ -1,7 +1,18 @@
-"use client"
+'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { User, MessageSquare, Star, TrendingUp, Shield, Phone, Mail, Clock, Award, Sparkles } from 'lucide-react'
+import {
+  User,
+  MessageSquare,
+  Star,
+  TrendingUp,
+  Shield,
+  Phone,
+  Mail,
+  Clock,
+  Award,
+  Sparkles,
+} from 'lucide-react'
 
 interface AttorneySlotsProps {
   judgeId: string
@@ -21,7 +32,7 @@ interface SlotRow {
 
 // No sample data - use real attorney data only
 
-export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
+export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps): JSX.Element {
   const [slots, setSlots] = useState<SlotRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -29,29 +40,50 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
 
   useEffect(() => {
     let isMounted = true
-    
-    async function load() {
+
+    async function load(): JSX.Element {
       try {
         setLoading(true)
         setError(null)
-        
-        const res = await fetch(`/api/judges/${judgeId}/slots`, { 
+
+        const res = await fetch(`/api/judges/${judgeId}/slots`, {
           cache: 'no-store',
-          signal: AbortSignal.timeout(10000) // 10 second timeout
+          signal: AbortSignal.timeout(10000), // 10 second timeout
         })
-        
+
         if (!isMounted) return
-        
+
         if (!res.ok) {
           // Create only 3 available attorney listings (disguised as educational/reference content)
           setSlots([
-            { id: '1', judge_id: judgeId, position: 1, start_date: new Date().toISOString(), price_per_month: 0, is_active: true },
-            { id: '2', judge_id: judgeId, position: 2, start_date: new Date().toISOString(), price_per_month: 0, is_active: true },
-            { id: '3', judge_id: judgeId, position: 3, start_date: new Date().toISOString(), price_per_month: 0, is_active: true },
+            {
+              id: '1',
+              judge_id: judgeId,
+              position: 1,
+              start_date: new Date().toISOString(),
+              price_per_month: 0,
+              is_active: true,
+            },
+            {
+              id: '2',
+              judge_id: judgeId,
+              position: 2,
+              start_date: new Date().toISOString(),
+              price_per_month: 0,
+              is_active: true,
+            },
+            {
+              id: '3',
+              judge_id: judgeId,
+              position: 3,
+              start_date: new Date().toISOString(),
+              price_per_month: 0,
+              is_active: true,
+            },
           ])
           return
         }
-        
+
         const data = await res.json()
         if (isMounted) {
           setSlots(data.slots || [])
@@ -71,26 +103,25 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
         }
       }
     }
-    
+
     if (judgeId && isMounted) {
       load()
     }
-    
+
     return () => {
       isMounted = false
     }
   }, [judgeId])
 
-
-
-  async function claimSlot(slotId: string) {
+  async function claimSlot(slotId: string): JSX.Element {
     try {
       setClaiming(slotId)
       setError(null)
-      
+
       // For now, just show a message since this is a free platform
-      setError('Attorney directory submissions are currently being reviewed. Please check back later.')
-      
+      setError(
+        'Attorney directory submissions are currently being reviewed. Please check back later.'
+      )
     } finally {
       setClaiming(null)
     }
@@ -110,7 +141,7 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
     )
   }
 
-  const availableSlots = slots.filter(s => !s.attorney_id).length
+  const availableSlots = slots.filter((s) => !s.attorney_id).length
   const totalSlots = slots.length
 
   return (
@@ -135,7 +166,7 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
       <div className="space-y-4">
         {slots.map((slot) => {
           const isAvailable = !slot.attorney_id
-          
+
           return (
             <div
               key={slot.id}
@@ -153,8 +184,12 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
                         <User className="h-6 w-6 text-white" />
                       </div>
                       <div className="ml-3">
-        <p className="font-bold text-foreground">Attorney Listing #{slot.position}</p>
-                        <p className="text-sm text-muted-foreground">Submit your profile for review</p>
+                        <p className="font-bold text-foreground">
+                          Attorney Listing #{slot.position}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Submit your profile for review
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -162,7 +197,7 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
                       <p className="text-xs text-muted-foreground">Educational directory</p>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="flex items-center text-sm text-foreground">
                       <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
@@ -181,7 +216,7 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
                       <span>Legal experience</span>
                     </div>
                   </div>
-                  
+
                   <button
                     disabled={!!claiming}
                     onClick={() => claimSlot(slot.id)}
@@ -198,8 +233,12 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
                         <User className="h-6 w-6 text-white" />
                       </div>
                       <div className="ml-3">
-                        <p className="font-medium text-foreground">Attorney Listing #{slot.position}</p>
-                        <p className="text-sm text-muted-foreground">Featured attorney with verified experience</p>
+                        <p className="font-medium text-foreground">
+                          Attorney Listing #{slot.position}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Featured attorney with verified experience
+                        </p>
                       </div>
                     </div>
                     <div className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
@@ -221,19 +260,27 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps) {
         <ul className="space-y-2 text-sm text-foreground">
           <li className="flex items-start">
             <span className="text-green-500 mr-2">✓</span>
-            <span><strong>Educational resource</strong> connecting legal professionals</span>
+            <span>
+              <strong>Educational resource</strong> connecting legal professionals
+            </span>
           </li>
           <li className="flex items-start">
             <span className="text-green-500 mr-2">✓</span>
-            <span>Find attorneys with <strong>relevant experience</strong> before this judge</span>
+            <span>
+              Find attorneys with <strong>relevant experience</strong> before this judge
+            </span>
           </li>
           <li className="flex items-start">
             <span className="text-green-500 mr-2">✓</span>
-            <span>Verify <strong>professional credentials</strong> and background</span>
+            <span>
+              Verify <strong>professional credentials</strong> and background
+            </span>
           </li>
           <li className="flex items-start">
             <span className="text-green-500 mr-2">✓</span>
-            <span><strong>Curated directory</strong> - only {totalSlots} listings per judge</span>
+            <span>
+              <strong>Curated directory</strong> - only {totalSlots} listings per judge
+            </span>
           </li>
         </ul>
       </div>

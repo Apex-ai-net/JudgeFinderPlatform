@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/Skeleton'
 
-export default function Loading() {
+export default function Loading(): JSX.Element {
   return (
     <div className="min-h-screen bg-background">
       {/* Header Skeleton */}

@@ -277,7 +277,7 @@ export async function logRateLimitViolation(
  * Log CSP violation
  */
 export async function logCSPViolation(
-  violationReport: any,
+  violationReport: Record<string, unknown>,
   ipAddress: string,
   userAgent: string
 ): Promise<void> {

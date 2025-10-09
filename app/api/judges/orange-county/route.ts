@@ -9,24 +9,25 @@ export const dynamic = 'force-dynamic'
  * Supports the $78.5K/month revenue pipeline with targeted data access
  */
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const supabase = await createServerClient()
     const { searchParams } = new URL(request.url)
-    
+
     // Parameters
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100)
     const page = Math.max(parseInt(searchParams.get('page') || '1'), 1)
     const searchQuery = searchParams.get('q')?.trim()
     const includeSlots = searchParams.get('include_slots') === 'true'
     const availableSlotsOnly = searchParams.get('available_slots_only') === 'true'
-    
+
     const offset = (page - 1) * limit
 
     // Base query for Orange County judges
     let query = supabase
       .from('judges')
-      .select(`
+      .select(
+        `
         id,
         name,
         court_name,
@@ -40,8 +41,11 @@ export async function GET(request: NextRequest) {
         created_at,
         updated_at
         ${includeSlots ? ',attorney_slots(id, position, price_per_month, is_active, start_date, end_date, attorney_id)' : ''}
-      `)
-      .or('jurisdiction.ilike.%Orange County%, jurisdiction.ilike.%Orange%, court_name.ilike.%Orange County%')
+      `
+      )
+      .or(
+        'jurisdiction.ilike.%Orange County%, jurisdiction.ilike.%Orange%, court_name.ilike.%Orange County%'
+      )
       .order('name')
 
     // Apply search filter if provided
@@ -74,7 +78,9 @@ export async function GET(request: NextRequest) {
     const { count: totalCount, error: countError } = await supabase
       .from('judges')
       .select('*', { count: 'exact', head: true })
-      .or('jurisdiction.ilike.%Orange County%, jurisdiction.ilike.%Orange%, court_name.ilike.%Orange County%')
+      .or(
+        'jurisdiction.ilike.%Orange County%, jurisdiction.ilike.%Orange%, court_name.ilike.%Orange County%'
+      )
 
     if (countError) {
       console.error('Error counting Orange County judges:', countError)
@@ -83,23 +89,24 @@ export async function GET(request: NextRequest) {
     // Filter for available slots if requested (post-query filtering)
     let filteredJudges = judges || []
     if (availableSlotsOnly && includeSlots) {
-      filteredJudges = judges?.filter(judge => {
-        const slots = (judge as any).attorney_slots || []
-        return slots.length < 3 // Assuming max 3 slots per judge
-      }) || []
+      filteredJudges =
+        judges?.filter((judge) => {
+          const slots = (judge as any).attorney_slots || []
+          return slots.length < 3 // Assuming max 3 slots per judge
+        }) || []
     }
 
     // Calculate advertising slot availability
-    const judgesWithSlotInfo = filteredJudges.map(judge => {
-      if (!judge || typeof judge !== 'object') return judge;
-      
+    const judgesWithSlotInfo = filteredJudges.map((judge) => {
+      if (!judge || typeof judge !== 'object') return judge
+
       return {
         ...(judge as Record<string, any>),
         advertising_slots: {
           total: 3, // Maximum slots per judge
-          occupied: includeSlots ? ((judge as any).attorney_slots?.length || 0) : 0,
-          available: includeSlots ? (3 - ((judge as any).attorney_slots?.length || 0)) : 3
-        }
+          occupied: includeSlots ? (judge as any).attorney_slots?.length || 0 : 0,
+          available: includeSlots ? 3 - ((judge as any).attorney_slots?.length || 0) : 3,
+        },
       }
     })
 
@@ -108,21 +115,24 @@ export async function GET(request: NextRequest) {
       total_count: totalCount || 0,
       page,
       per_page: limit,
-      has_more: (page * limit) < (totalCount || 0),
+      has_more: page * limit < (totalCount || 0),
       county: 'Orange County',
       revenue_potential: {
         target_judges: judgesWithSlotInfo.length,
         max_slots: judgesWithSlotInfo.length * 3,
-        available_slots: judgesWithSlotInfo.reduce((sum, judge) => sum + ((judge as any)?.advertising_slots?.available || 0), 0),
-        estimated_monthly_revenue: judgesWithSlotInfo.reduce((sum, judge) => sum + ((judge as any)?.advertising_slots?.available || 0), 0) * 500 // $500 per slot
-      }
+        available_slots: judgesWithSlotInfo.reduce(
+          (sum, judge) => sum + ((judge as any)?.advertising_slots?.available || 0),
+          0
+        ),
+        estimated_monthly_revenue:
+          judgesWithSlotInfo.reduce(
+            (sum, judge) => sum + ((judge as any)?.advertising_slots?.available || 0),
+            0
+          ) * 500, // $500 per slot
+      },
     })
-
   } catch (error) {
     console.error('Orange County judges API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

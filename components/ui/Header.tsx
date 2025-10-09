@@ -10,7 +10,13 @@ import { ThemeToggle } from './ThemeToggle'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
-import { fadeInDown, staggerContainer, staggerItem, tap, transitions } from '@/lib/animations/presets'
+import {
+  fadeInDown,
+  staggerContainer,
+  staggerItem,
+  tap,
+  transitions,
+} from '@/lib/animations/presets'
 
 const NAV_LINKS = [
   { href: '/judges', label: 'Judges' },
@@ -21,7 +27,7 @@ const NAV_LINKS = [
   { href: '/help', label: 'Resources' },
 ]
 
-export function Header() {
+export function Header(): JSX.Element {
   const pathname = usePathname()
   const { isSignedIn } = useSafeUser()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -62,9 +68,7 @@ export function Header() {
                 href={href}
                 className={cn(
                   'relative inline-flex items-center text-sm font-medium transition-colors group',
-                  isActive(href)
-                    ? 'text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
+                  isActive(href) ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 {label}
@@ -98,14 +102,18 @@ export function Header() {
           </Link>
           <ThemeToggle />
           {isSignedIn ? (
-            <SafeUserButton afterSignOutUrl="/" appearance={{ elements: { userButtonAvatarBox: { width: '32px', height: '32px' } } }} />
+            <SafeUserButton
+              afterSignOutUrl="/"
+              appearance={{ elements: { userButtonAvatarBox: { width: '32px', height: '32px' } } }}
+            />
           ) : (
-            <SafeSignInButton mode="modal" fallbackRedirectUrl="/dashboard" forceRedirectUrl="/dashboard">
+            <SafeSignInButton
+              mode="modal"
+              fallbackRedirectUrl="/dashboard"
+              forceRedirectUrl="/dashboard"
+            >
               <span
-                className={cn(
-                  buttonVariants({ variant: 'outline', size: 'sm' }),
-                  'cursor-pointer'
-                )}
+                className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'cursor-pointer')}
               >
                 Sign in
               </span>

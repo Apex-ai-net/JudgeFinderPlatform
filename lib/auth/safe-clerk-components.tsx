@@ -14,7 +14,7 @@ interface SafeUser {
 const DEFAULT_USER_STATE: SafeUser = {
   isSignedIn: false,
   user: null,
-  isLoaded: false
+  isLoaded: false,
 }
 
 // Check if we're in a browser environment
@@ -23,10 +23,12 @@ const isBrowser = () => typeof window !== 'undefined'
 // Check if Clerk has a valid key (not dummy)
 const hasValidClerkKey = () => {
   const pubKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || ''
-  return pubKey.startsWith('pk_') && 
-         !pubKey.includes('YOUR') && 
-         !pubKey.includes('CONFIGURE') &&
-         !pubKey.includes('dummy')
+  return (
+    pubKey.startsWith('pk_') &&
+    !pubKey.includes('YOUR') &&
+    !pubKey.includes('CONFIGURE') &&
+    !pubKey.includes('dummy')
+  )
 }
 
 // Dynamically loaded Clerk components
@@ -34,7 +36,7 @@ let ClerkComponents: any = null
 
 const loadClerkComponents = async () => {
   if (ClerkComponents) return ClerkComponents
-  
+
   try {
     if (hasValidClerkKey()) {
       ClerkComponents = await import('@clerk/nextjs')
@@ -47,10 +49,10 @@ const loadClerkComponents = async () => {
 }
 
 // Safe UserButton component
-export function SafeUserButton(props: any) {
+export function SafeUserButton(props: any): JSX.Element {
   const [mounted, setMounted] = useState(false)
   const [UserButtonComponent, setUserButtonComponent] = useState<any>(null)
-  
+
   useEffect(() => {
     setMounted(true)
     if (hasValidClerkKey()) {
@@ -61,16 +63,19 @@ export function SafeUserButton(props: any) {
       })
     }
   }, [])
-  
+
   // During SSR or before mount, show placeholder
   if (!mounted || !UserButtonComponent) {
     return (
-      <Link href="/profile" className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center">
+      <Link
+        href="/profile"
+        className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center"
+      >
         <span className="text-white text-sm">U</span>
       </Link>
     )
   }
-  
+
   // Use Clerk's UserButton when loaded
   return <UserButtonComponent {...props} />
 }
@@ -91,7 +96,7 @@ export function SafeSignInButton({
 }: SafeSignInButtonProps) {
   const [mounted, setMounted] = useState(false)
   const [SignInButtonComponent, setSignInButtonComponent] = useState<any>(null)
-  
+
   useEffect(() => {
     setMounted(true)
     if (hasValidClerkKey()) {
@@ -102,12 +107,12 @@ export function SafeSignInButton({
       })
     }
   }, [])
-  
+
   // During SSR or before mount, show fallback
   if (!mounted || !SignInButtonComponent) {
     return <Link href="/sign-in">{children}</Link>
   }
-  
+
   // Use Clerk's SignInButton when loaded
   return (
     <SignInButtonComponent
@@ -134,7 +139,7 @@ export function SafeSignOutButton({
 }: SafeSignOutButtonProps) {
   const [mounted, setMounted] = useState(false)
   const [SignOutButtonComponent, setSignOutButtonComponent] = useState<any>(null)
-  
+
   useEffect(() => {
     setMounted(true)
     if (hasValidClerkKey()) {
@@ -145,22 +150,24 @@ export function SafeSignOutButton({
       })
     }
   }, [])
-  
+
   // During SSR or before mount, show fallback
   if (!mounted || !SignOutButtonComponent) {
     return (
-      <button className="w-full text-left" onClick={() => { window.location.href = signOutRedirectUrl }}>
+      <button
+        className="w-full text-left"
+        onClick={() => {
+          window.location.href = signOutRedirectUrl
+        }}
+      >
         {children || 'Sign Out'}
       </button>
     )
   }
-  
+
   // Use Clerk's SignOutButton when loaded
   return (
-    <SignOutButtonComponent
-      signOutRedirectUrl={signOutRedirectUrl}
-      {...rest}
-    >
+    <SignOutButtonComponent signOutRedirectUrl={signOutRedirectUrl} {...rest}>
       {children}
     </SignOutButtonComponent>
   )

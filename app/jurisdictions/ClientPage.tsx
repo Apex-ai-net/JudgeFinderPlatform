@@ -2,7 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { MapPin, Building, Users, Scale, TrendingUp, ArrowRight, ChevronRight, Globe, Shield, Sparkles } from 'lucide-react'
+import {
+  MapPin,
+  Building,
+  Users,
+  Scale,
+  TrendingUp,
+  ArrowRight,
+  ChevronRight,
+  Globe,
+  Shield,
+  Sparkles,
+} from 'lucide-react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
 import { TypewriterText } from '@/components/ui/TypewriterText'
@@ -27,8 +38,9 @@ const majorJurisdictions: Jurisdiction[] = [
     courtCount: 38,
     population: 10000000,
     majorCities: ['Los Angeles', 'Long Beach', 'Pasadena', 'Burbank', 'Glendale'],
-    description: 'Largest judicial system in California with comprehensive trial and appellate courts.',
-    slug: 'los-angeles-county'
+    description:
+      'Largest judicial system in California with comprehensive trial and appellate courts.',
+    slug: 'los-angeles-county',
   },
   {
     name: 'Orange County',
@@ -37,8 +49,9 @@ const majorJurisdictions: Jurisdiction[] = [
     courtCount: 12,
     population: 3175000,
     majorCities: ['Anaheim', 'Santa Ana', 'Irvine', 'Huntington Beach', 'Garden Grove'],
-    description: 'Major Southern California jurisdiction serving diverse communities and businesses.',
-    slug: 'orange-county'
+    description:
+      'Major Southern California jurisdiction serving diverse communities and businesses.',
+    slug: 'orange-county',
   },
   {
     name: 'San Diego County',
@@ -48,7 +61,7 @@ const majorJurisdictions: Jurisdiction[] = [
     population: 3338000,
     majorCities: ['San Diego', 'Chula Vista', 'Oceanside', 'Escondido', 'Carlsbad'],
     description: 'Southern California coastal jurisdiction with federal and state court systems.',
-    slug: 'san-diego-county'
+    slug: 'san-diego-county',
   },
   {
     name: 'San Francisco County',
@@ -58,7 +71,7 @@ const majorJurisdictions: Jurisdiction[] = [
     population: 875000,
     majorCities: ['San Francisco'],
     description: 'Metropolitan jurisdiction with specialized business and technology courts.',
-    slug: 'san-francisco-county'
+    slug: 'san-francisco-county',
   },
   {
     name: 'Santa Clara County',
@@ -68,7 +81,7 @@ const majorJurisdictions: Jurisdiction[] = [
     population: 1936000,
     majorCities: ['San Jose', 'Sunnyvale', 'Santa Clara', 'Mountain View', 'Palo Alto'],
     description: 'Silicon Valley jurisdiction handling technology and intellectual property cases.',
-    slug: 'santa-clara-county'
+    slug: 'santa-clara-county',
   },
   {
     name: 'Alameda County',
@@ -78,8 +91,8 @@ const majorJurisdictions: Jurisdiction[] = [
     population: 1670000,
     majorCities: ['Oakland', 'Fremont', 'Berkeley', 'Hayward', 'San Leandro'],
     description: 'Bay Area jurisdiction with diverse civil and criminal caseloads.',
-    slug: 'alameda-county'
-  }
+    slug: 'alameda-county',
+  },
 ]
 
 // Function to convert jurisdiction name to URL slug
@@ -91,11 +104,11 @@ function createSlugFromJurisdiction(jurisdiction: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-export default function JurisdictionsPage() {
+export default function JurisdictionsPage(): JSX.Element {
   const { scrollYProgress } = useScroll()
   const y = useTransform(scrollYProgress, [0, 1], [0, -50])
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.3])
-  
+
   const [jurisdictionStats, setJurisdictionStats] = useState<Record<string, number>>({})
   const [courts, setCourts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -103,7 +116,7 @@ export default function JurisdictionsPage() {
   // Animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
+    visible: { opacity: 1, y: 0 },
   }
 
   const staggerContainer = {
@@ -112,22 +125,22 @@ export default function JurisdictionsPage() {
       opacity: 1,
       transition: {
         staggerChildren: 0.1,
-        delayChildren: 0.3
-      }
-    }
+        delayChildren: 0.3,
+      },
+    },
   }
 
   const cardVariants = {
     hidden: { opacity: 0, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       scale: 1,
-      transition: { duration: 0.3 }
-    }
+      transition: { duration: 0.3 },
+    },
   }
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchData(): JSX.Element {
       try {
         // Fetch jurisdiction stats
         const judgesResponse = await fetch('/api/judges/list?limit=1000')
@@ -166,12 +179,12 @@ export default function JurisdictionsPage() {
         {/* Gradient Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-enterprise-primary/10 via-enterprise-deep/10 to-background" />
 
-        <motion.div 
+        <motion.div
           className="relative z-10 text-center px-4 max-w-7xl mx-auto w-full"
           style={{ y, opacity }}
         >
           {/* Breadcrumb */}
-          <motion.div 
+          <motion.div
             className="mb-6 flex items-center justify-center gap-2 text-sm"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -199,31 +212,37 @@ export default function JurisdictionsPage() {
               </span>
             </h1>
           </motion.div>
-          
-          <motion.p 
+
+          <motion.p
             className="mx-auto mb-12 max-w-2xl text-lg md:text-xl text-muted-foreground"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            Find courts and judges in your California jurisdiction. Complete directory of county courts,
-            judicial districts, and local legal services across all 58 counties.
+            Find courts and judges in your California jurisdiction. Complete directory of county
+            courts, judicial districts, and local legal services across all 58 counties.
           </motion.p>
-          
+
           {/* Animated Statistics */}
-          <motion.div 
+          <motion.div
             className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.8 }}
           >
             {[
-              { icon: MapPin, value: 58, label: "Counties", color: "text-primary" },
-              { icon: Building, value: 167, label: "Courts", color: "text-enterprise-accent" },
-              { icon: Scale, value: 1810, label: "Judges", color: "text-enterprise-deep" },
-              { icon: Users, value: 40, label: "Million Residents", suffix: "M", color: "text-enterprise-light" }
+              { icon: MapPin, value: 58, label: 'Counties', color: 'text-primary' },
+              { icon: Building, value: 167, label: 'Courts', color: 'text-enterprise-accent' },
+              { icon: Scale, value: 1810, label: 'Judges', color: 'text-enterprise-deep' },
+              {
+                icon: Users,
+                value: 40,
+                label: 'Million Residents',
+                suffix: 'M',
+                color: 'text-enterprise-light',
+              },
             ].map((stat, index) => (
-              <motion.div 
+              <motion.div
                 key={stat.label}
                 className="group"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -243,12 +262,12 @@ export default function JurisdictionsPage() {
             ))}
           </motion.div>
         </motion.div>
-        
+
         <ScrollIndicator />
       </section>
 
       {/* Major Jurisdictions */}
-      <motion.section 
+      <motion.section
         className="px-4 py-16"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -275,111 +294,111 @@ export default function JurisdictionsPage() {
             </p>
           </motion.div>
 
-        <motion.div 
-          initial="hidden"
-          animate="visible"
-          variants={staggerContainer}
-          className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
-        >
-          {majorJurisdictions.map((jurisdiction, index) => (
-            <motion.div
-              key={jurisdiction.name}
-              variants={cardVariants}
-              whileHover={{ 
-                scale: 1.03,
-                transition: { duration: 0.2 }
-              }}
-              whileTap={{ scale: 0.98 }}
-              className="group relative rounded-2xl bg-white p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-300 overflow-hidden"
-            >
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
-              <div className="relative">
-                <div className="mb-4 flex items-center">
-                  <motion.div 
-                    className="mr-3 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-r from-enterprise-primary to-enterprise-deep"
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <MapPin className="h-6 w-6 text-white" />
-                  </motion.div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                      {jurisdiction.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 capitalize">{jurisdiction.type}</p>
-                  </div>
-                </div>
-                
-                <p className="mb-4 text-gray-600 text-sm">{jurisdiction.description}</p>
-                
-                <div className="mb-4 grid grid-cols-2 gap-4 text-sm">
-                  <motion.div 
-                    whileHover={{ scale: 1.05 }}
-                    className="text-center p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg"
-                  >
-                    <motion.div 
-                      className="font-bold text-2xl text-blue-600"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.5 + index * 0.1 }}
-                    >
-                      {jurisdiction.judgeCount}
-                    </motion.div>
-                    <div className="text-gray-600">Judges</div>
-                  </motion.div>
-                  <motion.div 
-                    whileHover={{ scale: 1.05 }}
-                    className="text-center p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg"
-                  >
-                    <motion.div 
-                      className="font-bold text-2xl text-green-600"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.6 + index * 0.1 }}
-                    >
-                      {jurisdiction.courtCount}
-                    </motion.div>
-                    <div className="text-gray-600">Courts</div>
-                  </motion.div>
-                </div>
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
+          >
+            {majorJurisdictions.map((jurisdiction, index) => (
+              <motion.div
+                key={jurisdiction.name}
+                variants={cardVariants}
+                whileHover={{
+                  scale: 1.03,
+                  transition: { duration: 0.2 },
+                }}
+                whileTap={{ scale: 0.98 }}
+                className="group relative rounded-2xl bg-white p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-300 overflow-hidden"
+              >
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                <div className="mb-4">
-                  <div className="text-xs text-gray-500 mb-2">Major Cities:</div>
-                  <div className="flex flex-wrap gap-2">
-                    {jurisdiction.majorCities.slice(0, 3).map((city, cityIndex) => (
-                      <motion.span
-                        key={city}
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.7 + index * 0.1 + cityIndex * 0.05 }}
-                        className="rounded-full bg-gradient-to-r from-blue-100 to-purple-100 px-3 py-1 text-xs text-gray-700"
+                <div className="relative">
+                  <div className="mb-4 flex items-center">
+                    <motion.div
+                      className="mr-3 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-r from-enterprise-primary to-enterprise-deep"
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <MapPin className="h-6 w-6 text-white" />
+                    </motion.div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {jurisdiction.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 capitalize">{jurisdiction.type}</p>
+                    </div>
+                  </div>
+
+                  <p className="mb-4 text-gray-600 text-sm">{jurisdiction.description}</p>
+
+                  <div className="mb-4 grid grid-cols-2 gap-4 text-sm">
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      className="text-center p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg"
+                    >
+                      <motion.div
+                        className="font-bold text-2xl text-blue-600"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 + index * 0.1 }}
                       >
-                        {city}
-                      </motion.span>
-                    ))}
+                        {jurisdiction.judgeCount}
+                      </motion.div>
+                      <div className="text-gray-600">Judges</div>
+                    </motion.div>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      className="text-center p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg"
+                    >
+                      <motion.div
+                        className="font-bold text-2xl text-green-600"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6 + index * 0.1 }}
+                      >
+                        {jurisdiction.courtCount}
+                      </motion.div>
+                      <div className="text-gray-600">Courts</div>
+                    </motion.div>
                   </div>
-                </div>
 
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link
-                    href={`/jurisdictions/${jurisdiction.slug}`}
-                    className="flex items-center justify-center w-full rounded-lg bg-gradient-to-r from-enterprise-primary to-enterprise-deep px-4 py-3 text-center text-white font-medium hover:from-enterprise-accent hover:to-enterprise-primary transition-all duration-200 shadow-lg hover:shadow-xl"
-                  >
-                    View Courts & Judges
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </motion.div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+                  <div className="mb-4">
+                    <div className="text-xs text-gray-500 mb-2">Major Cities:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {jurisdiction.majorCities.slice(0, 3).map((city, cityIndex) => (
+                        <motion.span
+                          key={city}
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.7 + index * 0.1 + cityIndex * 0.05 }}
+                          className="rounded-full bg-gradient-to-r from-blue-100 to-purple-100 px-3 py-1 text-xs text-gray-700"
+                        >
+                          {city}
+                        </motion.span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Link
+                      href={`/jurisdictions/${jurisdiction.slug}`}
+                      className="flex items-center justify-center w-full rounded-lg bg-gradient-to-r from-enterprise-primary to-enterprise-deep px-4 py-3 text-center text-white font-medium hover:from-enterprise-accent hover:to-enterprise-primary transition-all duration-200 shadow-lg hover:shadow-xl"
+                    >
+                      View Courts & Judges
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
+                  </motion.div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </motion.section>
 
       {/* All California Counties */}
-      <motion.section 
+      <motion.section
         className="bg-muted/30 py-16"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -387,7 +406,7 @@ export default function JurisdictionsPage() {
         transition={{ duration: 0.8 }}
       >
         <div className="mx-auto max-w-7xl px-4">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-12"
@@ -402,7 +421,7 @@ export default function JurisdictionsPage() {
 
           <AnimatePresence>
             {!loading && (
-              <motion.div 
+              <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={staggerContainer}
@@ -428,10 +447,7 @@ export default function JurisdictionsPage() {
                             <span className="font-medium text-blue-600">{count}</span> judges
                           </p>
                         </div>
-                        <motion.div
-                          whileHover={{ rotate: 20 }}
-                          transition={{ type: "spring" }}
-                        >
+                        <motion.div whileHover={{ rotate: 20 }} transition={{ type: 'spring' }}>
                           <MapPin className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
                         </motion.div>
                       </div>
@@ -445,7 +461,7 @@ export default function JurisdictionsPage() {
       </motion.section>
 
       {/* Court Directory */}
-      <motion.section 
+      <motion.section
         className="py-16"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -453,7 +469,7 @@ export default function JurisdictionsPage() {
         transition={{ duration: 0.8 }}
       >
         <div className="mx-auto max-w-7xl px-4">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="mb-12"
@@ -461,12 +477,10 @@ export default function JurisdictionsPage() {
             <h2 className="mb-4 text-3xl font-bold bg-gradient-to-r from-enterprise-primary to-enterprise-deep bg-clip-text text-transparent">
               Recent Court Additions
             </h2>
-            <p className="text-lg text-gray-600">
-              Newly added courts to our directory
-            </p>
+            <p className="text-lg text-gray-600">Newly added courts to our directory</p>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial="hidden"
             animate="visible"
             variants={staggerContainer}
@@ -486,7 +500,7 @@ export default function JurisdictionsPage() {
                   <div className="mb-4 flex items-start">
                     <motion.div
                       whileHover={{ rotate: 15 }}
-                      transition={{ type: "spring" }}
+                      transition={{ type: 'spring' }}
                       className="mr-3"
                     >
                       <Building className="h-6 w-6 text-blue-600" />
@@ -498,20 +512,18 @@ export default function JurisdictionsPage() {
                       <p className="text-sm text-gray-500 capitalize">{court.type} Court</p>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2 text-sm text-gray-600">
                     <div className="flex items-center">
                       <MapPin className="mr-2 h-4 w-4 text-gray-400" />
                       {court.jurisdiction}
                     </div>
                     {court.address && (
-                      <div className="text-xs text-gray-500 truncate">
-                        {court.address}
-                      </div>
+                      <div className="text-xs text-gray-500 truncate">{court.address}</div>
                     )}
                   </div>
-                  
-                  <motion.div 
+
+                  <motion.div
                     className="mt-4 flex items-center text-sm text-blue-600 font-medium"
                     whileHover={{ x: 5 }}
                   >
@@ -527,31 +539,29 @@ export default function JurisdictionsPage() {
 
       {/* Legal Services CTA */}
       <section className="border-t border-border bg-gradient-to-r from-enterprise-primary/10 to-enterprise-deep/10 px-4 py-20">
-
-        <motion.div 
+        <motion.div
           className="mx-auto max-w-4xl text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="mb-4 text-3xl md:text-4xl font-bold">
-            Need Legal Help in Your Area?
-          </h2>
+          <h2 className="mb-4 text-3xl md:text-4xl font-bold">Need Legal Help in Your Area?</h2>
           <p className="mb-8 text-lg text-muted-foreground">
-            Find experienced local attorneys who practice in your jurisdiction and understand local court procedures.
+            Find experienced local attorneys who practice in your jurisdiction and understand local
+            court procedures.
           </p>
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link 
-                href="/attorneys" 
+              <Link
+                href="/attorneys"
                 className="inline-block rounded-lg bg-primary px-8 py-3 font-semibold text-primary-foreground transition hover:bg-primary/90 text-center"
               >
                 Find Local Attorneys
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link 
-                href="/courts" 
+              <Link
+                href="/courts"
                 className="inline-block rounded-lg border border-border px-8 py-3 font-semibold text-foreground transition hover:bg-muted text-center bg-card"
               >
                 Browse All Courts

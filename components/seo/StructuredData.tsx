@@ -7,7 +7,7 @@ interface StructuredDataProps {
   data: any
 }
 
-export function StructuredData({ type, data }: StructuredDataProps) {
+export function StructuredData({ type, data }: StructuredDataProps): JSX.Element {
   const baseUrl = getBaseUrl()
   const getStructuredData = () => {
     const baseData = {
@@ -22,20 +22,21 @@ export function StructuredData({ type, data }: StructuredDataProps) {
           name: 'JudgeFinder Platform',
           alternateName: 'JudgeFinder.io',
           url: baseUrl,
-          description: 'Free judicial transparency and bias detection tool for citizens, attorneys, and litigants researching judicial patterns across California.',
+          description:
+            'Free judicial transparency and bias detection tool for citizens, attorneys, and litigants researching judicial patterns across California.',
           potentialAction: {
             '@type': 'SearchAction',
             target: {
               '@type': 'EntryPoint',
-              urlTemplate: `${baseUrl}/search?q={search_term_string}`
+              urlTemplate: `${baseUrl}/search?q={search_term_string}`,
             },
-            'query-input': 'required name=search_term_string'
+            'query-input': 'required name=search_term_string',
           },
           publisher: {
             '@type': 'Organization',
             name: 'JudgeFinder Platform',
-            url: baseUrl
-          }
+            url: baseUrl,
+          },
         }
 
       case 'organization':
@@ -44,7 +45,8 @@ export function StructuredData({ type, data }: StructuredDataProps) {
           '@type': 'Organization',
           name: 'JudgeFinder Platform',
           url: baseUrl,
-          description: 'Free judicial transparency and bias detection tool providing access to comprehensive California judicial data.',
+          description:
+            'Free judicial transparency and bias detection tool providing access to comprehensive California judicial data.',
           foundingDate: '2025',
           knowsAbout: [
             'Judicial transparency',
@@ -52,17 +54,18 @@ export function StructuredData({ type, data }: StructuredDataProps) {
             'Court decisions',
             'Judge research',
             'Bias detection',
-            'California courts'
+            'California courts',
           ],
           serviceArea: {
             '@type': 'State',
-            name: 'California'
+            name: 'California',
           },
           offers: {
             '@type': 'Service',
             name: 'Judicial Research and Transparency',
-            description: 'Free access to judge and court information for transparency and bias detection'
-          }
+            description:
+              'Free access to judge and court information for transparency and bias detection',
+          },
         }
 
       case 'judge':
@@ -75,11 +78,11 @@ export function StructuredData({ type, data }: StructuredDataProps) {
           worksFor: {
             '@type': 'GovernmentOrganization',
             name: data.court_name,
-            '@id': `${baseUrl}/courts/${data.court_slug}`
+            '@id': `${baseUrl}/courts/${data.court_slug}`,
           },
           knowsAbout: data.specialties || [],
           url: `${baseUrl}/judges/${data.slug}`,
-          sameAs: data.external_links || []
+          sameAs: data.external_links || [],
         }
 
       case 'court':
@@ -92,18 +95,19 @@ export function StructuredData({ type, data }: StructuredDataProps) {
           url: `${baseUrl}/courts/${data.slug}`,
           address: {
             '@type': 'PostalAddress',
-            addressRegion: data.jurisdiction
+            addressRegion: data.jurisdiction,
           },
           areaServed: {
             '@type': 'State',
-            name: 'California'
+            name: 'California',
           },
-          employee: data.judges?.map((judge: any) => ({
-            '@type': 'Person',
-            name: judge.name,
-            jobTitle: 'Judge',
-            url: `${baseUrl}/judges/${judge.slug}`
-          })) || []
+          employee:
+            data.judges?.map((judge: any) => ({
+              '@type': 'Person',
+              name: judge.name,
+              jobTitle: 'Judge',
+              url: `${baseUrl}/judges/${judge.slug}`,
+            })) || [],
         }
 
       default:
@@ -115,7 +119,7 @@ export function StructuredData({ type, data }: StructuredDataProps) {
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(getStructuredData(), null, 2)
+        __html: JSON.stringify(getStructuredData(), null, 2),
       }}
     />
   )

@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import Link from 'next/link'
 import { useMemo } from 'react'
@@ -44,7 +44,7 @@ function buildEducationSummary(judge: Judge): string | null {
   return judge.education
 }
 
-export function JudgeProfile({ judge }: JudgeProfileProps) {
+export function JudgeProfile({ judge }: JudgeProfileProps): JSX.Element {
   const courtlistenerData = judge.courtlistener_data
 
   let appointmentDate: Date | null = null
@@ -54,7 +54,10 @@ export function JudgeProfile({ judge }: JudgeProfileProps) {
     appointmentDate = new Date(judge.appointed_date)
   } else if (courtlistenerData?.positions?.length) {
     const judicialPositions = courtlistenerData.positions
-      .filter((pos: any) => pos.position_type && ['jud', 'c-jud', 'jus', 'c-jus'].includes(pos.position_type))
+      .filter(
+        (pos: any) =>
+          pos.position_type && ['jud', 'c-jud', 'jus', 'c-jus'].includes(pos.position_type)
+      )
       .sort((a: any, b: any) => (a.date_start || '').localeCompare(b.date_start || ''))
 
     if (judicialPositions.length > 0 && judicialPositions[0].date_start) {
@@ -80,7 +83,7 @@ export function JudgeProfile({ judge }: JudgeProfileProps) {
       { href: '#analytics', label: 'Analytics' },
       { href: '#recent-decisions', label: 'Recent decisions' },
     ],
-    [],
+    []
   )
 
   const metricTiles = [
@@ -110,7 +113,10 @@ export function JudgeProfile({ judge }: JudgeProfileProps) {
         judge.average_decision_time !== null && judge.average_decision_time > 0
           ? `${judge.average_decision_time}`
           : '—',
-      numericValue: judge.average_decision_time !== null && judge.average_decision_time > 0 ? judge.average_decision_time : null,
+      numericValue:
+        judge.average_decision_time !== null && judge.average_decision_time > 0
+          ? judge.average_decision_time
+          : null,
       helper: 'Median elapsed time from filing to decision',
       dataType: 'record' as const,
       icon: Clock,
@@ -152,7 +158,11 @@ export function JudgeProfile({ judge }: JudgeProfileProps) {
         </nav>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <JudgeFilters value={filters} onChange={setFilters} onReset={resetFilters} />
-          <BookmarkButton judgeId={judge.id} judgeName={judge.name} className="hidden md:inline-flex" />
+          <BookmarkButton
+            judgeId={judge.id}
+            judgeName={judge.name}
+            className="hidden md:inline-flex"
+          />
         </div>
       </div>
       <div className="md:hidden">
@@ -201,7 +211,10 @@ export function JudgeProfile({ judge }: JudgeProfileProps) {
                 {/* Value with animation */}
                 <div className={valueClass}>
                   {tile.numericValue !== null ? (
-                    <AnimatedNumber value={tile.numericValue} decimals={tile.numericValue > 100 ? 0 : 1} />
+                    <AnimatedNumber
+                      value={tile.numericValue}
+                      decimals={tile.numericValue > 100 ? 0 : 1}
+                    />
                   ) : (
                     tile.value
                   )}
@@ -227,7 +240,9 @@ export function JudgeProfile({ judge }: JudgeProfileProps) {
                 </div>
 
                 {/* Helper text */}
-                <p className="mt-3 text-xs text-[color:hsl(var(--text-3))] leading-relaxed">{tile.helper}</p>
+                <p className="mt-3 text-xs text-[color:hsl(var(--text-3))] leading-relaxed">
+                  {tile.helper}
+                </p>
               </AnimatedCard>
             </motion.div>
           )
@@ -243,9 +258,9 @@ export function JudgeProfile({ judge }: JudgeProfileProps) {
           Coverage and methodology
         </div>
         <p className="mt-3 leading-6 text-[color:hsl(var(--text-2))]">
-          Analytics include rulings captured from CourtListener, state registers, and verified public sources.
-          Data coverage expands nightly with automated syncs; key slices (motions, appeals, parties) are staged
-          below for deeper review.
+          Analytics include rulings captured from CourtListener, state registers, and verified
+          public sources. Data coverage expands nightly with automated syncs; key slices (motions,
+          appeals, parties) are staged below for deeper review.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-[color:hsl(var(--text-3))]">
           <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-[hsl(var(--bg-1))] px-3 py-1 font-semibold uppercase tracking-[0.2em]">

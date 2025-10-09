@@ -3,7 +3,7 @@ import { Redis } from '@upstash/redis'
 import type { NextRequest } from 'next/server'
 import { logger } from '@/lib/utils/logger'
 
-export type RateLimitConfig = {
+export interface RateLimitConfig {
   tokens: number
   window: string // e.g. '10 s', '1 m'
   prefix?: string
@@ -21,11 +21,12 @@ function ensureRedisEnv(): { url: string; token: string } | null {
   if (!url || !token) {
     // SECURITY: Fail loud in production - rate limiting is critical
     if (isProduction) {
-      const error = 'CRITICAL SECURITY ERROR: Upstash Redis credentials are required in production for rate limiting'
+      const error =
+        'CRITICAL SECURITY ERROR: Upstash Redis credentials are required in production for rate limiting'
       logger.error(error, {
         scope: 'rate_limit',
         env: process.env.NODE_ENV,
-        severity: 'critical'
+        severity: 'critical',
       })
       throw new Error(error)
     }
@@ -59,7 +60,7 @@ function getRedis(): Redis | null {
 
   logger.info('Rate limiting redis client initialised', {
     scope: 'rate_limit',
-    prefix: 'init'
+    prefix: 'init',
   })
 
   return sharedRedis
@@ -75,7 +76,7 @@ export function isRateLimitConfigured(): boolean {
   }
 }
 
-export function buildRateLimiter(config: RateLimitConfig) {
+export function buildRateLimiter(config: RateLimitConfig): void {
   let client: Redis | null = null
   const isProduction = process.env.NODE_ENV === 'production'
 
@@ -85,7 +86,7 @@ export function buildRateLimiter(config: RateLimitConfig) {
     logger.error('Failed to build rate limiter', {
       scope: 'rate_limit',
       prefix: config.prefix,
-      error
+      error,
     })
     // Re-throw in production - this is a critical failure
     if (isProduction) {
@@ -105,11 +106,15 @@ export function buildRateLimiter(config: RateLimitConfig) {
     // Development: Return pass-through limiter
     logger.warn('Rate limiter using pass-through mode (development only)', {
       scope: 'rate_limit',
-      prefix: config.prefix
+      prefix: config.prefix,
     })
 
     return {
-      limit: async (_key: string) => ({ success: true, remaining: Number.POSITIVE_INFINITY, reset: Date.now() + 1000 })
+      limit: async (_key: string) => ({
+        success: true,
+        remaining: Number.POSITIVE_INFINITY,
+        reset: Date.now() + 1000,
+      }),
     }
   }
 
@@ -117,7 +122,7 @@ export function buildRateLimiter(config: RateLimitConfig) {
   const limiter = new Ratelimit({
     redis: client,
     limiter: Ratelimit.slidingWindow(config.tokens, duration),
-    prefix: config.prefix || 'rl'
+    prefix: config.prefix || 'rl',
   })
 
   return {
@@ -128,20 +133,16 @@ export function buildRateLimiter(config: RateLimitConfig) {
         prefix: config.prefix,
         key,
         remaining: result.remaining,
-        success: result.success
+        success: result.success,
       })
       return result
-    }
+    },
   }
 }
 
 export function getClientIp(req: NextRequest): string {
   const h = req.headers
-  return (
-    h.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    h.get('x-real-ip')?.trim() ||
-    'unknown'
-  )
+  return h.get('x-forwarded-for')?.split(',')[0]?.trim() || h.get('x-real-ip')?.trim() || 'unknown'
 }
 
 function getDefaultLimiter(): Ratelimit | null {
@@ -157,13 +158,13 @@ function getDefaultLimiter(): Ratelimit | null {
   defaultLimiter = new Ratelimit({
     redis: client,
     limiter: Ratelimit.fixedWindow(60, '1 m'),
-    prefix: 'api:default'
+    prefix: 'api:default',
   })
 
   return defaultLimiter
 }
 
-export async function enforceRateLimit(key: string) {
+export async function enforceRateLimit(key: string): Promise<void> {
   const limiter = getDefaultLimiter()
 
   if (!limiter) {
@@ -176,13 +177,13 @@ export async function enforceRateLimit(key: string) {
     scope: 'rate_limit',
     key,
     remaining: res.remaining,
-    success: res.success
+    success: res.success,
   })
 
   return { allowed: res.success, remaining: res.remaining, reset: res.reset }
 }
 
-export function getClientKey(headers: Headers) {
+export function getClientKey(headers: Headers): void {
   return (
     headers.get('x-api-key') ||
     headers.get('x-forwarded-for') ||

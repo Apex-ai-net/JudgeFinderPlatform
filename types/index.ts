@@ -15,7 +15,7 @@ export interface Judge {
   reversal_rate: number
   average_decision_time: number | null
   courtlistener_id?: string | null
-  courtlistener_data?: Record<string, any> | null // Full CourtListener judge data
+  courtlistener_data?: Record<string, unknown> | null // Full CourtListener judge data
   created_at: string
   updated_at: string
 }
@@ -31,7 +31,7 @@ export interface Court {
   website: string | null
   judge_count: number | null
   courtlistener_id?: string | null
-  courthouse_metadata?: Record<string, any> | null
+  courthouse_metadata?: Record<string, unknown> | null
   created_at: string
   updated_at: string
 }
@@ -127,7 +127,7 @@ export interface AnalyticsEvent {
   id: string
   user_id?: string
   event_type: string
-  event_data: Record<string, any>
+  event_data: Record<string, unknown>
   ip_address?: string
   user_agent?: string
   created_at: string
@@ -161,7 +161,7 @@ export interface CourtAssignment {
   appointment_authority?: string | null
   confirmation_date?: string | null
   notes?: string | null
-  metadata?: Record<string, any> | null
+  metadata?: Record<string, unknown> | null
   data_source: string
   last_verified_date: string
   created_at: string
@@ -176,7 +176,7 @@ export interface AssignmentChange {
   message: string
   severity: 'low' | 'medium' | 'high'
   suggested_action: string
-  position_data?: any
+  position_data?: Record<string, unknown>
 }
 
 export interface AssignmentValidationResult {
@@ -199,7 +199,7 @@ export interface AssignmentRecommendation {
   assignment_id: string
   action: string
   field: string
-  new_value: any
+  new_value: unknown
   reason: string
 }
 
@@ -263,4 +263,63 @@ export interface ProfileIssueRow {
   sla_due_at: string | null
   last_status_change_at: string | null
   breached_at: string | null
+}
+
+// Database row types for sync operations
+// These represent the actual database schema structure
+export interface JudgeDatabaseRow extends Record<string, unknown> {
+  id: string
+  name: string
+  slug?: string
+  court_id: string | null
+  court_name: string | null
+  court_slug?: string | null
+  jurisdiction: string
+  appointed_date: string | null
+  position_type?: string | null
+  education: string | null
+  profile_image_url?: string | null
+  bio: string | null
+  total_cases: number
+  reversal_rate: number
+  average_decision_time: number | null
+  courtlistener_id?: string | null
+  courtlistener_data?: Record<string, unknown> | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CourtDatabaseRow extends Record<string, unknown> {
+  id: string
+  name: string
+  slug?: string | null
+  type: 'federal' | 'state' | 'local'
+  jurisdiction: string | null
+  address: string | null
+  phone: string | null
+  website: string | null
+  judge_count: number | null
+  courtlistener_id?: string | null
+  courthouse_metadata?: Record<string, unknown> | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CaseDatabaseRow extends Record<string, unknown> {
+  id: string
+  case_number: string
+  case_name: string
+  judge_id: string
+  court_id: string | null
+  case_type: string
+  filing_date: string
+  decision_date?: string | null
+  status: 'pending' | 'decided' | 'settled' | 'dismissed'
+  outcome?: string
+  summary?: string | null
+  courtlistener_id?: string | null
+  source_url?: string | null
+  jurisdiction?: string | null
+  created_at: string
+  updated_at: string
 }

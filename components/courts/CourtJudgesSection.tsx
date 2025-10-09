@@ -36,28 +36,32 @@ interface CourtJudgesSectionProps {
 const STATUS_COLORS = {
   active: 'bg-green-100 text-green-800 border-green-200',
   retired: 'bg-muted text-foreground border-border',
-  inactive: 'bg-red-100 text-red-800 border-red-200'
+  inactive: 'bg-red-100 text-red-800 border-red-200',
 }
 
 const POSITION_COLORS = {
   'Chief Judge': 'bg-purple-100 text-purple-800 border-purple-200',
   'Presiding Judge': 'bg-blue-100 text-blue-800 border-blue-200',
-  'Judge': 'bg-slate-100 text-slate-800 border-slate-200',
-  'Commissioner': 'bg-amber-100 text-amber-800 border-amber-200',
+  Judge: 'bg-slate-100 text-slate-800 border-slate-200',
+  Commissioner: 'bg-amber-100 text-amber-800 border-amber-200',
   'Magistrate Judge': 'bg-teal-100 text-teal-800 border-teal-200',
   'Acting Judge': 'bg-orange-100 text-orange-800 border-orange-200',
   'Temporary Judge': 'bg-pink-100 text-pink-800 border-pink-200',
-  'Retired Judge': 'bg-muted text-foreground border-border'
+  'Retired Judge': 'bg-muted text-foreground border-border',
 }
 
-export default function CourtJudgesSection({ courtId, courtName, initialJudges = [] }: CourtJudgesSectionProps) {
+export default function CourtJudgesSection({
+  courtId,
+  courtName,
+  initialJudges = [],
+}: CourtJudgesSectionProps): JSX.Element {
   const [judges, setJudges] = useState<Judge[]>(initialJudges)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [totalCount, setTotalCount] = useState(0)
-  
+
   // Filters
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'retired' | 'inactive'>('all')
   const [positionFilter, setPositionFilter] = useState<string>('')
@@ -65,47 +69,50 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
   const [showFilters, setShowFilters] = useState(false)
 
   // Get unique position types from current judges
-  const positionTypes = Array.from(new Set(judges.map(judge => judge.position_type))).sort()
+  const positionTypes = Array.from(new Set(judges.map((judge) => judge.position_type))).sort()
 
-  const fetchJudges = useCallback(async (pageNum: number = 1, reset: boolean = false) => {
-    setLoading(true)
-    setError(null)
+  const fetchJudges = useCallback(
+    async (pageNum: number = 1, reset: boolean = false) => {
+      setLoading(true)
+      setError(null)
 
-    try {
-      const params = new URLSearchParams({
-        page: pageNum.toString(),
-        limit: '20',
-        status: statusFilter,
-        ...(positionFilter && { position_type: positionFilter })
-      })
+      try {
+        const params = new URLSearchParams({
+          page: pageNum.toString(),
+          limit: '20',
+          status: statusFilter,
+          ...(positionFilter && { position_type: positionFilter }),
+        })
 
-      const response = await fetch(`/api/courts/${courtId}/judges?${params}`)
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch judges')
+        const response = await fetch(`/api/courts/${courtId}/judges?${params}`)
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch judges')
+        }
+
+        const data: CourtJudgesResponse = await response.json()
+
+        if (reset || pageNum === 1) {
+          setJudges(data.judges)
+        } else {
+          setJudges((prev) => [...prev, ...data.judges])
+        }
+
+        setHasMore(data.has_more)
+        setTotalCount(data.total_count)
+        setPage(pageNum)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setLoading(false)
       }
-
-      const data: CourtJudgesResponse = await response.json()
-      
-      if (reset || pageNum === 1) {
-        setJudges(data.judges)
-      } else {
-        setJudges(prev => [...prev, ...data.judges])
-      }
-      
-      setHasMore(data.has_more)
-      setTotalCount(data.total_count)
-      setPage(pageNum)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
-    } finally {
-      setLoading(false)
-    }
-  }, [courtId, statusFilter, positionFilter])
+    },
+    [courtId, statusFilter, positionFilter]
+  )
 
   // Filter judges client-side by search query
-  const filteredJudges = judges.filter(judge =>
-    searchQuery === '' || judge.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredJudges = judges.filter(
+    (judge) => searchQuery === '' || judge.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   // Refetch when filters change
@@ -141,7 +148,7 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
         </h2>
         <div className="text-center py-8">
           <p className="text-red-600">Error loading judges: {error}</p>
-          <button 
+          <button
             onClick={() => fetchJudges(1, true)}
             className="mt-2 px-4 py-2 bg-primary text-white rounded hover:bg-blue-700"
           >
@@ -164,14 +171,16 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
             </span>
           )}
         </h2>
-        
+
         <button
           onClick={() => setShowFilters(!showFilters)}
           className="flex items-center px-3 py-2 text-sm border border-border dark:border-border rounded-lg hover:bg-muted dark:hover:bg-card text-foreground dark:text-muted-foreground"
         >
           <Filter className="h-4 w-4 mr-1" />
           Filters
-          <ChevronDown className={`h-4 w-4 ml-1 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+          <ChevronDown
+            className={`h-4 w-4 ml-1 transition-transform ${showFilters ? 'rotate-180' : ''}`}
+          />
         </button>
       </div>
 
@@ -224,7 +233,7 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
                 className="w-full px-3 py-2 border border-border dark:border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-card text-foreground dark:text-white"
               >
                 <option value="">All Positions</option>
-                {positionTypes.map(position => (
+                {positionTypes.map((position) => (
                   <option key={position} value={position}>
                     {position}
                   </option>
@@ -236,7 +245,9 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
           {/* Active Filters Summary */}
           {(statusFilter !== 'all' || positionFilter || searchQuery) && (
             <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
-              <span className="text-sm text-muted-foreground dark:text-muted-foreground">Active filters:</span>
+              <span className="text-sm text-muted-foreground dark:text-muted-foreground">
+                Active filters:
+              </span>
               {statusFilter !== 'all' && (
                 <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
                   Status: {statusFilter}
@@ -301,16 +312,20 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="font-medium text-foreground dark:text-white">{judge.name}</h3>
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusBadgeClass(judge.status)}`}>
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusBadgeClass(judge.status)}`}
+                    >
                       {judge.status.charAt(0).toUpperCase() + judge.status.slice(1)}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center gap-4 text-sm text-muted-foreground dark:text-muted-foreground">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-md border ${getPositionBadgeClass(judge.position_type)}`}>
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-md border ${getPositionBadgeClass(judge.position_type)}`}
+                    >
                       {judge.position_type}
                     </span>
-                    
+
                     {judge.appointed_date && (
                       <div className="flex items-center">
                         <Calendar className="h-4 w-4 mr-1" />
@@ -319,7 +334,7 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
                     )}
                   </div>
                 </div>
-                
+
                 <span className="text-primary font-medium ml-4">View Profile →</span>
               </div>
             </Link>
@@ -332,7 +347,7 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
         {loading && (
           <div className="text-muted-foreground dark:text-muted-foreground">Loading judges...</div>
         )}
-        
+
         {hasMore && !loading && filteredJudges.length > 0 && searchQuery === '' && (
           <button
             onClick={loadMore}
@@ -341,10 +356,10 @@ export default function CourtJudgesSection({ courtId, courtName, initialJudges =
             Load More Judges
           </button>
         )}
-        
+
         {totalCount > 0 && (
-          <Link 
-            href={`/judges?court=${encodeURIComponent(courtName)}`} 
+          <Link
+            href={`/judges?court=${encodeURIComponent(courtName)}`}
             className="block text-primary hover:text-blue-700 font-medium"
           >
             View all {totalCount} judges in dedicated directory →

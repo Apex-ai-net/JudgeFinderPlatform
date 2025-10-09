@@ -18,7 +18,7 @@ const issues = [
         solution: [
           'Click "Forgot Password" on the sign-in page.',
           'Enter your email address to receive a reset link.',
-          'Check your spam folder if you don\'t see the email within 5 minutes.',
+          "Check your spam folder if you don't see the email within 5 minutes.",
           'Reset links expire after 1 hour for security.',
           'If still having issues, contact support@judgefinder.io',
         ],
@@ -37,7 +37,7 @@ const issues = [
         solution: [
           'Check your spam/junk folder for the verification email.',
           'Click "Resend Verification Email" from your account settings.',
-          'Ensure you\'re checking the correct email address.',
+          "Ensure you're checking the correct email address.",
           'Try adding noreply@judgefinder.io to your contacts.',
           'Contact support if issues persist after 24 hours.',
         ],
@@ -106,7 +106,7 @@ const issues = [
         symptom: 'Payment declined or failed',
         solution: [
           'Verify your card details are entered correctly.',
-          'Check that your card has sufficient funds and isn\'t expired.',
+          "Check that your card has sufficient funds and isn't expired.",
           'Some banks flag subscription payments - contact your bank.',
           'Try a different payment method (we accept major credit cards).',
           'Contact billing@judgefinder.io for assistance.',
@@ -118,12 +118,12 @@ const issues = [
           'Go to Account Settings > Subscription.',
           'Click "Cancel Subscription" at the bottom of the page.',
           'Follow the confirmation prompts.',
-          'You\'ll retain access until the end of your billing period.',
+          "You'll retain access until the end of your billing period.",
           'Contact support if you need immediate cancellation.',
         ],
       },
       {
-        symptom: 'Didn\'t receive receipt or invoice',
+        symptom: "Didn't receive receipt or invoice",
         solution: [
           'Check your spam folder for emails from billing@judgefinder.io.',
           'View all receipts in Account Settings > Billing History.',
@@ -154,7 +154,7 @@ const issues = [
           'Adjust notification frequency in Account Settings > Notifications.',
           'Choose "Weekly Digest" instead of immediate alerts.',
           'Unsubscribe from specific alert types while keeping others.',
-          'Remove bookmarks for judges you\'re no longer tracking.',
+          "Remove bookmarks for judges you're no longer tracking.",
         ],
       },
     ],
@@ -164,7 +164,7 @@ const issues = [
 const commonErrors = [
   {
     code: '404 - Page Not Found',
-    meaning: 'The judge profile or page you\'re looking for doesn\'t exist.',
+    meaning: "The judge profile or page you're looking for doesn't exist.",
     fix: 'Check the URL for typos. The judge may have been removed or merged with another profile.',
   },
   {
@@ -174,12 +174,12 @@ const commonErrors = [
   },
   {
     code: 'Rate Limit Exceeded',
-    meaning: 'You\'ve made too many requests in a short time.',
+    meaning: "You've made too many requests in a short time.",
     fix: 'Wait a few minutes before making more searches. Premium users have higher rate limits.',
   },
 ]
 
-export default function TroubleshootingPage() {
+export default function TroubleshootingPage(): JSX.Element {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}

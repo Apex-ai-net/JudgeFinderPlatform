@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useEffect, useMemo, useState } from 'react'
 import { Calendar, FileText, ExternalLink, Gavel, TrendingUp, AlertCircle } from 'lucide-react'
@@ -27,7 +27,7 @@ interface DecisionItem {
 
 // No sample data - use real case data only
 
-export function RecentDecisions({ judgeId }: RecentDecisionsProps) {
+export function RecentDecisions({ judgeId }: RecentDecisionsProps): JSX.Element {
   const [decisions, setDecisions] = useState<DecisionItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -36,14 +36,16 @@ export function RecentDecisions({ judgeId }: RecentDecisionsProps) {
   const { filters, filtersKey } = useJudgeFilterParams()
 
   useEffect(() => {
-    async function load() {
+    async function load(): JSX.Element {
       try {
         setLoading(true)
         const params = new URLSearchParams({ limit: '100' })
         Object.entries(filters).forEach(([key, value]) => {
           if (value) params.set(key, value)
         })
-        const res = await fetch(`/api/judges/${judgeId}/recent-cases?${params}`, { cache: 'no-store' })
+        const res = await fetch(`/api/judges/${judgeId}/recent-cases?${params}`, {
+          cache: 'no-store',
+        })
         if (!res.ok) {
           setDecisions([])
           setShowingSampleData(false)
@@ -85,7 +87,7 @@ export function RecentDecisions({ judgeId }: RecentDecisionsProps) {
       return new Date(value).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
       })
     } catch {
       return null
@@ -109,7 +111,7 @@ export function RecentDecisions({ judgeId }: RecentDecisionsProps) {
   }
 
   const handleLoadMore = () => {
-    setVisibleCount(prev => Math.min(prev + 10, decisions.length))
+    setVisibleCount((prev) => Math.min(prev + 10, decisions.length))
   }
 
   const handleShowAll = () => {
@@ -127,7 +129,10 @@ export function RecentDecisions({ judgeId }: RecentDecisionsProps) {
         </div>
         <div className="space-y-3">
           {[1, 2, 3].map((item) => (
-            <div key={item} className="h-24 animate-pulse rounded-2xl border border-border/60 bg-[hsl(var(--bg-1))]" />
+            <div
+              key={item}
+              className="h-24 animate-pulse rounded-2xl border border-border/60 bg-[hsl(var(--bg-1))]"
+            />
           ))}
         </div>
       </GlassCard>
@@ -146,14 +151,17 @@ export function RecentDecisions({ judgeId }: RecentDecisionsProps) {
         </div>
         <div className="p-6 text-center text-sm text-[color:hsl(var(--text-2))]">
           <Gavel className="mx-auto mb-4 h-10 w-10 text-[color:hsl(var(--text-3))]" />
-          <h3 className="mb-2 text-lg font-medium text-[color:hsl(var(--text-1))]">Recent filings not available</h3>
+          <h3 className="mb-2 text-lg font-medium text-[color:hsl(var(--text-1))]">
+            Recent filings not available
+          </h3>
           <p className="mb-4">
-            We're working on connecting recent court filings and decisions for this judge from CourtListener.
+            We're working on connecting recent court filings and decisions for this judge from
+            CourtListener.
           </p>
           <div className="rounded-2xl border border-[rgba(110,168,254,0.35)] bg-[rgba(110,168,254,0.18)] p-4 text-[color:hsl(var(--accent))]">
             <p className="text-xs">
-              Real-time filing data syncs daily. As new decisions arrive we surface ruling patterns, timelines, and
-              analytics across the site.
+              Real-time filing data syncs daily. As new decisions arrive we surface ruling patterns,
+              timelines, and analytics across the site.
             </p>
           </div>
         </div>
@@ -162,11 +170,14 @@ export function RecentDecisions({ judgeId }: RecentDecisionsProps) {
   }
 
   // Count case types for the CTA
-  const caseTypeCounts = decisions.reduce((acc, decision) => {
-    const type = decision.case_type || 'Other'
-    acc[type] = (acc[type] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  const caseTypeCounts = decisions.reduce(
+    (acc, decision) => {
+      const type = decision.case_type || 'Other'
+      acc[type] = (acc[type] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>
+  )
 
   const topCaseType = Object.entries(caseTypeCounts).sort((a, b) => b[1] - a[1])[0]?.[0]
 
@@ -221,7 +232,7 @@ export function RecentDecisions({ judgeId }: RecentDecisionsProps) {
 
   return (
     <GlassCard className="overflow-hidden p-0 shadow-md">
-      <motion.div 
+      <motion.div
         className="border-b border-border/60 bg-[hsl(var(--bg-1))] px-6 py-5"
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -260,88 +271,96 @@ export function RecentDecisions({ judgeId }: RecentDecisionsProps) {
         )}
 
         <AnimatePresence>
-        {displayedDecisions.map((decision, index) => {
-          const externalUrl = getExternalUrl(decision)
-          const filingLabel = formatDate(decision.filing_date)
-          const decisionLabel = formatDate(decision.decision_date)
-          const statusKey = (decision.status || (decision.decision_date ? 'decided' : 'pending')).toLowerCase()
-          const statusLabel = statusKey.replace(/_/g, ' ').toUpperCase()
-          const statusClass = getStatusClass(statusKey)
-          const caseType = decision.case_type || 'General Litigation'
-          const caseTypeClass = getCaseTypeClass(caseType)
-          const mostRecent = index === 0
+          {displayedDecisions.map((decision, index) => {
+            const externalUrl = getExternalUrl(decision)
+            const filingLabel = formatDate(decision.filing_date)
+            const decisionLabel = formatDate(decision.decision_date)
+            const statusKey = (
+              decision.status || (decision.decision_date ? 'decided' : 'pending')
+            ).toLowerCase()
+            const statusLabel = statusKey.replace(/_/g, ' ').toUpperCase()
+            const statusClass = getStatusClass(statusKey)
+            const caseType = decision.case_type || 'General Litigation'
+            const caseTypeClass = getCaseTypeClass(caseType)
+            const mostRecent = index === 0
 
-          return (
-            <motion.article
-              key={decision.id}
-              className="rounded-2xl border border-border/70 bg-[hsl(var(--bg-2))] p-5"
-              initial={{ opacity: 0, y: 8 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-10% 0px' }}
-              whileHover={{ y: -2 }}
-              transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-            >
-              <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div className="flex-1">
-                  <h3 className="break-words text-lg font-semibold text-[color:hsl(var(--text-1))]">
-                    {decision.case_name}
-                  </h3>
-                  <p className="break-words text-sm text-[color:hsl(var(--text-3))]">Case No. {decision.case_number}</p>
+            return (
+              <motion.article
+                key={decision.id}
+                className="rounded-2xl border border-border/70 bg-[hsl(var(--bg-2))] p-5"
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-10% 0px' }}
+                whileHover={{ y: -2 }}
+                transition={{ type: 'spring', stiffness: 280, damping: 22 }}
+              >
+                <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div className="flex-1">
+                    <h3 className="break-words text-lg font-semibold text-[color:hsl(var(--text-1))]">
+                      {decision.case_name}
+                    </h3>
+                    <p className="break-words text-sm text-[color:hsl(var(--text-3))]">
+                      Case No. {decision.case_number}
+                    </p>
+                  </div>
+                  {externalUrl && (
+                    <motion.a
+                      className="inline-flex items-center gap-1 rounded-full border border-border/60 px-3 py-1 text-xs text-[color:hsl(var(--text-3))] transition-colors hover:border-[rgba(110,168,254,0.45)] hover:text-[color:hsl(var(--accent))]"
+                      href={externalUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="View on CourtListener"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      Open document
+                    </motion.a>
+                  )}
                 </div>
-                {externalUrl && (
-                  <motion.a
-                    className="inline-flex items-center gap-1 rounded-full border border-border/60 px-3 py-1 text-xs text-[color:hsl(var(--text-3))] transition-colors hover:border-[rgba(110,168,254,0.45)] hover:text-[color:hsl(var(--accent))]"
-                    href={externalUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    title="View on CourtListener"
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    Open document
-                  </motion.a>
+
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <span className={statusClass}>{statusLabel}</span>
+                  <span className={caseTypeClass}>{caseType}</span>
+                  {decision.outcome && (
+                    <span className={getOutcomeClass(decision.outcome)}>{decision.outcome}</span>
+                  )}
+                </div>
+
+                {decision.summary && (
+                  <p className="mb-3 break-words text-sm leading-relaxed text-[color:hsl(var(--text-2))]">
+                    {decision.summary}
+                  </p>
                 )}
-              </div>
 
-              <div className="mb-3 flex flex-wrap items-center gap-2">
-                <span className={statusClass}>{statusLabel}</span>
-                <span className={caseTypeClass}>{caseType}</span>
-                {decision.outcome && <span className={getOutcomeClass(decision.outcome)}>{decision.outcome}</span>}
-              </div>
-
-              {decision.summary && (
-                <p className="mb-3 break-words text-sm leading-relaxed text-[color:hsl(var(--text-2))]">{decision.summary}</p>
-              )}
-
-              <div className="flex flex-col gap-2 text-xs text-[color:hsl(var(--text-3))] sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="inline-flex items-center gap-1.5">
-                    <Calendar className="h-3 w-3" aria-hidden />
-                    {filingLabel ? `Filed ${filingLabel}` : 'Filed date unavailable'}
-                  </span>
-                  {decisionLabel && (
+                <div className="flex flex-col gap-2 text-xs text-[color:hsl(var(--text-3))] sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-wrap items-center gap-3">
                     <span className="inline-flex items-center gap-1.5">
                       <Calendar className="h-3 w-3" aria-hidden />
-                      {`Closed ${decisionLabel}`}
+                      {filingLabel ? `Filed ${filingLabel}` : 'Filed date unavailable'}
+                    </span>
+                    {decisionLabel && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Calendar className="h-3 w-3" aria-hidden />
+                        {`Closed ${decisionLabel}`}
+                      </span>
+                    )}
+                  </div>
+                  {mostRecent && (
+                    <span className="inline-flex items-center gap-1.5 text-[color:hsl(var(--pos))]">
+                      <TrendingUp className="h-3 w-3" aria-hidden />
+                      Most recent
                     </span>
                   )}
                 </div>
-                {mostRecent && (
-                  <span className="inline-flex items-center gap-1.5 text-[color:hsl(var(--pos))]">
-                    <TrendingUp className="h-3 w-3" aria-hidden />
-                    Most recent
-                  </span>
-                )}
-              </div>
-            </motion.article>
-          )
-        })}
+              </motion.article>
+            )
+          })}
         </AnimatePresence>
       </div>
 
       {decisions.length > 0 && remainingCount > 0 && (
-        <motion.div 
+        <motion.div
           className="flex items-center justify-between gap-3 border-t border-border/60 bg-[hsl(var(--bg-1))] px-6 py-4 text-sm"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -372,8 +391,12 @@ export function RecentDecisions({ judgeId }: RecentDecisionsProps) {
 
       <div className="border-t border-border/60 bg-[hsl(var(--bg-1))] px-6 py-4">
         <p className="text-sm text-[color:hsl(var(--text-2))]">
-          <strong className="text-[color:hsl(var(--text-1))]">Attorneys:</strong> This judge frequently handles{' '}
-          <span className="font-semibold text-[color:hsl(var(--accent))]">{topCaseType || 'various'}</span> filings.{' '}
+          <strong className="text-[color:hsl(var(--text-1))]">Attorneys:</strong> This judge
+          frequently handles{' '}
+          <span className="font-semibold text-[color:hsl(var(--accent))]">
+            {topCaseType || 'various'}
+          </span>{' '}
+          filings.{' '}
           <a
             href="#attorney-slots"
             className="text-[color:hsl(var(--accent))] transition-colors hover:text-[rgba(110,168,254,0.8)]"

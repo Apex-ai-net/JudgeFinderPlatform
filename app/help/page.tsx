@@ -6,56 +6,68 @@ import { useState } from 'react'
 
 const faqs = [
   {
-    question: "What is JudgeFinder.io?",
-    answer: "JudgeFinder.io is a free judicial transparency platform that provides information about California judges, including their backgrounds, case statistics, and data-driven analysis of judicial patterns."
+    question: 'What is JudgeFinder.io?',
+    answer:
+      'JudgeFinder.io is a free judicial transparency platform that provides information about California judges, including their backgrounds, case statistics, and data-driven analysis of judicial patterns.',
   },
   {
-    question: "How do I search for a judge?",
-    answer: "Use the search bar on the homepage to enter a judge's name, court, or jurisdiction. You can also browse by county or use our advanced search filters to find judges by specific criteria."
+    question: 'How do I search for a judge?',
+    answer:
+      "Use the search bar on the homepage to enter a judge's name, court, or jurisdiction. You can also browse by county or use our advanced search filters to find judges by specific criteria.",
   },
   {
-    question: "What information is available for each judge?",
-    answer: "Each judge profile includes biographical information, current court assignment, case statistics, decision patterns, reversal rates, and AI-generated insights about their judicial tendencies."
+    question: 'What information is available for each judge?',
+    answer:
+      'Each judge profile includes biographical information, current court assignment, case statistics, decision patterns, reversal rates, and AI-generated insights about their judicial tendencies.',
   },
   {
-    question: "Is the information on JudgeFinder.io accurate?",
-    answer: "Yes, our data comes from official court records and public databases. We update our information daily and use multiple sources to ensure accuracy. However, if you find any errors, please report them to corrections@judgefinder.io."
+    question: 'Is the information on JudgeFinder.io accurate?',
+    answer:
+      'Yes, our data comes from official court records and public databases. We update our information daily and use multiple sources to ensure accuracy. However, if you find any errors, please report them to corrections@judgefinder.io.',
   },
   {
-    question: "What is the AI bias analysis?",
-    answer: "Our AI analyzes patterns in judicial decisions to identify potential biases or tendencies. This includes metrics like consistency, decision speed, settlement preferences, and case outcome patterns. The analysis is based on public court records and uses advanced machine learning algorithms."
+    question: 'What is the AI bias analysis?',
+    answer:
+      'Our AI analyzes patterns in judicial decisions to identify potential biases or tendencies. This includes metrics like consistency, decision speed, settlement preferences, and case outcome patterns. The analysis is based on public court records and uses advanced machine learning algorithms.',
   },
   {
-    question: "Can I compare multiple judges?",
-    answer: "Yes! Our comparison tool allows you to compare up to 3 judges side-by-side. This is useful for understanding differences in judicial approaches and decision patterns."
+    question: 'Can I compare multiple judges?',
+    answer:
+      'Yes! Our comparison tool allows you to compare up to 3 judges side-by-side. This is useful for understanding differences in judicial approaches and decision patterns.',
   },
   {
-    question: "Is JudgeFinder.io free to use?",
-    answer: "Yes, JudgeFinder.io is completely free for public use. We believe judicial transparency should be accessible to everyone."
+    question: 'Is JudgeFinder.io free to use?',
+    answer:
+      'Yes, JudgeFinder.io is completely free for public use. We believe judicial transparency should be accessible to everyone.',
   },
   {
-    question: "How often is the data updated?",
-    answer: "Court data is synchronized daily at 2:00 AM and 2:00 PM PST. Comprehensive updates including new case decisions and analytics are processed weekly."
+    question: 'How often is the data updated?',
+    answer:
+      'Court data is synchronized daily at 2:00 AM and 2:00 PM PST. Comprehensive updates including new case decisions and analytics are processed weekly.',
   },
   {
-    question: "Can JudgeFinder.io provide legal advice?",
-    answer: "No, JudgeFinder.io is an information platform only. We provide data and analysis about judges but cannot offer legal advice. Please consult with a licensed attorney for legal guidance."
+    question: 'Can JudgeFinder.io provide legal advice?',
+    answer:
+      'No, JudgeFinder.io is an information platform only. We provide data and analysis about judges but cannot offer legal advice. Please consult with a licensed attorney for legal guidance.',
   },
   {
-    question: "Which courts are covered?",
-    answer: "We currently cover all California state courts, including Superior Courts, Courts of Appeal, and the California Supreme Court. We have information on over 1,800 judges across 104 court locations."
+    question: 'Which courts are covered?',
+    answer:
+      'We currently cover all California state courts, including Superior Courts, Courts of Appeal, and the California Supreme Court. We have information on over 1,800 judges across 104 court locations.',
   },
   {
-    question: "How can I report incorrect information?",
-    answer: "If you find any inaccuracies, please email corrections@judgefinder.io with details about the error and any supporting documentation. We review all reports promptly."
+    question: 'How can I report incorrect information?',
+    answer:
+      'If you find any inaccuracies, please email corrections@judgefinder.io with details about the error and any supporting documentation. We review all reports promptly.',
   },
   {
-    question: "Can attorneys use this for case preparation?",
-    answer: "Yes, many attorneys use JudgeFinder.io to understand judicial tendencies and prepare more effectively for court appearances. The platform provides valuable insights for case strategy."
-  }
+    question: 'Can attorneys use this for case preparation?',
+    answer:
+      'Yes, many attorneys use JudgeFinder.io to understand judicial tendencies and prepare more effectively for court appearances. The platform provides valuable insights for case strategy.',
+  },
 ]
 
-function FAQItem({ question, answer }: { question: string; answer: string }) {
+function FAQItem({ question, answer }: { question: string; answer: string }): JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -80,7 +92,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   )
 }
 
-export default function HelpPage() {
+export default function HelpPage(): JSX.Element {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <Card>
@@ -139,9 +151,10 @@ export default function HelpPage() {
           <div className="mt-8 p-4 bg-blue-50 rounded-lg">
             <h3 className="font-semibold text-gray-800 mb-2">Understanding the Data</h3>
             <p className="text-gray-600 text-sm">
-              All information on JudgeFinder.io comes from public court records. We use AI to analyze patterns
-              and provide insights, but these should be considered alongside other factors when evaluating judges.
-              Always consult with a qualified attorney for legal matters.
+              All information on JudgeFinder.io comes from public court records. We use AI to
+              analyze patterns and provide insights, but these should be considered alongside other
+              factors when evaluating judges. Always consult with a qualified attorney for legal
+              matters.
             </p>
           </div>
         </CardContent>

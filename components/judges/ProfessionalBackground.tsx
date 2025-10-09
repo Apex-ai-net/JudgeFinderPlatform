@@ -7,64 +7,76 @@ interface ProfessionalBackgroundProps {
   judge: Judge
 }
 
-export function ProfessionalBackground({ judge }: ProfessionalBackgroundProps) {
+export function ProfessionalBackground({ judge }: ProfessionalBackgroundProps): JSX.Element {
   const courtlistenerData = judge.courtlistener_data
-  
+
   // Calculate years of service
   let appointmentDate = null
   let yearsOfService = null
-  
+
   if (judge.appointed_date) {
     appointmentDate = new Date(judge.appointed_date)
     yearsOfService = new Date().getFullYear() - appointmentDate.getFullYear()
   } else if (courtlistenerData?.positions?.length && courtlistenerData.positions.length > 0) {
     const judicialPositions = courtlistenerData.positions
-      .filter((pos: any) => pos.position_type && ['jud', 'c-jud', 'jus', 'c-jus'].includes(pos.position_type))
+      .filter(
+        (pos: any) =>
+          pos.position_type && ['jud', 'c-jud', 'jus', 'c-jus'].includes(pos.position_type)
+      )
       .sort((a: any, b: any) => (a.date_start || '').localeCompare(b.date_start || ''))
-    
+
     if (judicialPositions.length > 0 && judicialPositions[0].date_start) {
       appointmentDate = new Date(judicialPositions[0].date_start)
       yearsOfService = new Date().getFullYear() - appointmentDate.getFullYear()
     }
   }
-  
+
   // Extract education data
-  const education = courtlistenerData?.educations?.length && courtlistenerData.educations.length > 0 
-    ? courtlistenerData.educations
-        .map((edu: any) => {
-          const school = edu.school?.name || edu.school_name || ''
-          const degree = edu.degree || ''
-          const year = edu.date_graduated ? new Date(edu.date_graduated).getFullYear() : null
-          return { school, degree, year }
-        })
-        .filter((edu: any) => edu.school || edu.degree)
-    : judge.education ? [{ school: judge.education, degree: null, year: null }] : []
-  
+  const education =
+    courtlistenerData?.educations?.length && courtlistenerData.educations.length > 0
+      ? courtlistenerData.educations
+          .map((edu: any) => {
+            const school = edu.school?.name || edu.school_name || ''
+            const degree = edu.degree || ''
+            const year = edu.date_graduated ? new Date(edu.date_graduated).getFullYear() : null
+            return { school, degree, year }
+          })
+          .filter((edu: any) => edu.school || edu.degree)
+      : judge.education
+        ? [{ school: judge.education, degree: null, year: null }]
+        : []
+
   // Extract career history
-  const careerHistory = courtlistenerData?.positions?.filter((pos: any) => 
-    pos.organization_name && 
-    !pos.organization_name.toLowerCase().includes('court') &&
-    pos.position_type !== 'jud'
-  ).slice(0, 5) || []
-  
+  const careerHistory =
+    courtlistenerData?.positions
+      ?.filter(
+        (pos: any) =>
+          pos.organization_name &&
+          !pos.organization_name.toLowerCase().includes('court') &&
+          pos.position_type !== 'jud'
+      )
+      .slice(0, 5) || []
+
   // Generate professional bio
   let bio = judge.bio
-  
+
   if (!bio && courtlistenerData) {
     const bioParts = []
-    
+
     if (appointmentDate && judge.court_name) {
-      bioParts.push(`Judge ${judge.name} was appointed in ${appointmentDate.getFullYear()} and serves at ${judge.court_name}.`)
+      bioParts.push(
+        `Judge ${judge.name} was appointed in ${appointmentDate.getFullYear()} and serves at ${judge.court_name}.`
+      )
     } else if (judge.court_name) {
       bioParts.push(`Judge ${judge.name} serves at ${judge.court_name}.`)
     }
-    
+
     if (courtlistenerData.dob_city && courtlistenerData.dob_state) {
       bioParts.push(`Born in ${courtlistenerData.dob_city}, ${courtlistenerData.dob_state}.`)
     } else if (courtlistenerData.dob_state) {
       bioParts.push(`Born in ${courtlistenerData.dob_state}.`)
     }
-    
+
     bio = bioParts.join(' ') || null
   }
 
@@ -72,7 +84,9 @@ export function ProfessionalBackground({ judge }: ProfessionalBackgroundProps) {
     <section className="overflow-hidden rounded-2xl border border-border bg-[hsl(var(--bg-2))] shadow-md">
       <header className="flex items-center gap-2 border-b border-border/60 bg-[hsl(var(--bg-1))] px-6 py-4">
         <Briefcase className="h-5 w-5 text-[color:hsl(var(--accent))]" aria-hidden />
-        <h2 className="text-lg font-semibold text-[color:hsl(var(--text-1))]">Professional background</h2>
+        <h2 className="text-lg font-semibold text-[color:hsl(var(--text-1))]">
+          Professional background
+        </h2>
       </header>
 
       <div className="space-y-6 px-6 py-5 text-sm text-[color:hsl(var(--text-2))]">
@@ -93,7 +107,9 @@ export function ProfessionalBackground({ judge }: ProfessionalBackgroundProps) {
                   {judge.jurisdiction || 'Jurisdiction not specified'}
                 </p>
                 {yearsOfService !== null && (
-                  <p className="text-sm text-[color:hsl(var(--text-3))]">{yearsOfService} years of service</p>
+                  <p className="text-sm text-[color:hsl(var(--text-3))]">
+                    {yearsOfService} years of service
+                  </p>
                 )}
               </div>
             </div>
@@ -108,9 +124,15 @@ export function ProfessionalBackground({ judge }: ProfessionalBackgroundProps) {
                     Appointment
                   </h3>
                   <p className="text-base font-medium text-[color:hsl(var(--text-1))] break-words">
-                    {appointmentDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                    {appointmentDate.toLocaleDateString(undefined, {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
                   </p>
-                  <p className="text-sm text-[color:hsl(var(--text-3))]">{yearsOfService} years ago</p>
+                  <p className="text-sm text-[color:hsl(var(--text-3))]">
+                    {yearsOfService} years ago
+                  </p>
                 </div>
               </div>
             </article>
@@ -125,8 +147,13 @@ export function ProfessionalBackground({ judge }: ProfessionalBackgroundProps) {
             </header>
             <div className="space-y-2">
               {education.map((edu: any, index: number) => (
-                <div key={`${edu.school}-${index}`} className="rounded-xl border border-border/50 bg-[hsl(var(--bg-1))] p-3">
-                  <p className="font-medium text-[color:hsl(var(--text-1))] break-words">{edu.school}</p>
+                <div
+                  key={`${edu.school}-${index}`}
+                  className="rounded-xl border border-border/50 bg-[hsl(var(--bg-1))] p-3"
+                >
+                  <p className="font-medium text-[color:hsl(var(--text-1))] break-words">
+                    {edu.school}
+                  </p>
                   {(edu.degree || edu.year) && (
                     <p className="text-xs text-[color:hsl(var(--text-3))]">
                       {edu.degree}
@@ -157,12 +184,15 @@ export function ProfessionalBackground({ judge }: ProfessionalBackgroundProps) {
                       <p className="font-medium text-[color:hsl(var(--text-1))] break-words">
                         {position.job_title || 'Position'}
                       </p>
-                      <p className="text-xs text-[color:hsl(var(--text-3))] break-words">{position.organization_name}</p>
+                      <p className="text-xs text-[color:hsl(var(--text-3))] break-words">
+                        {position.organization_name}
+                      </p>
                     </div>
                     {position.date_start && (
                       <span className="text-xs text-[color:hsl(var(--text-3))]">
                         {new Date(position.date_start).getFullYear()}
-                        {position.date_termination && ` – ${new Date(position.date_termination).getFullYear()}`}
+                        {position.date_termination &&
+                          ` – ${new Date(position.date_termination).getFullYear()}`}
                       </span>
                     )}
                   </div>
@@ -198,7 +228,9 @@ export function ProfessionalBackground({ judge }: ProfessionalBackgroundProps) {
                 <div className="flex items-center gap-2 text-xs text-[color:hsl(var(--text-2))]">
                   <MapPin className="h-4 w-4 text-[color:hsl(var(--text-3))]" aria-hidden />
                   <span className="break-words">
-                    {[courtlistenerData.dob_city, courtlistenerData.dob_state].filter(Boolean).join(', ')}
+                    {[courtlistenerData.dob_city, courtlistenerData.dob_state]
+                      .filter(Boolean)
+                      .join(', ')}
                   </span>
                 </div>
               )}

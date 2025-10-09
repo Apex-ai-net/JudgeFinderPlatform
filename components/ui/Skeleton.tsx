@@ -1,14 +1,18 @@
 'use client'
 
-import { cn } from "@/lib/utils"
-import { motion } from "framer-motion"
-import { shimmer } from "@/lib/animations/presets"
+import { cn } from '@/lib/utils'
+import { motion } from 'framer-motion'
+import { shimmer } from '@/lib/animations/presets'
 
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   shimmerEffect?: boolean
 }
 
-export function Skeleton({ className, shimmerEffect = true, ...props }: SkeletonProps) {
+export function Skeleton({
+  className,
+  shimmerEffect = true,
+  ...props
+}: SkeletonProps): JSX.Element {
   if (shimmerEffect) {
     return (
       // @ts-expect-error - Framer Motion types conflict with React div types
@@ -17,7 +21,7 @@ export function Skeleton({ className, shimmerEffect = true, ...props }: Skeleton
         initial="initial"
         animate="animate"
         className={cn(
-          "rounded-md bg-gradient-to-r from-muted via-muted-foreground/20 to-muted bg-[length:200%_100%]",
+          'rounded-md bg-gradient-to-r from-muted via-muted-foreground/20 to-muted bg-[length:200%_100%]',
           className
         )}
         {...props}
@@ -25,15 +29,10 @@ export function Skeleton({ className, shimmerEffect = true, ...props }: Skeleton
     )
   }
 
-  return (
-    <div
-      className={cn("animate-pulse rounded-md bg-muted", className)}
-      {...props}
-    />
-  )
+  return <div className={cn('animate-pulse rounded-md bg-muted', className)} {...props} />
 }
 
-export function JudgeCardSkeleton() {
+export function JudgeCardSkeleton(): JSX.Element {
   return (
     <div className="bg-card rounded-xl shadow-md p-6 border border-border">
       <div className="flex items-center justify-between mb-4">
@@ -60,7 +59,7 @@ export function JudgeCardSkeleton() {
   )
 }
 
-export function CourtCardSkeleton() {
+export function CourtCardSkeleton(): JSX.Element {
   return (
     <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
       <div className="flex items-start justify-between">
@@ -69,22 +68,22 @@ export function CourtCardSkeleton() {
             <Skeleton className="h-5 w-5" />
             <Skeleton className="h-5 w-24" />
           </div>
-          
+
           <Skeleton className="h-6 w-full mb-2" />
-          
+
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <Skeleton className="h-4 w-4" />
               <Skeleton className="h-4 w-20" />
             </div>
-            
+
             <div className="flex items-center gap-2">
               <Skeleton className="h-4 w-4" />
               <Skeleton className="h-4 w-16" />
             </div>
           </div>
         </div>
-        
+
         <div className="ml-4">
           <Skeleton className="h-8 w-8" />
         </div>
@@ -93,7 +92,7 @@ export function CourtCardSkeleton() {
   )
 }
 
-export function JudgeProfileSkeleton() {
+export function JudgeProfileSkeleton(): JSX.Element {
   return (
     <div className="bg-white rounded-xl shadow-lg p-8 border border-border">
       <div className="flex items-start space-x-6">
@@ -117,7 +116,7 @@ export function JudgeProfileSkeleton() {
   )
 }
 
-export function SearchSkeleton() {
+export function SearchSkeleton(): JSX.Element {
   return (
     <div className="bg-card rounded-xl shadow-lg border border-border p-6 space-y-4">
       <Skeleton className="h-6 w-32 mb-4 rounded-lg" />
@@ -148,7 +147,7 @@ export function SearchSkeleton() {
   )
 }
 
-export function JudgeDetailSkeleton() {
+export function JudgeDetailSkeleton(): JSX.Element {
   return (
     <div className="space-y-8">
       <div className="bg-card rounded-xl border border-border p-8">

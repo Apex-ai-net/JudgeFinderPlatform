@@ -15,7 +15,7 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return out
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const startedAt = Date.now()
   try {
     const { userId } = await auth()
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
     }
 
-    const body = await request.json().catch(() => ({} as any))
+    const body = await request.json().catch(() => ({}) as any)
     const limit = Math.max(1, Math.min(200, Number(body?.limit ?? 50)))
     const jurisdiction = typeof body?.jurisdiction === 'string' ? body.jurisdiction : 'CA'
     const force = Boolean(body?.force)
@@ -47,10 +47,13 @@ export async function POST(request: NextRequest) {
       .limit(limit)
 
     if (error) {
-      return NextResponse.json({ error: 'Failed to list judges', details: error.message }, { status: 500 })
+      return NextResponse.json(
+        { error: 'Failed to list judges', details: error.message },
+        { status: 500 }
+      )
     }
 
-    const ids = (judges || []).map(j => j.id)
+    const ids = (judges || []).map((j) => j.id)
     const origin = getBaseUrl()
 
     let warmed = 0
@@ -59,23 +62,28 @@ export async function POST(request: NextRequest) {
 
     const chunks = chunk(ids, concurrency)
     for (const group of chunks) {
-      const results = await Promise.all(group.map(async (id) => {
-        try {
-          if (force) {
-            const res = await fetch(`${origin}/api/judges/${id}/analytics?force=true`, { method: 'POST', cache: 'no-store' })
-            if (!res.ok) throw new Error(`${res.status}`)
-            regenerated++
-            return true
-          } else {
-            const res = await fetch(`${origin}/api/judges/${id}/analytics`, { cache: 'no-store' })
-            if (!res.ok) throw new Error(`${res.status}`)
-            return true
+      const results = await Promise.all(
+        group.map(async (id) => {
+          try {
+            if (force) {
+              const res = await fetch(`${origin}/api/judges/${id}/analytics?force=true`, {
+                method: 'POST',
+                cache: 'no-store',
+              })
+              if (!res.ok) throw new Error(`${res.status}`)
+              regenerated++
+              return true
+            } else {
+              const res = await fetch(`${origin}/api/judges/${id}/analytics`, { cache: 'no-store' })
+              if (!res.ok) throw new Error(`${res.status}`)
+              return true
+            }
+          } catch (e: any) {
+            failed.push({ id, error: e?.message || 'request_failed' })
+            return false
           }
-        } catch (e: any) {
-          failed.push({ id, error: e?.message || 'request_failed' })
-          return false
-        }
-      }))
+        })
+      )
       warmed += results.filter(Boolean).length
     }
 
@@ -91,8 +99,9 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     })
   } catch (e: any) {
-    return NextResponse.json({ error: 'Failed to warm analytics', details: e?.message || 'unknown' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to warm analytics', details: e?.message || 'unknown' },
+      { status: 500 }
+    )
   }
 }
-
-

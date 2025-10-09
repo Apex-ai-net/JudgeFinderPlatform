@@ -42,13 +42,28 @@ vi.mock('@/lib/search/sponsored', () => ({
   fetchSponsoredTiles: vi.fn(async () => []),
 }))
 
-describe('Search API Integration', () => {
-  beforeEach(() => {
+// Types for rate limiter mock
+interface MockRateLimiter {
+  limit: (identifier: string) => Promise<{ success: boolean; remaining: number }>
+}
+
+interface MockSupabaseQuery {
+  select: (columns?: string) => MockSupabaseQuery
+  order: (column: string, options?: { ascending?: boolean }) => MockSupabaseQuery
+  limit: (count: number) => { data: unknown; error: { message: string; code: string } | null }
+}
+
+interface MockSupabaseClient {
+  from: (table: string) => MockSupabaseQuery
+}
+
+describe('Search API Integration', (): void => {
+  beforeEach((): void => {
     vi.clearAllMocks()
   })
 
-  describe('GET /api/search', () => {
-    it('should return popular judges when no query provided', async () => {
+  describe('GET /api/search', (): void => {
+    it('should return popular judges when no query provided', async (): Promise<void> => {
       const request = new NextRequest('http://localhost:3000/api/search')
       const response = await GET(request)
       const data = await response.json()
@@ -60,7 +75,7 @@ describe('Search API Integration', () => {
       expect(data.counts_by_type).toBeDefined()
     })
 
-    it('should search judges by name', async () => {
+    it('should search judges by name', async (): Promise<void> => {
       const request = new NextRequest('http://localhost:3000/api/search?q=John+Smith')
       const response = await GET(request)
       const data = await response.json()
@@ -71,7 +86,7 @@ describe('Search API Integration', () => {
       expect(data.took_ms).toBeGreaterThanOrEqual(0)
     })
 
-    it('should filter by judge type', async () => {
+    it('should filter by judge type', async (): Promise<void> => {
       const request = new NextRequest('http://localhost:3000/api/search?q=Smith&type=judge')
       const response = await GET(request)
       const data = await response.json()
@@ -81,7 +96,7 @@ describe('Search API Integration', () => {
       expect(data.counts_by_type.judges).toBeGreaterThanOrEqual(0)
     })
 
-    it('should respect limit parameter', async () => {
+    it('should respect limit parameter', async (): Promise<void> => {
       const request = new NextRequest('http://localhost:3000/api/search?q=judge&limit=5')
       const response = await GET(request)
       const data = await response.json()
@@ -90,11 +105,11 @@ describe('Search API Integration', () => {
       expect(data.results.length).toBeLessThanOrEqual(5)
     })
 
-    it('should handle rate limiting', async () => {
+    it('should handle rate limiting', async (): Promise<void> => {
       const { buildRateLimiter } = await import('@/lib/security/rate-limit')
       vi.mocked(buildRateLimiter).mockReturnValue({
         limit: vi.fn(async () => ({ success: false, remaining: 0 })),
-      } as any)
+      } as unknown as MockRateLimiter)
 
       const request = new NextRequest('http://localhost:3000/api/search?q=test')
       const response = await GET(request)
@@ -134,20 +149,29 @@ describe('Search API Integration', () => {
       expect(typeof data.rate_limit_remaining).toBe('number')
     })
 
-    it('should handle database errors gracefully', async () => {
+    it('should handle database errors gracefully', async (): Promise<void> => {
       const { createServerClient } = await import('@/lib/supabase/server')
       vi.mocked(createServerClient).mockResolvedValue({
-        from: vi.fn(() => ({
-          select: vi.fn(() => ({
-            order: vi.fn(() => ({
-              limit: vi.fn(() => ({
-                data: null,
-                error: { message: 'Database error', code: 'DB001' },
-              })),
-            })),
-          })),
-        })),
-      } as any)
+        from: vi.fn(
+          (): MockSupabaseQuery =>
+            ({
+              select: vi.fn(
+                (): MockSupabaseQuery =>
+                  ({
+                    order: vi.fn(
+                      (): MockSupabaseQuery =>
+                        ({
+                          limit: vi.fn(() => ({
+                            data: null,
+                            error: { message: 'Database error', code: 'DB001' },
+                          })),
+                        }) as unknown as MockSupabaseQuery
+                    ),
+                  }) as unknown as MockSupabaseQuery
+              ),
+            }) as unknown as MockSupabaseQuery
+        ),
+      } as unknown as MockSupabaseClient)
 
       const request = new NextRequest('http://localhost:3000/api/search')
       const response = await GET(request)
@@ -178,7 +202,7 @@ describe('Search API Integration', () => {
       expect(data.results_by_type).toHaveProperty('jurisdictions')
     })
 
-    it('should prioritize exact matches', async () => {
+    it('should prioritize exact matches', async (): Promise<void> => {
       const { createServerClient } = await import('@/lib/supabase/server')
       const exactMatch = { ...mockJudges.activeJudge, name: 'John Smith' }
       const partialMatch = { ...mockJudges.retiredJudge, name: 'John Smithson' }
@@ -196,7 +220,7 @@ describe('Search API Integration', () => {
             })),
           })),
         })),
-      } as any)
+      } as unknown as MockSupabaseClient)
 
       const request = new NextRequest('http://localhost:3000/api/search?q=John+Smith')
       const response = await GET(request)

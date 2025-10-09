@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { 
-  ChartBarIcon, 
-  CurrencyDollarIcon, 
+import {
+  ChartBarIcon,
+  CurrencyDollarIcon,
   ScaleIcon,
   BuildingOfficeIcon,
-  ArrowTrendingUpIcon
+  ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline'
 
 interface CountyData {
@@ -35,7 +35,7 @@ const countyData: CountyData[] = [
     top_practice_areas: ['Personal Injury', 'Family Law', 'Real Estate', 'Business Litigation'],
     avg_attorney_budget: 1000,
     success_rate: '100% (5/5 firms)',
-    expansion_factor: 1.0
+    expansion_factor: 1.0,
   },
   {
     id: 'los-angeles',
@@ -49,34 +49,34 @@ const countyData: CountyData[] = [
     top_practice_areas: ['Entertainment Law', 'Corporate Litigation', 'IP Law', 'Personal Injury'],
     avg_attorney_budget: 1500,
     success_rate: 'TBD (Phase 3)',
-    expansion_factor: 0.31484375
-  }
+    expansion_factor: 0.31484375,
+  },
 ]
 
-export function CountyComparison() {
+export function CountyComparison(): JSX.Element {
   const [selectedCounties, setSelectedCounties] = useState<string[]>(['orange', 'los-angeles'])
 
   const toggleCounty = (countyId: string) => {
-    setSelectedCounties(prev => 
-      prev.includes(countyId) 
-        ? prev.filter(id => id !== countyId)
-        : [...prev, countyId]
+    setSelectedCounties((prev) =>
+      prev.includes(countyId) ? prev.filter((id) => id !== countyId) : [...prev, countyId]
     )
   }
 
-  const selectedData = countyData.filter(county => selectedCounties.includes(county.id))
+  const selectedData = countyData.filter((county) => selectedCounties.includes(county.id))
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="mb-6">
         <h3 className="text-2xl font-bold text-foreground mb-2">County Market Comparison</h3>
-        <p className="text-muted-foreground">Compare market opportunities across California counties</p>
+        <p className="text-muted-foreground">
+          Compare market opportunities across California counties
+        </p>
       </div>
 
       {/* County Selection */}
       <div className="mb-6">
         <div className="flex flex-wrap gap-3">
-          {countyData.map(county => (
+          {countyData.map((county) => (
             <button
               key={county.id}
               onClick={() => toggleCounty(county.id)}
@@ -100,8 +100,11 @@ export function CountyComparison() {
             <thead>
               <tr className="border-b border-border">
                 <th className="text-left py-3 px-4 font-semibold text-foreground">Metric</th>
-                {selectedData.map(county => (
-                  <th key={county.id} className="text-center py-3 px-4 font-semibold text-foreground">
+                {selectedData.map((county) => (
+                  <th
+                    key={county.id}
+                    className="text-center py-3 px-4 font-semibold text-foreground"
+                  >
                     {county.name}
                   </th>
                 ))}
@@ -110,19 +113,23 @@ export function CountyComparison() {
             <tbody className="divide-y divide-gray-200">
               <tr>
                 <td className="py-3 px-4 font-medium text-foreground">Phase Status</td>
-                {selectedData.map(county => (
+                {selectedData.map((county) => (
                   <td key={county.id} className="py-3 px-4 text-center">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      county.status === 'active' ? 'bg-green-100 text-green-800' :
-                      county.status === 'expanding' ? 'bg-blue-100 text-blue-800' :
-                      'bg-muted text-muted-foreground'
-                    }`}>
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        county.status === 'active'
+                          ? 'bg-green-100 text-green-800'
+                          : county.status === 'expanding'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
                       Phase {county.phase} - {county.status}
                     </span>
                   </td>
                 ))}
               </tr>
-              
+
               <tr>
                 <td className="py-3 px-4 font-medium text-foreground">
                   <div className="flex items-center">
@@ -130,7 +137,7 @@ export function CountyComparison() {
                     Active Judges
                   </div>
                 </td>
-                {selectedData.map(county => (
+                {selectedData.map((county) => (
                   <td key={county.id} className="py-3 px-4 text-center font-semibold">
                     {county.judges}
                   </td>
@@ -144,7 +151,7 @@ export function CountyComparison() {
                     Court Locations
                   </div>
                 </td>
-                {selectedData.map(county => (
+                {selectedData.map((county) => (
                   <td key={county.id} className="py-3 px-4 text-center font-semibold">
                     {county.courts}
                   </td>
@@ -158,7 +165,7 @@ export function CountyComparison() {
                     Established Revenue
                   </div>
                 </td>
-                {selectedData.map(county => (
+                {selectedData.map((county) => (
                   <td key={county.id} className="py-3 px-4 text-center">
                     {county.established_revenue ? (
                       <span className="font-semibold text-green-600">
@@ -178,10 +185,11 @@ export function CountyComparison() {
                     Revenue Potential
                   </div>
                 </td>
-                {selectedData.map(county => (
+                {selectedData.map((county) => (
                   <td key={county.id} className="py-3 px-4 text-center">
                     <span className="font-semibold text-primary">
-                      ${county.revenue_potential[0].toLocaleString()}-${county.revenue_potential[1].toLocaleString()}/mo
+                      ${county.revenue_potential[0].toLocaleString()}-$
+                      {county.revenue_potential[1].toLocaleString()}/mo
                     </span>
                   </td>
                 ))}
@@ -189,7 +197,7 @@ export function CountyComparison() {
 
               <tr>
                 <td className="py-3 px-4 font-medium text-foreground">Average Attorney Budget</td>
-                {selectedData.map(county => (
+                {selectedData.map((county) => (
                   <td key={county.id} className="py-3 px-4 text-center font-semibold">
                     ${county.avg_attorney_budget}/mo
                   </td>
@@ -198,7 +206,7 @@ export function CountyComparison() {
 
               <tr>
                 <td className="py-3 px-4 font-medium text-foreground">Success Rate</td>
-                {selectedData.map(county => (
+                {selectedData.map((county) => (
                   <td key={county.id} className="py-3 px-4 text-center font-medium">
                     {county.success_rate}
                   </td>
@@ -207,11 +215,13 @@ export function CountyComparison() {
 
               <tr>
                 <td className="py-3 px-4 font-medium text-foreground">Top Practice Areas</td>
-                {selectedData.map(county => (
+                {selectedData.map((county) => (
                   <td key={county.id} className="py-3 px-4 text-center">
                     <div className="text-sm">
                       {county.top_practice_areas.slice(0, 2).map((area, idx) => (
-                        <div key={idx} className="text-muted-foreground">{area}</div>
+                        <div key={idx} className="text-muted-foreground">
+                          {area}
+                        </div>
                       ))}
                       {county.top_practice_areas.length > 2 && (
                         <div className="text-muted-foreground text-xs">
@@ -234,8 +244,10 @@ export function CountyComparison() {
           <span className="font-semibold text-blue-900">Expansion Analysis</span>
         </div>
         <p className="text-blue-800 text-sm">
-          Los Angeles County represents a {(selectedData.find(c => c.id === 'los-angeles')?.expansion_factor || 0).toFixed(1)}x revenue expansion opportunity 
-          with premium entertainment and corporate law markets driving higher attorney budgets.
+          Los Angeles County represents a{' '}
+          {(selectedData.find((c) => c.id === 'los-angeles')?.expansion_factor || 0).toFixed(1)}x
+          revenue expansion opportunity with premium entertainment and corporate law markets driving
+          higher attorney budgets.
         </p>
       </div>
     </div>

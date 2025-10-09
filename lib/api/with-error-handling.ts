@@ -29,7 +29,7 @@ interface ErrorHandlingConfig {
   /**
    * Additional context to include in error logs.
    */
-  logContext?: Record<string, any>
+  logContext?: Record<string, unknown>
 }
 
 /**
@@ -40,7 +40,7 @@ export class ApiError extends Error {
     message: string,
     public statusCode: number = 500,
     public code?: string,
-    public details?: any
+    public details?: unknown
   ) {
     super(message)
     this.name = 'ApiError'
@@ -48,7 +48,7 @@ export class ApiError extends Error {
 }
 
 export class ValidationError extends ApiError {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: unknown) {
     super(message, 400, 'VALIDATION_ERROR', details)
     this.name = 'ValidationError'
   }
@@ -76,7 +76,7 @@ export class NotFoundError extends ApiError {
 }
 
 export class ConflictError extends ApiError {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: unknown) {
     super(message, 409, 'CONFLICT', details)
     this.name = 'ConflictError'
   }
@@ -169,28 +169,39 @@ export function withErrorHandling(config?: ErrorHandlingConfig): Middleware {
           }
         } catch (handlerError) {
           // If custom handler fails, fall through to default handling
-          logger.error('Custom error handler failed', {
-            scope: 'api_middleware',
-            originalError: error,
-            handlerError
-          }, handlerError as Error)
+          logger.error(
+            'Custom error handler failed',
+            {
+              scope: 'api_middleware',
+              originalError: error,
+              handlerError,
+            },
+            handlerError as Error
+          )
         }
       }
 
       // Log the error
       if (shouldLog) {
         const { pathname } = new URL(req.url)
-        logger.error('API route error', {
-          scope: 'api_middleware',
-          method: req.method,
-          path: pathname,
-          error: error instanceof Error ? {
-            name: error.name,
-            message: error.message,
-            stack: isDevelopment ? error.stack : undefined
-          } : error,
-          ...config?.logContext
-        }, error as Error)
+        logger.error(
+          'API route error',
+          {
+            scope: 'api_middleware',
+            method: req.method,
+            path: pathname,
+            error:
+              error instanceof Error
+                ? {
+                    name: error.name,
+                    message: error.message,
+                    stack: isDevelopment ? error.stack : undefined,
+                  }
+                : error,
+            ...config?.logContext,
+          },
+          error as Error
+        )
       }
 
       // Handle known error types
@@ -200,7 +211,7 @@ export function withErrorHandling(config?: ErrorHandlingConfig): Middleware {
             error: error.message,
             code: error.code,
             ...(error.details && { details: error.details }),
-            ...(isDevelopment && config?.includeStack && error.stack && { stack: error.stack })
+            ...(isDevelopment && config?.includeStack && error.stack && { stack: error.stack }),
           },
           { status: error.statusCode }
         )
@@ -215,7 +226,7 @@ export function withErrorHandling(config?: ErrorHandlingConfig): Middleware {
           code: dbError.code,
           message: dbError.message,
           details: dbError.details,
-          hint: dbError.hint
+          hint: dbError.hint,
         })
 
         // Don't expose database details in production
@@ -225,8 +236,8 @@ export function withErrorHandling(config?: ErrorHandlingConfig): Middleware {
             code: 'DATABASE_ERROR',
             ...(isDevelopment && {
               details: dbError.details,
-              hint: dbError.hint
-            })
+              hint: dbError.hint,
+            }),
           },
           { status: 500 }
         )
@@ -254,7 +265,7 @@ export function withErrorHandling(config?: ErrorHandlingConfig): Middleware {
           {
             error: isDevelopment ? error.message : 'Internal server error',
             code: 'INTERNAL_ERROR',
-            ...(isDevelopment && config?.includeStack && error.stack && { stack: error.stack })
+            ...(isDevelopment && config?.includeStack && error.stack && { stack: error.stack }),
           },
           { status: 500 }
         )
@@ -264,13 +275,13 @@ export function withErrorHandling(config?: ErrorHandlingConfig): Middleware {
       logger.error('Unknown error type', {
         scope: 'api_middleware',
         error,
-        errorType: typeof error
+        errorType: typeof error,
       })
 
       return NextResponse.json(
         {
           error: 'Internal server error',
-          code: 'UNKNOWN_ERROR'
+          code: 'UNKNOWN_ERROR',
         },
         { status: 500 }
       )
@@ -282,12 +293,10 @@ export function withErrorHandling(config?: ErrorHandlingConfig): Middleware {
  * Convenience wrapper that enables stack traces in development.
  * Useful for debugging during development.
  */
-export const withErrorHandlingVerbose = () =>
-  withErrorHandling({ includeStack: true })
+export const withErrorHandlingVerbose = () => withErrorHandling({ includeStack: true })
 
 /**
  * Convenience wrapper that disables error logging.
  * Useful for routes where errors are expected and handled differently.
  */
-export const withErrorHandlingSilent = () =>
-  withErrorHandling({ logErrors: false })
+export const withErrorHandlingSilent = () => withErrorHandling({ logErrors: false })

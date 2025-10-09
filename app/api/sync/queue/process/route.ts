@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 export const maxDuration = 300 // process a single job within Vercel hobby limits
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now()
 
   try {
@@ -21,17 +21,20 @@ export async function GET(request: NextRequest) {
 
     if (!job) {
       logger.debug?.('Queue worker run found no jobs')
-      return NextResponse.json({
-        success: true,
-        queued: false,
-        message: 'No sync jobs pending'
-      }, { status: 200 })
+      return NextResponse.json(
+        {
+          success: true,
+          queued: false,
+          message: 'No sync jobs pending',
+        },
+        { status: 200 }
+      )
     }
 
     logger.info('Queue worker processing job', {
       jobId: job.id,
       type: job.type,
-      options: job.options
+      options: job.options,
     })
 
     await queueManager.processJob(job)
@@ -41,7 +44,7 @@ export async function GET(request: NextRequest) {
     logger.info('Queue worker completed job', {
       jobId: job.id,
       type: job.type,
-      duration
+      duration,
     })
 
     return NextResponse.json({
@@ -49,19 +52,21 @@ export async function GET(request: NextRequest) {
       processed: true,
       jobId: job.id,
       type: job.type,
-      duration
+      duration,
     })
-
   } catch (error) {
     const duration = Date.now() - startTime
 
     logger.error('Queue worker failed to process job', { error, duration })
 
-    return NextResponse.json({
-      success: false,
-      error: 'Queue processing failed',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      duration
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Queue processing failed',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        duration,
+      },
+      { status: 500 }
+    )
   }
 }

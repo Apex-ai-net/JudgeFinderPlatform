@@ -4,7 +4,7 @@ import 'dotenv/config'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { createCanonicalCourtSlug, isValidCourtSlug } from '../lib/utils/slug'
 
-type CourtRecord = {
+interface CourtRecord {
   id: string
   name: string
   slug: string | null
@@ -43,16 +43,16 @@ async function fetchAllCourts(client: SupabaseAny): Promise<CourtRecord[]> {
     if (error) {
       throw new Error(`Supabase fetch error: ${error.message}`)
     }
-    
+
     if (!data || data.length === 0) {
       break
     }
 
     courts.push(
-      ...data.map(row => ({
+      ...data.map((row) => ({
         id: String(row.id),
         name: String(row.name ?? ''),
-        slug: row.slug === null || row.slug === undefined ? null : String(row.slug)
+        slug: row.slug === null || row.slug === undefined ? null : String(row.slug),
       }))
     )
 
@@ -100,7 +100,7 @@ function auditCourts(courts: CourtRecord[]): AuditResult {
     total: courts.length,
     missing,
     invalid,
-    duplicates
+    duplicates,
   }
 }
 
@@ -166,9 +166,7 @@ async function applyFixes(
   console.log(`Applying ${updates.length} slug updates...`)
 
   for (const chunk of chunkUpdates(updates, 50)) {
-    const { error } = await client
-      .from('courts')
-      .upsert(chunk, { onConflict: 'id' })
+    const { error } = await client.from('courts').upsert(chunk, { onConflict: 'id' })
 
     if (error) {
       throw new Error(`Failed to update court slugs: ${error.message}`)
@@ -194,7 +192,7 @@ async function main() {
 
     const client: SupabaseAny = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { persistSession: false },
-      db: { schema: 'public' }
+      db: { schema: 'public' },
     })
 
     console.log('Fetching courts from Supabase...')
@@ -203,7 +201,10 @@ async function main() {
 
     const audit = auditCourts(courts)
 
-    const duplicateCount = Object.values(audit.duplicates).reduce((total, items) => total + items.length, 0)
+    const duplicateCount = Object.values(audit.duplicates).reduce(
+      (total, items) => total + items.length,
+      0
+    )
 
     console.log('\nCourt slug audit summary:')
     console.log(`  Total courts          : ${audit.total}`)

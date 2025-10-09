@@ -1,7 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Building, MapPin, Users, Scale, Search, Loader2, ArrowRight, Sparkles, Landmark, Building2, Flag } from 'lucide-react'
+import {
+  Building,
+  MapPin,
+  Users,
+  Scale,
+  Search,
+  Loader2,
+  ArrowRight,
+  Sparkles,
+  Landmark,
+  Building2,
+  Flag,
+} from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useSearchDebounce } from '@/lib/hooks/useDebounce'
@@ -35,7 +47,7 @@ interface CourtsSearchProps {
 }
 
 // Helper to get court type icon and color
-function getCourtTypeInfo(type: string) {
+function getCourtTypeInfo(type: string): JSX.Element {
   const normalizedType = type.toLowerCase()
 
   if (normalizedType.includes('federal')) {
@@ -43,7 +55,7 @@ function getCourtTypeInfo(type: string) {
       icon: Flag,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10',
-      label: 'Federal'
+      label: 'Federal',
     }
   }
 
@@ -52,7 +64,7 @@ function getCourtTypeInfo(type: string) {
       icon: Landmark,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10',
-      label: 'State'
+      label: 'State',
     }
   }
 
@@ -61,11 +73,14 @@ function getCourtTypeInfo(type: string) {
     icon: Building2,
     color: 'text-green-500',
     bgColor: 'bg-green-500/10',
-    label: 'Local'
+    label: 'Local',
   }
 }
 
-export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: CourtsSearchProps) {
+export function CourtsSearch({
+  initialCourts,
+  initialJurisdiction = 'CA',
+}: CourtsSearchProps): JSX.Element {
   const [selectedType, setSelectedType] = useState('')
   const [selectedJurisdiction, setSelectedJurisdiction] = useState(initialJurisdiction)
   const [searchInput, setSearchInput] = useState('')
@@ -90,7 +105,7 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
     let isMounted = true
     let abortController: AbortController | null = null
 
-    async function searchCourts() {
+    async function searchCourts(): JSX.Element {
       try {
         if (page === 1) {
           setLoading(true)
@@ -108,7 +123,7 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
         })
 
         const res = await fetch(`/api/courts?${params}`, {
-          signal: abortController.signal
+          signal: abortController.signal,
         })
 
         if (!isMounted) return
@@ -124,7 +139,7 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
         if (page === 1) {
           setCourts(data.courts)
         } else {
-          setCourts(prev => [...prev, ...data.courts])
+          setCourts((prev) => [...prev, ...data.courts])
         }
         setHasMore(data.has_more)
         setTotalCount(data.total_count)
@@ -152,14 +167,14 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
 
   const handleLoadMore = () => {
     if (!loading && hasMore) {
-      setPage(prev => prev + 1)
+      setPage((prev) => prev + 1)
     }
   }
 
   return (
     <div className="space-y-6">
       {/* Search and Filters */}
-      <motion.div 
+      <motion.div
         className="bg-card rounded-xl border border-border p-6 shadow-sm backdrop-blur-sm"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -184,9 +199,7 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Jurisdiction
-              </label>
+              <label className="block text-sm font-medium text-foreground mb-2">Jurisdiction</label>
               <select
                 className="w-full rounded-lg border border-border bg-background py-2.5 px-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                 value={selectedJurisdiction}
@@ -202,9 +215,7 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Court Type
-              </label>
+              <label className="block text-sm font-medium text-foreground mb-2">Court Type</label>
               <select
                 className="w-full rounded-lg border border-border bg-background py-2.5 px-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                 value={selectedType}
@@ -222,7 +233,7 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
 
       {/* Error Message */}
       {error && (
-        <motion.div 
+        <motion.div
           className="bg-destructive/10 border border-destructive/30 rounded-lg p-4"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -232,7 +243,7 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
       )}
 
       {/* Results Summary */}
-      <motion.div 
+      <motion.div
         className="flex items-center justify-between"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -285,9 +296,11 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
                         </div>
                         <AnimatedBadge
                           variant={
-                            typeInfo.label === 'Federal' ? 'info' :
-                            typeInfo.label === 'State' ? 'default' :
-                            'success'
+                            typeInfo.label === 'Federal'
+                              ? 'info'
+                              : typeInfo.label === 'State'
+                                ? 'default'
+                                : 'success'
                           }
                           className="capitalize"
                         >
@@ -307,7 +320,9 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
 
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Users className="h-3.5 w-3.5 flex-shrink-0" />
-                          <span>{court.judge_count} {court.judge_count === 1 ? 'judge' : 'judges'}</span>
+                          <span>
+                            {court.judge_count} {court.judge_count === 1 ? 'judge' : 'judges'}
+                          </span>
                         </div>
                       </div>
 
@@ -332,7 +347,7 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
             </motion.div>
           )
         })}
-        
+
         {/* Show skeleton cards while loading more */}
         {loading && hasMore && (
           <>
@@ -341,7 +356,7 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
             ))}
           </>
         )}
-        
+
         {/* Show skeleton cards during initial search */}
         {loading && courts.length === 0 && (
           <>
@@ -354,7 +369,7 @@ export function CourtsSearch({ initialCourts, initialJurisdiction = 'CA' }: Cour
 
       {/* Load More Button */}
       {hasMore && courts.length > 0 && (
-        <motion.div 
+        <motion.div
           className="text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

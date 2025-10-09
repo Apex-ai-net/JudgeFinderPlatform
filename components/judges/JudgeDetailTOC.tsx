@@ -19,7 +19,7 @@ const tocItems: TOCItem[] = [
   { id: 'recent-decisions', label: 'Decisions', icon: <FileText className="w-4 h-4" /> },
 ]
 
-export function JudgeDetailTOC() {
+export function JudgeDetailTOC(): JSX.Element {
   const [activeSection, setActiveSection] = useState('profile')
   const [isOpen, setIsOpen] = useState(false)
 
@@ -107,9 +107,7 @@ export function JudgeDetailTOC() {
                   >
                     {item.icon}
                     <span>{item.label}</span>
-                    {activeSection === item.id && (
-                      <ChevronRight className="w-4 h-4 ml-auto" />
-                    )}
+                    {activeSection === item.id && <ChevronRight className="w-4 h-4 ml-auto" />}
                   </button>
                 ))}
               </nav>
@@ -144,10 +142,7 @@ export function JudgeDetailTOC() {
                 whileHover={{ x: 4 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <span className={cn(
-                  'flex-shrink-0',
-                  activeSection === item.id && 'animate-pulse'
-                )}>
+                <span className={cn('flex-shrink-0', activeSection === item.id && 'animate-pulse')}>
                   {item.icon}
                 </span>
                 <span className="flex-1 text-left">{item.label}</span>
@@ -168,7 +163,14 @@ export function JudgeDetailTOC() {
           <div className="mt-4 pt-4 border-t border-border">
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
               <span>Reading progress</span>
-              <span>{Math.round((tocItems.findIndex((item) => item.id === activeSection) + 1) / tocItems.length * 100)}%</span>
+              <span>
+                {Math.round(
+                  ((tocItems.findIndex((item) => item.id === activeSection) + 1) /
+                    tocItems.length) *
+                    100
+                )}
+                %
+              </span>
             </div>
             <div className="h-1.5 bg-muted rounded-full overflow-hidden">
               <motion.div

@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
-export default function Page() {
+export default function Page(): JSX.Element {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       <div className="flex min-h-screen">
@@ -22,10 +22,34 @@ export default function Page() {
                     <rect x="19" y="10" width="2" height="20" fill="url(#signUpGradient)" />
                     <path d="M 20 10 L 17 7 L 23 7 Z" fill="url(#signUpGradient)" />
                     <rect x="10" y="13" width="20" height="1" fill="url(#signUpGradient)" />
-                    <line x1="13" y1="13" x2="13" y2="18" stroke="url(#signUpGradient)" strokeWidth="1" />
-                    <path d="M 11 18 Q 13 20 15 18" fill="none" stroke="url(#signUpGradient)" strokeWidth="1.5" />
-                    <line x1="27" y1="13" x2="27" y2="18" stroke="url(#signUpGradient)" strokeWidth="1" />
-                    <path d="M 25 18 Q 27 20 29 18" fill="none" stroke="url(#signUpGradient)" strokeWidth="1.5" />
+                    <line
+                      x1="13"
+                      y1="13"
+                      x2="13"
+                      y2="18"
+                      stroke="url(#signUpGradient)"
+                      strokeWidth="1"
+                    />
+                    <path
+                      d="M 11 18 Q 13 20 15 18"
+                      fill="none"
+                      stroke="url(#signUpGradient)"
+                      strokeWidth="1.5"
+                    />
+                    <line
+                      x1="27"
+                      y1="13"
+                      x2="27"
+                      y2="18"
+                      stroke="url(#signUpGradient)"
+                      strokeWidth="1"
+                    />
+                    <path
+                      d="M 25 18 Q 27 20 29 18"
+                      fill="none"
+                      stroke="url(#signUpGradient)"
+                      strokeWidth="1.5"
+                    />
                     <rect x="16" y="30" width="8" height="2" rx="1" fill="url(#signUpGradient)" />
                   </svg>
                 </div>
@@ -46,12 +70,14 @@ export default function Page() {
             <h1 className="text-3xl font-bold mb-4">
               Legal Professionals
               <span className="bg-gradient-to-r from-blue-400 to-blue-700 bg-clip-text text-transparent">
-                {' '}Registration
+                {' '}
+                Registration
               </span>
             </h1>
 
             <p className="text-lg text-gray-300 mb-8">
-              Exclusive access for law firms and legal professionals to unlock advanced judicial analytics and professional features.
+              Exclusive access for law firms and legal professionals to unlock advanced judicial
+              analytics and professional features.
             </p>
 
             <div className="space-y-4 text-left mb-8">
@@ -73,26 +99,66 @@ export default function Page() {
               <h3 className="text-lg font-semibold mb-4 text-blue-400">Professional Features:</h3>
               <div className="space-y-3 text-sm text-gray-300">
                 <div className="flex items-start space-x-3">
-                  <svg className="w-5 h-5 text-green-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-5 h-5 text-green-400 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                   <span>Export detailed judicial analytics reports</span>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <svg className="w-5 h-5 text-green-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-5 h-5 text-green-400 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                   <span>Team collaboration and case notes</span>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <svg className="w-5 h-5 text-green-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-5 h-5 text-green-400 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                   <span>API access for firm integrations</span>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <svg className="w-5 h-5 text-green-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-5 h-5 text-green-400 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                   <span>Priority support and dedicated account management</span>
                 </div>
@@ -101,8 +167,8 @@ export default function Page() {
 
             <div className="mt-4 p-4 bg-blue-900/20 rounded-lg border border-blue-700/30">
               <p className="text-sm text-blue-300">
-                <strong>Note:</strong> Basic judge analytics are available to the public without registration.
-                Professional registration unlocks advanced features for law firms.
+                <strong>Note:</strong> Basic judge analytics are available to the public without
+                registration. Professional registration unlocks advanced features for law firms.
               </p>
             </div>
           </div>
@@ -165,6 +231,5 @@ export default function Page() {
 
 export const metadata = {
   title: 'Sign Up - JudgeFinder.io',
-  description: 'Create your JudgeFinder account'
+  description: 'Create your JudgeFinder account',
 }
-

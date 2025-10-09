@@ -22,7 +22,13 @@ interface Court {
   judge_count: number
 }
 
-export function CourtsPageClient({ initialCourts, initialJurisdiction = 'CA' }: { initialCourts: Court[], initialJurisdiction?: string }) {
+export function CourtsPageClient({
+  initialCourts,
+  initialJurisdiction = 'CA',
+}: {
+  initialCourts: Court[]
+  initialJurisdiction?: string
+}): JSX.Element {
   const { scrollYProgress } = useScroll()
   const y = useTransform(scrollYProgress, [0, 1], [0, -50])
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.3])
@@ -73,7 +79,8 @@ export function CourtsPageClient({ initialCourts, initialJurisdiction = 'CA' }: 
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            Browse courts across jurisdictions. Search by type, jurisdiction, and location to find court information and assigned judges.
+            Browse courts across jurisdictions. Search by type, jurisdiction, and location to find
+            court information and assigned judges.
           </motion.p>
 
           <motion.div
@@ -145,7 +152,10 @@ export function CourtsPageClient({ initialCourts, initialJurisdiction = 'CA' }: 
 
           <div className="mx-auto max-w-6xl">
             {activeTab === 'courts' && (
-              <CourtsSearch initialCourts={initialCourts} initialJurisdiction={initialJurisdiction} />
+              <CourtsSearch
+                initialCourts={initialCourts}
+                initialJurisdiction={initialJurisdiction}
+              />
             )}
             {activeTab === 'counties' && <CountiesTab />}
             {activeTab === 'cities' && <CitiesTab />}

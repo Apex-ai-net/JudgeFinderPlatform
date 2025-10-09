@@ -18,7 +18,7 @@ export const runtime = 'nodejs'
  *
  * Get current rate limit statistics
  */
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     // Admin authentication required
     const { userId } = await auth()
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       limiter.getRemainingRequests(),
       limiter.getResetTime(),
       limiter.isRateLimited(),
-      limiter.getStatusReport()
+      limiter.getStatusReport(),
     ])
 
     // Calculate health status
@@ -56,27 +56,29 @@ export async function GET(request: NextRequest) {
           windowStart: stats.windowStart.toISOString(),
           windowEnd: stats.windowEnd.toISOString(),
           lastRequest: stats.lastRequest?.toISOString() ?? null,
-          projectedHourly: stats.projectedHourly ?? null
+          projectedHourly: stats.projectedHourly ?? null,
         },
         status: {
           isRateLimited: isLimited,
           health,
           resetAt: resetTime.toISOString(),
-          minutesUntilReset: Math.ceil((resetTime.getTime() - Date.now()) / 60000)
+          minutesUntilReset: Math.ceil((resetTime.getTime() - Date.now()) / 60000),
         },
-        report
+        report,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
-
   } catch (error) {
     logger.error('Failed to get rate limit stats', { error })
 
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to retrieve rate limit statistics',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to retrieve rate limit statistics',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    )
   }
 }
 
@@ -85,7 +87,7 @@ export async function GET(request: NextRequest) {
  *
  * Manage rate limiter (reset window, etc.)
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Admin authentication required
     const { userId } = await auth()
@@ -102,10 +104,13 @@ export async function POST(request: NextRequest) {
     const { action } = body
 
     if (!action) {
-      return NextResponse.json({
-        success: false,
-        error: 'Missing action parameter'
-      }, { status: 400 })
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Missing action parameter',
+        },
+        { status: 400 }
+      )
     }
 
     const limiter = getGlobalRateLimiter()
@@ -116,7 +121,7 @@ export async function POST(request: NextRequest) {
 
         logger.info('Rate limit window manually reset', {
           resetBy: userId,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         })
 
         const newStats = await limiter.getUsageStats()
@@ -129,8 +134,8 @@ export async function POST(request: NextRequest) {
             limit: newStats.limit,
             remaining: newStats.remaining,
             windowStart: newStats.windowStart.toISOString(),
-            windowEnd: newStats.windowEnd.toISOString()
-          }
+            windowEnd: newStats.windowEnd.toISOString(),
+          },
         })
       }
 
@@ -145,27 +150,32 @@ export async function POST(request: NextRequest) {
             limit: result.limit,
             currentCount: result.currentCount,
             utilizationPercent: parseFloat(result.utilizationPercent.toFixed(2)),
-            resetAt: result.resetAt.toISOString()
-          }
+            resetAt: result.resetAt.toISOString(),
+          },
         })
       }
 
       default:
-        return NextResponse.json({
-          success: false,
-          error: 'Invalid action',
-          validActions: ['reset', 'check']
-        }, { status: 400 })
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Invalid action',
+            validActions: ['reset', 'check'],
+          },
+          { status: 400 }
+        )
     }
-
   } catch (error) {
     logger.error('Rate limit management action failed', { error })
 
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to execute rate limit action',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to execute rate limit action',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    )
   }
 }
 
@@ -181,19 +191,19 @@ function calculateHealthStatus(utilizationPercent: number): {
     return {
       status: 'healthy',
       color: 'green',
-      message: 'Rate limit usage is healthy'
+      message: 'Rate limit usage is healthy',
     }
   } else if (utilizationPercent < 90) {
     return {
       status: 'warning',
       color: 'yellow',
-      message: 'Approaching rate limit - monitor closely'
+      message: 'Approaching rate limit - monitor closely',
     }
   } else {
     return {
       status: 'critical',
       color: 'red',
-      message: 'Critical - rate limit nearly exhausted'
+      message: 'Critical - rate limit nearly exhausted',
     }
   }
 }

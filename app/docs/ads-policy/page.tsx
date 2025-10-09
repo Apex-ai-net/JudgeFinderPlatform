@@ -27,16 +27,20 @@ const restrictions = [
   'No ads that conflict with California Rules of Professional Conduct or fail bar verification checks.',
 ]
 
-export default function AdsPolicyPage() {
+export default function AdsPolicyPage(): JSX.Element {
   return (
     <div className="bg-background">
       <div className="mx-auto w-full max-w-4xl px-4 py-12">
         <header className="mb-10 space-y-3">
-          <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Advertising standards</p>
-          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">Advertising &amp; Verified Listings Policy</h1>
+          <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+            Advertising standards
+          </p>
+          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
+            Advertising &amp; Verified Listings Policy
+          </h1>
           <p className="text-base text-muted-foreground sm:text-lg">
-            Sponsored content helps fund the JudgeFinder transparency mission. To protect readers, every ad follows strict
-            labeling, verification, and placement rules.
+            Sponsored content helps fund the JudgeFinder transparency mission. To protect readers,
+            every ad follows strict labeling, verification, and placement rules.
           </p>
         </header>
 
@@ -46,7 +50,10 @@ export default function AdsPolicyPage() {
             <ul className="mt-4 space-y-3 text-sm text-foreground/90 sm:text-base">
               {labeling.map((item) => (
                 <li key={item} className="flex gap-2">
-                  <span aria-hidden className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
+                  <span
+                    aria-hidden
+                    className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary"
+                  />
                   <span>{item}</span>
                 </li>
               ))}
@@ -58,7 +65,10 @@ export default function AdsPolicyPage() {
             <ul className="mt-4 space-y-3 text-sm text-foreground/90 sm:text-base">
               {placementRules.map((item) => (
                 <li key={item} className="flex gap-2">
-                  <span aria-hidden className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
+                  <span
+                    aria-hidden
+                    className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-primary"
+                  />
                   <span>{item}</span>
                 </li>
               ))}
@@ -70,7 +80,10 @@ export default function AdsPolicyPage() {
             <ul className="mt-4 space-y-3 text-sm text-foreground/90 sm:text-base">
               {restrictions.map((item) => (
                 <li key={item} className="flex gap-2">
-                  <span aria-hidden className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-destructive" />
+                  <span
+                    aria-hidden
+                    className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-destructive"
+                  />
                   <span>{item}</span>
                 </li>
               ))}
@@ -81,8 +94,9 @@ export default function AdsPolicyPage() {
         <section className="mt-12 rounded-2xl border border-border bg-muted/40 p-6">
           <h2 className="text-xl font-semibold text-foreground">Reporting concerns</h2>
           <p className="mt-3 text-sm text-muted-foreground">
-            If you see an unlabeled or misleading advertisement, email ads@judgefinder.io with screenshots. We investigate every
-            report within 2 business days. Violations lead to removal and, when needed, disclosure to the State Bar of California.
+            If you see an unlabeled or misleading advertisement, email ads@judgefinder.io with
+            screenshots. We investigate every report within 2 business days. Violations lead to
+            removal and, when needed, disclosure to the State Bar of California.
           </p>
         </section>
       </div>

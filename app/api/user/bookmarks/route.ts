@@ -4,7 +4,7 @@ import { createClerkSupabaseServerClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { userId } = await auth()
 
@@ -13,11 +13,12 @@ export async function GET(request: NextRequest) {
     }
 
     const supabase = await createClerkSupabaseServerClient()
-    
+
     // Get user's bookmarked judges with judge details
     const { data, error } = await supabase
       .from('user_bookmarks')
-      .select(`
+      .select(
+        `
         id,
         judge_id,
         created_at,
@@ -28,7 +29,8 @@ export async function GET(request: NextRequest) {
           jurisdiction,
           slug
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
@@ -40,14 +42,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ bookmarks: data || [] })
   } catch (error) {
     console.error('Bookmarks API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const { userId } = await auth()
 
@@ -80,7 +79,7 @@ export async function POST(request: NextRequest) {
       .from('user_bookmarks')
       .insert({
         user_id: userId,
-        judge_id: judge_id
+        judge_id: judge_id,
       })
       .select()
       .single()
@@ -93,14 +92,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ bookmark: data }, { status: 201 })
   } catch (error) {
     console.error('Bookmark creation error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
     const { userId } = await auth()
 
@@ -130,9 +126,6 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Bookmark deletion error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

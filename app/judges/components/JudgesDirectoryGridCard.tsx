@@ -2,7 +2,15 @@
 
 import { useState } from 'react'
 import { motion, type Variants } from 'framer-motion'
-import { ArrowRight, Calendar, Gavel, Scale, FileText, CheckCircle2, TrendingUp } from 'lucide-react'
+import {
+  ArrowRight,
+  Calendar,
+  Gavel,
+  Scale,
+  FileText,
+  CheckCircle2,
+  TrendingUp,
+} from 'lucide-react'
 import { SharedTransitionLink } from '@/components/ui/SharedTransitionLink'
 import { generateSlug } from '@/lib/utils/slug'
 import { cardHover, transitions } from '@/lib/animations/presets'
@@ -21,11 +29,16 @@ const cardVariants: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: transitions.smooth
+    transition: transitions.smooth,
   },
 }
 
-export function JudgesDirectoryGridCard({ judge, recentYears, onCompareToggle, isSelected = false }: JudgesDirectoryGridCardProps) {
+export function JudgesDirectoryGridCard({
+  judge,
+  recentYears,
+  onCompareToggle,
+  isSelected = false,
+}: JudgesDirectoryGridCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
 
   if (!judge) {
@@ -90,7 +103,9 @@ export function JudgesDirectoryGridCard({ judge, recentYears, onCompareToggle, i
               whileTap={{ scale: 0.95 }}
               aria-label={isSelected ? 'Remove from comparison' : 'Add to comparison'}
             >
-              <CheckCircle2 className={`w-4 h-4 transition-all ${isSelected ? 'fill-current' : ''}`} />
+              <CheckCircle2
+                className={`w-4 h-4 transition-all ${isSelected ? 'fill-current' : ''}`}
+              />
             </motion.button>
           )}
 
@@ -119,7 +134,9 @@ export function JudgesDirectoryGridCard({ judge, recentYears, onCompareToggle, i
             </div>
 
             {/* Name */}
-            <h3 className={`text-lg font-bold text-foreground mb-2 line-clamp-3 min-h-[3.5rem] group-hover:text-primary transition-colors ${onCompareToggle ? 'pr-10' : ''}`}>
+            <h3
+              className={`text-lg font-bold text-foreground mb-2 line-clamp-3 min-h-[3.5rem] group-hover:text-primary transition-colors ${onCompareToggle ? 'pr-10' : ''}`}
+            >
               {judge.name}
             </h3>
 
@@ -179,4 +196,3 @@ export function JudgesDirectoryGridCard({ judge, recentYears, onCompareToggle, i
     </motion.div>
   )
 }
-

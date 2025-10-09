@@ -10,23 +10,34 @@ import Link from 'next/link'
 import { AnimatedCard, SlideInView, AnimatedNumber } from '@/components/micro-interactions'
 import { StatsTicker } from './StatsTicker'
 import {
-  BarChart3, Brain,
-  MessageSquare, Bot, ArrowRight, Database, Lock,
-  Sparkles
+  BarChart3,
+  Brain,
+  MessageSquare,
+  Bot,
+  ArrowRight,
+  Database,
+  Lock,
+  Sparkles,
 } from 'lucide-react'
 
 // Animated counter component - simplified with SSR support
-function AnimatedCounter({ end, duration = 1000 }: { end: number; duration?: number }) {
+function AnimatedCounter({
+  end,
+  duration = 1000,
+}: {
+  end: number
+  duration?: number
+}): JSX.Element {
   const [count, setCount] = useState(0)
   const [mounted, setMounted] = useState(false)
-  
+
   useEffect(() => {
     setMounted(true)
   }, [])
-  
+
   useEffect(() => {
     if (!mounted) return
-    
+
     let startTime: number | null = null
     const step = (timestamp: number) => {
       if (!startTime) startTime = timestamp
@@ -36,52 +47,55 @@ function AnimatedCounter({ end, duration = 1000 }: { end: number; duration?: num
     }
     requestAnimationFrame(step)
   }, [end, duration, mounted])
-  
+
   // Return static number during SSR, animated number after mount
   return <span>{mounted ? count.toLocaleString() : end.toLocaleString()}</span>
 }
 
-export default function HomePageClient() {
+export default function HomePageClient(): JSX.Element {
   const router = useRouter()
   const [heroRef, heroInView] = useInView({ threshold: 0.1, triggerOnce: true })
-  
+
   const benefits = [
-    { 
-      icon: Brain, 
-      title: "Know What to Expect", 
+    {
+      icon: Brain,
+      title: 'Know What to Expect',
       desc: "Understand your judge's approach before court",
-      color: 'from-blue-500 to-blue-600'
+      color: 'from-blue-500 to-blue-600',
     },
-    { 
-      icon: BarChart3, 
-      title: "Prepare with Confidence", 
-      desc: "Get insights to better prepare your case",
-      color: 'from-green-500 to-green-600'
+    {
+      icon: BarChart3,
+      title: 'Prepare with Confidence',
+      desc: 'Get insights to better prepare your case',
+      color: 'from-green-500 to-green-600',
     },
-    { 
-      icon: Lock, 
-      title: "Free & Anonymous", 
-      desc: "No sign-up required, completely private",
-      color: 'from-blue-700 to-blue-900'
+    {
+      icon: Lock,
+      title: 'Free & Anonymous',
+      desc: 'No sign-up required, completely private',
+      color: 'from-blue-700 to-blue-900',
     },
-    { 
-      icon: MessageSquare, 
-      title: "Simple & Clear", 
-      desc: "Plain English explanations, no legal jargon",
-      color: 'from-orange-500 to-orange-600'
-    }
+    {
+      icon: MessageSquare,
+      title: 'Simple & Clear',
+      desc: 'Plain English explanations, no legal jargon',
+      color: 'from-orange-500 to-orange-600',
+    },
   ]
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black text-foreground dark:text-white overflow-hidden">
       {/* Mobile-First Hero Section */}
-      <section ref={heroRef} className="relative flex flex-col items-center pt-6 pb-8 lg:pt-16 lg:pb-12">
+      <section
+        ref={heroRef}
+        className="relative flex flex-col items-center pt-6 pb-8 lg:pt-16 lg:pb-12"
+      >
         {/* Subtle Background Pattern - Hidden on mobile */}
         <div className="absolute inset-0 opacity-5 hidden lg:block">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(59,130,246,0.1),transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(147,51,234,0.1),transparent_50%)]" />
         </div>
-        
+
         {/* Main Content - Mobile First Layout */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4">
           {/* Mobile Layout: Optimized for small screens */}
@@ -99,7 +113,7 @@ export default function HomePageClient() {
                   Get Instant Insights
                 </span>
               </h1>
-              
+
               <p className="text-sm sm:text-base text-muted-foreground dark:text-muted-foreground max-w-xs mx-auto">
                 Find out what to expect in your upcoming court appearance
               </p>
@@ -122,14 +136,31 @@ export default function HomePageClient() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-center mb-6"
             >
-              <p className="text-xs text-muted-foreground dark:text-muted-foreground mb-2">Try searching:</p>
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground mb-2">
+                Try searching:
+              </p>
               <div className="flex justify-center gap-2 flex-wrap">
-                <button onClick={() => router.push('/search?q=Judge%20Smith')} className="px-3 py-1 bg-muted dark:bg-card rounded-full text-xs text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-card">Judge Smith</button>
-                <button onClick={() => router.push('/search?q=Judge%20Martinez')} className="px-3 py-1 bg-muted dark:bg-card rounded-full text-xs text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-card">Judge Martinez</button>
-                <button onClick={() => router.push('/search?q=Judge%20Johnson')} className="px-3 py-1 bg-muted dark:bg-card rounded-full text-xs text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-card">Judge Johnson</button>
+                <button
+                  onClick={() => router.push('/search?q=Judge%20Smith')}
+                  className="px-3 py-1 bg-muted dark:bg-card rounded-full text-xs text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-card"
+                >
+                  Judge Smith
+                </button>
+                <button
+                  onClick={() => router.push('/search?q=Judge%20Martinez')}
+                  className="px-3 py-1 bg-muted dark:bg-card rounded-full text-xs text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-card"
+                >
+                  Judge Martinez
+                </button>
+                <button
+                  onClick={() => router.push('/search?q=Judge%20Johnson')}
+                  className="px-3 py-1 bg-muted dark:bg-card rounded-full text-xs text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-card"
+                >
+                  Judge Johnson
+                </button>
               </div>
             </motion.div>
-            
+
             {/* Quick Action Buttons - Mobile First */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -137,10 +168,12 @@ export default function HomePageClient() {
               transition={{ duration: 0.6, delay: 0.5 }}
               className="flex flex-col gap-3 max-w-sm mx-auto"
             >
-              <button 
+              <button
                 onClick={() => {
-                  const searchInput = document.querySelector('input[type="search"]') as HTMLInputElement;
-                  searchInput?.focus();
+                  const searchInput = document.querySelector(
+                    'input[type="search"]'
+                  ) as HTMLInputElement
+                  searchInput?.focus()
                 }}
                 className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-interactive-hover transition-colors min-h-[48px]"
               >
@@ -154,7 +187,6 @@ export default function HomePageClient() {
           <div className="hidden lg:grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Column - Content */}
             <div>
-              
               {/* Main Heading */}
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
@@ -162,15 +194,13 @@ export default function HomePageClient() {
                 transition={{ duration: 0.8, delay: 0.1 }}
                 className="text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 leading-tight"
               >
-                <span className="text-foreground dark:text-white">
-                  Just Got Assigned a Judge?
-                </span>
+                <span className="text-foreground dark:text-white">Just Got Assigned a Judge?</span>
                 <br />
                 <span className="bg-gradient-to-r from-primary to-blue-800 bg-clip-text text-transparent">
                   Get Instant Insights
                 </span>
               </motion.h1>
-              
+
               {/* Subheading */}
               <motion.p
                 initial={{ opacity: 0, y: 30 }}
@@ -178,11 +208,11 @@ export default function HomePageClient() {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-xl text-muted-foreground dark:text-muted-foreground mb-8 leading-relaxed"
               >
-                Find out what to expect in your upcoming court appearance. 
-                Simple, clear insights to help you prepare with confidence.
+                Find out what to expect in your upcoming court appearance. Simple, clear insights to
+                help you prepare with confidence.
               </motion.p>
             </div>
-            
+
             {/* Right Column - Unified Search */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
@@ -190,14 +220,31 @@ export default function HomePageClient() {
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               <AIUnifiedSearch autoFocus={false} showVoiceSearch={true} showHistory={true} />
-              
+
               {/* Quick Example Searches for Desktop */}
               <div className="text-center mt-8">
-                <p className="text-sm text-muted-foreground dark:text-muted-foreground mb-3">Try searching for:</p>
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground mb-3">
+                  Try searching for:
+                </p>
                 <div className="flex justify-center gap-3">
-                  <button onClick={() => router.push('/search?q=Judge%20Smith')} className="px-4 py-2 bg-muted dark:bg-card rounded-lg text-sm text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-card">Judge Smith</button>
-                  <button onClick={() => router.push('/search?q=Judge%20Martinez')} className="px-4 py-2 bg-muted dark:bg-card rounded-lg text-sm text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-card">Judge Martinez</button>
-                  <button onClick={() => router.push('/search?q=Judge%20Johnson')} className="px-4 py-2 bg-muted dark:bg-card rounded-lg text-sm text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-card">Judge Johnson</button>
+                  <button
+                    onClick={() => router.push('/search?q=Judge%20Smith')}
+                    className="px-4 py-2 bg-muted dark:bg-card rounded-lg text-sm text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-card"
+                  >
+                    Judge Smith
+                  </button>
+                  <button
+                    onClick={() => router.push('/search?q=Judge%20Martinez')}
+                    className="px-4 py-2 bg-muted dark:bg-card rounded-lg text-sm text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-card"
+                  >
+                    Judge Martinez
+                  </button>
+                  <button
+                    onClick={() => router.push('/search?q=Judge%20Johnson')}
+                    className="px-4 py-2 bg-muted dark:bg-card rounded-lg text-sm text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-card"
+                  >
+                    Judge Johnson
+                  </button>
                 </div>
               </div>
             </motion.div>
@@ -226,11 +273,15 @@ export default function HomePageClient() {
                   glowColor="primary"
                   className="p-4 lg:p-5 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900"
                 >
-                  <div className={`w-8 h-8 lg:w-10 lg:h-10 mb-2 lg:mb-3 rounded-lg bg-gradient-to-r ${benefit.color} flex items-center justify-center`}>
+                  <div
+                    className={`w-8 h-8 lg:w-10 lg:h-10 mb-2 lg:mb-3 rounded-lg bg-gradient-to-r ${benefit.color} flex items-center justify-center`}
+                  >
                     <benefit.icon className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
                   </div>
                   <h3 className="text-sm lg:text-base font-semibold mb-1">{benefit.title}</h3>
-                  <p className="text-xs text-muted-foreground dark:text-muted-foreground leading-relaxed">{benefit.desc}</p>
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground leading-relaxed">
+                    {benefit.desc}
+                  </p>
                 </AnimatedCard>
               </motion.div>
             ))}
@@ -252,7 +303,7 @@ export default function HomePageClient() {
             <p className="text-base lg:text-xl text-muted-foreground dark:text-muted-foreground lg:text-white/90 mb-6 lg:mb-8">
               Quick and easy access to judge information
             </p>
-            
+
             {/* Mobile: Single prominent CTA */}
             <div className="lg:hidden">
               <button

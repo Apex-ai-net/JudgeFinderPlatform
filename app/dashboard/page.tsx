@@ -6,9 +6,9 @@ import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
-async function getUserStats(userId: string) {
+async function getUserStats(userId: string): JSX.Element {
   const supabase = await createServiceRoleClient()
-  
+
   // Get user's bookmarks count
   const { count: bookmarksCount } = await supabase
     .from('user_bookmarks')
@@ -36,9 +36,9 @@ async function getUserStats(userId: string) {
   }
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage(): Promise<JSX.Element> {
   const { userId } = await auth()
-  
+
   if (!userId) {
     redirect('/sign-in?redirect_url=/dashboard')
   }
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
                 <p className="text-2xl font-semibold text-gray-900">{stats.bookmarksCount}</p>
               </div>
               <svg className="w-12 h-12 text-blue-100" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14l-5-2.18L7 17V9h10v8z"/>
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14l-5-2.18L7 17V9h10v8z" />
               </svg>
             </div>
           </div>
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
                 <p className="text-2xl font-semibold text-gray-900">{stats.savedSearchesCount}</p>
               </div>
               <svg className="w-12 h-12 text-green-100" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
               </svg>
             </div>
           </div>
@@ -87,10 +87,12 @@ export default async function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Recent Activities</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.recentActivity.length}</p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {stats.recentActivity.length}
+                </p>
               </div>
               <svg className="w-12 h-12 text-purple-100" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
               </svg>
             </div>
           </div>
@@ -127,11 +129,18 @@ export default async function DashboardPage() {
           {stats.recentActivity.length > 0 ? (
             <div className="space-y-4">
               {stats.recentActivity.map((activity: any) => (
-                <div key={activity.id} className="flex items-start space-x-3 pb-3 border-b border-gray-200 last:border-0">
+                <div
+                  key={activity.id}
+                  className="flex items-start space-x-3 pb-3 border-b border-gray-200 last:border-0"
+                >
                   <div className="flex-shrink-0">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                      <svg
+                        className="w-4 h-4 text-blue-600"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                       </svg>
                     </div>
                   </div>
