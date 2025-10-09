@@ -21,7 +21,12 @@ import { useJudgeFilterParams } from '@/hooks/useJudgeFilters'
 import { InfoTooltip } from '@/components/ui/InfoTooltip'
 import { MetricProvenance } from '@/components/judges/MetricProvenance'
 import { QualityBadge } from '@/components/judges/QualityBadge'
-import { getQualityTier, isBelowSampleThreshold, shouldHideMetric, MIN_SAMPLE_SIZE } from '@/lib/analytics/config'
+import {
+  getQualityTier,
+  isBelowSampleThreshold,
+  shouldHideMetric,
+  MIN_SAMPLE_SIZE,
+} from '@/lib/analytics/config'
 
 interface BiasMetricBody {
   case_type_patterns: Array<{
@@ -80,7 +85,9 @@ interface BiasPatternAnalysisProps {
 const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
   const [biasMetrics, setBiasMetrics] = useState<BiasMetrics | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'patterns' | 'outcomes' | 'trends' | 'indicators'>('patterns')
+  const [activeTab, setActiveTab] = useState<'patterns' | 'outcomes' | 'trends' | 'indicators'>(
+    'patterns'
+  )
   const [outcomeSeries, setOutcomeSeries] = useState<string[]>(['case_count', 'settlement_rate'])
   const [temporalSeries, setTemporalSeries] = useState<string[]>(['case_count', 'settlement_rate'])
   const { filters, filtersKey } = useJudgeFilterParams()
@@ -93,7 +100,7 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
           if (value) params.set(key, value)
         })
         const response = await fetch(
-          `/api/judges/${judge.id}/bias-analysis${params.toString() ? `?${params.toString()}` : ''}`,
+          `/api/judges/${judge.id}/bias-analysis${params.toString() ? `?${params.toString()}` : ''}`
         )
         if (response.ok) {
           const data = await response.json()
@@ -110,12 +117,13 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
   }, [filters, filtersKey, judge.id])
 
   const tabs = useMemo(
-    () => [
-      { id: 'patterns', label: 'Case Patterns', icon: BarChart3 },
-      { id: 'outcomes', label: 'Outcome Analysis', icon: TrendingUp },
-      { id: 'trends', label: 'Temporal Trends', icon: Clock },
-      { id: 'indicators', label: 'Bias Indicators', icon: Scale },
-    ] as const,
+    () =>
+      [
+        { id: 'patterns', label: 'Case Patterns', icon: BarChart3 },
+        { id: 'outcomes', label: 'Outcome Analysis', icon: TrendingUp },
+        { id: 'trends', label: 'Temporal Trends', icon: Clock },
+        { id: 'indicators', label: 'Bias Indicators', icon: Scale },
+      ] as const,
     []
   )
 
@@ -130,7 +138,7 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
 
   const isOutcomeSeriesActive = useCallback(
     (dataKey: string) => outcomeSeries.includes(dataKey),
-    [outcomeSeries],
+    [outcomeSeries]
   )
 
   const toggleTemporalSeries = useCallback((dataKey?: string) => {
@@ -144,7 +152,7 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
 
   const isTemporalSeriesActive = useCallback(
     (dataKey: string) => temporalSeries.includes(dataKey),
-    [temporalSeries],
+    [temporalSeries]
   )
 
   const getScoreColor = useCallback((score: number) => {
@@ -161,7 +169,99 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
     return <AlertTriangle className="h-4 w-4 text-[color:hsl(var(--neg))]" />
   }, [])
 
-  const containerClass = 'rounded-2xl border border-border bg-card/90 p-6 shadow-md backdrop-blur supports-[backdrop-filter]:bg-card/75'
+  // All useMemo hooks that depend on biasMetrics - safe to use before early returns
+  const busiestPeriod = useMemo(() => {
+    if (!biasMetrics?.temporal_patterns?.length) return null
+    return biasMetrics.temporal_patterns.reduce(
+      (acc, curr) => (curr.case_count > acc.case_count ? curr : acc),
+      biasMetrics.temporal_patterns[0]
+    )
+  }, [biasMetrics?.temporal_patterns])
+
+  const formattedBusiestPeriod = useMemo(() => {
+    if (!busiestPeriod) return null
+    return new Date(busiestPeriod.year, busiestPeriod.month - 1).toLocaleDateString(undefined, {
+      month: 'short',
+      year: 'numeric',
+    })
+  }, [busiestPeriod])
+
+  const settlementRates = useMemo(
+    () => biasMetrics?.temporal_patterns?.map((pattern) => pattern.settlement_rate) ?? [],
+    [biasMetrics?.temporal_patterns]
+  )
+
+  const { minSettlement, maxSettlement } = useMemo(
+    () => ({
+      minSettlement: settlementRates.length ? Math.min(...settlementRates) : 0,
+      maxSettlement: settlementRates.length ? Math.max(...settlementRates) : 0,
+    }),
+    [settlementRates]
+  )
+
+  const outcomeSummary = useMemo(() => {
+    if (!biasMetrics?.outcome_analysis) return []
+    return [
+      `${(biasMetrics.outcome_analysis.overall_settlement_rate * 100).toFixed(1)}% settlement rate overall`,
+      `${(biasMetrics.outcome_analysis.judgment_rate * 100).toFixed(1)}% of matters end with a judgment`,
+      `Average resolution in ${biasMetrics.outcome_analysis.average_case_duration.toFixed(0)} days`,
+    ]
+  }, [biasMetrics?.outcome_analysis])
+
+  const casePatternSample = useMemo(
+    () =>
+      biasMetrics?.case_type_patterns?.reduce(
+        (sum, pattern) => sum + (pattern.total_cases || 0),
+        0
+      ) ?? 0,
+    [biasMetrics?.case_type_patterns]
+  )
+
+  const outcomeSampleSize = useMemo(
+    () =>
+      biasMetrics?.outcome_analysis?.case_value_trends?.reduce(
+        (sum, entry) => sum + (entry.case_count || 0),
+        0
+      ) ?? 0,
+    [biasMetrics?.outcome_analysis?.case_value_trends]
+  )
+
+  const temporalSampleSize = useMemo(
+    () =>
+      biasMetrics?.temporal_patterns?.reduce((sum, entry) => sum + (entry.case_count || 0), 0) ?? 0,
+    [biasMetrics?.temporal_patterns]
+  )
+
+  const caseQuality = useMemo(() => getQualityTier(casePatternSample, 75), [casePatternSample])
+  const outcomeQuality = useMemo(() => getQualityTier(outcomeSampleSize, 75), [outcomeSampleSize])
+  const temporalQuality = useMemo(
+    () => getQualityTier(temporalSampleSize, 70),
+    [temporalSampleSize]
+  )
+
+  const caseBelowThreshold = useMemo(
+    () => isBelowSampleThreshold(casePatternSample),
+    [casePatternSample]
+  )
+  const outcomeBelowThreshold = useMemo(
+    () => isBelowSampleThreshold(outcomeSampleSize),
+    [outcomeSampleSize]
+  )
+  const temporalBelowThreshold = useMemo(
+    () => isBelowSampleThreshold(temporalSampleSize),
+    [temporalSampleSize]
+  )
+
+  const caseHidden = useMemo(() => shouldHideMetric(casePatternSample), [casePatternSample])
+  const outcomeHidden = useMemo(() => shouldHideMetric(outcomeSampleSize), [outcomeSampleSize])
+  const temporalHidden = useMemo(() => shouldHideMetric(temporalSampleSize), [temporalSampleSize])
+  const hiddenSections = useMemo(
+    () => [caseHidden, outcomeHidden, temporalHidden].filter(Boolean).length,
+    [caseHidden, outcomeHidden, temporalHidden]
+  )
+
+  const containerClass =
+    'rounded-2xl border border-border bg-card/90 p-6 shadow-md backdrop-blur supports-[backdrop-filter]:bg-card/75'
 
   if (loading) {
     return (
@@ -183,7 +283,8 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
       <section className={cn(containerClass, 'text-center')}>
         <AlertTriangle className="mx-auto mb-2 h-8 w-8 text-[color:hsl(var(--warn))]" />
         <p className="text-sm text-muted-foreground">
-          We couldn&apos;t load judicial pattern analytics right now. Please refresh the page or try again later.
+          We couldn&apos;t load judicial pattern analytics right now. Please refresh the page or try
+          again later.
         </p>
       </section>
     )
@@ -222,75 +323,6 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
     },
   ]
 
-  const busiestPeriod = useMemo(() => {
-    if (!biasMetrics?.temporal_patterns?.length) return null
-    return biasMetrics.temporal_patterns.reduce((acc, curr) =>
-      curr.case_count > acc.case_count ? curr : acc,
-      biasMetrics.temporal_patterns[0]
-    )
-  }, [biasMetrics?.temporal_patterns])
-
-  const formattedBusiestPeriod = useMemo(() => {
-    if (!busiestPeriod) return null
-    return new Date(busiestPeriod.year, busiestPeriod.month - 1).toLocaleDateString(undefined, {
-      month: 'short',
-      year: 'numeric',
-    })
-  }, [busiestPeriod])
-
-  const settlementRates = useMemo(
-    () => biasMetrics?.temporal_patterns?.map((pattern) => pattern.settlement_rate) ?? [],
-    [biasMetrics?.temporal_patterns]
-  )
-
-  const { minSettlement, maxSettlement } = useMemo(() => ({
-    minSettlement: settlementRates.length ? Math.min(...settlementRates) : 0,
-    maxSettlement: settlementRates.length ? Math.max(...settlementRates) : 0,
-  }), [settlementRates])
-
-  const outcomeSummary = useMemo(() => {
-    if (!biasMetrics?.outcome_analysis) return []
-    return [
-      `${(biasMetrics.outcome_analysis.overall_settlement_rate * 100).toFixed(1)}% settlement rate overall`,
-      `${(biasMetrics.outcome_analysis.judgment_rate * 100).toFixed(1)}% of matters end with a judgment`,
-      `Average resolution in ${biasMetrics.outcome_analysis.average_case_duration.toFixed(0)} days`,
-    ]
-  }, [biasMetrics?.outcome_analysis])
-
-  const casePatternSample = useMemo(
-    () => biasMetrics?.case_type_patterns?.reduce((sum, pattern) => sum + (pattern.total_cases || 0), 0) ?? 0,
-    [biasMetrics?.case_type_patterns]
-  )
-
-  const outcomeSampleSize = useMemo(
-    () => biasMetrics?.outcome_analysis?.case_value_trends?.reduce(
-      (sum, entry) => sum + (entry.case_count || 0),
-      0,
-    ) ?? 0,
-    [biasMetrics?.outcome_analysis?.case_value_trends]
-  )
-
-  const temporalSampleSize = useMemo(
-    () => biasMetrics?.temporal_patterns?.reduce((sum, entry) => sum + (entry.case_count || 0), 0) ?? 0,
-    [biasMetrics?.temporal_patterns]
-  )
-
-  const caseQuality = useMemo(() => getQualityTier(casePatternSample, 75), [casePatternSample])
-  const outcomeQuality = useMemo(() => getQualityTier(outcomeSampleSize, 75), [outcomeSampleSize])
-  const temporalQuality = useMemo(() => getQualityTier(temporalSampleSize, 70), [temporalSampleSize])
-
-  const caseBelowThreshold = useMemo(() => isBelowSampleThreshold(casePatternSample), [casePatternSample])
-  const outcomeBelowThreshold = useMemo(() => isBelowSampleThreshold(outcomeSampleSize), [outcomeSampleSize])
-  const temporalBelowThreshold = useMemo(() => isBelowSampleThreshold(temporalSampleSize), [temporalSampleSize])
-
-  const caseHidden = useMemo(() => shouldHideMetric(casePatternSample), [casePatternSample])
-  const outcomeHidden = useMemo(() => shouldHideMetric(outcomeSampleSize), [outcomeSampleSize])
-  const temporalHidden = useMemo(() => shouldHideMetric(temporalSampleSize), [temporalSampleSize])
-  const hiddenSections = useMemo(
-    () => [caseHidden, outcomeHidden, temporalHidden].filter(Boolean).length,
-    [caseHidden, outcomeHidden, temporalHidden]
-  )
-
   const lastUpdated = judge.updated_at
 
   const courtBaseline = biasMetrics.court_baseline
@@ -327,8 +359,8 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
 
       {hiddenSections > 0 && (
         <div className="mb-6 rounded-2xl border border-dashed border-[rgba(251,211,141,0.45)] bg-[rgba(251,211,141,0.12)] px-4 py-3 text-xs text-[color:hsl(var(--warn))]">
-          {hiddenSections} analytic section{hiddenSections === 1 ? '' : 's'} hidden — fewer than {MIN_SAMPLE_SIZE}{' '}
-          recent decisions. Metrics will reappear after the next successful sync.
+          {hiddenSections} analytic section{hiddenSections === 1 ? '' : 's'} hidden — fewer than{' '}
+          {MIN_SAMPLE_SIZE} recent decisions. Metrics will reappear after the next successful sync.
         </div>
       )}
 
@@ -339,9 +371,16 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
           </span>
           <span>n = {baselineSampleSize.toLocaleString()}</span>
           <span>
-            Generated {new Date(courtBaseline.generated_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+            Generated{' '}
+            {new Date(courtBaseline.generated_at).toLocaleDateString(undefined, {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })}
           </span>
-          <span className="text-[color:hsl(var(--accent))]">Δ values compare judge to court average</span>
+          <span className="text-[color:hsl(var(--accent))]">
+            Δ values compare judge to court average
+          </span>
         </div>
       )}
 
@@ -367,8 +406,13 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
       {activeTab === 'patterns' && (
         <div id="patterns-panel" role="tabpanel" aria-labelledby="patterns">
           <div className="mb-4 flex items-center gap-2">
-            <h4 className="text-lg font-medium text-foreground">Case type distribution &amp; outcomes</h4>
-            <InfoTooltip content={<p className="text-xs text-muted-foreground">{tooltipCopy.patterns}</p>} label="Case patterns methodology" />
+            <h4 className="text-lg font-medium text-foreground">
+              Case type distribution &amp; outcomes
+            </h4>
+            <InfoTooltip
+              content={<p className="text-xs text-muted-foreground">{tooltipCopy.patterns}</p>}
+              label="Case patterns methodology"
+            />
           </div>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2" id="case-patterns">
             <div className="flex flex-col rounded-xl border border-border bg-[hsl(var(--bg-2))] p-4">
@@ -403,7 +447,11 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
                         }}
                         labelStyle={{ color: chartTheme.tooltip.textColor }}
                       />
-                      <Bar dataKey="total_cases" fill={chartTheme.getSeriesColor(0)} radius={[8, 8, 0, 0]} />
+                      <Bar
+                        dataKey="total_cases"
+                        fill={chartTheme.getSeriesColor(0)}
+                        radius={[8, 8, 0, 0]}
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -453,9 +501,16 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
                           color: chartTheme.tooltip.textColor,
                         }}
                         labelStyle={{ color: chartTheme.tooltip.textColor }}
-                        formatter={(value: number) => [`${(value * 100).toFixed(1)}%`, 'Settlement rate']}
+                        formatter={(value: number) => [
+                          `${(value * 100).toFixed(1)}%`,
+                          'Settlement rate',
+                        ]}
                       />
-                      <Bar dataKey="settlement_rate" fill={chartTheme.getSeriesColor(1)} radius={[8, 8, 0, 0]} />
+                      <Bar
+                        dataKey="settlement_rate"
+                        fill={chartTheme.getSeriesColor(1)}
+                        radius={[8, 8, 0, 0]}
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -476,7 +531,10 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
         <div id="outcomes-panel" role="tabpanel" aria-labelledby="outcomes">
           <div className="mb-4 flex items-center gap-2">
             <h4 className="text-lg font-medium text-foreground">Outcome analysis</h4>
-            <InfoTooltip content={<p className="text-xs text-muted-foreground">{tooltipCopy.outcomes}</p>} label="Outcome analysis methodology" />
+            <InfoTooltip
+              content={<p className="text-xs text-muted-foreground">{tooltipCopy.outcomes}</p>}
+              label="Outcome analysis methodology"
+            />
           </div>
           <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
@@ -514,7 +572,10 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div className="flex flex-col rounded-xl border border-border bg-[hsl(var(--bg-2))] p-4" id="outcomes">
+            <div
+              className="flex flex-col rounded-xl border border-border bg-[hsl(var(--bg-2))] p-4"
+              id="outcomes"
+            >
               {outcomeBelowThreshold ? (
                 <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border/60 bg-[hsl(var(--bg-1))] p-6 text-sm text-muted-foreground">
                   Outcome charts need more decided cases before they can render.
@@ -568,7 +629,10 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
                             className="text-xs"
                             style={{
                               color: chartTheme.legend.textColor,
-                              opacity: entry?.dataKey && isOutcomeSeriesActive(entry.dataKey as string) ? 1 : 0.4,
+                              opacity:
+                                entry?.dataKey && isOutcomeSeriesActive(entry.dataKey as string)
+                                  ? 1
+                                  : 0.4,
                               cursor: 'pointer',
                             }}
                           >
@@ -582,7 +646,12 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
                         dataKey="case_count"
                         stroke={chartTheme.getSeriesColor(0)}
                         strokeWidth={2.5}
-                        dot={{ r: 2.5, strokeWidth: 2, stroke: chartTheme.getSeriesColor(0), fillOpacity: 0 }}
+                        dot={{
+                          r: 2.5,
+                          strokeWidth: 2,
+                          stroke: chartTheme.getSeriesColor(0),
+                          fillOpacity: 0,
+                        }}
                         activeDot={{ r: 5 }}
                         hide={!isOutcomeSeriesActive('case_count')}
                       />
@@ -592,7 +661,12 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
                         dataKey="settlement_rate"
                         stroke={chartTheme.getSeriesColor(1)}
                         strokeWidth={2.5}
-                        dot={{ r: 2.5, strokeWidth: 2, stroke: chartTheme.getSeriesColor(1), fillOpacity: 0 }}
+                        dot={{
+                          r: 2.5,
+                          strokeWidth: 2,
+                          stroke: chartTheme.getSeriesColor(1),
+                          fillOpacity: 0,
+                        }}
                         strokeDasharray="6 4"
                         hide={!isOutcomeSeriesActive('settlement_rate')}
                       />
@@ -627,10 +701,16 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
         <div id="trends-panel" role="tabpanel" aria-labelledby="trends">
           <div className="mb-4 flex items-center gap-2">
             <h4 className="text-lg font-medium text-foreground">Temporal trends</h4>
-            <InfoTooltip content={<p className="text-xs text-muted-foreground">{tooltipCopy.trends}</p>} label="Temporal trends methodology" />
+            <InfoTooltip
+              content={<p className="text-xs text-muted-foreground">{tooltipCopy.trends}</p>}
+              label="Temporal trends methodology"
+            />
           </div>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <div className="flex flex-col rounded-xl border border-border bg-[hsl(var(--bg-2))] p-4 lg:col-span-2" id="temporal-trends">
+            <div
+              className="flex flex-col rounded-xl border border-border bg-[hsl(var(--bg-2))] p-4 lg:col-span-2"
+              id="temporal-trends"
+            >
               {temporalBelowThreshold ? (
                 <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border/60 bg-[hsl(var(--bg-1))] p-6 text-sm text-muted-foreground">
                   Temporal trends require more dated filings before a chart can be shown.
@@ -684,7 +764,10 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
                             className="text-xs"
                             style={{
                               color: chartTheme.legend.textColor,
-                              opacity: entry?.dataKey && isTemporalSeriesActive(entry.dataKey as string) ? 1 : 0.4,
+                              opacity:
+                                entry?.dataKey && isTemporalSeriesActive(entry.dataKey as string)
+                                  ? 1
+                                  : 0.4,
                               cursor: 'pointer',
                             }}
                           >
@@ -698,7 +781,12 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
                         dataKey="case_count"
                         stroke={chartTheme.getSeriesColor(0)}
                         strokeWidth={2.5}
-                        dot={{ r: 2.5, strokeWidth: 2, stroke: chartTheme.getSeriesColor(0), fillOpacity: 0 }}
+                        dot={{
+                          r: 2.5,
+                          strokeWidth: 2,
+                          stroke: chartTheme.getSeriesColor(0),
+                          fillOpacity: 0,
+                        }}
                         name="Case count"
                         activeDot={{ r: 5 }}
                         hide={!isTemporalSeriesActive('case_count')}
@@ -709,7 +797,12 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
                         dataKey="settlement_rate"
                         stroke={chartTheme.getSeriesColor(2)}
                         strokeWidth={2.5}
-                        dot={{ r: 2.5, strokeWidth: 2, stroke: chartTheme.getSeriesColor(2), fillOpacity: 0 }}
+                        dot={{
+                          r: 2.5,
+                          strokeWidth: 2,
+                          stroke: chartTheme.getSeriesColor(2),
+                          fillOpacity: 0,
+                        }}
                         name="Settlement rate"
                         strokeDasharray="6 4"
                         hide={!isTemporalSeriesActive('settlement_rate')}
@@ -737,10 +830,12 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
                   <li>• Caseload is evenly distributed across the observed range.</li>
                 )}
                 <li>
-                  • Settlement rates stay within {Math.round(minSettlement * 100)}% – {Math.round(maxSettlement * 100)}% month to month.
+                  • Settlement rates stay within {Math.round(minSettlement * 100)}% –{' '}
+                  {Math.round(maxSettlement * 100)}% month to month.
                 </li>
                 <li>
-                  • Average duration trends mirror the case volume spikes, signalling resourcing opportunities.
+                  • Average duration trends mirror the case volume spikes, signalling resourcing
+                  opportunities.
                 </li>
               </ul>
             </div>
@@ -752,7 +847,10 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
         <div id="indicators-panel" role="tabpanel" aria-labelledby="indicators">
           <div className="mb-4 flex items-center gap-2">
             <h4 className="text-lg font-medium text-foreground">Bias indicators</h4>
-            <InfoTooltip content={<p className="text-xs text-muted-foreground">{tooltipCopy.indicators}</p>} label="Bias indicator methodology" />
+            <InfoTooltip
+              content={<p className="text-xs text-muted-foreground">{tooltipCopy.indicators}</p>}
+              label="Bias indicator methodology"
+            />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {indicatorDefinitions.map(({ key, name, value, description }) => {
@@ -761,26 +859,33 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
                   ? Math.abs(baselineIndicators[key])
                   : baselineIndicators[key]
                 : null
-              const delta = baselineValue !== null && baselineValue !== undefined ? value - baselineValue : null
+              const delta =
+                baselineValue !== null && baselineValue !== undefined ? value - baselineValue : null
               const deltaClass =
                 delta === null
                   ? 'text-[color:hsl(var(--text-3))]'
                   : delta > 0
-                  ? 'text-[color:hsl(var(--accent))]'
-                  : delta < 0
-                  ? 'text-[color:hsl(var(--neg))]'
-                  : 'text-[color:hsl(var(--text-3))]'
+                    ? 'text-[color:hsl(var(--accent))]'
+                    : delta < 0
+                      ? 'text-[color:hsl(var(--neg))]'
+                      : 'text-[color:hsl(var(--text-3))]'
 
               return (
-                <div key={name} className="rounded-xl border border-border bg-[hsl(var(--bg-2))] p-4">
+                <div
+                  key={name}
+                  className="rounded-xl border border-border bg-[hsl(var(--bg-2))] p-4"
+                >
                   <div className="mb-2 flex items-center justify-between gap-2">
                     <span className="text-sm font-medium text-foreground">{name}</span>
                     {getScoreIcon(value)}
                   </div>
-                  <div className={cn('text-3xl font-semibold', getScoreColor(value))}>{value.toFixed(0)}</div>
+                  <div className={cn('text-3xl font-semibold', getScoreColor(value))}>
+                    {value.toFixed(0)}
+                  </div>
                   {delta !== null && (
                     <p className={`mt-1 text-xs font-medium ${deltaClass}`}>
-                      {delta >= 0 ? '+' : ''}{delta.toFixed(1)} vs court avg
+                      {delta >= 0 ? '+' : ''}
+                      {delta.toFixed(1)} vs court avg
                     </p>
                   )}
                   <p className="mt-2 text-xs text-muted-foreground">{description}</p>
@@ -788,7 +893,7 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
                     <div
                       className={cn(
                         'h-2 rounded-full transition-all duration-500',
-                        getScoreColor(value).replace('text', 'bg'),
+                        getScoreColor(value).replace('text', 'bg')
                       )}
                       style={{ width: `${Math.min(value, 100)}%` }}
                     />
@@ -798,9 +903,13 @@ const BiasPatternAnalysisComponent = ({ judge }: BiasPatternAnalysisProps) => {
             })}
           </div>
           <div className="mt-6 rounded-xl border border-border bg-[hsl(var(--bg-2))] p-4 text-sm text-muted-foreground">
-            <h5 className="text-base font-semibold text-foreground">How to interpret these scores</h5>
+            <h5 className="text-base font-semibold text-foreground">
+              How to interpret these scores
+            </h5>
             <p className="mt-2">
-              Scores above 80 indicate a strong signal (for example, highly consistent rulings), while 60–79 reflect moderate confidence. Values below 40 highlight areas where additional context or qualitative review is recommended.
+              Scores above 80 indicate a strong signal (for example, highly consistent rulings),
+              while 60–79 reflect moderate confidence. Values below 40 highlight areas where
+              additional context or qualitative review is recommended.
             </p>
           </div>
           <MetricProvenance
@@ -825,46 +934,54 @@ interface StatCardProps {
   formatDelta?: (delta: number) => string
 }
 
-const StatCard = React.memo<StatCardProps>(({ title, value, tone, format = (val) => val.toString(), baseline, formatDelta }) => {
-  const toneClass =
-    tone === 'positive'
-      ? 'bg-[rgba(103,232,169,0.12)] text-[color:hsl(var(--pos))]'
-      : tone === 'critical'
-      ? 'bg-[rgba(252,165,165,0.16)] text-[color:hsl(var(--neg))]'
-      : tone === 'info'
-      ? 'bg-[rgba(110,168,254,0.16)] text-[color:hsl(var(--accent))]'
-      : 'bg-[hsl(var(--bg-1))] text-[color:hsl(var(--text-2))]'
+const StatCard = React.memo<StatCardProps>(
+  ({ title, value, tone, format = (val) => val.toString(), baseline, formatDelta }) => {
+    const toneClass =
+      tone === 'positive'
+        ? 'bg-[rgba(103,232,169,0.12)] text-[color:hsl(var(--pos))]'
+        : tone === 'critical'
+          ? 'bg-[rgba(252,165,165,0.16)] text-[color:hsl(var(--neg))]'
+          : tone === 'info'
+            ? 'bg-[rgba(110,168,254,0.16)] text-[color:hsl(var(--accent))]'
+            : 'bg-[hsl(var(--bg-1))] text-[color:hsl(var(--text-2))]'
 
-  const delta = baseline !== undefined && baseline !== null ? value - baseline : null
-  const defaultFormatDelta = (deltaValue: number) => {
-    const sign = deltaValue > 0 ? '+' : ''
-    return `${sign}${deltaValue.toFixed(1)}`
+    const delta = baseline !== undefined && baseline !== null ? value - baseline : null
+    const defaultFormatDelta = (deltaValue: number) => {
+      const sign = deltaValue > 0 ? '+' : ''
+      return `${sign}${deltaValue.toFixed(1)}`
+    }
+    const formattedDelta =
+      delta !== null ? (formatDelta ? formatDelta(delta) : defaultFormatDelta(delta)) : null
+    const deltaClass =
+      delta === null
+        ? 'text-[color:hsl(var(--text-3))]'
+        : delta > 0
+          ? 'text-[color:hsl(var(--accent))]'
+          : delta < 0
+            ? 'text-[color:hsl(var(--neg))]'
+            : 'text-[color:hsl(var(--text-3))]'
+
+    return (
+      <div className="rounded-xl border border-border bg-[hsl(var(--bg-2))] p-4">
+        <span className="text-xs uppercase tracking-wide text-muted-foreground">{title}</span>
+        <div className="mt-2 text-2xl font-semibold text-[color:hsl(var(--text-1))]">
+          {format(value)}
+        </div>
+        {formattedDelta && (
+          <div className={`mt-1 text-xs font-medium ${deltaClass}`}>{formattedDelta}</div>
+        )}
+        <div
+          className={cn(
+            'mt-3 inline-flex items-center rounded-full px-3 py-1 text-xs font-medium',
+            toneClass
+          )}
+        >
+          {title}
+        </div>
+      </div>
+    )
   }
-  const formattedDelta = delta !== null ? (formatDelta ? formatDelta(delta) : defaultFormatDelta(delta)) : null
-  const deltaClass =
-    delta === null
-      ? 'text-[color:hsl(var(--text-3))]'
-      : delta > 0
-      ? 'text-[color:hsl(var(--accent))]'
-      : delta < 0
-      ? 'text-[color:hsl(var(--neg))]'
-      : 'text-[color:hsl(var(--text-3))]'
-
-  return (
-    <div className="rounded-xl border border-border bg-[hsl(var(--bg-2))] p-4">
-      <span className="text-xs uppercase tracking-wide text-muted-foreground">{title}</span>
-      <div className="mt-2 text-2xl font-semibold text-[color:hsl(var(--text-1))]">
-        {format(value)}
-      </div>
-      {formattedDelta && (
-        <div className={`mt-1 text-xs font-medium ${deltaClass}`}>{formattedDelta}</div>
-      )}
-      <div className={cn('mt-3 inline-flex items-center rounded-full px-3 py-1 text-xs font-medium', toneClass)}>
-        {title}
-      </div>
-    </div>
-  )
-})
+)
 
 StatCard.displayName = 'StatCard'
 

@@ -3,17 +3,25 @@ import { createServerClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/utils/logger'
 import { sanitizeSearchQuery, normalizeJudgeSearchQuery } from '@/lib/utils/validation'
 import { sanitizeLikePattern } from '@/lib/utils/sql-sanitize'
-import type { 
-  SearchResponse, 
-  SearchResult, 
-  JudgeSearchResult, 
-  CourtSearchResult, 
+import type {
+  SearchResponse,
+  SearchResult,
+  JudgeSearchResult,
+  CourtSearchResult,
   JurisdictionSearchResult,
   SearchSuggestionsResponse,
-  SearchSuggestion
+  SearchSuggestion,
 } from '@/types/search'
 import { fetchSponsoredTiles } from '@/lib/search/sponsored'
 import type { SponsoredSearchResult } from '@/types/search'
+import {
+  processNaturalLanguageQuery,
+  type EnhancedQuery,
+  type SearchIntent,
+} from '@/lib/ai/search-intelligence'
+import { rankSearchResults, normalizeLocation } from '@/lib/search/ranking-engine'
+import { trackAISearchMetrics } from '@/lib/analytics/ai-search-metrics'
+import { searchCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/multi-tier-cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,37 +35,39 @@ const PREDEFINED_JURISDICTIONS: JurisdictionSearchResult[] = [
     description: 'State courts across California handling various civil and criminal matters.',
     url: '/jurisdictions/california',
     jurisdictionValue: 'CA',
-    displayName: 'California'
+    displayName: 'California',
   },
   {
     id: 'federal',
-    type: 'jurisdiction', 
+    type: 'jurisdiction',
     title: 'Federal',
     subtitle: 'Federal Courts',
     description: 'Federal courts handling federal matters across California districts.',
     url: '/jurisdictions/federal',
     jurisdictionValue: 'F',
-    displayName: 'Federal'
+    displayName: 'Federal',
   },
   {
     id: 'los-angeles-county',
     type: 'jurisdiction',
     title: 'Los Angeles County',
     subtitle: 'County Courts',
-    description: 'Largest judicial system in California with comprehensive trial and appellate courts.',
+    description:
+      'Largest judicial system in California with comprehensive trial and appellate courts.',
     url: '/jurisdictions/los-angeles-county',
     jurisdictionValue: 'CA',
-    displayName: 'Los Angeles County'
+    displayName: 'Los Angeles County',
   },
   {
     id: 'orange-county',
     type: 'jurisdiction',
     title: 'Orange County',
     subtitle: 'County Courts',
-    description: 'Major Southern California jurisdiction serving diverse communities and businesses.',
+    description:
+      'Major Southern California jurisdiction serving diverse communities and businesses.',
     url: '/jurisdictions/orange-county',
     jurisdictionValue: 'Orange County, CA',
-    displayName: 'Orange County'
+    displayName: 'Orange County',
   },
   {
     id: 'san-diego-county',
@@ -67,7 +77,7 @@ const PREDEFINED_JURISDICTIONS: JurisdictionSearchResult[] = [
     description: 'Southern California coastal jurisdiction with federal and state court systems.',
     url: '/jurisdictions/san-diego-county',
     jurisdictionValue: 'CA',
-    displayName: 'San Diego County'
+    displayName: 'San Diego County',
   },
   {
     id: 'san-francisco-county',
@@ -77,7 +87,7 @@ const PREDEFINED_JURISDICTIONS: JurisdictionSearchResult[] = [
     description: 'Metropolitan jurisdiction with specialized business and technology courts.',
     url: '/jurisdictions/san-francisco-county',
     jurisdictionValue: 'CA',
-    displayName: 'San Francisco County'
+    displayName: 'San Francisco County',
   },
   {
     id: 'santa-clara-county',
@@ -87,7 +97,7 @@ const PREDEFINED_JURISDICTIONS: JurisdictionSearchResult[] = [
     description: 'Silicon Valley jurisdiction handling technology and intellectual property cases.',
     url: '/jurisdictions/santa-clara-county',
     jurisdictionValue: 'CA',
-    displayName: 'Santa Clara County'
+    displayName: 'Santa Clara County',
   },
   {
     id: 'alameda-county',
@@ -97,13 +107,13 @@ const PREDEFINED_JURISDICTIONS: JurisdictionSearchResult[] = [
     description: 'Bay Area jurisdiction with diverse civil and criminal caseloads.',
     url: '/jurisdictions/alameda-county',
     jurisdictionValue: 'CA',
-    displayName: 'Alameda County'
-  }
+    displayName: 'Alameda County',
+  },
 ]
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now()
-  
+
   try {
     const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
     const rl = buildRateLimiter({ tokens: 60, window: '1 m', prefix: 'api:search:get' })
@@ -113,25 +123,30 @@ export async function GET(request: NextRequest) {
     }
     const { searchParams } = new URL(request.url)
     const q = searchParams.get('q') || ''
-    const type = searchParams.get('type') as 'judge' | 'court' | 'jurisdiction' | 'all' || 'all'
-    const limit = Math.min(parseInt(searchParams.get('limit') || '200'), 2000)  // Increased max to 2000 to handle all judges
+    const type = (searchParams.get('type') as 'judge' | 'court' | 'jurisdiction' | 'all') || 'all'
+    const limit = Math.min(parseInt(searchParams.get('limit') || '200'), 2000) // Increased max to 2000 to handle all judges
     const suggestions = searchParams.get('suggestions') === 'true'
-    
+
     const sanitizedQuery = sanitizeSearchQuery(q).trim()
-    
+
     // If no query, return popular judges and jurisdictions
     if (!sanitizedQuery) {
       const supabase = await createServerClient()
-      
+
       // Get popular judges (those with most cases)
       const { data: popularJudges } = await supabase
         .from('judges')
         .select('id, name, court_name, jurisdiction, total_cases, profile_image_url, slug')
         .order('total_cases', { ascending: false, nullsFirst: false })
         .limit(limit)
-      
+
       const judgeResults: JudgeSearchResult[] = (popularJudges || []).map((judge: any) => {
-        const slug = judge.slug || judge.name.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-')
+        const slug =
+          judge.slug ||
+          judge.name
+            .toLowerCase()
+            .replace(/[^a-z0-9\s]/g, '')
+            .replace(/\s+/g, '-')
         return {
           id: judge.id,
           type: 'judge',
@@ -142,35 +157,35 @@ export async function GET(request: NextRequest) {
           court_name: judge.court_name,
           jurisdiction: judge.jurisdiction || 'CA',
           total_cases: judge.total_cases || 0,
-          profile_image_url: judge.profile_image_url
+          profile_image_url: judge.profile_image_url,
         }
       })
-      
+
       // Add top jurisdictions
       const topJurisdictions = PREDEFINED_JURISDICTIONS.slice(0, 3)
-      
+
       const allResults = [...judgeResults, ...topJurisdictions]
-      
+
       const emptySponsored: SponsoredSearchResult[] = []
 
       return NextResponse.json({
         results: allResults,
         total_count: allResults.length,
-        results_by_type: { 
-          judges: judgeResults, 
-          courts: [], 
+        results_by_type: {
+          judges: judgeResults,
+          courts: [],
           jurisdictions: topJurisdictions,
-          sponsored: emptySponsored
+          sponsored: emptySponsored,
         },
-        counts_by_type: { 
-          judges: judgeResults.length, 
-          courts: 0, 
+        counts_by_type: {
+          judges: judgeResults.length,
+          courts: 0,
           jurisdictions: topJurisdictions.length,
-          sponsored: 0
+          sponsored: 0,
         },
         query: q,
         took_ms: Date.now() - startTime,
-        rate_limit_remaining: remaining
+        rate_limit_remaining: remaining,
       } as SearchResponse)
     }
 
@@ -178,7 +193,7 @@ export async function GET(request: NextRequest) {
       query: sanitizedQuery,
       type,
       limit,
-      suggestions
+      suggestions,
     })
 
     // Handle suggestions endpoint
@@ -190,18 +205,51 @@ export async function GET(request: NextRequest) {
     }
 
     const supabase = await createServerClient()
-    
+
+    // Process query with AI to extract intent and entities
+    let enhancedQuery: EnhancedQuery | null = null
+    let aiIntent: SearchIntent | undefined
+
+    try {
+      enhancedQuery = await processNaturalLanguageQuery(sanitizedQuery)
+      aiIntent = enhancedQuery.searchIntent
+
+      logger.info('AI search intent detected', {
+        query: sanitizedQuery,
+        intent: aiIntent.type,
+        searchType: aiIntent.searchType,
+        confidence: aiIntent.confidence,
+        locations: aiIntent.extractedEntities.locations,
+        caseTypes: aiIntent.extractedEntities.caseTypes,
+      })
+    } catch (error) {
+      // AI processing is optional - continue with basic search if it fails
+      logger.warn('AI search processing failed, falling back to basic search', {
+        query: sanitizedQuery,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
+    }
+
+    // Extract location filter from AI insights
+    let jurisdictionFilter: string | undefined
+    if (aiIntent?.extractedEntities.locations && aiIntent.extractedEntities.locations.length > 0) {
+      const primaryLocation = aiIntent.extractedEntities.locations[0]
+      jurisdictionFilter = normalizeLocation(primaryLocation)
+    }
+
     // Search in parallel for better performance
     const searchPromises: Promise<SearchResult[]>[] = []
-    
+
     if (type === 'all' || type === 'judge') {
-      searchPromises.push(searchJudges(supabase, sanitizedQuery, limit))
+      searchPromises.push(
+        searchJudges(supabase, sanitizedQuery, limit, jurisdictionFilter, aiIntent)
+      )
     }
-    
+
     if (type === 'all' || type === 'court') {
-      searchPromises.push(searchCourts(supabase, sanitizedQuery, limit))
+      searchPromises.push(searchCourts(supabase, sanitizedQuery, limit, jurisdictionFilter))
     }
-    
+
     if (type === 'all' || type === 'jurisdiction') {
       searchPromises.push(searchJurisdictions(sanitizedQuery, limit))
     }
@@ -209,181 +257,321 @@ export async function GET(request: NextRequest) {
     const searchResults = await Promise.all(searchPromises)
     const allResults = searchResults.flat()
 
-    // Sort by relevance (could be enhanced with proper scoring)
-    const sortedResults = allResults.sort((a, b) => {
-      // Prioritize exact matches at the beginning of names
-      const aStartsWithQuery = a.title.toLowerCase().startsWith(sanitizedQuery.toLowerCase())
-      const bStartsWithQuery = b.title.toLowerCase().startsWith(sanitizedQuery.toLowerCase())
-      
-      if (aStartsWithQuery && !bStartsWithQuery) return -1
-      if (!aStartsWithQuery && bStartsWithQuery) return 1
-      
-      // Then sort by relevance score if available
-      if (a.relevanceScore && b.relevanceScore) {
-        return b.relevanceScore - a.relevanceScore
-      }
-      
-      // Finally sort alphabetically
-      return a.title.localeCompare(b.title)
-    })
+    // Apply AI-enhanced ranking and cast back to SearchResult[]
+    const rankedResults = rankSearchResults(allResults, sanitizedQuery, aiIntent) as SearchResult[]
 
-    // Categorize results
-    const judges = sortedResults.filter(r => r.type === 'judge') as JudgeSearchResult[]
-    const courts = sortedResults.filter(r => r.type === 'court') as CourtSearchResult[]
-    const jurisdictions = sortedResults.filter(r => r.type === 'jurisdiction') as JurisdictionSearchResult[]
+    // Track AI search metrics for analytics
+    try {
+      await trackAISearchMetrics({
+        query: sanitizedQuery,
+        aiIntent: aiIntent || null,
+        resultsCount: rankedResults.length,
+        topResults: rankedResults.slice(0, 5).map((r) => ({
+          id: r.id,
+          type: r.type,
+          title: r.title,
+          score: r.relevanceScore || 0,
+        })),
+        processingTimeMs: Date.now() - startTime,
+      })
+    } catch (error) {
+      // Analytics tracking is non-critical
+      logger.error('Failed to track AI search metrics', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
+    }
+
+    // Categorize ranked results
+    const judges = rankedResults.filter((r) => r.type === 'judge') as JudgeSearchResult[]
+    const courts = rankedResults.filter((r) => r.type === 'court') as CourtSearchResult[]
+    const jurisdictions = rankedResults.filter(
+      (r) => r.type === 'jurisdiction'
+    ) as JurisdictionSearchResult[]
 
     const sponsoredResults = await fetchSponsoredTiles({ query: sanitizedQuery, limit })
 
     const response: SearchResponse = {
-      results: sortedResults.slice(0, limit),
-      total_count: sortedResults.length,
+      results: rankedResults.slice(0, limit),
+      total_count: rankedResults.length,
       results_by_type: {
-        judges: judges.slice(0, limit),  // Give full limit to each type
-        courts: courts.slice(0, limit),  // Give full limit to each type
-        jurisdictions: jurisdictions.slice(0, limit),  // Give full limit to each type
-        sponsored: sponsoredResults
+        judges: judges.slice(0, limit),
+        courts: courts.slice(0, limit),
+        jurisdictions: jurisdictions.slice(0, limit),
+        sponsored: sponsoredResults,
       },
       counts_by_type: {
         judges: judges.length,
         courts: courts.length,
         jurisdictions: jurisdictions.length,
-        sponsored: sponsoredResults.length
+        sponsored: sponsoredResults.length,
       },
       query: q,
-      took_ms: Date.now() - startTime
+      took_ms: Date.now() - startTime,
+      // Include AI metadata if available
+      ...(enhancedQuery && {
+        ai_insights: {
+          intent: aiIntent?.type,
+          searchType: aiIntent?.searchType,
+          confidence: aiIntent?.confidence,
+          suggestedFilters: {
+            locations: aiIntent?.extractedEntities.locations,
+            caseTypes: aiIntent?.extractedEntities.caseTypes,
+          },
+          expandedTerms: enhancedQuery.expandedTerms,
+        },
+      }),
     }
 
     // Set cache headers
     const responseObj = NextResponse.json({ ...response, rate_limit_remaining: remaining })
-    responseObj.headers.set('Cache-Control', 'public, s-maxage=300, max-age=60, stale-while-revalidate=180')
+    responseObj.headers.set(
+      'Cache-Control',
+      'public, s-maxage=300, max-age=60, stale-while-revalidate=180'
+    )
     responseObj.headers.set('Vary', 'Accept-Encoding')
-    
+
     const duration = Date.now() - startTime
     logger.apiResponse('GET', '/api/search', 200, duration, {
-      totalResults: sortedResults.length,
+      totalResults: rankedResults.length,
       judgeResults: judges.length,
       courtResults: courts.length,
-      jurisdictionResults: jurisdictions.length
+      jurisdictionResults: jurisdictions.length,
+      aiProcessed: !!enhancedQuery,
+      intentDetected: aiIntent?.type,
     })
-    
-    return responseObj
 
+    return responseObj
   } catch (error) {
     const duration = Date.now() - startTime
     logger.error('API error in search', { duration }, error instanceof Error ? error : undefined)
-    
+
     logger.apiResponse('GET', '/api/search', 500, duration)
-    
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-async function searchJudges(supabase: any, query: string, limit: number): Promise<JudgeSearchResult[]> {
+async function searchJudges(
+  supabase: any,
+  query: string,
+  limit: number,
+  jurisdictionFilter?: string,
+  aiIntent?: SearchIntent
+): Promise<JudgeSearchResult[]> {
   try {
     // Use the increased limit for better results
-    const actualLimit = Math.min(limit, 2000)  // Increased cap to 2000 to handle all judges in database
-    
-    // Improved search to handle partial names and different search patterns
-    // Split query into words to search for first/last names separately
-    const cleaned = normalizeJudgeSearchQuery(query)
-    const queryWords = cleaned.toLowerCase().split(/\s+/).filter(word => word.length > 0)
-    
-    let searchQuery = supabase
-      .from('judges')
-      .select('id, name, court_name, jurisdiction, total_cases, profile_image_url, slug')
-    
-    // If single word, search anywhere in the name
-    if (queryWords.length === 1) {
-      const sanitizedCleaned = sanitizeLikePattern(cleaned)
-      if (sanitizedCleaned) {
-        searchQuery = searchQuery.ilike('name', `%${sanitizedCleaned}%`)
-      }
-    } else {
-      // For multiple words, search for the full phrase first
-      const sanitizedCleaned = sanitizeLikePattern(cleaned)
-      const sanitizedWords = queryWords.map(w => sanitizeLikePattern(w)).filter(Boolean).join('%')
-      if (sanitizedCleaned && sanitizedWords) {
-        searchQuery = searchQuery.or(`name.ilike.%${sanitizedCleaned}%,name.ilike.%${sanitizedWords}%`)
-      }
-    }
-    
-    const { data, error } = await searchQuery
-      .range(0, actualLimit - 1)
-      .order('name')
+    const actualLimit = Math.min(limit, 2000) // Increased cap to 2000 to handle all judges in database
 
-    if (error) {
-      logger.error('Database error searching judges', { 
-        query,
-        limit: actualLimit,
-        error: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
-      })
-      // Return empty array but don't throw - let other searches continue
-      return []
-    }
-
-    if (!data || data.length === 0) {
-      logger.info('No judges found for query', { query })
-      return []
-    }
-
-    logger.info(`Judge search successful`, { query: cleaned, resultsFound: data.length, limit: actualLimit })
-
-    return data.map((judge: any): JudgeSearchResult => {
-      // Use slug from database if available, otherwise generate it
-      const slug = judge.slug || judge.name.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-')
-      
-      return {
-        id: judge.id,
-        type: 'judge',
-        title: judge.name,
-        subtitle: judge.court_name || 'Court information pending',
-        description: `${judge.jurisdiction || 'CA'} jurisdiction • ${judge.total_cases || 0} cases`,
-        url: `/judges/${slug}`,
-        court_name: judge.court_name,
-        jurisdiction: judge.jurisdiction || 'CA',
-        total_cases: judge.total_cases || 0,
-        profile_image_url: judge.profile_image_url,
-        relevanceScore: calculateRelevanceScore(query, judge.name)
-      }
+    // Build cache key for search results
+    const cacheKey = buildCacheKey({
+      query,
+      limit: actualLimit,
+      jurisdiction: jurisdictionFilter || 'all',
+      type: 'judge',
     })
+
+    // Try to get from cache first with SWR support
+    const cachedResult = await searchCache.getOrComputeSWR(
+      cacheKey,
+      async () => {
+        // Perform the actual search (using full-text search RPC function)
+        const cleaned = normalizeJudgeSearchQuery(query)
+
+        // Use the full-text search RPC function from migration 20250930_003
+        const { data: rpcData, error: rpcError } = await supabase.rpc('search_judges_ranked', {
+          search_query: cleaned,
+          jurisdiction_filter: jurisdictionFilter || null,
+          result_limit: actualLimit,
+          similarity_threshold: 0.3,
+        })
+
+        if (rpcError) {
+          logger.warn('Full-text search RPC failed, falling back to ILIKE', {
+            query,
+            error: rpcError.message,
+          })
+
+          // Fallback to ILIKE search if RPC fails
+          return await searchJudgesFallback(supabase, query, actualLimit, jurisdictionFilter)
+        }
+
+        if (!rpcData || rpcData.length === 0) {
+          logger.info('No judges found via full-text search', { query })
+          return []
+        }
+
+        // Transform RPC results to JudgeSearchResult format
+        return rpcData.map((judge: any): JudgeSearchResult => {
+          const slug =
+            judge.slug ||
+            judge.name
+              .toLowerCase()
+              .replace(/[^a-z0-9\s]/g, '')
+              .replace(/\s+/g, '-')
+
+          return {
+            id: judge.id,
+            type: 'judge',
+            title: judge.name,
+            subtitle: judge.court_name || 'Court information pending',
+            description: `${judge.jurisdiction || 'CA'} jurisdiction • ${judge.total_cases || 0} cases`,
+            url: `/judges/${slug}`,
+            court_name: judge.court_name,
+            jurisdiction: judge.jurisdiction || 'CA',
+            total_cases: judge.total_cases || 0,
+            profile_image_url: judge.profile_image_url,
+            relevanceScore: judge.rank || 0, // Use relevance rank from RPC
+          }
+        })
+      },
+      {
+        ttl: CACHE_TTL.MEDIUM, // 5 minutes
+        tags: ['search', 'judges'],
+      }
+    )
+
+    logger.info('Judge search completed', {
+      query,
+      resultsFound: cachedResult.data.length,
+      cached: cachedResult.cached,
+      wasStale: cachedResult.wasStale,
+      tier: cachedResult.tier,
+      latencyMs: cachedResult.latencyMs,
+    })
+
+    return cachedResult.data
   } catch (error) {
-    logger.error('Unexpected error in searchJudges', { 
-      query, 
+    logger.error('Unexpected error in searchJudges', {
+      query,
       limit,
       error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
+      stack: error instanceof Error ? error.stack : undefined,
     })
     // Return empty array to allow other searches to continue
     return []
   }
 }
 
-async function searchCourts(supabase: any, query: string, limit: number): Promise<CourtSearchResult[]> {
+/**
+ * Fallback search using ILIKE (slower but more compatible)
+ */
+async function searchJudgesFallback(
+  supabase: any,
+  query: string,
+  limit: number,
+  jurisdictionFilter?: string
+): Promise<JudgeSearchResult[]> {
+  const cleaned = normalizeJudgeSearchQuery(query)
+  const queryWords = cleaned
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((word) => word.length > 0)
+
+  let searchQuery = supabase
+    .from('judges')
+    .select('id, name, court_name, jurisdiction, total_cases, profile_image_url, slug')
+
+  // Apply jurisdiction filter from AI if available
+  if (jurisdictionFilter) {
+    searchQuery = searchQuery.or(
+      `jurisdiction.ilike.%${sanitizeLikePattern(jurisdictionFilter)}%,court_name.ilike.%${sanitizeLikePattern(jurisdictionFilter)}%`
+    )
+  }
+
+  // If single word, search anywhere in the name
+  if (queryWords.length === 1) {
+    const sanitizedCleaned = sanitizeLikePattern(cleaned)
+    if (sanitizedCleaned) {
+      searchQuery = searchQuery.ilike('name', `%${sanitizedCleaned}%`)
+    }
+  } else {
+    // For multiple words, search for the full phrase first
+    const sanitizedCleaned = sanitizeLikePattern(cleaned)
+    const sanitizedWords = queryWords
+      .map((w) => sanitizeLikePattern(w))
+      .filter(Boolean)
+      .join('%')
+    if (sanitizedCleaned && sanitizedWords) {
+      searchQuery = searchQuery.or(
+        `name.ilike.%${sanitizedCleaned}%,name.ilike.%${sanitizedWords}%`
+      )
+    }
+  }
+
+  const { data, error } = await searchQuery.range(0, limit - 1).order('name')
+
+  if (error) {
+    logger.error('Database error in fallback search', {
+      query,
+      limit,
+      error: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code,
+    })
+    return []
+  }
+
+  if (!data || data.length === 0) {
+    return []
+  }
+
+  return data.map((judge: any): JudgeSearchResult => {
+    const slug =
+      judge.slug ||
+      judge.name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-')
+
+    return {
+      id: judge.id,
+      type: 'judge',
+      title: judge.name,
+      subtitle: judge.court_name || 'Court information pending',
+      description: `${judge.jurisdiction || 'CA'} jurisdiction • ${judge.total_cases || 0} cases`,
+      url: `/judges/${slug}`,
+      court_name: judge.court_name,
+      jurisdiction: judge.jurisdiction || 'CA',
+      total_cases: judge.total_cases || 0,
+      profile_image_url: judge.profile_image_url,
+      relevanceScore: calculateRelevanceScore(query, judge.name),
+    }
+  })
+}
+
+async function searchCourts(
+  supabase: any,
+  query: string,
+  limit: number,
+  jurisdictionFilter?: string
+): Promise<CourtSearchResult[]> {
   try {
     // Use the increased limit for better results
-    const actualLimit = Math.min(limit, 2000)  // Increased cap to 2000 for consistency
-    
-    const { data, error, count } = await supabase
+    const actualLimit = Math.min(limit, 2000) // Increased cap to 2000 for consistency
+
+    let courtQuery = supabase
       .from('courts')
-      .select('id, name, type, jurisdiction, address, phone, website, judge_count', { count: 'exact' })
+      .select('id, name, type, jurisdiction, address, phone, website, judge_count', {
+        count: 'exact',
+      })
       .ilike('name', `%${sanitizeLikePattern(query)}%`)
-      .range(0, actualLimit - 1)
-      .order('name')
+
+    // Apply jurisdiction filter if available
+    if (jurisdictionFilter) {
+      courtQuery = courtQuery.ilike('jurisdiction', `%${sanitizeLikePattern(jurisdictionFilter)}%`)
+    }
+
+    const { data, error, count } = await courtQuery.range(0, actualLimit - 1).order('name')
 
     if (error) {
-      logger.error('Database error searching courts', { 
+      logger.error('Database error searching courts', {
         query,
         limit: actualLimit,
         error: error.message,
         details: error.details,
         hint: error.hint,
-        code: error.code
+        code: error.code,
       })
       // Return empty array but don't throw - let other searches continue
       return []
@@ -394,16 +582,19 @@ async function searchCourts(supabase: any, query: string, limit: number): Promis
       return []
     }
 
-    logger.info(`Court search successful`, { 
-      query, 
+    logger.info(`Court search successful`, {
+      query,
       resultsFound: data.length,
       totalCount: count || 0,
-      limit: actualLimit
+      limit: actualLimit,
     })
 
     return data.map((court: any): CourtSearchResult => {
-      const slug = court.name.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-')
-      
+      const slug = court.name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-')
+
       return {
         id: court.id,
         type: 'court',
@@ -417,38 +608,44 @@ async function searchCourts(supabase: any, query: string, limit: number): Promis
         judge_count: court.judge_count || 0,
         phone: court.phone,
         website: court.website,
-        relevanceScore: calculateRelevanceScore(query, court.name)
+        relevanceScore: calculateRelevanceScore(query, court.name),
       }
     })
   } catch (error) {
-    logger.error('Unexpected error in searchCourts', { 
-      query, 
+    logger.error('Unexpected error in searchCourts', {
+      query,
       limit,
       error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
+      stack: error instanceof Error ? error.stack : undefined,
     })
     // Return empty array to allow other searches to continue
     return []
   }
 }
 
-async function searchJurisdictions(query: string, limit: number): Promise<JurisdictionSearchResult[]> {
+async function searchJurisdictions(
+  query: string,
+  limit: number
+): Promise<JurisdictionSearchResult[]> {
   const queryLower = query.toLowerCase()
-  
-  return PREDEFINED_JURISDICTIONS
-    .filter(jurisdiction => 
+
+  return PREDEFINED_JURISDICTIONS.filter(
+    (jurisdiction) =>
       jurisdiction.title.toLowerCase().includes(queryLower) ||
       jurisdiction.displayName.toLowerCase().includes(queryLower) ||
       jurisdiction.description.toLowerCase().includes(queryLower)
-    )
+  )
     .slice(0, limit)
-    .map(jurisdiction => ({
+    .map((jurisdiction) => ({
       ...jurisdiction,
-      relevanceScore: calculateRelevanceScore(query, jurisdiction.title)
+      relevanceScore: calculateRelevanceScore(query, jurisdiction.title),
     }))
 }
 
-async function generateSearchSuggestions(query: string, limit: number): Promise<SearchSuggestionsResponse> {
+async function generateSearchSuggestions(
+  query: string,
+  limit: number
+): Promise<SearchSuggestionsResponse> {
   const suggestions: SearchSuggestion[] = []
 
   try {
@@ -459,81 +656,108 @@ async function generateSearchSuggestions(query: string, limit: number): Promise<
       .from('judges')
       .select('id, name, court_name, jurisdiction, total_cases, slug')
       .ilike('name', `%${sanitizeLikePattern(query)}%`)
-      .limit(Math.min(limit, 10))  // Limit judge suggestions to 10
+      .limit(Math.min(limit, 10)) // Limit judge suggestions to 10
       .order('name')
 
     if (!error && judges && judges.length > 0) {
       const judgeSuggestions = judges.map((judge: any): SearchSuggestion => {
-        const slug = judge.slug || judge.name.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-')
+        const slug =
+          judge.slug ||
+          judge.name
+            .toLowerCase()
+            .replace(/[^a-z0-9\s]/g, '')
+            .replace(/\s+/g, '-')
         return {
           text: judge.name,
           type: 'judge',
           count: judge.total_cases || 0,
-          url: `/judges/${slug}`
+          url: `/judges/${slug}`,
         }
       })
       suggestions.push(...judgeSuggestions)
     }
 
     // Add jurisdiction suggestions
-    const jurisdictionMatches = PREDEFINED_JURISDICTIONS
-      .filter(j => j.title.toLowerCase().includes(query.toLowerCase()))
+    const jurisdictionMatches = PREDEFINED_JURISDICTIONS.filter((j) =>
+      j.title.toLowerCase().includes(query.toLowerCase())
+    )
       .slice(0, 3)
-      .map((j): SearchSuggestion => ({
-        text: j.title,
-        type: 'jurisdiction',
-        count: 1,
-        url: j.url
-      }))
+      .map(
+        (j): SearchSuggestion => ({
+          text: j.title,
+          type: 'jurisdiction',
+          count: 1,
+          url: j.url,
+        })
+      )
 
     suggestions.push(...jurisdictionMatches)
 
     // Add some common search terms if they match
     const commonSearches = [
-      { text: 'California Superior Court', type: 'court' as const, count: 150, url: '/search?q=California Superior Court&type=court' },
-      { text: 'Federal Court', type: 'court' as const, count: 89, url: '/search?q=Federal Court&type=court' },
-      { text: 'Criminal Defense', type: 'judge' as const, count: 234, url: '/search?q=Criminal Defense&type=judge' },
-      { text: 'Civil Litigation', type: 'judge' as const, count: 189, url: '/search?q=Civil Litigation&type=judge' }
-    ].filter(s => s.text.toLowerCase().includes(query.toLowerCase()))
+      {
+        text: 'California Superior Court',
+        type: 'court' as const,
+        count: 150,
+        url: '/search?q=California Superior Court&type=court',
+      },
+      {
+        text: 'Federal Court',
+        type: 'court' as const,
+        count: 89,
+        url: '/search?q=Federal Court&type=court',
+      },
+      {
+        text: 'Criminal Defense',
+        type: 'judge' as const,
+        count: 234,
+        url: '/search?q=Criminal Defense&type=judge',
+      },
+      {
+        text: 'Civil Litigation',
+        type: 'judge' as const,
+        count: 189,
+        url: '/search?q=Civil Litigation&type=judge',
+      },
+    ].filter((s) => s.text.toLowerCase().includes(query.toLowerCase()))
 
     suggestions.push(...commonSearches)
-
   } catch (error) {
     logger.error('Error generating search suggestions', {
       query,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     })
   }
 
   return {
     suggestions: suggestions.slice(0, limit),
-    query
+    query,
   }
 }
 
 function calculateRelevanceScore(query: string, text: string): number {
   const queryLower = query.toLowerCase()
   const textLower = text.toLowerCase()
-  
+
   // Exact match
   if (textLower === queryLower) return 100
-  
+
   // Starts with query
   if (textLower.startsWith(queryLower)) return 80
-  
+
   // Contains query
   if (textLower.includes(queryLower)) return 60
-  
+
   // Word boundary matches
   const words = queryLower.split(' ')
   const textWords = textLower.split(' ')
-  
+
   let wordMatches = 0
   for (const word of words) {
-    if (textWords.some(tw => tw.startsWith(word))) {
+    if (textWords.some((tw) => tw.startsWith(word))) {
       wordMatches++
     }
   }
-  
+
   return (wordMatches / words.length) * 40
 }

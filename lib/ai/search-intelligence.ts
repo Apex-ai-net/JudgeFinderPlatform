@@ -12,15 +12,15 @@ function initializeGemini(): GoogleGenerativeAI {
   if (!process.env.GOOGLE_AI_API_KEY) {
     throw new Error('GOOGLE_AI_API_KEY is required for AI search')
   }
-  
+
   if (!genAI) {
     genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY)
   }
-  
+
   return genAI
 }
 
-interface SearchIntent {
+export interface SearchIntent {
   type: 'judge' | 'court' | 'jurisdiction' | 'mixed'
   searchType: 'name' | 'characteristic' | 'location' | 'case_type' | 'general'
   extractedEntities: {
@@ -32,7 +32,7 @@ interface SearchIntent {
   confidence: number
 }
 
-interface EnhancedQuery {
+export interface EnhancedQuery {
   originalQuery: string
   processedQuery: string
   searchIntent: SearchIntent
@@ -41,7 +41,7 @@ interface EnhancedQuery {
   conversationalResponse?: string
 }
 
-interface SearchContext {
+export interface SearchContext {
   previousQueries?: string[]
   userLocation?: string
   searchHistory?: any[]
@@ -56,18 +56,20 @@ export async function processNaturalLanguageQuery(
 ): Promise<EnhancedQuery> {
   try {
     const genAI = initializeGemini()
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
       generationConfig: {
         temperature: 0.3,
         maxOutputTokens: 1024,
-      }
+      },
     })
 
-    const contextInfo = context ? `
+    const contextInfo = context
+      ? `
 Previous searches: ${context.previousQueries?.join(', ') || 'none'}
 User location: ${context.userLocation || 'California'}
-` : ''
+`
+      : ''
 
     const prompt = `You are an AI assistant helping users search for judges, courts, and jurisdictions in California's legal system.
 
@@ -137,13 +139,12 @@ Return JSON:
         type: aiData.intent?.type || 'mixed',
         searchType: aiData.intent?.searchType || 'general',
         extractedEntities: aiData.intent?.extractedEntities || {},
-        confidence: aiData.intent?.confidence || 0.7
+        confidence: aiData.intent?.confidence || 0.7,
       },
       expandedTerms: aiData.expandedTerms || [],
       suggestions: aiData.suggestions || [],
-      conversationalResponse: aiData.conversationalResponse
+      conversationalResponse: aiData.conversationalResponse,
     }
-
   } catch (error) {
     console.error('Gemini AI search error:', error)
     return getFallbackEnhancement(query)
@@ -161,12 +162,12 @@ export async function generateSearchSuggestions(
 
   try {
     const genAI = initializeGemini()
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
       generationConfig: {
         temperature: 0.5,
         maxOutputTokens: 256,
-      }
+      },
     })
 
     const prompt = `Generate smart search suggestions for California judicial system based on partial input.
@@ -212,19 +213,19 @@ export async function rankSearchResults(
 
   try {
     const genAI = initializeGemini()
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
       generationConfig: {
         temperature: 0.1,
         maxOutputTokens: 512,
-      }
+      },
     })
 
     const resultsPreview = results.slice(0, 10).map((r, i) => ({
       index: i,
       title: r.title || r.name,
       type: r.type,
-      description: r.description || r.subtitle
+      description: r.description || r.subtitle,
     }))
 
     const prompt = `Rank these search results by relevance to the user's query.
@@ -263,18 +264,15 @@ Return a JSON array of indices in order of relevance (most relevant first):
 /**
  * Generate conversational response for no results
  */
-export async function generateNoResultsHelp(
-  query: string,
-  searchType: string
-): Promise<string> {
+export async function generateNoResultsHelp(query: string, searchType: string): Promise<string> {
   try {
     const genAI = initializeGemini()
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
       generationConfig: {
         temperature: 0.7,
         maxOutputTokens: 256,
-      }
+      },
     })
 
     const prompt = `Generate a helpful message for a user who searched for "${query}" in the California judicial system but got no results.
@@ -290,7 +288,6 @@ Keep it concise and helpful.`
     const result = await model.generateContent(prompt)
     const response = await result.response
     return response.text()
-
   } catch (error) {
     console.error('No results help generation error:', error)
     return `No results found for "${query}". Try searching with different terms or browse our complete directory of California judges and courts.`
@@ -302,18 +299,24 @@ Keep it concise and helpful.`
  */
 function getFallbackEnhancement(query: string): EnhancedQuery {
   const lowerQuery = query.toLowerCase()
-  
+
   // Simple intent detection
   let type: SearchIntent['type'] = 'mixed'
   let searchType: SearchIntent['searchType'] = 'general'
-  
+
   if (lowerQuery.includes('judge')) type = 'judge'
   else if (lowerQuery.includes('court')) type = 'court'
-  else if (lowerQuery.includes('county') || lowerQuery.includes('jurisdiction')) type = 'jurisdiction'
-  
+  else if (lowerQuery.includes('county') || lowerQuery.includes('jurisdiction'))
+    type = 'jurisdiction'
+
   if (lowerQuery.includes('near') || lowerQuery.includes('location')) searchType = 'location'
-  else if (lowerQuery.includes('divorce') || lowerQuery.includes('criminal') || lowerQuery.includes('civil')) searchType = 'case_type'
-  
+  else if (
+    lowerQuery.includes('divorce') ||
+    lowerQuery.includes('criminal') ||
+    lowerQuery.includes('civil')
+  )
+    searchType = 'case_type'
+
   return {
     originalQuery: query,
     processedQuery: query,
@@ -321,14 +324,14 @@ function getFallbackEnhancement(query: string): EnhancedQuery {
       type,
       searchType,
       extractedEntities: {},
-      confidence: 0.5
+      confidence: 0.5,
     },
     expandedTerms: [],
     suggestions: [
       'Try searching by judge name',
       'Browse judges by jurisdiction',
-      'Search for specific courts'
-    ]
+      'Search for specific courts',
+    ],
   }
 }
 
@@ -344,12 +347,10 @@ function getStaticSuggestions(partial: string): string[] {
     'Federal Court California',
     'Criminal Court judges',
     'Family Court Los Angeles',
-    'Civil litigation judges'
+    'Civil litigation judges',
   ]
-  
-  return suggestions
-    .filter(s => s.toLowerCase().includes(partial.toLowerCase()))
-    .slice(0, 5)
+
+  return suggestions.filter((s) => s.toLowerCase().includes(partial.toLowerCase())).slice(0, 5)
 }
 
 /**
@@ -357,17 +358,27 @@ function getStaticSuggestions(partial: string): string[] {
  */
 export function extractLocation(query: string): string | null {
   const locations = [
-    'Los Angeles', 'LA', 'Orange County', 'OC', 'San Diego', 'San Francisco', 'SF',
-    'Sacramento', 'Alameda', 'Santa Clara', 'Riverside', 'San Bernardino'
+    'Los Angeles',
+    'LA',
+    'Orange County',
+    'OC',
+    'San Diego',
+    'San Francisco',
+    'SF',
+    'Sacramento',
+    'Alameda',
+    'Santa Clara',
+    'Riverside',
+    'San Bernardino',
   ]
-  
+
   const lowerQuery = query.toLowerCase()
   for (const location of locations) {
     if (lowerQuery.includes(location.toLowerCase())) {
       return location
     }
   }
-  
+
   return null
 }
 
@@ -376,16 +387,24 @@ export function extractLocation(query: string): string | null {
  */
 export function extractCaseType(query: string): string | null {
   const caseTypes = [
-    'criminal', 'civil', 'family', 'divorce', 'custody', 'probate',
-    'traffic', 'small claims', 'juvenile', 'bankruptcy'
+    'criminal',
+    'civil',
+    'family',
+    'divorce',
+    'custody',
+    'probate',
+    'traffic',
+    'small claims',
+    'juvenile',
+    'bankruptcy',
   ]
-  
+
   const lowerQuery = query.toLowerCase()
   for (const caseType of caseTypes) {
     if (lowerQuery.includes(caseType)) {
       return caseType
     }
   }
-  
+
   return null
 }

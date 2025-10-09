@@ -104,10 +104,7 @@ describe('Bias Calculations', () => {
     })
 
     it('should handle cases without dates', () => {
-      const cases: CaseRecord[] = [
-        { outcome: 'Settled' },
-        { outcome: 'Dismissed' },
-      ]
+      const cases: CaseRecord[] = [{ outcome: 'Settled' }, { outcome: 'Dismissed' }]
 
       const analysis = analyzeOutcomes(cases)
 
@@ -175,9 +172,26 @@ describe('Bias Calculations', () => {
   describe('calculateBiasIndicators', () => {
     it('should calculate bias indicators within valid ranges', () => {
       const cases: CaseRecord[] = [
-        { case_type: 'Civil', outcome: 'Settled', case_value: 100000, filing_date: '2023-01-01', decision_date: '2023-03-01' },
-        { case_type: 'Civil', outcome: 'Settled', case_value: 150000, filing_date: '2023-02-01', decision_date: '2023-04-01' },
-        { case_type: 'Criminal', outcome: 'Judgment', filing_date: '2023-01-15', decision_date: '2023-02-15' },
+        {
+          case_type: 'Civil',
+          outcome: 'Settled',
+          case_value: 100000,
+          filing_date: '2023-01-01',
+          decision_date: '2023-03-01',
+        },
+        {
+          case_type: 'Civil',
+          outcome: 'Settled',
+          case_value: 150000,
+          filing_date: '2023-02-01',
+          decision_date: '2023-04-01',
+        },
+        {
+          case_type: 'Criminal',
+          outcome: 'Judgment',
+          filing_date: '2023-01-15',
+          decision_date: '2023-02-15',
+        },
       ]
 
       const caseTypePatterns = analyzeCaseTypePatterns(cases)
@@ -198,7 +212,13 @@ describe('Bias Calculations', () => {
 
     it('should handle edge case with single case', () => {
       const cases: CaseRecord[] = [
-        { case_type: 'Civil', outcome: 'Settled', case_value: 50000, filing_date: '2023-01-01', decision_date: '2023-02-01' },
+        {
+          case_type: 'Civil',
+          outcome: 'Settled',
+          case_value: 50000,
+          filing_date: '2023-01-01',
+          decision_date: '2023-02-01',
+        },
       ]
 
       const caseTypePatterns = analyzeCaseTypePatterns(cases)
@@ -216,14 +236,24 @@ describe('Bias Calculations', () => {
 
       const caseTypePatterns = analyzeCaseTypePatterns(highSettlementCases)
       const outcomeAnalysis = analyzeOutcomes(highSettlementCases)
-      const indicators = calculateBiasIndicators(highSettlementCases, caseTypePatterns, outcomeAnalysis)
+      const indicators = calculateBiasIndicators(
+        highSettlementCases,
+        caseTypePatterns,
+        outcomeAnalysis
+      )
 
       expect(indicators.settlement_preference).toBeGreaterThan(0) // Positive preference
     })
 
     it('should return fixed decimal precision', () => {
       const cases: CaseRecord[] = [
-        { case_type: 'Civil', outcome: 'Settled', case_value: 100000, filing_date: '2023-01-01', decision_date: '2023-03-01' },
+        {
+          case_type: 'Civil',
+          outcome: 'Settled',
+          case_value: 100000,
+          filing_date: '2023-01-01',
+          decision_date: '2023-03-01',
+        },
       ]
 
       const caseTypePatterns = analyzeCaseTypePatterns(cases)
@@ -236,6 +266,243 @@ describe('Bias Calculations', () => {
       expect(Number.isInteger(indicators.settlement_preference * 10)).toBe(true)
       expect(Number.isInteger(indicators.risk_tolerance * 10)).toBe(true)
       expect(Number.isInteger(indicators.predictability_score * 10)).toBe(true)
+    })
+  })
+
+  describe('Edge Cases - Sample Size < 500', () => {
+    it('should handle dataset below minimum threshold (< 500 cases)', () => {
+      const cases: CaseRecord[] = Array(350)
+        .fill(null)
+        .map((_, i) => ({
+          case_type: 'Civil',
+          outcome: i % 2 === 0 ? 'Settled' : 'Judgment',
+          case_value: 50000,
+        }))
+
+      const patterns = analyzeCaseTypePatterns(cases)
+      const analysis = analyzeOutcomes(cases)
+      const indicators = calculateBiasIndicators(cases, patterns, analysis)
+
+      expect(patterns[0].total_cases).toBe(350)
+      expect(indicators.predictability_score).toBeLessThan(100)
+    })
+
+    it('should handle very small dataset (< 50 cases)', () => {
+      const cases: CaseRecord[] = Array(25)
+        .fill(null)
+        .map(() => ({ case_type: 'Civil', outcome: 'Settled' }))
+
+      const patterns = analyzeCaseTypePatterns(cases)
+      expect(patterns[0].total_cases).toBe(25)
+    })
+
+    it('should handle single case dataset', () => {
+      const cases: CaseRecord[] = [{ case_type: 'Civil', outcome: 'Settled' }]
+
+      const patterns = analyzeCaseTypePatterns(cases)
+      const analysis = analyzeOutcomes(cases)
+
+      expect(patterns).toHaveLength(1)
+      expect(analysis.overall_settlement_rate).toBe(1)
+    })
+  })
+
+  describe('Edge Cases - Outliers and Missing Data', () => {
+    it('should handle cases with extreme case values', () => {
+      const cases: CaseRecord[] = [
+        { case_value: 1000000000, outcome: 'Settled' }, // 1 billion
+        { case_value: 1, outcome: 'Settled' }, // 1 dollar
+        { case_value: 50000, outcome: 'Judgment' },
+      ]
+
+      const analysis = analyzeOutcomes(cases)
+      expect(analysis.case_value_trends).toHaveLength(4)
+      expect(analysis.case_value_trends[3].case_count).toBe(1) // Billion dollar case
+    })
+
+    it('should handle cases with all null case values', () => {
+      const cases: CaseRecord[] = [
+        { case_type: 'Criminal', case_value: null, outcome: 'Judgment' },
+        { case_type: 'Criminal', case_value: null, outcome: 'Dismissed' },
+      ]
+
+      const patterns = analyzeCaseTypePatterns(cases)
+      expect(patterns[0].average_case_value).toBe(0)
+    })
+
+    it('should handle cases with all missing outcomes', () => {
+      const cases: CaseRecord[] = [
+        { case_type: 'Civil', outcome: null },
+        { case_type: 'Civil', outcome: undefined },
+      ]
+
+      const patterns = analyzeCaseTypePatterns(cases)
+      expect(patterns[0].outcome_distribution.other).toBe(2)
+    })
+
+    it('should handle cases with all missing dates', () => {
+      const cases: CaseRecord[] = [
+        { outcome: 'Settled', filing_date: null, decision_date: null },
+        { outcome: 'Dismissed', filing_date: undefined, decision_date: undefined },
+      ]
+
+      const patterns = analyzeTemporalPatterns(cases)
+      expect(patterns).toEqual([])
+    })
+
+    it('should handle invalid date formats', () => {
+      const cases: CaseRecord[] = [
+        { outcome: 'Settled', decision_date: '2023-13-45' }, // Invalid date
+        { outcome: 'Dismissed', decision_date: 'not-a-date' },
+        { outcome: 'Judgment', decision_date: '' },
+      ]
+
+      const patterns = analyzeTemporalPatterns(cases)
+      expect(patterns).toEqual([])
+    })
+
+    it('should handle NaN case values', () => {
+      const cases: CaseRecord[] = [
+        { case_value: NaN, outcome: 'Settled' },
+        { case_value: Number.POSITIVE_INFINITY, outcome: 'Judgment' },
+        { case_value: Number.NEGATIVE_INFINITY, outcome: 'Dismissed' },
+      ]
+
+      const patterns = analyzeCaseTypePatterns(cases)
+      expect(patterns[0].average_case_value).toBe(0)
+    })
+  })
+
+  describe('Edge Cases - Confidence Interval Calculations', () => {
+    it('should calculate confidence intervals for high-variance datasets', () => {
+      const cases: CaseRecord[] = [
+        ...Array(50)
+          .fill(null)
+          .map(() => ({ case_type: 'Civil', outcome: 'Settled', case_value: 10000 })),
+        ...Array(50)
+          .fill(null)
+          .map(() => ({ case_type: 'Civil', outcome: 'Dismissed', case_value: 1000000 })),
+      ]
+
+      const patterns = analyzeCaseTypePatterns(cases)
+      const analysis = analyzeOutcomes(cases)
+      const indicators = calculateBiasIndicators(cases, patterns, analysis)
+
+      expect(indicators.consistency_score).toBeLessThan(100)
+      expect(indicators.consistency_score).toBeGreaterThanOrEqual(0)
+    })
+
+    it('should handle perfect consistency (all same outcome)', () => {
+      const cases: CaseRecord[] = Array(100)
+        .fill(null)
+        .map(() => ({ case_type: 'Civil', outcome: 'Settled' }))
+
+      const patterns = analyzeCaseTypePatterns(cases)
+      const analysis = analyzeOutcomes(cases)
+      const indicators = calculateBiasIndicators(cases, patterns, analysis)
+
+      expect(indicators.consistency_score).toBe(100)
+      expect(analysis.overall_settlement_rate).toBe(1)
+    })
+
+    it('should handle zero variance in case durations', () => {
+      const cases: CaseRecord[] = Array(10)
+        .fill(null)
+        .map(() => ({
+          filing_date: '2023-01-01',
+          decision_date: '2023-02-01',
+          outcome: 'Settled',
+        }))
+
+      const analysis = analyzeOutcomes(cases)
+      expect(analysis.average_case_duration).toBeCloseTo(31, 0)
+    })
+  })
+
+  describe('Edge Cases - Statistical Significance', () => {
+    it('should detect statistically insignificant patterns with small samples', () => {
+      const cases: CaseRecord[] = [
+        { case_type: 'Civil', outcome: 'Settled' },
+        { case_type: 'Civil', outcome: 'Dismissed' },
+        { case_type: 'Criminal', outcome: 'Judgment' },
+      ]
+
+      const caseTypePatterns = analyzeCaseTypePatterns(cases)
+      const outcomeAnalysis = analyzeOutcomes(cases)
+      const indicators = calculateBiasIndicators(cases, caseTypePatterns, outcomeAnalysis)
+
+      expect(indicators.predictability_score).toBeLessThan(50)
+    })
+
+    it('should handle extreme settlement rates (100%)', () => {
+      const cases: CaseRecord[] = Array(500)
+        .fill(null)
+        .map(() => ({ outcome: 'Settled', case_type: 'Civil' }))
+
+      const analysis = analyzeOutcomes(cases)
+      const patterns = analyzeCaseTypePatterns(cases)
+      const indicators = calculateBiasIndicators(cases, patterns, analysis)
+
+      expect(analysis.overall_settlement_rate).toBe(1.0)
+      expect(indicators.settlement_preference).toBe(50.0)
+    })
+
+    it('should handle extreme settlement rates (0%)', () => {
+      const cases: CaseRecord[] = Array(500)
+        .fill(null)
+        .map(() => ({ outcome: 'Judgment', case_type: 'Civil' }))
+
+      const analysis = analyzeOutcomes(cases)
+      const patterns = analyzeCaseTypePatterns(cases)
+      const indicators = calculateBiasIndicators(cases, patterns, analysis)
+
+      expect(analysis.overall_settlement_rate).toBe(0)
+      expect(indicators.settlement_preference).toBe(-50.0)
+    })
+  })
+
+  describe('Edge Cases - Mixed Data Quality', () => {
+    it('should handle dataset with partially missing data', () => {
+      const cases: CaseRecord[] = [
+        {
+          case_type: 'Civil',
+          outcome: 'Settled',
+          case_value: 100000,
+          filing_date: '2023-01-01',
+          decision_date: '2023-03-01',
+        },
+        {
+          case_type: null,
+          outcome: 'Dismissed',
+          case_value: null,
+          filing_date: null,
+          decision_date: null,
+        },
+        {
+          case_type: 'Criminal',
+          outcome: null,
+          case_value: 50000,
+          filing_date: '2023-02-01',
+          decision_date: '2023-04-01',
+        },
+      ]
+
+      const patterns = analyzeCaseTypePatterns(cases)
+      const analysis = analyzeOutcomes(cases)
+
+      expect(patterns).toHaveLength(3)
+      expect(analysis.overall_settlement_rate).toBeGreaterThanOrEqual(0)
+      expect(analysis.overall_settlement_rate).toBeLessThanOrEqual(1)
+    })
+
+    it('should handle empty strings as null values', () => {
+      const cases: CaseRecord[] = [
+        { case_type: '', outcome: '', case_value: 0 },
+        { case_type: 'Civil', outcome: 'Settled', case_value: 100000 },
+      ]
+
+      const patterns = analyzeCaseTypePatterns(cases)
+      expect(patterns.length).toBeGreaterThan(0)
     })
   })
 })

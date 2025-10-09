@@ -101,11 +101,11 @@ export const mockJudgeAnalytics = {
   avg_case_duration: 180,
   settlement_rate: 0.65,
   dismissal_rate: 0.15,
-  judgment_rate: 0.20,
+  judgment_rate: 0.2,
   case_types: [
-    { type: 'Civil', count: 750, settlement_rate: 0.70 },
+    { type: 'Civil', count: 750, settlement_rate: 0.7 },
     { type: 'Criminal', count: 350, settlement_rate: 0.45 },
-    { type: 'Family', count: 150, settlement_rate: 0.80 },
+    { type: 'Family', count: 150, settlement_rate: 0.8 },
   ],
   temporal_patterns: [
     { year: 2023, month: 1, case_count: 45, settlement_rate: 0.67 },
@@ -132,3 +132,75 @@ export function createMockJudge(overrides: Partial<typeof mockJudges.activeJudge
     ...overrides,
   }
 }
+
+/**
+ * Additional judges for name matching tests
+ */
+export const mockJudgesForNameMatching = {
+  judgeWithSuffix: createMockJudge({
+    id: 'judge-005',
+    name: 'William James Thompson Jr.',
+    slug: 'william-james-thompson-jr',
+  }),
+
+  judgeWithInitial: createMockJudge({
+    id: 'judge-006',
+    name: 'Mary K. Johnson',
+    slug: 'mary-k-johnson',
+  }),
+
+  judgeWithHyphen: createMockJudge({
+    id: 'judge-007',
+    name: 'Jennifer Anne Parker-Williams',
+    slug: 'jennifer-anne-parker-williams',
+  }),
+
+  judgeWithRomanNumeral: createMockJudge({
+    id: 'judge-008',
+    name: 'Charles Edward Reynolds III',
+    slug: 'charles-edward-reynolds-iii',
+  }),
+
+  judgeWithMiddleName: createMockJudge({
+    id: 'judge-009',
+    name: 'Robert Allen Davis',
+    slug: 'robert-allen-davis',
+  }),
+
+  judgeWithInitialFirst: createMockJudge({
+    id: 'judge-010',
+    name: 'J. Michael Anderson',
+    slug: 'j-michael-anderson',
+  }),
+
+  judgeWithMultipleInitials: createMockJudge({
+    id: 'judge-011',
+    name: 'A. B. C. Washington',
+    slug: 'a-b-c-washington',
+  }),
+
+  judgeWithDoubleSpace: createMockJudge({
+    id: 'judge-012',
+    name: 'Allen  L. Norris', // Double space intentional for testing
+    slug: 'allen-l-norris',
+  }),
+}
+
+/**
+ * Judge with low case count for threshold testing
+ */
+export const mockLowCaseCountJudge = createMockJudge({
+  id: 'judge-low-cases',
+  name: 'Sarah Martinez',
+  slug: 'sarah-martinez',
+  total_cases: 320, // Below 500 threshold
+})
+
+/**
+ * Get all mock judges including name matching variants
+ */
+export const allMockJudges = [
+  ...mockJudgesList,
+  ...Object.values(mockJudgesForNameMatching),
+  mockLowCaseCountJudge,
+]

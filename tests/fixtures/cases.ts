@@ -136,3 +136,116 @@ export function createMockCase(overrides: Partial<typeof mockCases.civilCase> = 
     ...overrides,
   }
 }
+
+/**
+ * Generate cases with specific settlement rate
+ */
+export function generateCasesWithSettlementRate(
+  total: number,
+  settlementRate: number,
+  judgeId: string = 'judge-001'
+) {
+  const settledCount = Math.floor(total * settlementRate)
+  const cases = []
+
+  for (let i = 0; i < total; i++) {
+    const isSettled = i < settledCount
+    cases.push(
+      createMockCase({
+        id: `case-settlement-${i}`,
+        judge_id: judgeId,
+        outcome: isSettled ? 'Settled' : 'Judgment',
+      })
+    )
+  }
+
+  return cases
+}
+
+/**
+ * Generate cases with specific case type distribution
+ */
+export function generateCasesByType(counts: Record<string, number>, judgeId: string = 'judge-001') {
+  const cases = []
+  let caseId = 0
+
+  for (const [caseType, count] of Object.entries(counts)) {
+    for (let i = 0; i < count; i++) {
+      cases.push(
+        createMockCase({
+          id: `case-type-${caseId++}`,
+          judge_id: judgeId,
+          case_type: caseType,
+        })
+      )
+    }
+  }
+
+  return cases
+}
+
+/**
+ * Generate cases with missing data for edge case testing
+ */
+export function generateCasesWithMissingData(count: number) {
+  const cases = []
+  for (let i = 0; i < count; i++) {
+    const missingField = i % 4
+    const baseCase = createMockCase({ id: `case-missing-${i}` })
+
+    if (missingField === 0) {
+      baseCase.outcome = null
+    } else if (missingField === 1) {
+      baseCase.decision_date = null
+    } else if (missingField === 2) {
+      baseCase.filing_date = null
+    } else {
+      baseCase.case_value = null
+    }
+
+    cases.push(baseCase)
+  }
+  return cases
+}
+
+/**
+ * Generate cases within a specific date range
+ */
+export function generateCasesInDateRange(
+  count: number,
+  startDate: string,
+  endDate: string,
+  judgeId: string = 'judge-001'
+) {
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  const cases = []
+
+  for (let i = 0; i < count; i++) {
+    const randomTime = start.getTime() + Math.random() * (end.getTime() - start.getTime())
+    const randomDate = new Date(randomTime)
+
+    cases.push(
+      createMockCase({
+        id: `case-date-${i}`,
+        judge_id: judgeId,
+        filing_date: randomDate.toISOString().split('T')[0],
+        decision_date: new Date(randomDate.getTime() + 90 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split('T')[0],
+      })
+    )
+  }
+
+  return cases
+}
+
+/**
+ * Generate large dataset for comprehensive testing (500+ cases minimum)
+ */
+export function generateLargeDataset(judgeId: string = 'judge-001') {
+  return [
+    ...generateCasesByType({ Civil: 300, Criminal: 150, Family: 100 }, judgeId),
+    ...generateCasesWithSettlementRate(50, 0.6, judgeId),
+  ]
+}

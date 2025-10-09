@@ -51,14 +51,6 @@ analysis and automated data ingestion from official sources.
 - **Hosting**: Netlify (`@netlify/plugin-nextjs`)
 - **Error Monitoring**: Sentry
 
-## iOS App (separated)
-
-- The native wrapper has been extracted to a dedicated iOS repository: JudgeBinder iOS.
-- GitHub repository: https://github.com/thefiredev-cloud/JudgeBinder-iOS
-- Local path (created during split): `../JudgeBinder-iOS`
-- Architecture: Capacitor wrapper loading `https://judgefinder.io` with native features (haptics, push, share).
-- See `../JudgeBinder-iOS/README.md` (or the repo README) for setup and scripts.
-
 ## Environment Variables
 
 ```bash
@@ -216,19 +208,19 @@ supabase/            # SQL migrations and config
 
 **CRITICAL: Production deployment will FAIL if authentication is not properly configured.**
 
-1) Configure Clerk authentication FIRST:
+1. Configure Clerk authentication FIRST:
    - Create production Clerk application at https://clerk.com
    - Get your production keys (pk_live_xxx and sk_live_xxx)
 
-2) Connect repository to Netlify (UI) and set ALL required env vars in Site Settings → Environment
+2. Connect repository to Netlify (UI) and set ALL required env vars in Site Settings → Environment
    - **MUST include**: `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`
    - All other required variables from the Environment Variables section above
 
-3) Build config is in `netlify.toml` (Node 18, Next plugin). Deploys on push to `main`.
+3. Build config is in `netlify.toml` (Node 18, Next plugin). Deploys on push to `main`.
 
-4) Secure cron and admin endpoints by setting `CRON_SECRET` and `SYNC_API_KEY`.
+4. Secure cron and admin endpoints by setting `CRON_SECRET` and `SYNC_API_KEY`.
 
-5) After deploy, validate:
+5. After deploy, validate:
 
 ```bash
 # Health

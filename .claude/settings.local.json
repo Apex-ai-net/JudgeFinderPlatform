@@ -149,7 +149,14 @@
       "Bash(netlify/functions/submit-sitemap.mts )",
       "Bash(next.config.js )",
       "Bash(package.json )",
-      "Bash(tsconfig.json)"
+      "Bash(tsconfig.json)",
+      "Bash(ls:*)",
+      "Bash(npm run test:*)",
+      "Bash(git reset:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run validate:env:*)",
+      "Bash(git -C \"c:\\Users\\Tanner\\JudgeFinder.io\\JudgeFinderPlatform\" add -A)",
+      "Bash(git -C \"c:\\Users\\Tanner\\JudgeFinder.io\\JudgeFinderPlatform\" commit -m \"$(cat <<''EOF''\nchore: cleanup iOS-specific features and temp files\n\nREMOVED iOS-SPECIFIC FILES:\n- iOS documentation and setup guides\n- Push notification routes and migrations\n- Apple App Site Association config\n- iOS MCP proposal documents\n\nUPDATED DEPENDENCIES:\n- Removed iOS-specific packages\n- Updated search and analytics dependencies\n\nCLEANED UP:\n- Temp migration reports and scripts\n- AI search deliverable documents\n- Performance and security reports\n\nThis cleanup removes iOS mobile app code that''s not part of the current web platform scope, along with temporary development artifacts.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": [],

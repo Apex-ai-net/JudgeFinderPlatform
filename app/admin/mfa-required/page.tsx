@@ -1,5 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { resolveAdminStatus } from '@/lib/auth/is-admin'
 import { Shield, Lock, ArrowRight } from 'lucide-react'
 
@@ -24,7 +25,8 @@ export default async function MFARequiredPage() {
   }
 
   // Get Clerk dashboard URL for MFA setup
-  const clerkDashboardUrl = process.env.NEXT_PUBLIC_CLERK_DASHBOARD_URL || 'https://dashboard.clerk.com'
+  const clerkDashboardUrl =
+    process.env.NEXT_PUBLIC_CLERK_DASHBOARD_URL || 'https://dashboard.clerk.com'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
@@ -45,8 +47,9 @@ export default async function MFARequiredPage() {
 
           {/* Description */}
           <p className="text-lg text-gray-600 text-center mb-8">
-            To access the admin dashboard in production, you must enable two-factor authentication (2FA)
-            on your account. This is a security requirement to protect sensitive judicial data.
+            To access the admin dashboard in production, you must enable two-factor authentication
+            (2FA) on your account. This is a security requirement to protect sensitive judicial
+            data.
           </p>
 
           {/* Why MFA Section */}
@@ -77,9 +80,7 @@ export default async function MFARequiredPage() {
 
           {/* Setup Instructions */}
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              How to Enable MFA
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">How to Enable MFA</h2>
             <ol className="space-y-3 text-gray-700">
               <li className="flex items-start gap-3">
                 <span className="bg-gray-200 text-gray-900 font-semibold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-sm">
@@ -103,7 +104,10 @@ export default async function MFARequiredPage() {
                 <span className="bg-gray-200 text-gray-900 font-semibold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-sm">
                   4
                 </span>
-                <span>Enable &quot;Two-factor authentication&quot; using an authenticator app (recommended) or SMS</span>
+                <span>
+                  Enable &quot;Two-factor authentication&quot; using an authenticator app
+                  (recommended) or SMS
+                </span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="bg-gray-200 text-gray-900 font-semibold w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-sm">
@@ -147,19 +151,19 @@ export default async function MFARequiredPage() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
+            <Link
               href="/admin"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
             >
               Check MFA Status
               <ArrowRight className="w-4 h-4" />
-            </a>
-            <a
+            </Link>
+            <Link
               href="/"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 text-gray-900 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
             >
               Return to Home
-            </a>
+            </Link>
           </div>
 
           {/* Help Text */}
