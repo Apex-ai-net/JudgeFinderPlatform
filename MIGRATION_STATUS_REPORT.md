@@ -388,7 +388,7 @@ SELECT * FROM onboarding_metrics_summary LIMIT 5;
 
 -- Test FK constraint (should succeed after fix)
 INSERT INTO onboarding_analytics (user_id)
-VALUES ('user_31oGAc88MWrrFm0InnAEFk6qrMx');
+VALUES ('REDACTED_CLERK_USER_ID');
 -- Should work if user_id matches existing clerk_user_id
 ```
 
@@ -412,7 +412,7 @@ VALUES ('user_31oGAc88MWrrFm0InnAEFk6qrMx');
     "updated_at": "2025-10-06T12:14:49.067052Z"
   },
   {
-    "clerk_user_id": "user_31oGAc88MWrrFm0InnAEFk6qrMx",
+    "clerk_user_id": "REDACTED_CLERK_USER_ID",
     "email": "admin@thefiredev.com",
     "full_name": "Tanner Osterkamp",
     "is_admin": false,
