@@ -5,7 +5,20 @@ import { NextResponse } from 'next/server'
 import type { NextFetchEvent, NextRequest } from 'next/server'
 import { handleJudgeRedirects } from '@/lib/middleware/judge-redirects'
 import { createSecurityConfig, getSecurityHeaders, getCacheHeaders } from '@/lib/security/headers'
-import { logger } from '@/lib/utils/logger'
+
+// Edge-safe logging (Edge runtime doesn't support all Node.js APIs)
+const edgeLogger = {
+  error: (msg: string, data?: any, err?: Error) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.error(`[middleware] ${msg}`, data, err)
+    }
+  },
+  warn: (msg: string, data?: any, err?: Error) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn(`[middleware] ${msg}`, data, err)
+    }
+  },
+}
 
 const isProtectedRoute = createRouteMatcher([
   '/profile(.*)',
@@ -35,7 +48,7 @@ const hasValidClerkKeys = Boolean(
 // SECURITY: Fail fast in production if Clerk keys are missing
 // This prevents protected routes from accidentally becoming public
 if (!hasValidClerkKeys && isProduction) {
-  logger.error('[middleware] CRITICAL: Clerk authentication keys are required in production')
+  edgeLogger.error('CRITICAL: Clerk authentication keys are required in production')
   throw new Error(
     'CRITICAL SECURITY ERROR: Clerk authentication keys are missing or invalid in production. ' +
       'Protected routes cannot be secured without valid authentication credentials. ' +
@@ -45,7 +58,7 @@ if (!hasValidClerkKeys && isProduction) {
 
 // In development, allow running without auth but log a clear warning
 if (!hasValidClerkKeys && isDevelopment) {
-  logger.warn('[middleware] Running in INSECURE MODE: Clerk keys not configured', {
+  edgeLogger.warn('Running in INSECURE MODE: Clerk keys not configured', {
     publishableConfigured: Boolean(clerkKeys.publishable),
     message:
       'Protected routes will not require authentication. This is only acceptable in local development.',
@@ -88,8 +101,8 @@ const middlewareHandler = clerkWrappedHandler
       } catch (error) {
         // In production, authentication failures are critical
         if (isProduction) {
-          logger.error(
-            '[middleware] CRITICAL: Clerk middleware failed in production',
+          edgeLogger.error(
+            'CRITICAL: Clerk middleware failed in production',
             undefined,
             error as Error
           )
@@ -97,8 +110,8 @@ const middlewareHandler = clerkWrappedHandler
         }
 
         // In development, log warning and allow fallback
-        logger.warn(
-          '[middleware] Clerk middleware failed in development; falling back to base handler',
+        edgeLogger.warn(
+          'Clerk middleware failed in development; falling back to base handler',
           undefined,
           error as Error
         )

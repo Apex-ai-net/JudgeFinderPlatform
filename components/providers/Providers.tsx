@@ -8,6 +8,15 @@ import * as Sentry from '@sentry/nextjs'
 // Skip authentication during build to prevent errors
 const SKIP_AUTH_BUILD = process.env.SKIP_AUTH_BUILD === 'true'
 
+// Check if Sentry is properly configured
+const isSentryAvailable = () => {
+  return (
+    typeof Sentry !== 'undefined' &&
+    typeof Sentry.captureMessage === 'function' &&
+    process.env.NEXT_PUBLIC_SENTRY_DSN
+  )
+}
+
 export function Providers({ children }: { children: ReactNode }): JSX.Element {
   // Get the publishable key - Netlify will provide this at runtime
   const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || ''
@@ -66,17 +75,20 @@ export function Providers({ children }: { children: ReactNode }): JSX.Element {
           if (!seenFingerprints.has(fingerprint)) {
             seenFingerprints.add(fingerprint)
 
-            Sentry.captureMessage('hydration-bailout', {
-              level: 'warning',
-              tags: {
-                feature: 'hydration-monitor',
-              },
-              extra: {
-                message,
-                args: args.slice(1).map(serializeArg),
-                url: window.location.href,
-              },
-            })
+            // Only capture if Sentry is available
+            if (isSentryAvailable()) {
+              Sentry.captureMessage('hydration-bailout', {
+                level: 'warning',
+                tags: {
+                  feature: 'hydration-monitor',
+                },
+                extra: {
+                  message,
+                  args: args.slice(1).map(serializeArg),
+                  url: window.location.href,
+                },
+              })
+            }
           }
         }
       }
@@ -96,22 +108,25 @@ export function Providers({ children }: { children: ReactNode }): JSX.Element {
     }
 
     const handleViolation = (event: SecurityPolicyViolationEvent) => {
-      Sentry.captureMessage('csp-violation', {
-        level: 'warning',
-        tags: {
-          feature: 'csp-monitor',
-          directive: event.effectiveDirective,
-        },
-        extra: {
-          blockedURI: event.blockedURI,
-          disposition: event.disposition,
-          lineNumber: event.lineNumber,
-          columnNumber: event.columnNumber,
-          statusCode: event.statusCode,
-          sample: event.sample,
-          url: window.location.href,
-        },
-      })
+      // Only capture if Sentry is available
+      if (isSentryAvailable()) {
+        Sentry.captureMessage('csp-violation', {
+          level: 'warning',
+          tags: {
+            feature: 'csp-monitor',
+            directive: event.effectiveDirective,
+          },
+          extra: {
+            blockedURI: event.blockedURI,
+            disposition: event.disposition,
+            lineNumber: event.lineNumber,
+            columnNumber: event.columnNumber,
+            statusCode: event.statusCode,
+            sample: event.sample,
+            url: window.location.href,
+          },
+        })
+      }
     }
 
     window.addEventListener('securitypolicyviolation', handleViolation)

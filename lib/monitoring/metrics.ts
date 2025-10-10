@@ -56,11 +56,13 @@ export function trackMetric(data: MetricData): void {
           ...data,
         })
 
-        // Send to Sentry as custom metric
+        // Send to Sentry as custom metric (only if Sentry is available)
         // Note: setMeasurement is deprecated in Sentry v8, using setAttribute instead
-        const span = Sentry.getActiveSpan()
-        if (span) {
-          span.setAttribute(`${data.type}.${data.operation}.duration_ms`, data.duration_ms)
+        if (typeof Sentry !== 'undefined' && typeof Sentry.getActiveSpan === 'function') {
+          const span = Sentry.getActiveSpan()
+          if (span) {
+            span.setAttribute(`${data.type}.${data.operation}.duration_ms`, data.duration_ms)
+          }
         }
 
         // Store in database for historical analysis (async, non-blocking)
