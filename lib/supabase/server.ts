@@ -17,51 +17,45 @@ export async function createServerClient(): Promise<SupabaseClient> {
       console.error('Missing Supabase env vars:', {
         hasUrl: !!supabaseUrl,
         hasKey: !!supabaseAnonKey,
-        urlLength: supabaseUrl?.length || 0,
-        keyLength: supabaseAnonKey?.length || 0,
       })
       throw new Error('Missing Supabase environment variables')
     }
 
     // Additional validation for correct URL format
     if (!supabaseUrl.startsWith('https://')) {
-      console.error('Invalid Supabase URL format:', supabaseUrl.substring(0, 20))
+      console.error('Invalid Supabase URL format: URL must start with https://')
       throw new Error('Invalid Supabase URL format')
     }
 
-    return createSupabaseServerClient(
-      supabaseUrl,
-      supabaseAnonKey,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            try {
-              cookieStore.set({ name, value, ...options })
-            } catch (error) {
-              logger.warn('Failed to set cookie', {
-                context: 'supabase_server_cookie_set',
-                cookie_name: name,
-                error
-              })
-            }
-          },
-          remove(name: string, options: CookieOptions) {
-            try {
-              cookieStore.set({ name, value: '', ...options })
-            } catch (error) {
-              logger.warn('Failed to remove cookie', {
-                context: 'supabase_server_cookie_remove',
-                cookie_name: name,
-                error
-              })
-            }
-          },
+    return createSupabaseServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
         },
-      }
-    )
+        set(name: string, value: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value, ...options })
+          } catch (error) {
+            logger.warn('Failed to set cookie', {
+              context: 'supabase_server_cookie_set',
+              cookie_name: name,
+              error,
+            })
+          }
+        },
+        remove(name: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value: '', ...options })
+          } catch (error) {
+            logger.warn('Failed to remove cookie', {
+              context: 'supabase_server_cookie_remove',
+              cookie_name: name,
+              error,
+            })
+          }
+        },
+      },
+    })
   } catch (error) {
     console.error('Failed to create Supabase server client:', error)
     throw error
@@ -80,7 +74,9 @@ export async function createClerkSupabaseServerClient(): Promise<SupabaseClient>
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       },
       cookies: {
-        get() { return '' },
+        get() {
+          return ''
+        },
         set() {},
         remove() {},
       },
@@ -91,7 +87,10 @@ export async function createClerkSupabaseServerClient(): Promise<SupabaseClient>
 export class SupabaseServiceRoleClient {
   private client: SupabaseClient
 
-  constructor(private readonly url: string, private readonly serviceRoleKey: string) {
+  constructor(
+    private readonly url: string,
+    private readonly serviceRoleKey: string
+  ) {
     this.client = createServiceRoleSupabaseClient(url, serviceRoleKey)
   }
 

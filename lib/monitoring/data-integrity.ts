@@ -36,7 +36,7 @@ export class DataIntegrityMonitor {
     orphaned_assignments_max: 5,
     case_count_drift_percent: 5,
     missing_slugs_max: 10,
-    stale_data_days: 180
+    stale_data_days: 180,
   }
 
   constructor(supabaseUrl: string, supabaseKey: string) {
@@ -49,7 +49,7 @@ export class DataIntegrityMonitor {
       checks_performed: 0,
       anomalies: [],
       health_score: 100,
-      requires_action: false
+      requires_action: false,
     }
 
     // Run all checks
@@ -61,7 +61,9 @@ export class DataIntegrityMonitor {
 
     // Calculate health score
     result.health_score = this.calculateHealthScore(result.anomalies)
-    result.requires_action = result.anomalies.some(a => a.severity === 'critical' || a.severity === 'high')
+    result.requires_action = result.anomalies.some(
+      (a) => a.severity === 'critical' || a.severity === 'high'
+    )
 
     return result
   }
@@ -71,7 +73,8 @@ export class DataIntegrityMonitor {
 
     try {
       // Check orphaned cases
-      const { data: orphanedCases, error: casesError } = await this.supabase.rpc('find_orphaned_cases')
+      const { data: orphanedCases, error: casesError } =
+        await this.supabase.rpc('find_orphaned_cases')
 
       if (!casesError && orphanedCases) {
         const count = orphanedCases.length
@@ -82,13 +85,15 @@ export class DataIntegrityMonitor {
             description: `${count} orphaned cases detected (threshold: ${this.thresholds.orphaned_cases_max})`,
             count,
             threshold: this.thresholds.orphaned_cases_max,
-            details: orphanedCases.slice(0, 10)
+            details: orphanedCases.slice(0, 10),
           })
         }
       }
 
       // Check orphaned assignments
-      const { data: orphanedAssignments, error: assignmentsError } = await this.supabase.rpc('find_orphaned_assignments')
+      const { data: orphanedAssignments, error: assignmentsError } = await this.supabase.rpc(
+        'find_orphaned_assignments'
+      )
 
       if (!assignmentsError && orphanedAssignments) {
         const count = orphanedAssignments.length
@@ -99,7 +104,7 @@ export class DataIntegrityMonitor {
             description: `${count} orphaned court assignments detected (threshold: ${this.thresholds.orphaned_assignments_max})`,
             count,
             threshold: this.thresholds.orphaned_assignments_max,
-            details: orphanedAssignments.slice(0, 10)
+            details: orphanedAssignments.slice(0, 10),
           })
         }
       }
@@ -123,10 +128,12 @@ export class DataIntegrityMonitor {
         })
 
         if (significantDrift.length > 0) {
-          const maxDrift = Math.max(...significantDrift.map((d: any) => {
-            const drift = Math.abs(d.stored_count - d.actual_count)
-            return (drift / Math.max(d.actual_count, 1)) * 100
-          }))
+          const maxDrift = Math.max(
+            ...significantDrift.map((d: any) => {
+              const drift = Math.abs(d.stored_count - d.actual_count)
+              return (drift / Math.max(d.actual_count, 1)) * 100
+            })
+          )
 
           result.anomalies.push({
             type: 'case_count_drift',
@@ -136,8 +143,8 @@ export class DataIntegrityMonitor {
             threshold: this.thresholds.case_count_drift_percent,
             details: {
               max_drift_percent: maxDrift.toFixed(1),
-              affected_judges: significantDrift.slice(0, 5)
-            }
+              affected_judges: significantDrift.slice(0, 5),
+            },
           })
         }
       }
@@ -164,7 +171,7 @@ export class DataIntegrityMonitor {
             severity: count > 50 ? 'high' : 'medium',
             description: `${count} judges missing slug field (threshold: ${this.thresholds.missing_slugs_max})`,
             count,
-            threshold: this.thresholds.missing_slugs_max
+            threshold: this.thresholds.missing_slugs_max,
           })
         }
       }
@@ -183,7 +190,7 @@ export class DataIntegrityMonitor {
             severity: count > 20 ? 'high' : 'medium',
             description: `${count} courts missing slug field (threshold: ${this.thresholds.missing_slugs_max})`,
             count,
-            threshold: this.thresholds.missing_slugs_max
+            threshold: this.thresholds.missing_slugs_max,
           })
         }
       }
@@ -201,7 +208,7 @@ export class DataIntegrityMonitor {
           description: `${noNames.length} judges without names detected`,
           count: noNames.length,
           threshold: 0,
-          details: noNames.slice(0, 10)
+          details: noNames.slice(0, 10),
         })
       }
     } catch (error: any) {
@@ -213,7 +220,9 @@ export class DataIntegrityMonitor {
     result.checks_performed++
 
     try {
-      const { data: inconsistencies, error } = await this.supabase.rpc('find_inconsistent_relationships')
+      const { data: inconsistencies, error } = await this.supabase.rpc(
+        'find_inconsistent_relationships'
+      )
 
       if (!error && inconsistencies && inconsistencies.length > 0) {
         const criticalIssues = inconsistencies.filter((i: any) => i.severity === 'high')
@@ -226,7 +235,7 @@ export class DataIntegrityMonitor {
             description: `${criticalIssues.length} critical relationship inconsistencies detected`,
             count: criticalIssues.length,
             threshold: 0,
-            details: criticalIssues.slice(0, 5)
+            details: criticalIssues.slice(0, 5),
           })
         }
 
@@ -236,7 +245,7 @@ export class DataIntegrityMonitor {
             severity: 'medium',
             description: `${mediumIssues.length} medium relationship inconsistencies detected`,
             count: mediumIssues.length,
-            threshold: 10
+            threshold: 10,
           })
         }
       }
@@ -250,7 +259,7 @@ export class DataIntegrityMonitor {
 
     try {
       const { data: staleJudges, error } = await this.supabase.rpc('find_stale_judges', {
-        days_threshold: this.thresholds.stale_data_days
+        days_threshold: this.thresholds.stale_data_days,
       })
 
       if (!error && staleJudges && staleJudges.length > 0) {
@@ -265,8 +274,8 @@ export class DataIntegrityMonitor {
           threshold: this.thresholds.stale_data_days,
           details: {
             very_stale: veryStale,
-            oldest: staleJudges.slice(0, 5)
-          }
+            oldest: staleJudges.slice(0, 5),
+          },
         })
       }
     } catch (error: any) {
@@ -277,7 +286,7 @@ export class DataIntegrityMonitor {
   private calculateHealthScore(anomalies: IntegrityAnomaly[]): number {
     let score = 100
 
-    anomalies.forEach(anomaly => {
+    anomalies.forEach((anomaly) => {
       switch (anomaly.severity) {
         case 'critical':
           score -= 20
@@ -299,21 +308,19 @@ export class DataIntegrityMonitor {
 
   async saveCheckResult(result: IntegrityCheckResult): Promise<void> {
     try {
-      const { error } = await this.supabase
-        .from('sync_validation_results')
-        .insert({
-          validation_id: `integrity_check_${Date.now()}`,
-          started_at: result.timestamp,
-          completed_at: new Date().toISOString(),
-          duration_ms: 0,
-          total_issues: result.anomalies.length,
-          critical_issues: result.anomalies.filter(a => a.severity === 'critical').length,
-          high_priority_issues: result.anomalies.filter(a => a.severity === 'high').length,
-          medium_priority_issues: result.anomalies.filter(a => a.severity === 'medium').length,
-          low_priority_issues: result.anomalies.filter(a => a.severity === 'low').length,
-          issues: result.anomalies,
-          summary: `Health Score: ${result.health_score}/100`
-        })
+      const { error } = await this.supabase.from('sync_validation_results').insert({
+        validation_id: `integrity_check_${Date.now()}`,
+        started_at: result.timestamp,
+        completed_at: new Date().toISOString(),
+        duration_ms: 0,
+        total_issues: result.anomalies.length,
+        critical_issues: result.anomalies.filter((a) => a.severity === 'critical').length,
+        high_priority_issues: result.anomalies.filter((a) => a.severity === 'high').length,
+        medium_priority_issues: result.anomalies.filter((a) => a.severity === 'medium').length,
+        low_priority_issues: result.anomalies.filter((a) => a.severity === 'low').length,
+        issues: result.anomalies,
+        summary: `Health Score: ${result.health_score}/100`,
+      })
 
       if (error) {
         console.error('Failed to save check result:', error.message)
@@ -332,8 +339,8 @@ export async function sendIntegrityAlert(result: IntegrityCheckResult): Promise<
     return
   }
 
-  const criticalAnomalies = result.anomalies.filter(a => a.severity === 'critical')
-  const highAnomalies = result.anomalies.filter(a => a.severity === 'high')
+  const criticalAnomalies = result.anomalies.filter((a) => a.severity === 'critical')
+  const highAnomalies = result.anomalies.filter((a) => a.severity === 'high')
 
   const message = `
 🚨 Data Integrity Alert - JudgeFinder Platform
@@ -343,10 +350,10 @@ Checks Performed: ${result.checks_performed}
 Anomalies Detected: ${result.anomalies.length}
 
 Critical Issues (${criticalAnomalies.length}):
-${criticalAnomalies.map(a => `• ${a.description}`).join('\n')}
+${criticalAnomalies.map((a) => `• ${a.description}`).join('\n')}
 
 High Priority Issues (${highAnomalies.length}):
-${highAnomalies.map(a => `• ${a.description}`).join('\n')}
+${highAnomalies.map((a) => `• ${a.description}`).join('\n')}
 
 Action Required: Review and run cleanup script
 Command: npm run cleanup-production-data
@@ -366,8 +373,8 @@ Timestamp: ${result.timestamp}
         body: JSON.stringify({
           text: message,
           username: 'Data Integrity Monitor',
-          icon_emoji: ':warning:'
-        })
+          icon_emoji: ':warning:',
+        }),
       })
     } catch (error) {
       console.error('Failed to send Slack alert:', error)
@@ -378,7 +385,7 @@ Timestamp: ${result.timestamp}
   if (process.env.ADMIN_EMAIL && process.env.SENDGRID_API_KEY) {
     try {
       // Implementation would go here
-      console.log(`Would send email to: ${process.env.ADMIN_EMAIL}`)
+      console.log('Would send email to admin (dry run)')
     } catch (error) {
       console.error('Failed to send email alert:', error)
     }
@@ -411,7 +418,7 @@ export async function getIntegrityCheckHistory(
     checks_performed: 5, // Default value
     anomalies: row.issues || [],
     health_score: calculateHealthScoreFromIssues(row.issues || []),
-    requires_action: row.critical_issues > 0 || row.high_priority_issues > 0
+    requires_action: row.critical_issues > 0 || row.high_priority_issues > 0,
   }))
 }
 

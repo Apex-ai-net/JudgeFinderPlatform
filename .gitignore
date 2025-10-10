@@ -46,6 +46,7 @@ next-env.d.ts
 *.swo
 *~
 .cursor/
+.claude/
 
 # Documentation (temporary/planning)
 REACTBITS_*.md
