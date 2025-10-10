@@ -6,23 +6,22 @@ const nextConfig = {
   reactStrictMode: true,
   eslint: {
     // Netlify's Next.js integration runs lint during build; treat warnings locally instead of blocking deploys
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: process.env.NODE_ENV !== 'production',
   },
   typescript: {
     // Unblock production deploys: defer type fixes to CI/lint, not build
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: process.env.NODE_ENV !== 'production',
   },
   // Sentry configuration moved to instrumentation.ts and sentry.*.config.ts
 
   // Performance optimizations for legal platform
   experimental: {
     optimizePackageImports: ['lucide-react', '@supabase/supabase-js'],
-    // Windows-specific optimizations to prevent Jest worker errors
-    workerThreads: false,
-    cpus: 1,
-    // Disable parallel compilation to prevent worker issues
-    parallelServerCompiles: false,
-    parallelServerBuildTraces: false,
+    // Windows-specific optimizations removed - they hurt performance on Netlify's Linux build servers
+    // workerThreads: false,
+    // cpus: 1,
+    // parallelServerCompiles: false,
+    // parallelServerBuildTraces: false,
   },
 
   // Image optimization for judge profiles and court images

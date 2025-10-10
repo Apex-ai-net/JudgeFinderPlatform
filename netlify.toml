@@ -15,9 +15,8 @@
 [build.environment]
   # Node.js and Build Configuration
   NODE_VERSION = "20"  # Match package.json requirement (^20)
-  # Ensure devDependencies (e.g., typescript, @types/react) are installed in Netlify builds
-  # Next.js type-check requires these even in production builds
-  NPM_FLAGS = "--include=dev --legacy-peer-deps"
+  # Legacy peer dependencies flag for compatibility
+  NPM_FLAGS = "--legacy-peer-deps"
   NODE_ENV = "production"
 
   # IMPORTANT: Set ENCRYPTION_KEY in Netlify UI
