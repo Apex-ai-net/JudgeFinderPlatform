@@ -35,10 +35,41 @@
   # Build Optimizations
   NEXT_TELEMETRY_DISABLED = "1"
 
-  # Secrets Scanning Configuration
-  # Exclude build artifacts and public env vars from secrets scanning
-  SECRETS_SCAN_OMIT_PATHS = ".netlify/**,.next/**,node_modules/**,.git/**"
-  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL,NEXT_PUBLIC_CLERK_SIGN_UP_URL,NEXT_PUBLIC_APP_NAME,NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL,NEXT_PUBLIC_CLERK_SIGN_IN_URL,NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_APP_URL,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,ADMIN_USER_IDS"
+  # ============================================
+  # SECRETS SCANNING CONFIGURATION (CRITICAL)
+  # ============================================
+  # Prevent false positives in Netlify's secret scanner
+  # These paths and keys are excluded from secret detection
+
+  # Paths to exclude from secret scanning
+  # Rationale for each exclusion:
+  # - .netlify/**: Netlify internal build artifacts
+  # - .next/**: Next.js build output (may contain bundled public keys)
+  # - node_modules/**: Third-party dependencies
+  # - .git/**: Git repository data
+  # - coverage/**: Test coverage reports
+  # - out/**, build/**, dist/**: Build artifacts
+  # - .cache/**, .parcel-cache/**: Build caches
+  # - *.tsbuildinfo: TypeScript incremental compilation info
+  # - .eslintcache: ESLint cache
+  # - *.log: Log files
+  # - reports/**, validation-reports/**: Generated reports
+  # - env_verification_report.json: Environment validation output
+  # - tests-eslint.json, eslint-report.json: Linting reports
+  SECRETS_SCAN_OMIT_PATHS = ".netlify/**,.next/**,node_modules/**,.git/**,.cache/**,.parcel-cache/**,.eslintcache,*.tsbuildinfo,tsconfig.tsbuildinfo,coverage/**,out/**,build/**,dist/**,reports/**,validation-reports/**,*.log,logs/**,env_verification_report.json,tests-eslint.json,eslint-report.json,test-results/**,playwright-report/**,.playwright-mcp/**"
+
+  # Public keys to exclude from secret scanning
+  # Rationale for each exclusion:
+  # - NEXT_PUBLIC_* variables: Intentionally public (Next.js convention)
+  # - NEXT_PUBLIC_SUPABASE_URL: Public Supabase project URL
+  # - NEXT_PUBLIC_SUPABASE_ANON_KEY: Public anonymous key (protected by RLS)
+  # - NEXT_PUBLIC_CLERK_*: Public Clerk configuration
+  # - NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_APP_URL: Public URLs
+  # - NEXT_PUBLIC_APP_NAME: Public application name
+  # - ADMIN_USER_IDS: Clerk user IDs (not sensitive, publicly visible in UI)
+  # - NODE_VERSION: Build configuration
+  # - NPM_FLAGS: Build configuration
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL,NEXT_PUBLIC_CLERK_SIGN_UP_URL,NEXT_PUBLIC_APP_NAME,NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL,NEXT_PUBLIC_CLERK_SIGN_IN_URL,NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_APP_URL,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,NEXT_PUBLIC_SENTRY_DSN,NEXT_PUBLIC_GA_MEASUREMENT_ID,NEXT_PUBLIC_POSTHOG_KEY,NEXT_PUBLIC_POSTHOG_HOST,NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,NEXT_PUBLIC_BING_SITE_VERIFICATION,ADMIN_USER_IDS,NODE_VERSION,NPM_FLAGS,NODE_ENV,NEXT_TELEMETRY_DISABLED"
 
 # ============================================
 # Context-Specific Configurations

@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
-import { ensureCurrentAppUser } from '@/lib/auth/user-mapping'
+// IMPORTANT: Edge runtime cannot use Node-only libraries (Supabase service role, etc.)
+// We must not import code that references Node APIs from middleware.
 import { NextResponse } from 'next/server'
 import type { NextFetchEvent, NextRequest } from 'next/server'
 import { handleJudgeRedirects } from '@/lib/middleware/judge-redirects'
@@ -62,45 +63,13 @@ const clerkWrappedHandler = hasValidClerkKeys
 
         if (isProtectedRoute(request)) {
           await auth.protect()
-          // Best-effort user mapping; don't block response on failure
-          try {
-            await ensureCurrentAppUser()
-          } catch (error) {
-            logger.warn(
-              '[middleware] User mapping failed (non-blocking)',
-              undefined,
-              error as Error
-            )
-          }
+          // Do NOT attempt Supabase/service role user mapping here (Edge runtime)
         }
 
         if (isAdminRoute(request)) {
           await auth.protect()
-          // Ensure mapping for admins too
-          try {
-            await ensureCurrentAppUser()
-
-            // Check MFA requirement for admin routes (production only)
-            if (process.env.NODE_ENV === 'production') {
-              const { resolveAdminStatus } = await import('@/lib/auth/is-admin')
-              const status = await resolveAdminStatus()
-
-              // Redirect to MFA setup if required but not enabled
-              if (status.isAdmin && status.requiresMFA && !status.hasMFA) {
-                const mfaRequiredPath = '/admin/mfa-required'
-                // Don't redirect if already on MFA required page
-                if (request.nextUrl.pathname !== mfaRequiredPath) {
-                  return NextResponse.redirect(new URL(mfaRequiredPath, request.url))
-                }
-              }
-            }
-          } catch (error) {
-            logger.warn(
-              '[middleware] Admin user mapping failed (non-blocking)',
-              undefined,
-              error as Error
-            )
-          }
+          // Edge runtime: skip Supabase/service role user mapping and MFA checks here.
+          // MFA enforcement is handled in server-side admin routes.
         }
 
         return baseMiddleware(request)

@@ -58,7 +58,6 @@ async function analyzeDatabase() {
   console.log('SUPABASE DATABASE STATE ANALYSIS')
   console.log('='.repeat(80))
   console.log('\nDatabase:', SUPABASE_URL)
-  console.log('Project:', 'xstlnicbnzdxlgfiewmg')
   console.log('\n')
 
   // 1. Check migration tracking table
@@ -282,7 +281,6 @@ async function analyzeDatabase() {
     let fixScript = `-- Migration Tracking Fix Script
 -- Generated: ${new Date().toISOString()}
 -- Database: ${SUPABASE_URL}
--- Project: xstlnicbnzdxlgfiewmg
 --
 -- This script marks migrations as applied in the tracking table.
 -- Review each migration to ensure it has actually been applied to your database.

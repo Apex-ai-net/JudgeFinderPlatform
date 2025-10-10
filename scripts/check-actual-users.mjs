@@ -1,8 +1,20 @@
 #!/usr/bin/env node
 import { createClient } from '@supabase/supabase-js'
 
-const SUPABASE_URL = 'https://xstlnicbnzdxlgfiewmg.supabase.co'
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!SUPABASE_URL) {
+  console.error('❌ Error: NEXT_PUBLIC_SUPABASE_URL environment variable is not set')
+  console.error('Please set it in your .env.local file')
+  process.exit(1)
+}
+
+if (!SUPABASE_SERVICE_KEY) {
+  console.error('❌ Error: SUPABASE_SERVICE_ROLE_KEY environment variable is not set')
+  console.error('Please set it in your .env.local file')
+  process.exit(1)
+}
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 

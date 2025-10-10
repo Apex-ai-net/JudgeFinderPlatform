@@ -6,11 +6,18 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const SUPABASE_URL = 'https://xstlnicbnzdxlgfiewmg.supabase.co'
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!SUPABASE_URL) {
+  console.error('ERROR: NEXT_PUBLIC_SUPABASE_URL environment variable not set')
+  console.error('Please set it in your .env.local file')
+  process.exit(1)
+}
 
 if (!SUPABASE_SERVICE_KEY) {
   console.error('ERROR: SUPABASE_SERVICE_ROLE_KEY environment variable not set')
+  console.error('Please set it in your .env.local file')
   process.exit(1)
 }
 
@@ -67,7 +74,7 @@ async function main() {
 
   console.log('### Connection Status')
   console.log(`- Method: Supabase JavaScript Client (REST API)`)
-  console.log(`- Project: xstlnicbnzdxlgfiewmg`)
+  console.log(`- URL: ${SUPABASE_URL}`)
   console.log(`- Status: CONNECTED\n`)
 
   // Check core tables

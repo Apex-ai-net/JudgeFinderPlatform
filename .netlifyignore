@@ -1,113 +1,284 @@
-# Netlify Ignore File - Files and directories to exclude from deployment
-# This prevents sensitive files from being uploaded to Netlify
+# ============================================
+# Netlify Ignore File - JudgeFinder Platform
+# ============================================
+# Files and directories to exclude from Netlify deployment
+# This prevents sensitive files and build artifacts from being uploaded
+# Documentation: https://docs.netlify.com/configure-builds/file-based-configuration/#ignore-builds
+# ============================================
 
-# Environment files
+# ============================================
+# ENVIRONMENT VARIABLES & SECRETS (CRITICAL)
+# ============================================
+# NEVER upload environment files to Netlify - all sensitive values should
+# be configured in Netlify UI under Site Settings > Environment Variables
+
+# All environment files
 .env
 .env.*
-!.env.example
 .env.local
 .env.local.example
 .env.production
+.env.production.local
 .env.development
+.env.development.local
 .env.test
+.env.test.local
 .env.staging
+.env.mcp
 *.env
+.new-keys-*.env
+.env.netlify.new
 
-# Security and secrets
-**/secrets/**
-**/credentials/**
+# EXCEPTION: Keep example files for reference
+!.env.example
+!.env.production.example
+
+# API Keys and Credentials Files
+PRODUCTION_KEYS.txt
+.production-keys-*.txt
 *-keys.txt
 *-keys.md
-PRODUCTION_KEYS.txt
 KEY_ROTATION_TRACKER.md
-CLERK_SETUP_GUIDE.md
-SECURITY_FIX_INSTRUCTIONS.md
+NETLIFY_ENV_VARIABLES.txt
+NETLIFY_ENV_VARIABLES_*.txt
+*_ENV_VARIABLES.txt
+secrets.txt
+secrets.json
 credentials.json
 credentials.txt
 config.secret.js
 config.secret.json
-*_ENV_VARIABLES.txt
 *.key
 *.keys
 *.pem
 *.cert
 
-# Backup files
+# API Key Directories
+**/api-keys/
+**/secrets/
+**/credentials/
+.secrets/
+.credentials/
+
+# ============================================
+# DOCUMENTATION WITH POTENTIAL SECRETS
+# ============================================
+# Exclude setup guides and security docs that may contain sensitive info
+
+CLERK_SETUP_GUIDE.md
+SECURITY_FIX_INSTRUCTIONS.md
+docs/security/
+docs/deployment/*ENV*.md
+docs/deployment/*KEYS*.md
+docs/deployment/*SECRET*.md
+
+# ============================================
+# BACKUP & DATA FILES
+# ============================================
+# Prevent accidental upload of database backups or data exports
+
 *-backup-*.json
+*-backup-*.sql
+*-backup-*.csv
 courts-backup-*.json
 judges-backup-*.json
+database-*.backup
 scripts/sync/*.json
+scripts/sync/*.backup
 
-# Development and test files
-scripts/test-*.js
-scripts/fix-*.js
-scripts/temp-*.js
-scripts/security/*.js
+# Analysis Reports and Data Files (may contain sensitive data)
+*-analysis.json
+*-validation-report.json
+database-integrity-report.json
+court-judge-validation-report.json
+env_verification_report.json
+validation-reports/*.json
+monitoring/*.json
+/data/*.json
+/reports/
+/exports/
+
+# ============================================
+# DEVELOPMENT & TEST FILES
+# ============================================
+# Exclude test files, scripts, and development artifacts
+
+# Test files and coverage
 test/
 tests/
 coverage/
 .nyc_output/
+*.test.js
+*.spec.js
+*.test.ts
+*.spec.ts
+playwright-report/
+test-results/
+.playwright-mcp/
 
-# IDE and editor files
+# Temporary development scripts
+scripts/test-*.js
+scripts/fix-*.js
+scripts/temp-*.js
+scripts/security/*.js
+scripts/migration/*.sensitive.js
+scripts/backup-*.js
+
+# ============================================
+# IDE & EDITOR CONFIGURATION
+# ============================================
+# Exclude editor-specific settings and temporary files
+
+# VSCode
 .vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Other IDEs
 .idea/
 .cursor/
+.codex/
+.giga/
+.claude/
+
+# Editor temporary files
 *.swp
 *.swo
 *~
+.*.swp
+.*.swo
 
-# OS files
+# ============================================
+# OPERATING SYSTEM FILES
+# ============================================
+
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
 Thumbs.db
 Desktop.ini
+ehthumbs.db
 
-# Git files
+# Linux
+.directory
+.Trash-*
+
+# ============================================
+# VERSION CONTROL
+# ============================================
+
 .git/
 .gitignore
+.gitattributes
+.gitmodules
 
-# Documentation that might contain sensitive info
-docs/security/
-docs/deployment/*ENV*.md
-NETLIFY_ENV_VARIABLES.txt
+# ============================================
+# NODE.JS & DEPENDENCIES
+# ============================================
 
-# Node modules (should already be handled by build)
+# Dependencies (already handled by Netlify build)
 node_modules/
+.pnp
+.pnp.js
+.yarn/install-state.gz
 
-# Build artifacts
+# Package manager files
+.npmrc
+.yarnrc
+.yarn-integrity
+package-lock.json.backup
+yarn.lock.backup
+
+# ============================================
+# BUILD ARTIFACTS & CACHE
+# ============================================
+# These are regenerated during Netlify build process
+
+# Next.js build output
 .next/
-.netlify/
 out/
-dist/
 build/
+dist/
 
-# Logs
+# Netlify artifacts
+.netlify/
+
+# Cache directories
+.cache/
+.parcel-cache/
+.eslintcache
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# TypeScript build info
+next-env.d.ts
+
+# ============================================
+# LOGS & DEBUGGING
+# ============================================
+
+# Log files
 *.log
 logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Cache
-.cache/
-.parcel-cache/
-.eslintcache
+# Debug files
+.vscode-test/
+.turbo/
 
-# Temporary files
+# ============================================
+# TEMPORARY FILES
+# ============================================
+
 tmp/
 temp/
+*.tmp
 nul
 
-# Reports with potential sensitive data
-reports/*.json
-validation-reports/*.json
-monitoring/*.json
+# ============================================
+# EXCLUSIONS FOR FILES WITH SENSITIVE PATTERNS
+# ============================================
+# Exclude any file with 'secret' or 'key' in the name
 
-# Scripts that might contain sensitive logic
-scripts/security/
-scripts/migration/
-
-# Any file with 'secret' or 'key' in the name
 *secret*
+*SECRET*
+*Secret*
 *key*
-!package*.json
+*KEY*
+*Key*
+
+# EXCEPTIONS: Allow necessary config files
+!package.json
+!package-lock.json
 !tsconfig.json
+!tsconfig.*.json
+!next.config.js
+!tailwind.config.js
+!postcss.config.js
+!vitest.config.ts
+!playwright.config.ts
+!eslint.config.js
+
+# ============================================
+# DOCUMENTATION & REPORTS
+# ============================================
+# Exclude temporary documentation that might expose implementation details
+
+REACTBITS_*.md
+*MIGRATION*.md
+*FIX_REPORT*.md
+*OPTIMIZATION*.md
+*CHANGES_SUMMARY*.md
+
+# Keep essential documentation
+!README.md
+!CHANGELOG.md
+!LICENSE
+!CONTRIBUTING.md

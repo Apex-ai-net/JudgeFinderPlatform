@@ -129,9 +129,8 @@ function printResults(results, showPresent = false) {
   if (showPresent && present.length > 0) {
     console.log(`\n  Present variables:`)
     present.forEach((varName) => {
-      const value = process.env[varName]
-      const displayValue = value.length > 30 ? value.substring(0, 30) + '...' : value
-      console.log(`    ${colors.green}✓ ${varName}${colors.reset} = ${displayValue}`)
+      // Never show actual values - just indicate that the variable is set
+      console.log(`    ${colors.green}✓ ${varName}${colors.reset} = [SET]`)
     })
   }
 }

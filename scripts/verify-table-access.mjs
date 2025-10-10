@@ -99,7 +99,7 @@ async function main() {
   console.log('TABLE ACCESS VERIFICATION TEST')
   console.log('========================================')
   console.log(`\n📡 Testing REST API access to Supabase tables`)
-  console.log(`🔗 Project: xstlnicbnzdxlgfiewmg`)
+  console.log(`🔗 URL: ${SUPABASE_URL}`)
   console.log(`⏰ Time: ${new Date().toISOString()}`)
 
   const tables = ['audit_logs', 'performance_metrics', 'onboarding_analytics']
