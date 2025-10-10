@@ -119,7 +119,7 @@ function verifyWebhookSignature(body: string, signature: string): boolean {
 /**
  * Process webhook event based on type
  */
-async function processWebhookEvent(payload: CourtListenerWebhookPayload): Promise<void> {
+async function processWebhookEvent(payload: CourtListenerWebhookPayload) {
   const queueManager = new SyncQueueManager()
 
   switch (payload.event) {
