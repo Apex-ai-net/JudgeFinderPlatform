@@ -40,7 +40,7 @@ interface ChatMessage {
   content: string
 }
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
+export async function POST(request: NextRequest): Promise<Response | NextResponse> {
   try {
     const body = await request.json()
     const { messages, stream = true } = body
