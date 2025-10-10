@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@netlify/functions": "^4.2.7",
+    "@netlify/plugin-nextjs": "^5.13.5"
+  },
+  "devDependencies": {
+    "eslint": "^9.37.0"
+  }
+}

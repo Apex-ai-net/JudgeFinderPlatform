@@ -1,0 +1,60 @@
+# Local Netlify folder
+.netlify
+
+# ============================================
+# SECURITY: Prevent Secret Leaks
+# ============================================
+
+# Claude Code configuration with secrets
+.claude/
+**/.claude/
+
+# Environment files with secrets
+*.env
+*.env.*
+!*.env.example
+!*.env.production.example
+
+# Specific sensitive files
+*.local.json
+.env.netlify.new
+.env.local
+.env.production
+.env.development
+
+# Database credentials and backups
+*.sql.gz
+*.sql.backup
+database-backup-*.sql
+secrets.txt
+credentials.json
+
+# API keys and tokens
+*.pem
+*.key
+*.cert
+*.p12
+*.pfx
+
+# IDE and editor files that may contain secrets
+.vscode/settings.json
+.idea/workspace.xml
+
+# Build artifacts that may leak secrets
+.next/cache/
+.netlify/
+dist/
+build/
+
+# Log files that may contain sensitive data
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
