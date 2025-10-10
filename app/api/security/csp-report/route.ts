@@ -104,7 +104,7 @@ function assessViolationSeverity(report: any): 'low' | 'medium' | 'high' | 'crit
 /**
  * OPTIONS handler for CORS preflight
  */
-export async function OPTIONS(): Promise<void> {
+export async function OPTIONS(): Promise<NextResponse> {
   return new NextResponse(null, {
     status: 204,
     headers: {

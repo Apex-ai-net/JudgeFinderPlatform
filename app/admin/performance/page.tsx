@@ -23,7 +23,7 @@ interface PerformanceMetric {
   last_recorded_at: string
 }
 
-async function getPerformanceData(): JSX.Element {
+async function getPerformanceData() {
   const supabase = await createServiceRoleClient()
 
   // Get summary statistics from the view

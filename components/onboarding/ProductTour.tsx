@@ -284,7 +284,7 @@ export function ProductTour({
 }
 
 // Hook to check if user has completed tours
-export function useTourStatus(): JSX.Element {
+export function useTourStatus() {
   const [completedTours, setCompletedTours] = useState<ToursCompleted>({})
 
   useEffect(() => {

@@ -265,7 +265,7 @@ export default function AnalyticsSliders({
   const { filters, filtersKey } = useJudgeFilterParams()
 
   useEffect(() => {
-    async function fetchAnalytics(): JSX.Element {
+    async function fetchAnalytics(): Promise<void> {
       try {
         setLoading(true)
         const params = new URLSearchParams()

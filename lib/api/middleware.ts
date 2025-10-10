@@ -54,15 +54,6 @@ export type Middleware = (handler: RouteHandler) => RouteHandler
  *   return NextResponse.json({ data: 'success' })
  * })
  * ```
- *
- * Execution order:
- * 1. withRateLimit runs first (outermost)
- * 2. withErrorHandling runs second
- * 3. withCache runs third
- * 4. Your handler runs last (innermost)
- *
- * @param middlewares - Middleware functions to compose
- * @returns A single middleware that applies all provided middlewares
  */
 export function compose(...middlewares: Middleware[]) {
   return (handler: RouteHandler): RouteHandler => {
@@ -74,7 +65,7 @@ export function compose(...middlewares: Middleware[]) {
  * Helper to create a middleware that only runs for specific HTTP methods.
  *
  * Example:
- * ```typescript
+ * ```ts
  * const handler = compose(
  *   forMethods(['POST', 'PUT'], withAuth()),
  *   withErrorHandling()
@@ -96,7 +87,7 @@ export function forMethods(methods: string[], middleware: Middleware): Middlewar
  * Helper to create a middleware that adds custom headers to responses.
  *
  * Example:
- * ```typescript
+ * ```ts
  * const handler = compose(
  *   withHeaders({
  *     'X-Custom-Header': 'value',
@@ -123,26 +114,48 @@ export function withHeaders(headers: Record<string, string>): Middleware {
  * Helper to create a middleware that logs request/response details.
  *
  * Example:
- * ```typescript
+ * ```ts
  * const handler = compose(
  *   withLogging({ includeBody: true }),
  *   withErrorHandling()
  * )(async (req, ctx) => {
  *   return NextResponse.json({ data: 'success' })
  * })
- * ```
  */
 export function withLogging(options?: { includeBody?: boolean }): Middleware {
   return (handler) => async (req, ctx) => {
     const startTime = Date.now()
     const { pathname } = new URL(req.url)
 
-    console.log(`→ ${req.method} ${pathname}`)
+    // Guard production logging to avoid noisy prod consoles
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`→ ${req.method} ${pathname}`)
+    }
 
     if (options?.includeBody && ['POST', 'PUT', 'PATCH'].includes(req.method)) {
       try {
         const body = await req.json()
-        console.log('  Body:', JSON.stringify(body).slice(0, 200))
+        if (process.env.NODE_ENV !== 'production') {
+          // Redact sensitive fields in request body before logging
+          const redactValue = (value: any): any => {
+            if (value == null) return value
+            if (typeof value === 'string') {
+              return /(password|secret|token|key)/i.test(value) ? '[REDACTED]' : value
+            }
+            if (Array.isArray(value)) {
+              return value.map((v) => redactValue(v))
+            }
+            if (typeof value === 'object') {
+              const clone: any = {}
+              for (const [k, v] of Object.entries(value)) {
+                clone[k] = /(password|secret|token|key)/i.test(k) ? '[REDACTED]' : redactValue(v)
+              }
+              return clone
+            }
+            return value
+          }
+          console.log('  Body:', JSON.stringify(redactValue(body)).slice(0, 200))
+        }
       } catch {
         // Body not JSON or already consumed
       }
@@ -150,8 +163,10 @@ export function withLogging(options?: { includeBody?: boolean }): Middleware {
 
     const response = await handler(req, ctx)
     const duration = Date.now() - startTime
-
-    console.log(`← ${req.method} ${pathname} ${response.status} (${duration}ms)`)
+    // Guard response logging in production
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`← ${req.method} ${pathname} ${response.status} (${duration}ms)`)
+    }
 
     return response
   }

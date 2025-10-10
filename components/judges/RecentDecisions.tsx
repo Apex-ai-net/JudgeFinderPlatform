@@ -36,7 +36,7 @@ export function RecentDecisions({ judgeId }: RecentDecisionsProps): JSX.Element 
   const { filters, filtersKey } = useJudgeFilterParams()
 
   useEffect(() => {
-    async function load(): JSX.Element {
+    async function load(): Promise<void> {
       try {
         setLoading(true)
         const params = new URLSearchParams({ limit: '100' })

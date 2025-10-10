@@ -1,0 +1,158 @@
+From: Claude Code Agent <noreply@anthropic.com>
+Subject: [SECURITY] Remove secrets from eslint-report.json and prevent future leaks
+
+This patch remediates the Netlify build failure caused by secrets scanning.
+
+Root cause: eslint-report.json contains full source code of linted files,
+including historical snapshots with hardcoded SUPABASE_SERVICE_ROLE_KEY.
+
+Changes:
+1. Delete eslint-report.json (contains exposed secrets)
+2. Add eslint-report.json to .gitignore
+3. Prevent CI from generating eslint-report.json
+4. Verify all scripts use env vars (already done)
+
+--- a/.gitignore
++++ b/.gitignore
+@@ -94,6 +94,10 @@
+ # Optional eslint cache
+ .eslintcache
+
++# ESLint reports (may contain source code with secrets)
++eslint-report.json
++*-eslint-report.json
++
+ # Optional REPL history
+ .node_repl_history
+
+--- a/eslint-report.json
++++ /dev/null
+@@ -1,39201 +0,0 @@
+-[DELETED FILE - contained 39,201 lines with embedded secrets]
+-This file contained hardcoded SUPABASE_SERVICE_ROLE_KEY in multiple locations:
+-- Line 33152: from scripts/analyze-db-direct.js source snapshot
+-- Line 33330: from scripts/analyze-migration-state.js source snapshot
+-- Line 33649: from scripts/apply-search-fix-migration.js source snapshot
+-- Line 34391: from scripts/check-schema.js source snapshot (also DB password)
+-
+--- a/package.json
++++ b/package.json
+@@ -26,7 +26,7 @@
+     "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
+     "test:ci": "npm run lint && npm run type-check && npm run test:coverage",
+-    "lint": "eslint .",
++    "lint": "eslint . --format=stylish",
+     "lint:strict": "eslint . --max-warnings=0",
+     "lint:models": "eslint lib/**/*.ts --max-warnings=0",
+     "type-check": "tsc --noEmit",
+@@ -63,7 +63,7 @@
+-    "prepare": "node .husky/install.mjs"
++    "prepare": "node .husky/install.mjs",
++    "lint:report": "echo 'WARNING: ESLint reports disabled to prevent secret leaks. Use --format=stylish for terminal output.' && exit 1"
+   },
+   "dependencies": {
+     "@clerk/nextjs": "^6.31.3",
+@@ -175,6 +175,7 @@
+
+ NOTE: If you have a .eslintrc.json or eslint.config.js that specifies an output file,
+ remove that configuration. ESLint should ONLY output to terminal, never to files in CI.
++The --format=stylish flag ensures terminal-only output without source code snapshots.
+
+ --- a/.netlifyignore
++++ b/.netlifyignore
+@@ -0,0 +1,7 @@
++# Netlify-specific ignore (in addition to .gitignore)
++# Prevent these from being included in published output
++
++eslint-report.json
++*-eslint-report.json
++*.log
++.env*
+
+--- a/scripts/analyze-db-direct.js
++++ b/scripts/analyze-db-direct.js
+@@ -16,6 +16,11 @@ const __dirname = path.dirname(__filename)
+ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+ const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+
++// SECURITY: This script is for LOCAL DEVELOPMENT ONLY
++// It should NEVER run in CI or be included in production builds
++if (process.env.CI) {
++  console.error('❌ This script cannot run in CI environments for security reasons.')
++  process.exit(1)
++}
++
+ if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+   console.error('❌ Missing required environment variables:')
+
+--- a/scripts/analyze-migration-state.js
++++ b/scripts/analyze-migration-state.js
+@@ -18,6 +18,11 @@ const __dirname = path.dirname(__filename)
+ // Supabase Configuration
+ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+ const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+
++// SECURITY: This script is for LOCAL DEVELOPMENT ONLY
++if (process.env.CI) {
++  console.error('❌ This script cannot run in CI environments for security reasons.')
++  process.exit(1)
++}
++
+ if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+   console.error('❌ Missing required environment variables:')
+
+--- a/scripts/apply-search-fix-migration.js
++++ b/scripts/apply-search-fix-migration.js
+@@ -10,6 +10,11 @@ const path = require('path')
+ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+
++// SECURITY: This script is for LOCAL DEVELOPMENT ONLY
++if (process.env.CI) {
++  console.error('❌ This script cannot run in CI environments for security reasons.')
++  process.exit(1)
++}
++
+ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+   console.error('❌ Missing required environment variables:')
+
+--- a/scripts/check-schema.js
++++ b/scripts/check-schema.js
+@@ -1,9 +1,17 @@
+ const { Client } = require('pg')
+
++// SECURITY: This script is for LOCAL DEVELOPMENT ONLY
++if (process.env.CI) {
++  console.error('❌ This script cannot run in CI environments for security reasons.')
++  process.exit(1)
++}
++
++if (!process.env.DATABASE_URL) {
++  console.error('❌ DATABASE_URL environment variable required')
++  process.exit(1)
++}
++
+ const client = new Client({
+-  connectionString:
+-    'postgresql://postgres.xstlnicbnzdxlgfiewmg:' +
+-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' + // [REDACTED - was full JWT]
+-    '@aws-0-us-west-1.pooler.supabase.com:6543/postgres',
++  connectionString: process.env.DATABASE_URL,
+   ssl: { rejectUnauthorized: false },
+ })
+
+END OF PATCH
+
+---
+VERIFICATION CHECKLIST:
+
+After applying this patch:
+
+1. ✅ eslint-report.json deleted
+2. ✅ eslint-report.json added to .gitignore
+3. ✅ eslint-report.json added to .netlifyignore
+4. ✅ package.json lint script changed to use --format=stylish (no file output)
+5. ✅ All dev scripts guarded with CI check
+6. ✅ scripts/check-schema.js refactored to use DATABASE_URL env var
+
+NEXT: Run history-scrub.sh to purge secrets from git history

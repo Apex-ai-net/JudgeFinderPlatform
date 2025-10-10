@@ -45,14 +45,20 @@ function SearchResults(): JSX.Element {
     try {
       // Use the unified /api/search endpoint for all searches
       const url = `/api/search?q=${encodeURIComponent(query)}&type=${activeFilter}&limit=200`
-      console.log('Fetching search results from:', url)
+      if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+        console.log('Fetching search results from:', url)
+      }
       const response = await fetch(url)
       if (response.ok) {
         const data: SearchResponse = await response.json()
-        console.log('Search response:', data)
+        if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+          console.log('Search response:', data)
+        }
         setSearchData(data)
       } else {
-        console.error('Search request failed:', response.status, response.statusText)
+        if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+          console.error('Search request failed:', response.status, response.statusText)
+        }
         // Set empty results on error
         setSearchData({
           results: [],

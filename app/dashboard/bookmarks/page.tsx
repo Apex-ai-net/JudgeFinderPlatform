@@ -7,7 +7,7 @@ import { generateSlug } from '@/lib/utils/slug'
 
 export const dynamic = 'force-dynamic'
 
-async function getUserBookmarks(userId: string): JSX.Element {
+async function getUserBookmarks(userId: string) {
   try {
     const supabase = await createClerkSupabaseServerClient()
 

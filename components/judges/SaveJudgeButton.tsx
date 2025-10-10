@@ -36,7 +36,7 @@ export function SaveJudgeButton({ judgeId, judgeName, className }: SaveJudgeButt
     checkIfSaved()
   }, [judgeId])
 
-  async function checkIfSaved(): JSX.Element {
+  async function checkIfSaved(): Promise<void> {
     try {
       const {
         data: { user },
@@ -58,7 +58,7 @@ export function SaveJudgeButton({ judgeId, judgeName, className }: SaveJudgeButt
     }
   }
 
-  async function handleSave(): JSX.Element {
+  async function handleSave(): Promise<void> {
     setIsLoading(true)
 
     try {
@@ -118,7 +118,7 @@ export function SaveJudgeButton({ judgeId, judgeName, className }: SaveJudgeButt
     }
   }
 
-  async function handleEnableNotifications(): JSX.Element {
+  async function handleEnableNotifications(): Promise<void> {
     setIsLoading(true)
 
     try {
@@ -137,7 +137,7 @@ export function SaveJudgeButton({ judgeId, judgeName, className }: SaveJudgeButt
     }
   }
 
-  function handleMaybeLater(): JSX.Element {
+  function handleMaybeLater(): void {
     setShowNotificationPrompt(false)
   }
 

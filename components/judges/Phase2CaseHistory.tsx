@@ -532,14 +532,14 @@ export default function Phase2CaseHistory({
   )
 }
 
-function formatDate(value?: string): JSX.Element {
+function formatDate(value?: string): string {
   if (!value) return '—'
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return value
   return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-function timeRangeLabel(range: string): JSX.Element {
+function timeRangeLabel(range: string): string {
   switch (range) {
     case '6-months':
       return 'Six month'

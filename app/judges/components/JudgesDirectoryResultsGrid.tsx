@@ -23,7 +23,7 @@ interface JudgesDirectoryResultsGridProps {
 
 export function JudgesDirectoryResultsGrid({
   viewModel,
-}: JudgesDirectoryResultsGridProps): JSX.Element {
+}: JudgesDirectoryResultsGridProps): JSX.Element | null {
   const judges = viewModel.visibleJudges
   const count = judges.length
   const loading = viewModel.state.loading
@@ -90,7 +90,7 @@ export function JudgesDirectoryResultsGrid({
               rowHeight={CARD_HEIGHT + GRID_ROW_GAP}
               width={width}
               itemData={itemData}
-              itemKey={({ columnIndex, rowIndex, data }) => {
+              itemKey={({ columnIndex, rowIndex, data }: any) => {
                 // Use actual judge ID to prevent React Window from reusing cells when new data loads
                 const index = rowIndex * gridColumnCount + columnIndex
                 const judge = data.judges[index]

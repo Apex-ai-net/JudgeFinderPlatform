@@ -94,7 +94,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         },
       })
 
-      return new Response(readableStream, {
+      return new NextResponse(readableStream, {
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',

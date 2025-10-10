@@ -47,7 +47,7 @@ interface CourtsSearchProps {
 }
 
 // Helper to get court type icon and color
-function getCourtTypeInfo(type: string): JSX.Element {
+function getCourtTypeInfo(type: string) {
   const normalizedType = type.toLowerCase()
 
   if (normalizedType.includes('federal')) {
@@ -105,7 +105,7 @@ export function CourtsSearch({
     let isMounted = true
     let abortController: AbortController | null = null
 
-    async function searchCourts(): JSX.Element {
+    async function searchCourts() {
       try {
         if (page === 1) {
           setLoading(true)

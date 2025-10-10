@@ -38,7 +38,7 @@ export function JudgesDirectoryGridCard({
   recentYears,
   onCompareToggle,
   isSelected = false,
-}: JudgesDirectoryGridCardProps): JSX.Element {
+}: JudgesDirectoryGridCardProps): JSX.Element | null {
   const [isHovered, setIsHovered] = useState(false)
 
   if (!judge) {

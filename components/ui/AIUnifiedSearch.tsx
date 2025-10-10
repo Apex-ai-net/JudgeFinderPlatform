@@ -28,7 +28,7 @@ interface AIUnifiedSearchProps {
 }
 
 // Debounce hook
-function useDebounce(value: string, delay: number): JSX.Element {
+function useDebounce(value: string, delay: number): string {
   const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {

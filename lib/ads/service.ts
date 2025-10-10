@@ -124,10 +124,13 @@ async function fetchAdSpots(
     return []
   }
 
-  return (data || []).map((spot) => ({
-    ...(spot as AdSpot),
-    advertiser: (spot as Record<string, unknown>).advertiser || null,
-  }))
+  return (data || []).map((spot) => {
+    const spotData = spot as unknown as AdSpot & { advertiser?: AdvertiserProfile | null }
+    return {
+      ...spotData,
+      advertiser: spotData.advertiser || null,
+    } as AdSpotWithRelations
+  })
 }
 
 export async function getCourtAdSpots(courtId: string): Promise<AdSpotWithRelations[]> {

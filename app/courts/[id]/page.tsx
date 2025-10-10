@@ -481,7 +481,7 @@ export default async function CourtPage({ params }: { params: Params }): Promise
   }
 }
 
-export async function generateMetadata({ params }: { params: Params }): JSX.Element {
+export async function generateMetadata({ params }: { params: Params }) {
   const { id } = await params
   const court = await getCourt(id)
 

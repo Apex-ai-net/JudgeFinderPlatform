@@ -82,7 +82,7 @@ export const metadata: Metadata = {
 }
 
 // Generate comprehensive structured data for homepage
-function generateHomepageStructuredData(): JSX.Element {
+function generateHomepageStructuredData() {
   return {
     '@context': 'https://schema.org',
     '@graph': [

@@ -21,7 +21,7 @@ export function JudgeSummary({
 }: {
   judgeId: string
   apiKey?: string
-}): JSX.Element {
+}): JSX.Element | null {
   const [profile, setProfile] = useState<JudgeProfile | null>(null)
   const [motions, setMotions] = useState<MotionStat[]>([])
   const [loading, setLoading] = useState(true)

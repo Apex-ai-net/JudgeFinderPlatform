@@ -83,7 +83,7 @@ function JudgesLoading(): JSX.Element {
   )
 }
 
-async function getInitialJudges(): JSX.Element {
+async function getInitialJudges() {
   try {
     const baseUrl = getBaseUrl()
     const response = await fetch(

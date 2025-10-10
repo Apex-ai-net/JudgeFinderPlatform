@@ -443,7 +443,7 @@ interface MetadataProps {
   params: SlugParamsPromise
 }
 
-export async function generateMetadata({ params }: MetadataProps): JSX.Element {
+export async function generateMetadata({ params }: MetadataProps) {
   const resolvedParams = await params
   const slug = resolvedParams.slug ?? params.slug
 

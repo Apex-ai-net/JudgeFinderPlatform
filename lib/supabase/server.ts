@@ -14,16 +14,24 @@ export async function createServerClient(): Promise<SupabaseClient> {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.error('Missing Supabase env vars:', {
-        hasUrl: !!supabaseUrl,
-        hasKey: !!supabaseAnonKey,
-      })
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Missing Supabase env vars:', {
+          hasUrl: !!supabaseUrl,
+          hasKey: !!supabaseAnonKey,
+        })
+      } else {
+        console.error('Missing Supabase environment variables')
+      }
       throw new Error('Missing Supabase environment variables')
     }
 
     // Additional validation for correct URL format
     if (!supabaseUrl.startsWith('https://')) {
-      console.error('Invalid Supabase URL format: URL must start with https://')
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Invalid Supabase URL format: URL must start with https://')
+      } else {
+        console.error('Invalid Supabase URL format')
+      }
       throw new Error('Invalid Supabase URL format')
     }
 

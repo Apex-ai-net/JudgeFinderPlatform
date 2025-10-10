@@ -105,7 +105,7 @@ export async function updateUserRole(userId: string, role: UserRole): Promise<vo
 /**
  * Get user permissions based on role
  */
-export function getRolePermissions(role: UserRole): void {
+export function getRolePermissions(role: UserRole) {
   const permissions = {
     admin: {
       can_create_campaigns: true,
@@ -165,7 +165,7 @@ export function getRolePermissions(role: UserRole): void {
 /**
  * Require advertiser access - throws error if not advertiser
  */
-export async function requireAdvertiser(): Promise<void> {
+export async function requireAdvertiser(): Promise<string> {
   const { userId } = await auth()
 
   if (!userId) {
@@ -176,12 +176,14 @@ export async function requireAdvertiser(): Promise<void> {
   if (!isUserAdvertiser) {
     throw new Error('Advertiser access required')
   }
+
+  return userId
 }
 
 /**
  * Require admin access - throws error if not admin
  */
-export async function requireAdmin(): Promise<void> {
+export async function requireAdmin(): Promise<string> {
   const { userId } = await auth()
 
   if (!userId) {
@@ -192,6 +194,8 @@ export async function requireAdmin(): Promise<void> {
   if (!isUserAdmin) {
     throw new Error('Admin access required')
   }
+
+  return userId
 }
 
 /**

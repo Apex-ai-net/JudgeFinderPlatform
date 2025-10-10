@@ -18,6 +18,10 @@ npm run backup-database  # Backup database
 npm run sync:courts      # Sync court data
 npm run sync:judges      # Sync judge data
 npm run analytics:generate # Generate analytics
+
+# Diagnostics & Troubleshooting
+npm run diagnose:analytics # Comprehensive analytics diagnostics
+npm run data:status      # Overall data quality check
 ```
 
 ## Categories
@@ -193,6 +197,46 @@ Import data from various sources.
 ### Analytics Scripts
 
 Generate and analyze judicial analytics.
+
+- **diagnose-analytics-issues.js** - Comprehensive analytics diagnostics
+
+  ```bash
+  npm run diagnose:analytics
+  ```
+
+  **Features:**
+  - Environment variable validation
+  - Database connectivity testing
+  - Judge data quality analysis
+  - Analytics cache verification
+  - Redis connectivity test
+  - Actionable recommendations
+
+  **Usage Examples:**
+
+  ```bash
+  # General diagnostics
+  npm run diagnose:analytics
+
+  # Check specific judge
+  npm run diagnose:analytics -- --judge-id abc123-def456-ghi789
+
+  # Sample more judges (default: 10)
+  npm run diagnose:analytics -- --sample-size 25
+
+  # Verbose output
+  npm run diagnose:analytics -- --verbose
+  ```
+
+  **What It Checks:**
+  - ✓ Environment variables (Supabase, Redis, AI keys)
+  - ✓ Database schema and table access
+  - ✓ Judge case counts and data quality
+  - ✓ Analytics cache status
+  - ✓ Sample sizes per metric
+  - ✓ Redis caching functionality
+
+  See [DIAGNOSTICS.md](./DIAGNOSTICS.md) for detailed documentation.
 
 - **batch-generate-analytics.js** - Batch analytics generation
 

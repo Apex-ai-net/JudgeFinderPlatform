@@ -80,12 +80,12 @@ const ACTION_META: Record<
   },
 }
 
-function formatNumber(value: number | null | undefined, fallback = '0'): JSX.Element {
+function formatNumber(value: number | null | undefined, fallback = '0'): string {
   if (typeof value !== 'number' || Number.isNaN(value)) return fallback
   return value.toLocaleString()
 }
 
-function formatRelative(dateString: string | null | undefined): JSX.Element {
+function formatRelative(dateString: string | null | undefined): string {
   if (!dateString) return 'Unknown'
   const target = new Date(dateString)
   if (Number.isNaN(target.getTime())) return 'Unknown'
@@ -124,7 +124,7 @@ function formatDuration(ms: number): string {
   return `${days} day${days === 1 ? '' : 's'}`
 }
 
-function formatSeverity(severity: string): JSX.Element {
+function formatSeverity(severity: string): { label: string; className: string } {
   switch (severity) {
     case 'high':
       return { label: 'High', className: 'bg-red-50 text-red-600 border border-red-200' }
@@ -135,7 +135,7 @@ function formatSeverity(severity: string): JSX.Element {
   }
 }
 
-function isIssueOverdue(issue: ProfileIssueSummary): JSX.Element {
+function isIssueOverdue(issue: ProfileIssueSummary): boolean {
   if (!issue.sla_due_at) return false
   if (issue.status === 'resolved' || issue.status === 'dismissed') return false
   const due = new Date(issue.sla_due_at)
@@ -143,7 +143,10 @@ function isIssueOverdue(issue: ProfileIssueSummary): JSX.Element {
   return due.getTime() < Date.now()
 }
 
-function resolveSlaDescriptor(slaDue: string | null, status: ProfileIssueStatus): JSX.Element {
+function resolveSlaDescriptor(
+  slaDue: string | null,
+  status: ProfileIssueStatus
+): { label: string; tone: 'critical' | 'warn' | 'ok' | 'muted' } {
   if (!slaDue) return { label: 'Not set', tone: 'muted' as const }
   if (status === 'resolved' || status === 'dismissed')
     return { label: 'Closed', tone: 'muted' as const }
@@ -227,7 +230,11 @@ function deriveCircuitSeverity(external: {
   return { tone: 'good' as const, label: 'Stable', message: 'No circuit interrupts in 24h' }
 }
 
-function healthPill(status: SyncStatusResponse['health']['status']): JSX.Element {
+function healthPill(status: SyncStatusResponse['health']['status']): {
+  label: string
+  className: string
+  icon: React.ComponentType<any>
+} {
   switch (status) {
     case 'healthy':
       return {

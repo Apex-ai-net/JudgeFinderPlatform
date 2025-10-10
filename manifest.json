@@ -1,0 +1,134 @@
+{
+  "secret_detection_report": {
+    "scan_timestamp": "2025-10-09T00:00:00Z",
+    "repo": "thefiredev-cloud/JudgeFinderPlatform",
+    "critical_findings": 5,
+    "total_affected_files": 7,
+    "secrets_found": [
+      {
+        "file": "eslint-report.json",
+        "line": 33152,
+        "key_name": "SUPABASE_SERVICE_ROLE_KEY",
+        "value_preview": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...[REDACTED]",
+        "reason": "ESLint bundled source code of analyze-db-direct.js into report, which contained hardcoded JWT",
+        "severity": "CRITICAL",
+        "remediation": "Delete eslint-report.json, prevent generation in CI, rotate key immediately"
+      },
+      {
+        "file": "eslint-report.json",
+        "line": 33330,
+        "key_name": "SUPABASE_SERVICE_ROLE_KEY",
+        "value_preview": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...[REDACTED]",
+        "reason": "ESLint bundled source code of analyze-migration-state.js into report, which contained hardcoded JWT",
+        "severity": "CRITICAL",
+        "remediation": "Delete eslint-report.json, prevent generation in CI, rotate key immediately"
+      },
+      {
+        "file": "eslint-report.json",
+        "line": 33649,
+        "key_name": "SUPABASE_SERVICE_ROLE_KEY",
+        "value_preview": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...[REDACTED]",
+        "reason": "ESLint bundled source code of apply-search-fix-migration.js into report, which contained hardcoded JWT",
+        "severity": "CRITICAL",
+        "remediation": "Delete eslint-report.json, prevent generation in CI, rotate key immediately"
+      },
+      {
+        "file": "eslint-report.json",
+        "line": 34391,
+        "key_name": "SUPABASE_SERVICE_ROLE_KEY + DB PASSWORD",
+        "value_preview": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...[REDACTED] + postgres connection string",
+        "reason": "ESLint bundled source code of check-schema.js into report, which contained hardcoded JWT AND database password in connection string",
+        "severity": "CRITICAL",
+        "remediation": "Delete eslint-report.json, prevent generation in CI, rotate key AND database password immediately"
+      },
+      {
+        "file": "scripts/analyze-db-direct.js",
+        "line": 17,
+        "key_name": "SUPABASE_SERVICE_ROLE_KEY",
+        "value_preview": "NOT_IN_CURRENT_FILE",
+        "reason": "Currently reads from process.env (SAFE), but eslint-report.json captured OLD hardcoded version",
+        "severity": "LOW",
+        "remediation": "File already fixed to use env vars; ensure git history doesn't contain old hardcoded value"
+      },
+      {
+        "file": "scripts/analyze-migration-state.js",
+        "line": 20,
+        "key_name": "SUPABASE_SERVICE_ROLE_KEY",
+        "value_preview": "NOT_IN_CURRENT_FILE",
+        "reason": "Currently reads from process.env (SAFE), but eslint-report.json captured OLD hardcoded version",
+        "severity": "LOW",
+        "remediation": "File already fixed to use env vars; ensure git history doesn't contain old hardcoded value"
+      },
+      {
+        "file": "scripts/apply-search-fix-migration.js",
+        "line": 11,
+        "key_name": "SUPABASE_SERVICE_ROLE_KEY",
+        "value_preview": "NOT_IN_CURRENT_FILE",
+        "reason": "Currently reads from process.env with FALLBACK to hardcoded (BAD), captured by eslint-report.json",
+        "severity": "MEDIUM",
+        "remediation": "Remove hardcoded fallback, require env var, delete eslint-report.json"
+      }
+    ],
+    "additional_findings": [
+      {
+        "file": ".env.local",
+        "line": 24,
+        "key_name": "PGPASSWORD",
+        "value_preview": "Zhn7BuF6HX5bhSwz",
+        "reason": "User selected this in IDE, suggesting it may be in repo or exposed",
+        "severity": "CRITICAL",
+        "remediation": "Ensure .env.local is in .gitignore (it is), verify NOT in git history, rotate if committed"
+      },
+      {
+        "file": ".claude/settings.local.json",
+        "line": "UNKNOWN",
+        "key_name": "POTENTIALLY SUPABASE_SERVICE_ROLE_KEY or other secrets",
+        "value_preview": "UNKNOWN",
+        "reason": "Path appeared in grep results for SUPABASE_SERVICE_ROLE_KEY",
+        "severity": "HIGH",
+        "remediation": ".claude/ is in .gitignore; verify file is NOT in repo, if in history remove with BFG"
+      }
+    ],
+    "root_cause_analysis": {
+      "primary_cause": "eslint-report.json generation",
+      "mechanism": "ESLint with 'source' field enabled captures full source code of linted files, including hardcoded secrets",
+      "why_netlify_caught_it": "Netlify secrets scanner runs AFTER build, scans all output artifacts including eslint-report.json in .next bundle or published directory",
+      "why_scripts_had_hardcoded_secrets": "Dev scripts were written with hardcoded credentials for quick testing, then linted before refactoring",
+      "timeline": [
+        "1. Dev scripts written with hardcoded Supabase credentials",
+        "2. ESLint run, generating eslint-report.json with source code snapshots",
+        "3. Scripts later refactored to use process.env, BUT eslint-report.json NOT regenerated",
+        "4. eslint-report.json committed to git (or regenerated in CI with cached source)",
+        "5. Netlify build bundles eslint-report.json into .next output",
+        "6. Netlify secrets scanner detects JWT patterns in eslint-report.json",
+        "7. Build fails"
+      ]
+    },
+    "verification_commands": {
+      "check_git_history_for_secrets": "git log -p -S 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9' --all",
+      "check_eslint_config": "cat .eslintrc.json package.json | grep -A10 eslint",
+      "find_all_hardcoded_jwt_patterns": "rg -n 'eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+' --type-add 'report:*.json' -t report .",
+      "check_if_eslint_report_in_netlify_publish": "ls -lh .next/**/*eslint* 2>/dev/null || echo 'Not in .next bundle'"
+    }
+  },
+  "summary": {
+    "immediate_actions_required": [
+      "1. DELETE eslint-report.json from repo and .gitignore it",
+      "2. ROTATE SUPABASE_SERVICE_ROLE_KEY immediately (compromised in multiple locations)",
+      "3. ROTATE database password (Zhn7BuF6HX5bhSwz exposed in PGPASSWORD)",
+      "4. Remove .claude/settings.local.json from git history if present",
+      "5. Prevent eslint-report.json generation in CI (remove from package.json scripts or redirect to temp path)",
+      "6. Fix scripts/apply-search-fix-migration.js to remove hardcoded fallback"
+    ],
+    "secrets_to_rotate": [
+      "SUPABASE_SERVICE_ROLE_KEY (priority: CRITICAL)",
+      "PGPASSWORD / database password (priority: CRITICAL)",
+      "Any other secrets in .claude/settings.local.json (priority: HIGH)"
+    ],
+    "files_to_delete_or_fix": [
+      "eslint-report.json (DELETE + gitignore)",
+      "scripts/apply-search-fix-migration.js (REMOVE hardcoded fallback)",
+      ".claude/settings.local.json (verify not in git, purge history if present)"
+    ]
+  }
+}

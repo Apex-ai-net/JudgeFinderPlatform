@@ -30,7 +30,7 @@ export function PopularCourts(): JSX.Element {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    async function fetchTopCourts(): JSX.Element {
+    async function fetchTopCourts(): Promise<void> {
       try {
         setLoading(true)
         const response = await fetch('/api/courts/top-by-cases')

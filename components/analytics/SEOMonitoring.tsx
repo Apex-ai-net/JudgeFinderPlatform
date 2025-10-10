@@ -12,7 +12,7 @@ interface SEOMonitoringProps {
   slug: string
 }
 
-export function SEOMonitoring({ judgeName, jurisdiction, slug }: SEOMonitoringProps): JSX.Element {
+export function SEOMonitoring({ judgeName, jurisdiction, slug }: SEOMonitoringProps): null {
   useEffect(() => {
     // Initialize SEO monitoring when component mounts
     initializeSEOMonitoring(judgeName)
@@ -68,7 +68,7 @@ export function SEOMonitoring({ judgeName, jurisdiction, slug }: SEOMonitoringPr
 }
 
 // Additional monitoring for attorney interactions
-export function trackAttorneySlotClick(judgeName: string, slotPosition: number): JSX.Element {
+export function trackAttorneySlotClick(judgeName: string, slotPosition: number): void {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', 'attorney_slot_click', {
       event_category: 'attorney_directory',
@@ -85,7 +85,7 @@ export function trackRelatedJudgeClick(
   fromJudge: string,
   toJudge: string,
   linkPosition: number
-): JSX.Element {
+): void {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', 'related_judge_click', {
       event_category: 'internal_linking',
@@ -102,7 +102,7 @@ export function trackBreadcrumbClick(
   judgeName: string,
   breadcrumbLabel: string,
   position: number
-): JSX.Element {
+): void {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', 'breadcrumb_navigation', {
       event_category: 'navigation',

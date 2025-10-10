@@ -140,7 +140,7 @@ export default function JurisdictionsPage(): JSX.Element {
   }
 
   useEffect(() => {
-    async function fetchData(): JSX.Element {
+    async function fetchData() {
       try {
         // Fetch jurisdiction stats
         const judgesResponse = await fetch('/api/judges/list?limit=1000')

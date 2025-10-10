@@ -99,7 +99,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (format === 'csv') {
       const rows = ['day,probability']
       for (const pt of points) rows.push(`${pt.day},${pt.probability}`)
-      const r = new Response(rows.join('\n'), {
+      const r = new NextResponse(rows.join('\n'), {
         headers: {
           'Content-Type': 'text/csv; charset=utf-8',
           'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',

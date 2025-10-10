@@ -9,7 +9,7 @@ interface UseJudgesDirectoryViewModelOptions {
 
 export function useJudgesDirectoryViewModel(
   options: UseJudgesDirectoryViewModelOptions = {}
-): void {
+): JudgesDirectoryViewModel {
   const managerRef = useRef<JudgesDirectoryDataManager>()
   const viewModelRef = useRef<JudgesDirectoryViewModel>()
 

@@ -7,7 +7,9 @@ interface ParticleBackgroundProps {
   particleCount?: number
 }
 
-export function ParticleBackground({ particleCount = 50 }: ParticleBackgroundProps): JSX.Element {
+export function ParticleBackground({
+  particleCount = 50,
+}: ParticleBackgroundProps): JSX.Element | null {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {

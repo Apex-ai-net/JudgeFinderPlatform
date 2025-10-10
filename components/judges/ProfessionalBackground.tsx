@@ -8,7 +8,7 @@ interface ProfessionalBackgroundProps {
 }
 
 export function ProfessionalBackground({ judge }: ProfessionalBackgroundProps): JSX.Element {
-  const courtlistenerData = judge.courtlistener_data
+  const courtlistenerData = judge.courtlistener_data as any
 
   // Calculate years of service
   let appointmentDate = null

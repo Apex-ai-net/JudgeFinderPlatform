@@ -27,7 +27,7 @@ export function CitiesTab(): JSX.Element {
 
   useEffect(() => {
     let mounted = true
-    async function run(): JSX.Element {
+    async function run() {
       try {
         setLoading(true)
         setError(null)

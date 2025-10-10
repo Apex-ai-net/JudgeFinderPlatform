@@ -65,7 +65,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       rows.push(csvRow)
     }
 
-    const r = new Response(rows.join('\n'), {
+    const r = new NextResponse(rows.join('\n'), {
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',
         'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',

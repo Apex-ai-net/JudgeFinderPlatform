@@ -259,7 +259,12 @@ export function BiasRadarChart({
   }, [data, size, animated, hoveredAxis])
 
   // Helper function to convert angle to coordinates
-  function angleToCoordinate(angle: number, radius: number, cx: number, cy: number): JSX.Element {
+  function angleToCoordinate(
+    angle: number,
+    radius: number,
+    cx: number,
+    cy: number
+  ): { x: number; y: number } {
     return {
       x: cx + radius * Math.cos(angle - Math.PI / 2),
       y: cy + radius * Math.sin(angle - Math.PI / 2),

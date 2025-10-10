@@ -1,18 +1,15 @@
 import { type SupabaseClient } from '@supabase/supabase-js'
-import { normalizeCaseNumber, normalizeJurisdiction, normalizeOutcomeLabel, createDocketHash } from '@/lib/sync/normalization'
+import { type CourtListenerOpinion } from '@/lib/courtlistener/client'
+import {
+  normalizeCaseNumber,
+  normalizeJurisdiction,
+  normalizeOutcomeLabel,
+  createDocketHash,
+} from '@/lib/sync/normalization'
 import { getDecisionKey } from '@/lib/sync/decision-helpers'
 
-export interface CourtListenerDecision {
-  id: number
-  cluster_id: number
-  case_name: string
-  date_filed: string
-  precedential_status: string
-  author_id?: string
-  author_str?: string
-  date_created: string
-  opinion_id?: number
-}
+// Type alias for CourtListenerOpinion used as decisions
+export type CourtListenerDecision = CourtListenerOpinion
 
 export class DecisionRepository {
   private readonly supabase: SupabaseClient
@@ -35,34 +32,41 @@ export class DecisionRepository {
     return map
   }
 
-  async upsertDecision(judgeId: string, jurisdiction: string | null, decision: CourtListenerDecision): Promise<{ caseId: string | null; created: boolean }> {
+  async upsertDecision(
+    judgeId: string,
+    jurisdiction: string | null,
+    decision: CourtListenerDecision
+  ): Promise<{ caseId: string | null; created: boolean }> {
     const decisionKey = getDecisionKey(decision)
     const normalizedJurisdiction = normalizeJurisdiction(jurisdiction)
-    const caseNumberInfo = normalizeCaseNumber(`CL-${decision.cluster_id}`, decision.cluster_id)
+    const clusterId = decision.cluster_id ?? decision.cluster ?? decision.id
+    const caseNumberInfo = normalizeCaseNumber(`CL-${clusterId}`, clusterId)
     const filingDate = decision.date_filed || new Date().toISOString().split('T')[0]
     const docketHash = createDocketHash({
       caseNumberKey: caseNumberInfo.key,
       jurisdiction: normalizedJurisdiction,
       judgeId,
-      courtlistenerId: decision.cluster_id ?? decision.id ?? null,
-      filingDate
+      courtlistenerId: clusterId ?? null,
+      filingDate,
     })
     const outcomeNormalized = normalizeOutcomeLabel(decision.precedential_status || 'Decided')
 
     const caseRecord = {
       judge_id: judgeId,
       case_name: (decision.case_name || 'Unknown Case').substring(0, 500),
-      case_number: caseNumberInfo.display || `CL-${decision.cluster_id}`,
+      case_number: caseNumberInfo.display || `CL-${clusterId}`,
       docket_hash: docketHash,
       decision_date: filingDate,
       filing_date: filingDate,
       case_type: 'Opinion' as const,
       status: 'decided' as const,
       outcome: outcomeNormalized.label,
-      summary: decision.case_name ? `CourtListener opinion for ${decision.case_name}` : `CourtListener opinion ${decisionKey}`,
+      summary: decision.case_name
+        ? `CourtListener opinion for ${decision.case_name}`
+        : `CourtListener opinion ${decisionKey}`,
       courtlistener_id: decisionKey,
       jurisdiction: normalizedJurisdiction,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }
 
     const onConflict = docketHash ? 'docket_hash' : 'case_number,jurisdiction'
@@ -89,5 +93,3 @@ export class DecisionRepository {
       .eq('id', judgeId)
   }
 }
-
-

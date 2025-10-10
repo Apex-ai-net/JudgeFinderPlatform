@@ -119,7 +119,7 @@ interface FormErrorProps {
   className?: string
 }
 
-export function FormError({ error, field, className = '' }: FormErrorProps): JSX.Element {
+export function FormError({ error, field, className = '' }: FormErrorProps): JSX.Element | null {
   if (!error) return null
 
   const errors = Array.isArray(error) ? error : [error]
@@ -142,7 +142,7 @@ export function FormError({ error, field, className = '' }: FormErrorProps): JSX
 /**
  * Hook for managing form errors
  */
-export function useFormErrors(): JSX.Element {
+export function useFormErrors() {
   const [errors, setErrors] = React.useState<Record<string, string | string[]>>({})
 
   const setError = React.useCallback((field: string, error: string | string[]) => {

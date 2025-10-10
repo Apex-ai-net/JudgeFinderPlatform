@@ -7,7 +7,7 @@ import { Search, MapPin, Building, Filter, Users, Scale, Clock, ChevronRight } f
 import type { SearchResult } from '@/types/search'
 
 // Debounce hook for performance optimization
-function useDebounce(value: string, delay: number): JSX.Element {
+function useDebounce(value: string, delay: number): string {
   const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {

@@ -223,3 +223,4 @@ dist
 .env.development.local
 
 .playwright-mcp/
+eslint-report.json

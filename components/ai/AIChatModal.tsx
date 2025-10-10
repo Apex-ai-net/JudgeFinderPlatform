@@ -14,7 +14,7 @@ interface AIChatModalProps {
   onClose: () => void
 }
 
-export default function AIChatModal({ isOpen, onClose }: AIChatModalProps): JSX.Element {
+export default function AIChatModal({ isOpen, onClose }: AIChatModalProps): JSX.Element | null {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',

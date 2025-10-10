@@ -24,7 +24,7 @@ export function CourtClientFallback({ slug }: { slug: string }): JSX.Element {
 
   useEffect(() => {
     let cancelled = false
-    async function load(): JSX.Element {
+    async function load() {
       try {
         setLoading(true)
         setError(null)

@@ -28,7 +28,7 @@ function formatDataFreshness(updatedAt: string): string {
 }
 
 function buildEducationSummary(judge: Judge): string | null {
-  const courtlistenerData = judge.courtlistener_data
+  const courtlistenerData = judge.courtlistener_data as any
   if (courtlistenerData?.educations?.length) {
     const summary = courtlistenerData.educations
       .map((edu: any) => {
@@ -45,7 +45,7 @@ function buildEducationSummary(judge: Judge): string | null {
 }
 
 export function JudgeProfile({ judge }: JudgeProfileProps): JSX.Element {
-  const courtlistenerData = judge.courtlistener_data
+  const courtlistenerData = judge.courtlistener_data as any
 
   let appointmentDate: Date | null = null
   let yearsOfService: number | null = null

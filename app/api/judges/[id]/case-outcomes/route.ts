@@ -118,7 +118,7 @@ export async function GET(
   }
 }
 
-function calculateOverallStats(cases: any[]): void {
+function calculateOverallStats(cases: any[]) {
   const totalCases = cases.length
 
   // Calculate outcome rates
@@ -167,7 +167,7 @@ function calculateOverallStats(cases: any[]): void {
   }
 }
 
-function calculateCaseTypeBreakdown(cases: any[]): void {
+function calculateCaseTypeBreakdown(cases: any[]) {
   const caseTypeGroups = cases.reduce(
     (groups, case_) => {
       const caseType = case_.case_type || 'Other'
@@ -227,7 +227,7 @@ function calculateCaseTypeBreakdown(cases: any[]): void {
     .sort((a, b) => b.total_cases - a.total_cases)
 }
 
-function calculateYearlyTrends(cases: any[]): void {
+function calculateYearlyTrends(cases: any[]) {
   const yearlyGroups = cases.reduce(
     (groups, case_) => {
       if (!case_.decision_date) return groups
@@ -273,7 +273,7 @@ function calculateYearlyTrends(cases: any[]): void {
     .sort((a, b) => a.year - b.year)
 }
 
-function calculatePerformanceMetrics(cases: any[], caseTypeBreakdown: any[]): void {
+function calculatePerformanceMetrics(cases: any[], caseTypeBreakdown: any[]) {
   // Calculate efficiency score (cases per month)
   const casesByMonth = cases.reduce(
     (acc, case_) => {

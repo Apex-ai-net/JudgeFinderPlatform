@@ -19,7 +19,7 @@ const ISSUE_OPTIONS = [
 export function ReportProfileIssueDialog({
   judgeSlug,
   courtId,
-}: ReportProfileIssueDialogProps): JSX.Element {
+}: ReportProfileIssueDialogProps): JSX.Element | null {
   const [open, setOpen] = useState(false)
   const [issueType, setIssueType] =
     useState<(typeof ISSUE_OPTIONS)[number]['value']>('data_accuracy')

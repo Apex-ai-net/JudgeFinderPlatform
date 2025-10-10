@@ -98,7 +98,7 @@ export interface EnhancedSearchResult {
   }
 
   // Type-specific fields (from union types)
-  [key: string]: any
+  [key: string]: unknown
 }
 
 /**
@@ -257,8 +257,21 @@ function calculateSpecializationScore(result: SearchResult, aiIntent?: SearchInt
  * Currently returns 0.5 as placeholder - can be enhanced with update_at field
  */
 function calculateRecencyScore(result: SearchResult): number {
-  // TODO: Implement when updated_at field is available
-  // For now, give all results neutral score
+  // If the result has a timestamp for last update, derive a score from it.
+  // Otherwise, fall back to a neutral score.
+  const updatedAt = (result as any).updated_at ?? (result as any).updatedAt
+  if (typeof updatedAt === 'string' || updatedAt instanceof Date) {
+    const updatedTime = new Date(updatedAt).getTime()
+    if (!isNaN(updatedTime)) {
+      const ageMs = Date.now() - updatedTime
+      const ageDays = ageMs / (1000 * 60 * 60 * 24)
+      // Cap lookback at 365 days; more recent items get higher score
+      const clampedDays = Math.max(0, Math.min(ageDays, 365))
+      const score = 1 - clampedDays / 365
+      return Math.max(0, Math.min(score, 1))
+    }
+  }
+  // Fallback neutral score
   return 0.5
 }
 
@@ -310,7 +323,7 @@ function checkLocationMatch(result: SearchResult, aiIntent?: SearchIntent): bool
   if (!aiIntent || !aiIntent.extractedEntities.locations) return false
 
   const locations = aiIntent.extractedEntities.locations
-  const jurisdiction = (result as any).jurisdiction || ''
+  const jurisdiction = (result as unknown as { jurisdiction?: string }).jurisdiction || ''
   const subtitle = result.subtitle || ''
   const description = result.description || ''
 

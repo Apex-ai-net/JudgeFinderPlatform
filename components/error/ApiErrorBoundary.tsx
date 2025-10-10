@@ -74,7 +74,9 @@ export class ApiErrorBoundary extends Component<Props, State> {
     }
 
     // Send to logging service (replace with actual service)
-    console.error('🌐 API Error:', errorData)
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('🌐 API Error:', errorData)
+    }
   }
 
   private handleRetry = () => {
@@ -226,7 +228,7 @@ export class ApiErrorBoundary extends Component<Props, State> {
 /**
  * Hook for handling API errors in functional components
  */
-export function useApiErrorHandler(): JSX.Element {
+export function useApiErrorHandler() {
   const [error, setError] = React.useState<Error | null>(null)
   const [isRetrying, setIsRetrying] = React.useState(false)
 

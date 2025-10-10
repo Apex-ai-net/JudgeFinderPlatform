@@ -8,7 +8,7 @@ import { ssrFetch } from '@/lib/utils/baseFetch'
 // Add dynamic export for Vercel deployment
 export const dynamic = 'force-dynamic'
 
-function withCors(response: NextResponse): void {
+function withCors(response: NextResponse): NextResponse {
   const cors = getCORSHeaders(createSecurityConfig())
   Object.entries(cors).forEach(([k, v]) => response.headers.set(k, v))
   response.headers.set('Vary', 'Origin')
@@ -28,7 +28,7 @@ function forwardHeaders(req: NextRequest): HeadersInit {
   return headers
 }
 
-export async function OPTIONS(): Promise<void> {
+export async function OPTIONS(): Promise<NextResponse> {
   const res = new NextResponse(null, { status: 204 })
   return withCors(res)
 }

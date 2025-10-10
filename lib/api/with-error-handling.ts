@@ -206,15 +206,19 @@ export function withErrorHandling(config?: ErrorHandlingConfig): Middleware {
 
       // Handle known error types
       if (error instanceof ApiError) {
-        return NextResponse.json(
-          {
-            error: error.message,
-            code: error.code,
-            ...(error.details && { details: error.details }),
-            ...(isDevelopment && config?.includeStack && error.stack && { stack: error.stack }),
-          },
-          { status: error.statusCode }
-        )
+        const errorResponse: Record<string, unknown> = {
+          error: error.message,
+          code: error.code,
+        }
+
+        if (error.details) {
+          errorResponse.details = error.details
+        }
+        if (isDevelopment && config?.includeStack && error.stack) {
+          errorResponse.stack = error.stack
+        }
+
+        return NextResponse.json(errorResponse, { status: error.statusCode })
       }
 
       // Handle Supabase errors

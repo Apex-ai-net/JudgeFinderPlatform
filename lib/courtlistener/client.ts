@@ -4,11 +4,17 @@ import { GlobalRateLimiter } from './global-rate-limiter'
 
 export interface CourtListenerOpinion {
   id: number
+  opinion_id?: number
   cluster: number
-  date_filed: string
+  cluster_id?: number
+  date_filed: string | null
   case_name: string
   case_number?: string
-  court: {
+  precedential_status?: string
+  author_id?: string | null
+  author_str?: string | null
+  date_created?: string
+  court?: {
     id: string
     name: string
   }
@@ -306,7 +312,7 @@ export class CourtListenerClient {
           return data
         }
       } catch (error) {
-        lastError = error
+        lastError = error instanceof Error ? error : new Error(String(error))
         lastStatus = undefined
         lastRetryAfterMs = null
         // AbortError or network error should retry
@@ -478,16 +484,17 @@ export class CourtListenerClient {
               const cluster = await this.getClusterDetails(clusterId)
 
               // Combine opinion and cluster data
-              const caseData = {
+              const caseData: CourtListenerOpinion = {
                 id: opinionId,
                 opinion_id: opinionId,
+                cluster: clusterId,
                 cluster_id: clusterId,
                 case_name: cluster.case_name || 'Unknown Case',
-                date_filed: cluster.date_filed,
+                date_filed: cluster.date_filed || null,
                 precedential_status: cluster.precedential_status,
                 author_id: null, // Not available in opinion object
                 author_str: null, // Not available in opinion object
-                date_created: dateField, // Use date_filed instead
+                date_created: dateField || undefined, // Use date_filed instead
               }
 
               allCases.push(caseData)
@@ -497,16 +504,18 @@ export class CourtListenerClient {
             } catch (clusterError) {
               logger.warn('Error fetching cluster', { cluster: clusterId }, clusterError as Error)
               // Add opinion without cluster details
-              allCases.push({
+              const fallbackCase: CourtListenerOpinion = {
                 id: opinionId,
                 opinion_id: opinionId,
+                cluster: clusterId,
                 cluster_id: clusterId,
                 case_name: 'Unknown Case',
                 date_filed: null,
                 author_id: null, // Not available in opinion object
                 author_str: null, // Not available in opinion object
-                date_created: dateField, // Use date_filed instead
-              })
+                date_created: dateField || undefined, // Use date_filed instead
+              }
+              allCases.push(fallbackCase)
             }
           }
 

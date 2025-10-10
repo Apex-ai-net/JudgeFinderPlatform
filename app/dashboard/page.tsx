@@ -6,7 +6,7 @@ import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
-async function getUserStats(userId: string): JSX.Element {
+async function getUserStats(userId: string) {
   const supabase = await createServiceRoleClient()
 
   // Get user's bookmarks count

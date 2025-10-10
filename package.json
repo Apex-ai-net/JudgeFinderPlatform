@@ -54,6 +54,7 @@
     "test:mcp": "node scripts/test-mcp.js",
     "test:analytics:modules": "ts-node --transpile-only scripts/test-analytics-modules.ts",
     "test:analytics:endpoints": "node scripts/test-analytics-endpoints.js",
+    "diagnose:analytics": "node scripts/diagnose-analytics-issues.js",
     "validate-production-data": "ts-node --transpile-only scripts/validate-production-data.ts",
     "cleanup-production-data": "ts-node --transpile-only scripts/cleanup-production-data.ts",
     "backup-database": "bash scripts/backup-database.sh",
