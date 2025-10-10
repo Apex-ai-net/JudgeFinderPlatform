@@ -14,7 +14,7 @@ function median(values: number[]): number | null {
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2
 }
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<Response | NextResponse> {
   try {
     const auth = requireApiKeyIfEnabled(request.headers, request.url)
     if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

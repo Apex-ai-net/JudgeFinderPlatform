@@ -5,7 +5,7 @@ import { requireApiKeyIfEnabled } from '@/lib/security/api-auth'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<Response | NextResponse> {
   try {
     const auth = requireApiKeyIfEnabled(request.headers, request.url)
     if (!auth.ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

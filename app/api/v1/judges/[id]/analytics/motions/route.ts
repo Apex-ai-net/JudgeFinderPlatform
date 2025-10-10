@@ -5,7 +5,10 @@ import { requireApiKeyIfEnabled } from '@/lib/security/api-auth'
 
 export const dynamic = 'force-dynamic'
 
-function proportionCI(successes: number, n: number): void {
+function proportionCI(
+  successes: number,
+  n: number
+): { p: number; n: number; ci80: [number, number] } {
   if (n === 0) return { p: 0.5, n, ci80: [0.4, 0.6] }
   const p = successes / n
   // Wilson score 80% (z≈1.2816)
