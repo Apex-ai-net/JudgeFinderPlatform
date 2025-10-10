@@ -1,0 +1,67 @@
+# Netlify configuration for extended time horizons
+
+# NOTE: These environment variables provide centralized knobs for time-based horizons.
+# Application code should read these values (process.env.*) where applicable.
+
+[[plugins]]
+package = "@netlify/plugin-nextjs"
+
+[build.environment]
+# Analytics/reporting
+ANALYTICS_LOOKBACK_DAYS = "365"           # 1 year lookback for reports/queries
+
+# Caching
+CACHE_TTL_SECONDS = "86400"               # 24 hours generic cache TTL
+REDIS_CACHE_TTL_SECONDS = "86400"         # 24 hours for Redis-backed caches (if used)
+
+# Rate limiting
+RATE_LIMIT_WINDOW_SECONDS = "300"          # 5-minute rolling window
+# (If app uses a separate max-requests var, set it in Netlify UI to preserve secrets.)
+
+# Background jobs / processing
+JOB_LOOKBACK_DAYS = "7"                    # Jobs read up to 7 days of backlog
+
+# Metrics aggregation windows
+METRICS_ROLLING_WINDOW_DAYS = "30"
+METRICS_MONTHLY_BUCKETS = "12"
+
+# Operational/security cadences (may require platform settings outside env vars)
+KEY_ROTATION_DAYS = "180"                  # Increase key rotation cadence to ~6 months
+LOG_RETENTION_DAYS = "90"                  # Target log retention (subject to provider plan)
+DEPLOY_PREVIEW_RETENTION_DAYS = "30"       # Target preview retention (configure in Netlify UI)
+
+[context.production.environment]
+ANALYTICS_LOOKBACK_DAYS = "365"
+CACHE_TTL_SECONDS = "86400"
+REDIS_CACHE_TTL_SECONDS = "86400"
+RATE_LIMIT_WINDOW_SECONDS = "300"
+JOB_LOOKBACK_DAYS = "7"
+METRICS_ROLLING_WINDOW_DAYS = "30"
+METRICS_MONTHLY_BUCKETS = "12"
+KEY_ROTATION_DAYS = "180"
+LOG_RETENTION_DAYS = "90"
+DEPLOY_PREVIEW_RETENTION_DAYS = "30"
+
+[context.deploy-preview.environment]
+ANALYTICS_LOOKBACK_DAYS = "365"
+CACHE_TTL_SECONDS = "86400"
+REDIS_CACHE_TTL_SECONDS = "86400"
+RATE_LIMIT_WINDOW_SECONDS = "300"
+JOB_LOOKBACK_DAYS = "7"
+METRICS_ROLLING_WINDOW_DAYS = "30"
+METRICS_MONTHLY_BUCKETS = "12"
+KEY_ROTATION_DAYS = "180"
+LOG_RETENTION_DAYS = "90"
+DEPLOY_PREVIEW_RETENTION_DAYS = "30"
+
+[context.branch-deploy.environment]
+ANALYTICS_LOOKBACK_DAYS = "365"
+CACHE_TTL_SECONDS = "86400"
+REDIS_CACHE_TTL_SECONDS = "86400"
+RATE_LIMIT_WINDOW_SECONDS = "300"
+JOB_LOOKBACK_DAYS = "7"
+METRICS_ROLLING_WINDOW_DAYS = "30"
+METRICS_MONTHLY_BUCKETS = "12"
+KEY_ROTATION_DAYS = "180"
+LOG_RETENTION_DAYS = "90"
+DEPLOY_PREVIEW_RETENTION_DAYS = "30"
