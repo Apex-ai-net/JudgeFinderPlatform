@@ -101,6 +101,7 @@ nul
 reports/*.json
 validation-reports/*.json
 monitoring/*.json
+eslint-report.json
 
 # Scripts that might contain sensitive logic
 scripts/security/
