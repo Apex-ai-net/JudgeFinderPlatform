@@ -24,9 +24,9 @@ export async function GET(request: Request): Promise<NextResponse> {
       console.error('Error fetching total judges:', totalError)
     }
 
-    // Get judges with bias analytics
+    // Get judges with bias analytics from cache
     const { count: judgesWithAnalytics, error: analyticsError } = await supabase
-      .from('judge_analytics')
+      .from('judge_analytics_cache')
       .select('*', { count: 'exact', head: true })
       .not('bias_score', 'is', null)
 
