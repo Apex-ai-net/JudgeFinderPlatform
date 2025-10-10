@@ -3,7 +3,7 @@ import type { CaseAnalytics, AnalysisWindow } from './types'
 import type { Judge, Case } from '@/types'
 
 export function analyzeJudicialPatterns(
-  _judge: Judge,
+  _judge: Partial<Judge>,
   cases: Case[],
   window: AnalysisWindow
 ): CaseAnalytics {
@@ -320,7 +320,7 @@ export function analyzeJudicialPatterns(
 }
 
 export async function generateLegacyAnalytics(
-  judge: Judge,
+  judge: Partial<Judge>,
   window: AnalysisWindow
 ): Promise<CaseAnalytics> {
   logger.info('Generating legacy analytics (no cases)', { judgeName: judge.name })
@@ -382,7 +382,7 @@ export async function generateLegacyAnalytics(
 }
 
 export function generateConservativeAnalytics(
-  judge: Judge,
+  judge: Partial<Judge>,
   caseCount: number,
   window: AnalysisWindow
 ): CaseAnalytics {
