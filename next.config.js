@@ -153,8 +153,8 @@ const nextConfig = {
   poweredByHeader: false,
 
   // Optimize for deployment
-  // Let Netlify plugin handle output configuration
-  // output: undefined, // Automatically handled by @netlify/plugin-nextjs
+  // Required for Netlify with Next.js 15 App Router
+  output: 'standalone',
 }
 
 module.exports = nextConfig

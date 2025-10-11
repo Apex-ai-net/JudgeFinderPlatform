@@ -48,6 +48,9 @@ export interface Case {
   status: 'pending' | 'decided' | 'settled' | 'dismissed'
   outcome?: string
   summary?: string | null
+  case_value?: number | null
+  plain_text?: string | null
+  analyzable?: boolean
   courtlistener_id?: string | null
   source_url?: string | null
   jurisdiction?: string | null
@@ -317,6 +320,9 @@ export interface CaseDatabaseRow extends Record<string, unknown> {
   status: 'pending' | 'decided' | 'settled' | 'dismissed'
   outcome?: string
   summary?: string | null
+  case_value?: number | null
+  plain_text?: string | null
+  analyzable?: boolean
   courtlistener_id?: string | null
   source_url?: string | null
   jurisdiction?: string | null

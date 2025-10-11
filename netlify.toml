@@ -10,7 +10,9 @@
   # NOTE: Do NOT set 'publish' when using @netlify/plugin-nextjs
   # The plugin automatically manages the output directory for Next.js SSR
   # publish = ".next"  # Commented out - managed by Next.js plugin
-  functions = "netlify/functions"
+  # NOTE: Do NOT set 'functions' when using @netlify/plugin-nextjs for API routes
+  # The plugin automatically handles Next.js API routes as serverless functions
+  # functions = "netlify/functions"  # Only for standalone Netlify functions (scheduled tasks)
 
 [build.environment]
   # Node.js and Build Configuration
