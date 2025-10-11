@@ -1,0 +1,72 @@
+{
+  "ci": {
+    "collect": {
+      "url": ["http://localhost:3000"],
+      "startServerCommand": "npm run start",
+      "numberOfRuns": 3,
+      "settings": {
+        "preset": "desktop",
+        "throttling": {
+          "rttMs": 40,
+          "throughputKbps": 10240,
+          "cpuSlowdownMultiplier": 1
+        },
+        "screenEmulation": {
+          "mobile": false,
+          "width": 1350,
+          "height": 940,
+          "deviceScaleFactor": 1
+        }
+      }
+    },
+    "assert": {
+      "preset": "lighthouse:recommended",
+      "assertions": {
+        "categories:accessibility": ["error", { "minScore": 0.95 }],
+        "categories:performance": ["warn", { "minScore": 0.8 }],
+        "categories:best-practices": ["warn", { "minScore": 0.9 }],
+        "categories:seo": ["warn", { "minScore": 0.9 }],
+
+        "color-contrast": ["error", { "minScore": 1 }],
+        "aria-allowed-attr": ["error", { "minScore": 1 }],
+        "aria-required-attr": ["error", { "minScore": 1 }],
+        "aria-valid-attr": ["error", { "minScore": 1 }],
+        "aria-valid-attr-value": ["error", { "minScore": 1 }],
+        "button-name": ["error", { "minScore": 1 }],
+        "document-title": ["error", { "minScore": 1 }],
+        "html-has-lang": ["error", { "minScore": 1 }],
+        "html-lang-valid": ["error", { "minScore": 1 }],
+        "image-alt": ["error", { "minScore": 1 }],
+        "label": ["error", { "minScore": 1 }],
+        "link-name": ["error", { "minScore": 1 }],
+        "list": ["warn", { "minScore": 1 }],
+        "listitem": ["warn", { "minScore": 1 }],
+        "meta-viewport": ["error", { "minScore": 1 }],
+        "tabindex": ["warn", { "minScore": 1 }],
+        "valid-lang": ["error", { "minScore": 1 }],
+
+        "accesskeys": ["warn", { "minScore": 1 }],
+        "aria-allowed-role": ["warn", { "minScore": 1 }],
+        "aria-hidden-body": ["error", { "minScore": 1 }],
+        "aria-hidden-focus": ["error", { "minScore": 1 }],
+        "aria-input-field-name": ["error", { "minScore": 1 }],
+        "aria-toggle-field-name": ["error", { "minScore": 1 }],
+        "bypass": ["warn", { "minScore": 1 }],
+        "duplicate-id-active": ["error", { "minScore": 1 }],
+        "duplicate-id-aria": ["error", { "minScore": 1 }],
+        "form-field-multiple-labels": ["warn", { "minScore": 1 }],
+        "frame-title": ["error", { "minScore": 1 }],
+        "heading-order": ["warn", { "minScore": 1 }],
+        "input-image-alt": ["error", { "minScore": 1 }],
+        "meta-refresh": ["warn", { "minScore": 1 }],
+        "object-alt": ["error", { "minScore": 1 }],
+        "td-headers-attr": ["warn", { "minScore": 1 }],
+        "th-has-data-cells": ["warn", { "minScore": 1 }],
+        "video-caption": ["warn", { "minScore": 1 }]
+      }
+    },
+    "upload": {
+      "target": "temporary-public-storage"
+    }
+  }
+}

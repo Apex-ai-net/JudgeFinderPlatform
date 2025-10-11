@@ -131,7 +131,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'san-diego-county',
     'san-francisco-county',
     'santa-clara-county',
-    'alameda-county'
+    'alameda-county',
   ]
 
   fallbackJurisdictions.forEach((slug) => {
@@ -160,12 +160,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (allEntries.length > MAX_SITEMAP_URLS) {
     console.warn(
       `[Sitemap] WARNING: Sitemap contains ${allEntries.length} URLs, exceeding the ` +
-      `limit of ${MAX_SITEMAP_URLS}. Consider implementing sitemap index files.`
+        `limit of ${MAX_SITEMAP_URLS}. Switching to segmented sitemaps.`
     )
-    // Return first 50,000 entries to stay within protocol limits
-    // TODO: Implement sitemap index file pattern for large sitemaps
-    // See: https://developers.google.com/search/docs/crawling-indexing/sitemaps/large-sitemaps
-    return allEntries.slice(0, MAX_SITEMAP_URLS)
+    // Point crawlers to segmented sitemaps for large sites
+    // We return a minimal sitemap that references the index at /public/sitemap-index.xml
+    return [
+      {
+        url: `${siteUrl}/sitemaps/judges`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.9,
+      },
+      {
+        url: `${siteUrl}/sitemaps/courts`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+      },
+      {
+        url: `${siteUrl}/sitemaps/jurisdictions`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.55,
+      },
+    ]
   }
 
   console.log(`[Sitemap] Generated sitemap with ${allEntries.length} URLs`)
@@ -256,6 +274,50 @@ function getStaticPages(siteUrl: string): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.6,
+    },
+    // Help Center AEO hubs
+    {
+      url: `${siteUrl}/help-center`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.4,
+    },
+    {
+      url: `${siteUrl}/help-center/getting-started`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.4,
+    },
+    {
+      url: `${siteUrl}/help-center/features`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.35,
+    },
+    {
+      url: `${siteUrl}/help-center/troubleshooting`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.35,
+    },
+    // New AEO Q&A entry points
+    {
+      url: `${siteUrl}/help-center/how-to-find-my-judge`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.45,
+    },
+    {
+      url: `${siteUrl}/help-center/what-to-expect-la-county-superior-court`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.45,
+    },
+    {
+      url: `${siteUrl}/help-center/compare-judges-in-orange-county`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.45,
     },
     {
       url: `${siteUrl}/privacy`,

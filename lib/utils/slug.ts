@@ -28,10 +28,16 @@ export function generateSlug(name: string, options: SlugGenerationOptions = {}):
   const slug = name
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '') // Remove all special characters but keep spaces and hyphens
-    .replace(/\s+/g, '-') // Convert spaces to hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-    .replace(/(^-|-$)/g, '') // Remove leading/trailing hyphens
+    // First normalize multiple hyphens to single space (e.g., "John---Smith" → "John Smith")
+    .replace(/-{2,}/g, ' ')
+    // Split by spaces (NOT by single hyphens - those stay within words)
+    .split(/\s+/)
+    // Remove all non-alphanumeric from each token (including single hyphens)
+    .map((word) => word.replace(/[^a-z0-9]/g, ''))
+    // Filter out empty tokens
+    .filter((word) => word.length > 0)
+    // Join with single hyphen
+    .join('-')
 
   // Fallback to ID if slug is empty or invalid
   if (!slug || slug === '' || slug === '-') {

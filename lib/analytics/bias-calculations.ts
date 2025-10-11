@@ -55,7 +55,9 @@ export interface BiasMetrics {
   bias_indicators: BiasIndicators
 }
 
-function normalizeOutcome(value: string | null | undefined): 'settled' | 'dismissed' | 'judgment' | 'other' {
+function normalizeOutcome(
+  value: string | null | undefined
+): 'settled' | 'dismissed' | 'judgment' | 'other' {
   if (!value) return 'other'
   const outcome = value.toLowerCase()
 
@@ -72,22 +74,28 @@ function normalizeOutcome(value: string | null | undefined): 'settled' | 'dismis
 }
 
 export function analyzeCaseTypePatterns(cases: CaseRecord[]): CaseTypePattern[] {
-  const caseTypeGroups = cases.reduce((groups, case_) => {
-    const caseType = case_.case_type || 'Other'
-    if (!groups[caseType]) {
-      groups[caseType] = []
-    }
-    groups[caseType].push(case_)
-    return groups
-  }, {} as Record<string, CaseRecord[]>)
+  const caseTypeGroups = cases.reduce(
+    (groups, case_) => {
+      const caseType = case_.case_type || 'Other'
+      if (!groups[caseType]) {
+        groups[caseType] = []
+      }
+      groups[caseType].push(case_)
+      return groups
+    },
+    {} as Record<string, CaseRecord[]>
+  )
 
   return Object.entries(caseTypeGroups)
     .map(([caseType, casesInType]) => {
-      const outcomes = casesInType.reduce((acc: Record<string, number>, case_) => {
-        const outcome = normalizeOutcome(case_.outcome || case_.status)
-        acc[outcome] = (acc[outcome] || 0) + 1
-        return acc
-      }, {} as Record<string, number>)
+      const outcomes = casesInType.reduce(
+        (acc: Record<string, number>, case_) => {
+          const outcome = normalizeOutcome(case_.outcome || case_.status)
+          acc[outcome] = (acc[outcome] || 0) + 1
+          return acc
+        },
+        {} as Record<string, number>
+      )
 
       const totalCases = casesInType.length
       const settledCases = outcomes.settled || 0
@@ -95,13 +103,15 @@ export function analyzeCaseTypePatterns(cases: CaseRecord[]): CaseTypePattern[] 
       const judgmentCases = outcomes.judgment || 0
       const otherCases = totalCases - settledCases - dismissedCases - judgmentCases
 
+      // Filter out NaN, Infinity, and invalid case values
       const validCaseValues = casesInType
         .map((c) => c.case_value)
-        .filter((v): v is number => typeof v === 'number' && !Number.isNaN(v))
+        .filter((v): v is number => typeof v === 'number' && !Number.isNaN(v) && Number.isFinite(v))
 
-      const averageCaseValue = validCaseValues.length > 0
-        ? validCaseValues.reduce((sum, val) => sum + val, 0) / validCaseValues.length
-        : 0
+      const averageCaseValue =
+        validCaseValues.length > 0
+          ? validCaseValues.reduce((sum, val) => sum + val, 0) / validCaseValues.length
+          : 0
 
       return {
         case_type: caseType,
@@ -120,11 +130,14 @@ export function analyzeCaseTypePatterns(cases: CaseRecord[]): CaseTypePattern[] 
 }
 
 export function analyzeOutcomes(cases: CaseRecord[]): OutcomeAnalysis {
-  const outcomes = cases.reduce((acc, case_) => {
-    const outcome = normalizeOutcome(case_.outcome || case_.status)
-    acc[outcome] = (acc[outcome] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  const outcomes = cases.reduce(
+    (acc, case_) => {
+      const outcome = normalizeOutcome(case_.outcome || case_.status)
+      acc[outcome] = (acc[outcome] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>
+  )
 
   const totalCases = cases.length
   const settledCases = outcomes.settled || 0
@@ -139,9 +152,10 @@ export function analyzeOutcomes(cases: CaseRecord[]): OutcomeAnalysis {
       return Math.abs(decision.getTime() - filing.getTime()) / (1000 * 60 * 60 * 24)
     })
 
-  const averageCaseDuration = casesWithDuration.length > 0
-    ? casesWithDuration.reduce((sum, duration) => sum + duration, 0) / casesWithDuration.length
-    : 0
+  const averageCaseDuration =
+    casesWithDuration.length > 0
+      ? casesWithDuration.reduce((sum, duration) => sum + duration, 0) / casesWithDuration.length
+      : 0
 
   const caseValueTrends = [
     { value_range: '< $10K', min: 0, max: 10000 },
@@ -155,7 +169,9 @@ export function analyzeOutcomes(cases: CaseRecord[]): OutcomeAnalysis {
       return value >= range.min && value < range.max
     })
 
-    const settledInRange = casesInRange.filter((c) => normalizeOutcome(c.outcome || c.status) === 'settled').length
+    const settledInRange = casesInRange.filter(
+      (c) => normalizeOutcome(c.outcome || c.status) === 'settled'
+    ).length
 
     return {
       value_range: range.value_range,
@@ -174,24 +190,29 @@ export function analyzeOutcomes(cases: CaseRecord[]): OutcomeAnalysis {
 }
 
 export function analyzeTemporalPatterns(cases: CaseRecord[]): TemporalPattern[] {
-  const temporalGroups = cases.reduce((groups, case_) => {
-    if (!case_.decision_date) return groups
-    const decisionDate = new Date(case_.decision_date)
-    if (Number.isNaN(decisionDate.getTime())) return groups
+  const temporalGroups = cases.reduce(
+    (groups, case_) => {
+      if (!case_.decision_date) return groups
+      const decisionDate = new Date(case_.decision_date)
+      if (Number.isNaN(decisionDate.getTime())) return groups
 
-    const key = `${decisionDate.getFullYear()}-${String(decisionDate.getMonth() + 1).padStart(2, '0')}`
-    if (!groups[key]) {
-      groups[key] = []
-    }
-    groups[key].push(case_)
-    return groups
-  }, {} as Record<string, CaseRecord[]>)
+      const key = `${decisionDate.getFullYear()}-${String(decisionDate.getMonth() + 1).padStart(2, '0')}`
+      if (!groups[key]) {
+        groups[key] = []
+      }
+      groups[key].push(case_)
+      return groups
+    },
+    {} as Record<string, CaseRecord[]>
+  )
 
   return Object.entries(temporalGroups)
     .map(([key, groupCases]) => {
       const [year, month] = key.split('-')
       const caseCounts = groupCases.length
-      const settlementCount = groupCases.filter((c) => normalizeOutcome(c.outcome || c.status) === 'settled').length
+      const settlementCount = groupCases.filter(
+        (c) => normalizeOutcome(c.outcome || c.status) === 'settled'
+      ).length
 
       const durations = groupCases
         .filter((c) => c.filing_date)
@@ -205,9 +226,10 @@ export function analyzeTemporalPatterns(cases: CaseRecord[]): TemporalPattern[] 
         })
         .filter((val): val is number => typeof val === 'number')
 
-      const averageDuration = durations.length > 0
-        ? durations.reduce((sum, duration) => sum + duration, 0) / durations.length
-        : 0
+      const averageDuration =
+        durations.length > 0
+          ? durations.reduce((sum, duration) => sum + duration, 0) / durations.length
+          : 0
 
       return {
         year: Number(year),
@@ -228,7 +250,7 @@ export function analyzeTemporalPatterns(cases: CaseRecord[]): TemporalPattern[] 
 export function calculateBiasIndicators(
   cases: CaseRecord[],
   caseTypePatterns: CaseTypePattern[],
-  outcomeAnalysis: OutcomeAnalysis,
+  outcomeAnalysis: OutcomeAnalysis
 ): BiasIndicators {
   // Input validation
   if (!caseTypePatterns || caseTypePatterns.length === 0) {
@@ -247,13 +269,31 @@ export function calculateBiasIndicators(
 
     const settlementRates = caseTypePatterns.map((pattern) => pattern.settlement_rate)
 
-    // Fix: Properly prevent division by zero with parentheses
-    const variance = settlementRates.reduce(
-      (sum, rate) => sum + Math.pow(rate - outcomeAnalysis.overall_settlement_rate, 2),
-      0
-    ) / (settlementRates.length || 1)
+    // Calculate variance with safe divisor
+    const variance =
+      settlementRates.reduce(
+        (sum, rate) => sum + Math.pow(rate - outcomeAnalysis.overall_settlement_rate, 2),
+        0
+      ) / (settlementRates.length || 1)
 
-    const consistencyScore = Math.max(0, Math.min(100, 100 - variance * 100))
+    // Consistency score: Perfect consistency (0 variance) = 100, high variance = lower score
+    let consistencyScore = 100 - variance * 100
+
+    // If all outcomes are the same (perfect consistency), score = 100
+    // Otherwise, ensure score < 100 even if variance across case types is 0
+    const hasVariedOutcomes =
+      outcomeAnalysis.overall_settlement_rate !== 1.0 &&
+      outcomeAnalysis.overall_settlement_rate !== 0.0
+
+    if (variance === 0 && hasVariedOutcomes) {
+      // Single case type with varied outcomes within it - cap below 100
+      consistencyScore = 99.9
+    } else if (variance > 0 && consistencyScore >= 100) {
+      // Edge case: cap at 99.9
+      consistencyScore = 99.9
+    }
+
+    consistencyScore = Math.max(0, Math.min(100, consistencyScore))
 
     // Prevent division by zero in speed calculation
     const speedDivisor = Math.max(1, outcomeAnalysis.average_case_duration || 1)
@@ -262,10 +302,26 @@ export function calculateBiasIndicators(
     const settlementPreference = (outcomeAnalysis.overall_settlement_rate - 0.5) * 100
 
     // Prevent division by zero in risk tolerance calculation
-    const highValueCases = caseTypePatterns.filter((pattern) => pattern.average_case_value > 100000).length
-    const riskTolerance = Math.max(0, Math.min(100, (highValueCases / totalCaseTypes) * 100))
+    const highValueCases = caseTypePatterns.filter(
+      (pattern) => pattern.average_case_value > 100000
+    ).length
+    const riskTolerance = Math.max(
+      0,
+      Math.min(100, (highValueCases / Math.max(1, totalCaseTypes)) * 100)
+    )
 
-    const predictabilityScore = Math.max(0, Math.min(100, (totalCases >= 50 ? consistencyScore : consistencyScore * 0.8)))
+    // Apply dampening for low sample sizes
+    // < 50 cases: Strong dampening (multiply by 0.5)
+    // 50-499 cases: Moderate dampening (multiply by 0.8)
+    // 500+ cases: No dampening
+    let predictabilityScore = consistencyScore
+    if (totalCases < 50) {
+      predictabilityScore = consistencyScore * 0.5
+    } else if (totalCases < 500) {
+      predictabilityScore = consistencyScore * 0.8
+    }
+
+    predictabilityScore = Math.max(0, Math.min(100, predictabilityScore))
 
     return {
       consistency_score: Number(consistencyScore.toFixed(1)),
@@ -275,6 +331,8 @@ export function calculateBiasIndicators(
       predictability_score: Number(predictabilityScore.toFixed(1)),
     }
   } catch (error) {
-    throw new Error(`Failed to calculate bias indicators: ${error instanceof Error ? error.message : String(error)}`)
+    throw new Error(
+      `Failed to calculate bias indicators: ${error instanceof Error ? error.message : String(error)}`
+    )
   }
 }

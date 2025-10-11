@@ -29,6 +29,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const page = Math.max(parseInt(searchParams.get('page') || '1'), 1)
     const type = searchParams.get('type') || undefined
     const jurisdiction = searchParams.get('jurisdiction') || undefined
+    const courtLevel = searchParams.get('court_level') || undefined
 
     const supabase = await createServerClient()
     const from = (page - 1) * limit
@@ -36,9 +37,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     let queryBuilder = supabase
       .from('courts')
-      .select('id, name, type, jurisdiction, address, phone, website, judge_count', {
-        count: 'exact',
-      })
+      .select(
+        'id, name, type, jurisdiction, address, phone, website, judge_count, court_level, slug',
+        {
+          count: 'exact',
+        }
+      )
       .order('name')
       .range(from, to)
 
@@ -47,8 +51,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       queryBuilder = queryBuilder.ilike('name', `%${q}%`)
     }
 
-    if (type && type !== '') {
-      queryBuilder = queryBuilder.eq('type', type)
+    if (courtLevel && courtLevel !== '') {
+      queryBuilder = queryBuilder.eq('court_level', courtLevel)
+    } else if (type && type !== '') {
+      // Fallback to type filter if court_level not specified
+      queryBuilder = queryBuilder.ilike('type', `%${type}%`)
     }
 
     if (jurisdiction && jurisdiction !== '') {

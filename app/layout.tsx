@@ -30,7 +30,8 @@ export const metadata: Metadata = {
   // Ensure absolute URLs for Open Graph/Twitter images
   metadataBase: getMetadataBaseUrl(),
   title: 'JudgeFinder.io - Find Information About Your Judge',
-  description: 'Find information about your assigned judge. Understand what to expect in your court appearance with simple, clear insights.',
+  description:
+    'Find information about your assigned judge. Understand what to expect in your court appearance with simple, clear insights.',
   keywords: 'find judge, court appearance, judge information, California judges, court preparation',
   openGraph: {
     title: 'JudgeFinder.io - Find Your Judge',
@@ -69,15 +70,19 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.className} dark`}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        {/* Performance: Preload primary font for faster LCP */}
+        <link
+          rel="preload"
+          href="/fonts/inter-latin-400-normal.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         {/* Performance: DNS Prefetch + Preconnect for common origins */}
         {(() => {
           try {
@@ -103,6 +108,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://www.courtlistener.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        {/* Consider preloading hero image if a static asset is used for LCP visuals */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -120,7 +126,10 @@ export default function RootLayout({
             See docs/SEO_SETUP.md for complete setup instructions.
         */}
         {process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && (
-          <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION} />
+          <meta
+            name="google-site-verification"
+            content={process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION}
+          />
         )}
         {process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION && (
           <meta name="msvalidate.01" content={process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION} />
@@ -171,16 +180,15 @@ export default function RootLayout({
           Skip to main content
         </a>
         <GlobalErrorBoundary>
-          <Providers><ServiceWorkerRegistration />
+          <Providers>
+            <ServiceWorkerRegistration />
             <div className="relative flex min-h-screen flex-col">
               <Header />
               <div className="mx-auto hidden w-full max-w-6xl items-center justify-end px-4 py-3 md:flex">
                 <DonationButton amount={25} variant="header" />
               </div>
               <main id="main-content" className="flex-1 pb-16 md:pb-0">
-                <PageTransition>
-                  {children}
-                </PageTransition>
+                <PageTransition>{children}</PageTransition>
               </main>
               <div className="mb-16 md:mb-0">
                 <Footer />

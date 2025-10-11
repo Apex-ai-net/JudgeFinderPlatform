@@ -8,7 +8,11 @@ export default defineConfig({
     environment: 'happy-dom',
     globals: true,
     setupFiles: ['./tests/setup/test-setup.ts'],
-    include: ['tests/unit/**/*.test.{ts,tsx}', 'tests/integration/**/*.test.{ts,tsx}'],
+    include: [
+      'tests/unit/**/*.test.{ts,tsx}',
+      'tests/integration/**/*.test.{ts,tsx}',
+      'tests/a11y/**/*.test.{ts,tsx}',
+    ],
     exclude: ['node_modules', '.next', 'tests/e2e'],
     coverage: {
       provider: 'v8',

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { X, Send, Sparkles, User, Bot, ChevronDown } from 'lucide-react'
+import FocusTrap from 'focus-trap-react'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -26,12 +27,18 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps): JSX.
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
   const isInitialMount = useRef(true)
+  const modalTriggerRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
     if (isOpen) {
+      // Store the element that triggered the modal for focus restoration
+      modalTriggerRef.current = document.activeElement as HTMLElement
       inputRef.current?.focus()
+    } else {
+      // Restore focus to the trigger element when modal closes
+      modalTriggerRef.current?.focus()
     }
   }, [isOpen])
 
@@ -67,7 +74,18 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps): JSX.
       }
       setMessages((prev) => [...prev, assistantMessage])
       setIsLoading(false)
+      // Restore focus to input after message is sent
+      inputRef.current?.focus()
     }, 1000)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit(e)
+    } else if (e.key === 'Escape') {
+      onClose()
+    }
   }
 
   const getAIResponse = (query: string): string => {
@@ -94,103 +112,139 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps): JSX.
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center p-4">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+    <FocusTrap>
+      <div
+        className="fixed inset-0 z-50 flex items-end justify-center sm:items-center p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ai-chat-modal-title"
+      >
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          onClick={onClose}
+          aria-hidden="true"
+        />
 
-      {/* Modal */}
-      <div className="relative w-full max-w-2xl bg-white dark:bg-surface-sunken rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[85vh] flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border dark:border-border">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground dark:text-white">AI Legal Assistant</h3>
-              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                Powered by Advanced AI
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-muted dark:hover:bg-card rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-muted-foreground" />
-          </button>
-        </div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.role === 'assistant' && (
-                <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
-              )}
-              <div
-                className={`max-w-[80%] px-4 py-3 rounded-2xl ${
-                  message.role === 'user'
-                    ? 'bg-primary/50 text-white'
-                    : 'bg-muted dark:bg-card text-foreground dark:text-white'
-                }`}
-              >
-                <p className="text-sm leading-relaxed">{message.content}</p>
-                <p
-                  className={`text-xs mt-1 ${
-                    message.role === 'user'
-                      ? 'text-blue-100'
-                      : 'text-muted-foreground dark:text-muted-foreground'
-                  }`}
+        {/* Modal */}
+        <div
+          className="relative w-full max-w-2xl bg-white dark:bg-surface-sunken rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[85vh] flex flex-col"
+          role="document"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-border dark:border-border">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-interactive-primary rounded-lg">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3
+                  id="ai-chat-modal-title"
+                  className="font-semibold text-foreground dark:text-white"
                 >
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  AI Legal Assistant
+                </h3>
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                  Powered by Advanced AI
                 </p>
               </div>
-              {message.role === 'user' && (
-                <div className="flex-shrink-0 w-8 h-8 bg-muted dark:bg-card rounded-lg flex items-center justify-center">
-                  <User className="w-5 h-5 text-muted-foreground dark:text-muted-foreground" />
-                </div>
-              )}
             </div>
-          ))}
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-muted dark:hover:bg-card rounded-lg transition-colors"
+              aria-label="Close chat"
+            >
+              <X className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </div>
 
-          {isLoading && (
-            <div className="flex gap-3 justify-start">
-              <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <Bot className="w-5 h-5 text-white" />
-              </div>
-              <div className="bg-muted dark:bg-card px-4 py-3 rounded-2xl">
-                <div className="flex gap-1">
-                  <span
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                    style={{ animationDelay: '0ms' }}
-                  />
-                  <span
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                    style={{ animationDelay: '150ms' }}
-                  />
-                  <span
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                    style={{ animationDelay: '300ms' }}
-                  />
+          {/* Messages */}
+          <div
+            role="log"
+            aria-live="polite"
+            aria-atomic="false"
+            aria-label="Chat conversation"
+            className="flex-1 overflow-y-auto p-4 space-y-4"
+          >
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                {message.role === 'assistant' && (
+                  <div className="flex-shrink-0 w-8 h-8 bg-interactive-primary rounded-lg flex items-center justify-center">
+                    <Bot className="w-5 h-5 text-white" />
+                  </div>
+                )}
+                <div
+                  className={`max-w-[80%] px-4 py-3 rounded-2xl ${
+                    message.role === 'user'
+                      ? 'bg-primary/50 text-white'
+                      : 'bg-muted dark:bg-card text-foreground dark:text-white'
+                  }`}
+                >
+                  <p className="text-sm leading-relaxed">{message.content}</p>
+                  <p
+                    className={`text-xs mt-1 ${
+                      message.role === 'user'
+                        ? 'text-primary-foreground/80'
+                        : 'text-muted-foreground dark:text-muted-foreground'
+                    }`}
+                  >
+                    {message.timestamp.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
                 </div>
+                {message.role === 'user' && (
+                  <div className="flex-shrink-0 w-8 h-8 bg-muted dark:bg-card rounded-lg flex items-center justify-center">
+                    <User className="w-5 h-5 text-muted-foreground dark:text-muted-foreground" />
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            ))}
 
-          <div ref={messagesEndRef} />
-        </div>
+            {isLoading && (
+              <>
+                <div role="status" aria-live="polite" className="sr-only">
+                  AI is typing
+                </div>
+                <div className="flex gap-3 justify-start" aria-hidden="true">
+                  <div className="flex-shrink-0 w-8 h-8 bg-interactive-primary rounded-lg flex items-center justify-center">
+                    <Bot className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="bg-muted dark:bg-card px-4 py-3 rounded-2xl">
+                    <div className="flex gap-1">
+                      <span
+                        className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce"
+                        style={{ animationDelay: '0ms' }}
+                      />
+                      <span
+                        className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce"
+                        style={{ animationDelay: '150ms' }}
+                      />
+                      <span
+                        className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce"
+                        style={{ animationDelay: '300ms' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
-        {/* Suggested Questions */}
-        <div className="px-4 py-2 border-t border-border dark:border-border">
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {['How do I find a judge?', 'What is bias analysis?', 'Compare judges in my area'].map(
-              (question, index) => (
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Suggested Questions */}
+          <div className="px-4 py-2 border-t border-border dark:border-border">
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {[
+                'How do I find a judge?',
+                'What is bias analysis?',
+                'Compare judges in my area',
+              ].map((question, index) => (
                 <button
                   key={index}
                   onClick={() => setInput(question)}
@@ -198,33 +252,36 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps): JSX.
                 >
                   {question}
                 </button>
-              )
-            )}
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Input */}
-        <form onSubmit={handleSubmit} className="p-4 border-t border-border dark:border-border">
-          <div className="flex gap-2">
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask me anything about judges or legal processes..."
-              className="flex-1 px-4 py-2.5 bg-muted dark:bg-card rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-foreground dark:text-white placeholder-gray-500"
-              disabled={isLoading}
-            />
-            <button
-              type="submit"
-              disabled={!input.trim() || isLoading}
-              className="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Send className="w-5 h-5" />
-            </button>
-          </div>
-        </form>
+          {/* Input */}
+          <form onSubmit={handleSubmit} className="p-4 border-t border-border dark:border-border">
+            <div className="flex gap-2 items-end">
+              <textarea
+                ref={inputRef}
+                rows={1}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask me anything about judges or legal processes..."
+                className="flex-1 px-4 py-2.5 bg-muted dark:bg-card rounded-xl focus:outline-none focus:ring-2 focus:ring-interactive-primary text-foreground dark:text-white placeholder-muted-foreground resize-none min-h-[42px]"
+                disabled={isLoading}
+                aria-label="Type your legal question. Press Enter to send, Shift+Enter for new line"
+              />
+              <button
+                type="submit"
+                disabled={!input.trim() || isLoading}
+                className="px-4 py-2.5 bg-interactive-primary text-white rounded-xl hover:bg-interactive-hover hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                aria-label="Send message"
+              >
+                <Send className="w-5 h-5" />
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </FocusTrap>
   )
 }

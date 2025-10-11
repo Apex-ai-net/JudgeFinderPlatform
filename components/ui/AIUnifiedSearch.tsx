@@ -227,13 +227,13 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
   const getResultIcon = useCallback((type: string) => {
     switch (type) {
       case 'judge':
-        return <Scale className="w-4 h-4 text-blue-500" />
+        return <Scale className="w-4 h-4 text-interactive-primary" aria-hidden="true" />
       case 'court':
-        return <Building className="w-4 h-4 text-green-500" />
+        return <Building className="w-4 h-4 text-success" aria-hidden="true" />
       case 'jurisdiction':
-        return <MapPin className="w-4 h-4 text-purple-500" />
+        return <MapPin className="w-4 h-4 text-accent" aria-hidden="true" />
       default:
-        return <Search className="w-4 h-4 text-muted-foreground" />
+        return <Search className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
     }
   }, [])
 
@@ -249,8 +249,8 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
           min-h-[60px] lg:min-h-[64px]
           ${
             isFocused
-              ? 'border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3)] scale-[1.02]'
-              : 'border-border/50 dark:border-border/50 hover:border-blue-400/50'
+              ? 'border-interactive-primary shadow-[0_0_30px_rgba(59,130,246,0.3)] scale-[1.02]'
+              : 'border-border/50 dark:border-border/50 hover:border-interactive-primary/50'
           }
         `}
         initial={{ opacity: 0, y: 20 }}
@@ -264,13 +264,14 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
           transition={{ repeat: Infinity, duration: 1.5 }}
         >
           {isLoading ? (
-            <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+            <Loader2 className="w-5 h-5 text-interactive-primary animate-spin" aria-hidden="true" />
           ) : (
             <div className="relative">
               <Brain
                 className={`w-5 h-5 transition-colors ${
-                  isFocused ? 'text-blue-500' : 'text-muted-foreground'
+                  isFocused ? 'text-interactive-primary' : 'text-muted-foreground'
                 }`}
+                aria-hidden="true"
               />
               {isFocused && (
                 <motion.div
@@ -290,17 +291,19 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyPress}
+          aria-label="Search for judges, courts, or jurisdictions"
           onFocus={() => {
             setIsFocused(true)
             if (showHistory && recentQueries.length > 0 && !query) {
               setShowHistoryDropdown(true)
             }
           }}
-          onBlur={() => {
-            setTimeout(() => {
+          onBlur={(e) => {
+            // Only blur if focus is moving outside the search component
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
               setIsFocused(false)
               setShowHistoryDropdown(false)
-            }, 200)
+            }
           }}
           placeholder={isListening ? 'Listening...' : placeholder}
           autoFocus={autoFocus}
@@ -323,9 +326,9 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
-              className="absolute bottom-full mb-2 left-4 right-4 p-2 bg-primary/5 dark:bg-blue-900/20 rounded-lg"
+              className="absolute bottom-full mb-2 left-4 right-4 p-2 bg-interactive-subtle rounded-lg"
             >
-              <p className="text-sm text-blue-700 dark:text-blue-300">{voiceTranscript}</p>
+              <p className="text-sm text-interactive-primary">{voiceTranscript}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -341,8 +344,9 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
                 exit={{ opacity: 0, scale: 0.8 }}
                 onClick={clearSearch}
                 className="p-2 rounded-lg hover:bg-muted dark:hover:bg-accent transition-colors"
+                aria-label="Clear search"
               >
-                <X className="w-4 h-4 text-muted-foreground" />
+                <X className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
               </motion.button>
             )}
           </AnimatePresence>
@@ -358,8 +362,14 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
                   ? 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400'
                   : 'hover:bg-muted dark:hover:bg-accent text-muted-foreground'
               }`}
+              aria-label={isListening ? 'Stop voice search' : 'Start voice search'}
+              aria-pressed={isListening}
             >
-              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+              {isListening ? (
+                <MicOff className="w-5 h-5" aria-hidden="true" />
+              ) : (
+                <Mic className="w-5 h-5" aria-hidden="true" />
+              )}
             </motion.button>
           )}
 
@@ -370,16 +380,17 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
             whileTap={{ scale: 0.95 }}
             className="
               px-6 py-3 rounded-xl
-              bg-gradient-to-r from-blue-600 via-blue-700 to-purple-600
+              bg-interactive-primary
               text-white font-semibold
-              hover:from-blue-700 hover:via-blue-800 hover:to-purple-700
+              hover:bg-interactive-hover
               transition-all duration-300
               shadow-lg hover:shadow-xl
               min-h-[48px]
               flex items-center gap-2
             "
+            aria-label="Search for judges and legal information"
           >
-            <Sparkles className="w-4 h-4" />
+            <Sparkles className="w-4 h-4" aria-hidden="true" />
             <span className="hidden sm:inline">AI Search</span>
             <span className="sm:hidden">Search</span>
           </motion.button>
@@ -396,6 +407,9 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
+              role="log"
+              aria-live="polite"
+              aria-atomic="false"
               className="
               absolute z-50 w-full mt-2
               bg-white/95 dark:bg-surface-sunken/95 backdrop-blur-xl
@@ -408,7 +422,10 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
               {/* Loading State */}
               {isLoading && (
                 <div className="flex items-center justify-center p-4">
-                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                  <Loader2
+                    className="w-5 h-5 text-interactive-primary animate-spin"
+                    aria-hidden="true"
+                  />
                   <span className="ml-2 text-muted-foreground">Searching...</span>
                 </div>
               )}
@@ -416,10 +433,13 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
               {/* Search Results */}
               {!isLoading && searchResults.length > 0 && (
                 <div className="border-b border-border dark:border-border">
-                  <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10">
+                  <div className="px-4 py-2 bg-interactive-subtle">
                     <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-primary dark:text-primary" />
-                      <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                      <Sparkles
+                        className="w-4 h-4 text-primary dark:text-primary"
+                        aria-hidden="true"
+                      />
+                      <span className="text-xs font-medium text-interactive-primary">
                         Search Results
                       </span>
                     </div>
@@ -433,8 +453,7 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
                       onClick={() => handleSelectResult(result)}
                       className="
                       w-full px-5 py-3 text-left
-                      hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50
-                      dark:hover:from-blue-900/20 dark:hover:to-purple-900/20
+                      hover:bg-interactive-subtle
                       transition-all duration-200
                       flex items-center gap-3
                       group
@@ -457,7 +476,10 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
                           </div>
                         )}
                       </div>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                      <ChevronRight
+                        className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                        aria-hidden="true"
+                      />
                     </motion.button>
                   ))}
                   <button
@@ -481,7 +503,7 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
                 <div>
                   <div className="px-4 py-2 bg-muted dark:bg-card/50 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <History className="w-4 h-4 text-muted-foreground" />
+                      <History className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
                       <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                         Recent Searches
                       </span>
@@ -514,7 +536,7 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
                       group
                     "
                     >
-                      <History className="w-4 h-4 text-muted-foreground" />
+                      <History className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
                       <span className="text-sm text-muted-foreground dark:text-muted-foreground group-hover:text-foreground dark:group-hover:text-gray-200">
                         {historyQuery}
                       </span>

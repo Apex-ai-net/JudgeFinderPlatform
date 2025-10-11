@@ -7,6 +7,7 @@
  */
 
 import type { Metadata } from 'next'
+import { getBaseUrl } from '@/lib/utils/baseUrl'
 
 /**
  * SEO Metadata Types
@@ -75,10 +76,14 @@ export function validateSEOMetadata(metadata: SEOMetadata): {
     errors.push('Title is required')
   } else {
     if (metadata.title.length < 30) {
-      warnings.push(`Title is too short (${metadata.title.length} chars). Recommended: 50-60 characters`)
+      warnings.push(
+        `Title is too short (${metadata.title.length} chars). Recommended: 50-60 characters`
+      )
     }
     if (metadata.title.length > 60) {
-      warnings.push(`Title is too long (${metadata.title.length} chars). May be truncated in search results`)
+      warnings.push(
+        `Title is too long (${metadata.title.length} chars). May be truncated in search results`
+      )
     }
   }
 
@@ -87,10 +92,14 @@ export function validateSEOMetadata(metadata: SEOMetadata): {
     errors.push('Description is required')
   } else {
     if (metadata.description.length < 120) {
-      warnings.push(`Description is too short (${metadata.description.length} chars). Recommended: 150-160 characters`)
+      warnings.push(
+        `Description is too short (${metadata.description.length} chars). Recommended: 150-160 characters`
+      )
     }
     if (metadata.description.length > 160) {
-      warnings.push(`Description is too long (${metadata.description.length} chars). May be truncated in search results`)
+      warnings.push(
+        `Description is too long (${metadata.description.length} chars). May be truncated in search results`
+      )
     }
   }
 
@@ -98,7 +107,7 @@ export function validateSEOMetadata(metadata: SEOMetadata): {
   if (metadata.canonical) {
     try {
       new URL(metadata.canonical)
-    } catch (error) {
+    } catch (_error) {
       errors.push('Canonical URL is not a valid URL')
     }
   }
@@ -138,7 +147,9 @@ export function validateSEOMetadata(metadata: SEOMetadata): {
  * })
  * ```
  */
-export function validateStructuredData(structuredData: any): StructuredDataValidation {
+export function validateStructuredData(
+  structuredData: Record<string, unknown> | Array<Record<string, unknown>>
+): StructuredDataValidation {
   const errors: string[] = []
   const warnings: string[] = []
   const schemaTypes: string[] = []
@@ -180,7 +191,7 @@ export function validateStructuredData(structuredData: any): StructuredDataValid
     // Check for valid JSON structure
     try {
       JSON.stringify(data)
-    } catch (error) {
+    } catch (error: unknown) {
       errors.push(`${prefix}Invalid JSON structure: ${error}`)
     }
   })
@@ -308,7 +319,7 @@ export function validateSitemapEntry(entry: SitemapEntry): {
       if (entry.url.length > 2048) {
         warnings.push('URL exceeds recommended length of 2048 characters')
       }
-    } catch (error) {
+    } catch (_error) {
       errors.push('Invalid URL format')
     }
   }
@@ -367,12 +378,7 @@ export function generateRobotsTxt(
     includeSitemap?: boolean
   } = {}
 ): string {
-  const {
-    allowAll = true,
-    disallowPaths = [],
-    crawlDelay,
-    includeSitemap = true,
-  } = options
+  const { allowAll = true, disallowPaths = [], crawlDelay, includeSitemap = true } = options
 
   let content = '# JudgeFinder.io - Robots.txt\n\n'
   content += 'User-agent: *\n'
@@ -383,7 +389,7 @@ export function generateRobotsTxt(
 
   if (disallowPaths.length > 0) {
     content += '\n# Disallowed paths\n'
-    disallowPaths.forEach(path => {
+    disallowPaths.forEach((path) => {
       content += `Disallow: ${path}\n`
     })
   }
@@ -474,6 +480,30 @@ export function createSEOMetadata(params: {
           follow: true,
         },
   }
+}
+
+/**
+ * Builds page metadata using project defaults.
+ * Thin wrapper around createSEOMetadata to reduce repetition across routes.
+ */
+export function buildPageMetadata(params: {
+  title: string
+  description: string
+  path: string
+  keywords?: string[]
+  ogImage?: string
+  noindex?: boolean
+}): Metadata {
+  const baseUrl = getBaseUrl()
+  return createSEOMetadata({
+    title: params.title,
+    description: params.description,
+    path: params.path,
+    baseUrl,
+    keywords: params.keywords,
+    ogImage: params.ogImage,
+    noindex: params.noindex,
+  })
 }
 
 /**

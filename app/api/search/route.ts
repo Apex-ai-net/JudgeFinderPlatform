@@ -183,7 +183,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           jurisdictions: topJurisdictions.length,
           sponsored: 0,
         },
-        query: q,
+        query: sanitizedQuery,
         took_ms: Date.now() - startTime,
         rate_limit_remaining: remaining,
       } as SearchResponse)
@@ -305,7 +305,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         jurisdictions: jurisdictions.length,
         sponsored: sponsoredResults.length,
       },
-      query: q,
+      query: sanitizedQuery,
       took_ms: Date.now() - startTime,
       // Include AI metadata if available
       ...(enhancedQuery && {

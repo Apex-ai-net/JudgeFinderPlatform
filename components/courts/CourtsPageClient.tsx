@@ -20,6 +20,7 @@ interface Court {
   phone?: string
   website?: string
   judge_count: number
+  court_level?: string | null
 }
 
 export function CourtsPageClient({

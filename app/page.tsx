@@ -81,7 +81,7 @@ export const metadata: Metadata = {
   },
 }
 
-// Generate comprehensive structured data for homepage
+// Generate comprehensive structured data for homepage, including Dataset JSON-LD
 function generateHomepageStructuredData(): JSX.Element {
   return {
     '@context': 'https://schema.org',
@@ -202,6 +202,39 @@ function generateHomepageStructuredData(): JSX.Element {
             name: 'Home',
             item: BASE_URL,
           },
+        ],
+      },
+      {
+        '@type': 'Dataset',
+        name: 'JudgeFinder California Judicial Dataset',
+        description:
+          'Comprehensive California judicial dataset covering judges, courts, and case analytics for transparency and research.',
+        url: BASE_URL,
+        spatialCoverage: {
+          '@type': 'State',
+          name: 'California',
+        },
+        temporalCoverage: `${new Date().getFullYear() - 10}/${new Date().getFullYear()}`,
+        creator: {
+          '@type': 'Organization',
+          name: 'JudgeFinder',
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'JudgeFinder',
+        },
+        isAccessibleForFree: true,
+        distribution: {
+          '@type': 'DataDownload',
+          contentUrl: BASE_URL,
+          encodingFormat: 'text/html',
+        },
+        keywords: [
+          'California judges',
+          'judicial analytics',
+          'court data',
+          'case outcomes',
+          'judicial transparency',
         ],
       },
     ],

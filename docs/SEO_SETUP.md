@@ -57,12 +57,14 @@ Google Search Console is essential for monitoring your site's presence in Google
 ### Step 4: Add Verification Code to Environment
 
 **For Local Development:**
+
 ```bash
 # Add to .env.local
 NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=abc123xyz456...
 ```
 
 **For Production (Netlify):**
+
 1. Go to Netlify Dashboard → Your Site → Site settings → Environment variables
 2. Click **Add a variable**
 3. Key: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`
@@ -116,12 +118,14 @@ Bing powers Microsoft search and has significant market share. Verification is s
 ### Step 4: Add Verification Code to Environment
 
 **For Local Development:**
+
 ```bash
 # Add to .env.local
 NEXT_PUBLIC_BING_SITE_VERIFICATION=xyz789abc456...
 ```
 
 **For Production (Netlify):**
+
 1. Go to Netlify Dashboard → Your Site → Site settings → Environment variables
 2. Click **Add a variable**
 3. Key: `NEXT_PUBLIC_BING_SITE_VERIFICATION`
@@ -188,12 +192,14 @@ Google Analytics provides insights into user behavior, traffic sources, and conv
 ### Step 6: Add Measurement ID to Environment
 
 **For Local Development:**
+
 ```bash
 # Add to .env.local
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
 **For Production (Netlify):**
+
 1. Go to Netlify Dashboard → Your Site → Site settings → Environment variables
 2. Click **Add a variable**
 3. Key: `NEXT_PUBLIC_GA_MEASUREMENT_ID`
@@ -285,6 +291,7 @@ JudgeFinder's sitemap includes:
 ### Monitoring Sitemap Performance
 
 **In Google Search Console:**
+
 1. Go to Sitemaps section
 2. Check indexing status:
    - **Discovered**: URLs found in sitemap
@@ -292,6 +299,7 @@ JudgeFinder's sitemap includes:
 3. Review errors/warnings if any
 
 **In Bing Webmaster Tools:**
+
 1. Go to Sitemaps → View sitemap details
 2. Monitor:
    - URLs submitted
@@ -305,6 +313,7 @@ JudgeFinder's sitemap includes:
 Use this checklist before launching or after major updates:
 
 ### Technical SEO
+
 - [ ] Robots.txt is accessible: `/robots.txt`
 - [ ] Sitemap is accessible: `/sitemap.xml`
 - [ ] Sitemap submitted to Google Search Console
@@ -321,6 +330,7 @@ Use this checklist before launching or after major updates:
 - [ ] XML sitemap follows protocol (max 50,000 URLs per file)
 
 ### Performance & Core Web Vitals
+
 - [ ] Lighthouse SEO score ≥ 90
 - [ ] Page load time < 3 seconds (desktop)
 - [ ] Page load time < 5 seconds (mobile)
@@ -331,6 +341,7 @@ Use this checklist before launching or after major updates:
 - [ ] DNS prefetch/preconnect for external resources
 
 ### Content & On-Page SEO
+
 - [ ] H1 tag present and unique on each page
 - [ ] Proper heading hierarchy (H1 → H2 → H3)
 - [ ] Internal linking strategy implemented
@@ -343,6 +354,7 @@ Use this checklist before launching or after major updates:
 - [ ] Language attribute set (lang="en")
 
 ### Analytics & Tracking
+
 - [ ] GA4 tracking confirmed in Realtime report
 - [ ] Custom events configured for key actions
 - [ ] Conversion goals set up
@@ -350,6 +362,7 @@ Use this checklist before launching or after major updates:
 - [ ] Search Console data populating (takes 2-3 days)
 
 ### Security & Trust
+
 - [ ] SSL certificate active and valid
 - [ ] Privacy policy page accessible
 - [ ] Terms of service page accessible
@@ -364,6 +377,7 @@ Use this checklist before launching or after major updates:
 ### Weekly Tasks
 
 **Google Search Console:**
+
 1. Check indexing status: Coverage report
 2. Review performance metrics: Queries, impressions, clicks, CTR
 3. Fix any coverage errors or warnings
@@ -371,12 +385,14 @@ Use this checklist before launching or after major updates:
 5. Check mobile usability issues
 
 **Bing Webmaster Tools:**
+
 1. Review site scan results
 2. Check crawl errors
 3. Monitor indexing progress
 4. Review search performance
 
 **Google Analytics:**
+
 1. Review traffic trends (week-over-week)
 2. Top pages by traffic
 3. Traffic sources (organic, direct, referral)
@@ -411,15 +427,15 @@ Use this checklist before launching or after major updates:
 
 ### Key Metrics to Track
 
-| Metric | Tool | Target | Current |
-|--------|------|--------|---------|
-| Organic Traffic | GA4 | +20% MoM | TBD |
-| Indexed Pages | Search Console | 95%+ | TBD |
-| Core Web Vitals | Search Console | All "Good" | TBD |
-| Average Position | Search Console | <10 (top page) | TBD |
-| Click-Through Rate | Search Console | >3% | TBD |
-| Bounce Rate | GA4 | <60% | TBD |
-| Avg Session Duration | GA4 | >2 min | TBD |
+| Metric               | Tool           | Target         | Current |
+| -------------------- | -------------- | -------------- | ------- |
+| Organic Traffic      | GA4            | +20% MoM       | TBD     |
+| Indexed Pages        | Search Console | 95%+           | TBD     |
+| Core Web Vitals      | Search Console | All "Good"     | TBD     |
+| Average Position     | Search Console | <10 (top page) | TBD     |
+| Click-Through Rate   | Search Console | >3%            | TBD     |
+| Bounce Rate          | GA4            | <60%           | TBD     |
+| Avg Session Duration | GA4            | >2 min         | TBD     |
 
 ---
 
@@ -430,7 +446,9 @@ Use this checklist before launching or after major updates:
 **Problem:** "Verification failed" error
 
 **Solutions:**
+
 1. **Check environment variable:**
+
    ```bash
    # In browser console on your site:
    document.querySelector('meta[name="google-site-verification"]')?.content
@@ -447,6 +465,7 @@ Use this checklist before launching or after major updates:
 **Problem:** "Could not verify" error
 
 **Solutions:**
+
 1. Same troubleshooting steps as Google verification
 2. Check for `msvalidate.01` meta tag in HTML source
 3. Try alternative verification method (XML file upload)
@@ -456,7 +475,9 @@ Use this checklist before launching or after major updates:
 **Problem:** No data appearing in GA4 Realtime report
 
 **Solutions:**
+
 1. **Check Measurement ID:**
+
    ```bash
    # In browser console:
    console.log(window.gtag)
@@ -474,6 +495,7 @@ Use this checklist before launching or after major updates:
 **Problem:** Sitemap submitted but URLs not indexed
 
 **Solutions:**
+
 1. **Check sitemap errors:** Search Console → Sitemaps → Error details
 2. **Verify format:** Ensure sitemap is valid XML
 3. **Check URL accessibility:** Each URL in sitemap should return HTTP 200
@@ -486,6 +508,7 @@ Use this checklist before launching or after major updates:
 **Problem:** "Invalid structured data" errors in Search Console
 
 **Solutions:**
+
 1. **Test with Rich Results Tool:** [Google Rich Results Test](https://search.google.com/test/rich-results)
 2. **Check JSON-LD syntax:** Validate JSON in structured data script tags
 3. **Review schema types:** Ensure using valid schema.org types
@@ -496,6 +519,7 @@ Use this checklist before launching or after major updates:
 **Problem:** Site verified but no organic search traffic
 
 **Solutions:**
+
 1. **New site patience:** Takes 3-6 months for meaningful organic traffic
 2. **Check indexing:** Ensure pages are actually indexed (search `site:judgefinder.io`)
 3. **Review content quality:** Ensure pages have substantial, unique content
@@ -508,12 +532,14 @@ Use this checklist before launching or after major updates:
 ## Additional Resources
 
 ### Official Documentation
+
 - [Google Search Central](https://developers.google.com/search)
 - [Bing Webmaster Guidelines](https://www.bing.com/webmasters/help/webmasters-guidelines-30fba23a)
 - [Google Analytics Help](https://support.google.com/analytics)
 - [Schema.org Documentation](https://schema.org/)
 
 ### Tools
+
 - [Google Search Console](https://search.google.com/search-console)
 - [Bing Webmaster Tools](https://www.bing.com/webmasters)
 - [Google Analytics](https://analytics.google.com)
@@ -522,8 +548,9 @@ Use this checklist before launching or after major updates:
 - [Mobile-Friendly Test](https://search.google.com/test/mobile-friendly)
 
 ### JudgeFinder-Specific Docs
+
 - [SEO Strategy](./SEO_STRATEGY.md) - Overall SEO approach
-- [Architecture](./ARCHITECTURE.md) - Technical implementation
+- [Architecture](./architecture/ARCHITECTURE.md) - Technical implementation
 - [Database Schema](./DATABASE.md) - Data structure for SEO
 
 ---
@@ -541,8 +568,8 @@ If you encounter issues not covered in this guide:
 
 ## Changelog
 
-| Date | Change | Author |
-|------|--------|--------|
+| Date       | Change                          | Author    |
+| ---------- | ------------------------------- | --------- |
 | 2025-10-08 | Initial SEO setup guide created | SEO Agent |
 
 ---

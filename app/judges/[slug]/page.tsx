@@ -22,6 +22,8 @@ import { getBaseUrl } from '@/lib/utils/baseUrl'
 import { DonationButton } from '@/components/fundraising/DonationButton'
 import { JudgeDetailTOC } from '@/components/judges/JudgeDetailTOC'
 import { JudgeStructuredData } from '@/components/seo/JudgeStructuredData'
+import KeyFacts from '@/components/judges/KeyFacts'
+import AnalyticsDisclaimer from '@/components/judges/AnalyticsDisclaimer'
 
 export const dynamic = 'force-dynamic'
 
@@ -284,7 +286,12 @@ export default async function JudgePage({ params }: JudgePageProps): Promise<JSX
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* SEO Monitoring and Analytics */}
-      <SEOMonitoring judgeName={safeName} jurisdiction={safeJurisdiction} slug={slug} />
+      <SEOMonitoring
+        judgeName={safeName}
+        jurisdiction={safeJurisdiction}
+        slug={slug}
+        aeoVisible={typeof judge.total_cases === 'number' && judge.total_cases >= 500}
+      />
 
       {/* AEO-Optimized Structured Data (2025) - ChatGPT, Claude, Perplexity */}
       <JudgeStructuredData judge={judge} caseCount={0} avgDecisionTime={null} courtAddress={null} />
@@ -348,6 +355,12 @@ export default async function JudgePage({ params }: JudgePageProps): Promise<JSX
             <section id="analytics" className="scroll-mt-24">
               <AnalyticsSlidersShell judgeId={judge.id} judgeName={safeName} />
             </section>
+
+            {/* Data sufficiency disclaimer (governance) */}
+            <AnalyticsDisclaimer judge={judge} />
+
+            {/* AEO Answer Bundle (gated by data sufficiency) */}
+            <KeyFacts judge={judge} />
 
             {/* Recent Decisions */}
             <section id="recent-decisions" className="scroll-mt-24">

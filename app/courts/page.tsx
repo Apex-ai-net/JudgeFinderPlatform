@@ -18,18 +18,22 @@ interface Court {
   phone?: string
   website?: string
   judge_count: number
+  court_level?: string | null
 }
 
 export const metadata: Metadata = {
   title: 'Courts Directory | JudgeFinder',
-  description: 'Browse courts and judges. Search by type, jurisdiction, and name. Find contact information and assigned judges for comprehensive legal research.',
-  keywords: 'courts directory, federal courts, state courts, legal research, court information, California courts',
+  description:
+    'Browse courts and judges. Search by type, jurisdiction, and name. Find contact information and assigned judges for comprehensive legal research.',
+  keywords:
+    'courts directory, federal courts, state courts, legal research, court information, California courts',
   alternates: {
     canonical: `${BASE_URL}/courts`,
   },
   openGraph: {
     title: 'Courts Directory | JudgeFinder',
-    description: 'Explore courts by jurisdiction, view assigned judges, and access legal research tools.',
+    description:
+      'Explore courts by jurisdiction, view assigned judges, and access legal research tools.',
     url: `${BASE_URL}/courts`,
     type: 'website',
     siteName: 'JudgeFinder',
@@ -44,10 +48,12 @@ export const metadata: Metadata = {
 async function getInitialCourts(jurisdiction?: string): Promise<Court[]> {
   try {
     const supabase = await createServerClient()
-    
+
     const { data, error } = await supabase
       .from('courts')
-      .select('id, name, type, jurisdiction, slug, address, phone, website, judge_count')
+      .select(
+        'id, name, type, jurisdiction, slug, address, phone, website, judge_count, court_level'
+      )
       // If a jurisdiction is provided (e.g. 'CA', 'US'), filter; otherwise show all
       .match(jurisdiction && jurisdiction !== 'ALL' ? { jurisdiction } : {})
       .order('name')

@@ -7,15 +7,21 @@ import JudgeCard from './JudgeCard'
 import SuggestedPrompts from './SuggestedPrompts'
 import ChatInput from './ChatInput'
 import ChatHeader from './ChatHeader'
+import type { Judge } from '@/types'
 
 export interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
   type?: 'text' | 'judge_card' | 'judge_list'
-  judgeData?: any
-  judgesData?: any[]
+  judgeData?: Judge
+  judgesData?: Judge[]
   timestamp: Date
+  image?: {
+    url: string
+    alt: string
+    aspectRatio?: string // e.g., "16/9", "4/3", "1/1"
+  }
 }
 
 export default function BuilderStyleChat(): JSX.Element {
@@ -48,10 +54,13 @@ export default function BuilderStyleChat(): JSX.Element {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }
 
-  const handleSuggestedPrompt = (prompt: string) => {
+  const handleSuggestedPrompt = (prompt: string): void => {
     setInput(prompt)
     // Optionally auto-submit
-    handleSubmit(new Event('submit') as any, prompt)
+    const event = {
+      preventDefault: () => {},
+    } as React.FormEvent<HTMLFormElement>
+    handleSubmit(event, prompt)
   }
 
   const handleSubmit = async (e: React.FormEvent, overrideInput?: string) => {
@@ -152,8 +161,8 @@ export default function BuilderStyleChat(): JSX.Element {
           }
         }
       }
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') {
         console.log('Request aborted')
       } else {
         console.error('Chat error:', error)
@@ -224,7 +233,7 @@ export default function BuilderStyleChat(): JSX.Element {
     }
   }
 
-  const stopStreaming = () => {
+  const stopStreaming = (): void => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
       setIsStreaming(false)

@@ -94,6 +94,11 @@ export async function requireAdmin(): Promise<void> {
 
   const status = await resolveAdminStatus()
 
+  // Check authentication first (null user = not authenticated)
+  if (!status.user) {
+    throw new Error('Authentication required')
+  }
+
   if (!status.isAdmin) {
     throw new Error('Admin access required')
   }

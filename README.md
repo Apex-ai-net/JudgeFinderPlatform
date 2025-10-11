@@ -39,6 +39,7 @@ analysis and automated data ingestion from official sources.
 - Data & Automation: `docs/operations/SYNC_AND_CRON.md`, `docs/operations/OPERATIONS.md`
 - API & Database: `docs/api/API_REFERENCE.md`, `docs/data/DATABASE.md`
 - Security: `docs/security/SECURITY.md`
+- Accessibility: `docs/accessibility/CHAT_A11Y.md`, `docs/accessibility/COLOR_SYSTEM.md`
 - Launch: `docs/launch/LAUNCH_PLAN.md`
 - Contributing: `docs/contributing/CONTRIBUTING.md`
 
@@ -229,6 +230,50 @@ curl -s https://<site>/api/health | jq
 # Sync status (requires header)
 curl -s -H "x-api-key: $SYNC_API_KEY" https://<site>/api/admin/sync-status | jq
 ```
+
+## Accessibility
+
+JudgeFinder is committed to WCAG 2.2 Level AA compliance, ensuring the platform is usable by everyone, including people with disabilities.
+
+### Accessibility Features
+
+- ✅ **Full keyboard navigation** - All features accessible without a mouse
+- ✅ **Screen reader support** - Optimized for NVDA, JAWS, and VoiceOver
+- ✅ **ARIA live regions** - Dynamic content updates announced to assistive technologies
+- ✅ **Color contrast** - All text meets minimum 4.5:1 contrast ratio
+- ✅ **Focus indicators** - Visible focus states on all interactive elements
+- ✅ **Semantic HTML** - Proper heading hierarchy and landmark regions
+
+### Testing Accessibility
+
+```bash
+# Run automated accessibility tests
+npm run test:a11y
+
+# Run Lighthouse audit (includes accessibility score)
+npm run lighthouse:local
+
+# Use browser extensions
+# - axe DevTools: https://www.deque.com/axe/devtools/
+# - WAVE: https://wave.webaim.org/extension/
+```
+
+### Accessibility Documentation
+
+- [Chat Accessibility Guide](./docs/accessibility/CHAT_A11Y.md) - WCAG implementation for chat UI
+- [Color System](./docs/accessibility/COLOR_SYSTEM.md) - Accessible color tokens and contrast ratios
+- [WCAG 2.2 Guidelines](https://www.w3.org/WAI/WCAG22/quickref/) - Official W3C reference
+
+### Reporting Accessibility Issues
+
+If you encounter accessibility barriers, please [open an issue](https://github.com/yourusername/JudgeFinder/issues) with:
+
+- **Description** of the barrier
+- **Assistive technology** used (if applicable)
+- **Browser and OS** version
+- **Steps to reproduce**
+
+We aim to respond to accessibility issues within 48 hours.
 
 ## Troubleshooting
 
