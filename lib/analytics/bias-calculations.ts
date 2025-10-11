@@ -230,26 +230,51 @@ export function calculateBiasIndicators(
   caseTypePatterns: CaseTypePattern[],
   outcomeAnalysis: OutcomeAnalysis,
 ): BiasIndicators {
-  const totalCases = cases.length || 1
-  const totalCaseTypes = caseTypePatterns.length || 1
+  // Input validation
+  if (!caseTypePatterns || caseTypePatterns.length === 0) {
+    throw new Error('Cannot calculate bias indicators without case type patterns')
+  }
+  if (!outcomeAnalysis) {
+    throw new Error('Cannot calculate bias indicators without outcome analysis')
+  }
+  if (!cases || cases.length === 0) {
+    throw new Error('Cannot calculate bias indicators without cases')
+  }
 
-  const settlementRates = caseTypePatterns.map((pattern) => pattern.settlement_rate)
-  const variance = settlementRates.reduce((sum, rate) => sum + Math.pow(rate - outcomeAnalysis.overall_settlement_rate, 2), 0)
-    / settlementRates.length || 1
+  try {
+    const totalCases = cases.length
+    const totalCaseTypes = caseTypePatterns.length
 
-  const consistencyScore = Math.max(0, Math.min(100, 100 - variance * 100))
-  const speedScore = Math.max(0, Math.min(100, 100 - (outcomeAnalysis.average_case_duration / 180) * 100))
+    const settlementRates = caseTypePatterns.map((pattern) => pattern.settlement_rate)
 
-  const settlementPreference = (outcomeAnalysis.overall_settlement_rate - 0.5) * 100
-  const riskTolerance = Math.max(0, Math.min(100, (caseTypePatterns.filter((pattern) => pattern.average_case_value > 100000).length / totalCaseTypes) * 100))
+    // Fix: Properly prevent division by zero with parentheses
+    const variance = settlementRates.reduce(
+      (sum, rate) => sum + Math.pow(rate - outcomeAnalysis.overall_settlement_rate, 2),
+      0
+    ) / (settlementRates.length || 1)
 
-  const predictabilityScore = Math.max(0, Math.min(100, (totalCases >= 50 ? consistencyScore : consistencyScore * 0.8)))
+    const consistencyScore = Math.max(0, Math.min(100, 100 - variance * 100))
 
-  return {
-    consistency_score: Number(consistencyScore.toFixed(1)),
-    speed_score: Number(speedScore.toFixed(1)),
-    settlement_preference: Number(settlementPreference.toFixed(1)),
-    risk_tolerance: Number(riskTolerance.toFixed(1)),
-    predictability_score: Number(predictabilityScore.toFixed(1)),
+    // Prevent division by zero in speed calculation
+    const speedDivisor = Math.max(1, outcomeAnalysis.average_case_duration || 1)
+    const speedScore = Math.max(0, Math.min(100, 100 - (speedDivisor / 180) * 100))
+
+    const settlementPreference = (outcomeAnalysis.overall_settlement_rate - 0.5) * 100
+
+    // Prevent division by zero in risk tolerance calculation
+    const highValueCases = caseTypePatterns.filter((pattern) => pattern.average_case_value > 100000).length
+    const riskTolerance = Math.max(0, Math.min(100, (highValueCases / totalCaseTypes) * 100))
+
+    const predictabilityScore = Math.max(0, Math.min(100, (totalCases >= 50 ? consistencyScore : consistencyScore * 0.8)))
+
+    return {
+      consistency_score: Number(consistencyScore.toFixed(1)),
+      speed_score: Number(speedScore.toFixed(1)),
+      settlement_preference: Number(settlementPreference.toFixed(1)),
+      risk_tolerance: Number(riskTolerance.toFixed(1)),
+      predictability_score: Number(predictabilityScore.toFixed(1)),
+    }
+  } catch (error) {
+    throw new Error(`Failed to calculate bias indicators: ${error instanceof Error ? error.message : String(error)}`)
   }
 }

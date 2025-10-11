@@ -8,6 +8,27 @@ import { createCanonicalSlug, resolveCourtSlug } from '@/lib/utils/slug'
 import { getBaseUrl } from '@/lib/utils/baseUrl'
 
 /**
+ * Safely convert a date string to ISO format, returning undefined for invalid dates
+ */
+function toISOStringOrUndefined(date: string | null | undefined): string | undefined {
+  if (!date) return undefined
+  const d = new Date(date)
+  return isNaN(d.getTime()) ? undefined : d.toISOString()
+}
+
+/**
+ * Safely convert a date string to formatted date string, returning undefined for invalid dates
+ */
+function toLocaleDateStringOrUndefined(
+  date: string | null | undefined,
+  options?: Intl.DateTimeFormatOptions
+): string | undefined {
+  if (!date) return undefined
+  const d = new Date(date)
+  return isNaN(d.getTime()) ? undefined : d.toLocaleDateString('en-US', options)
+}
+
+/**
  * Generate comprehensive structured data for a judge profile
  * Includes multiple schema types for maximum SEO coverage
  */
@@ -191,8 +212,8 @@ function generatePersonSchema(
     },
 
     // Appointment and Service Information
-    dateCreated: judge.appointed_date || undefined,
-    startDate: judge.appointed_date || undefined,
+    dateCreated: toISOStringOrUndefined(judge.appointed_date),
+    startDate: toISOStringOrUndefined(judge.appointed_date),
 
     // Professional Recognition and Awards
     award: [
@@ -613,8 +634,8 @@ function generateFAQSchema(
         name: `When was Judge ${judgeName} appointed?`,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: judge.appointed_date ? 
-            `Judge ${judgeName} was appointed on ${new Date(judge.appointed_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.` :
+          text: toLocaleDateStringOrUndefined(judge.appointed_date, { year: 'numeric', month: 'long', day: 'numeric' }) ?
+            `Judge ${judgeName} was appointed on ${toLocaleDateStringOrUndefined(judge.appointed_date, { year: 'numeric', month: 'long', day: 'numeric' })}.` :
             `Information about Judge ${judgeName}'s appointment date is available through official court records and judicial databases.`
         }
       },

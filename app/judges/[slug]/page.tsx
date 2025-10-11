@@ -28,6 +28,10 @@ export const dynamic = 'force-dynamic'
 /**
  * Fetch judge using the enhanced API endpoint
  * Provides better error handling and detailed lookup information
+ *
+ * CRITICAL: During build time (Netlify/Vercel), the API endpoint isn't available yet
+ * because the production URL isn't live. We detect the build phase and skip API calls,
+ * going straight to the database fallback.
  */
 async function getJudge(slug: string): Promise<Judge | null> {
   try {
@@ -37,13 +41,22 @@ async function getJudge(slug: string): Promise<Judge | null> {
       return null
     }
 
-    // Use the new API endpoint for consistent lookup logic
+    // CRITICAL: During build, the production URL doesn't exist yet, so API calls fail
+    // Skip API calls during build and go straight to database fallback
+    const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build'
+
+    if (isBuildPhase) {
+      console.log(`Build phase detected, skipping API call for slug: ${slug}`)
+      return await getJudgeFallback(slug)
+    }
+
+    // Runtime: Use the API endpoint for consistent lookup logic
     const baseUrl = getBaseUrl()
 
     const response = await fetch(`${baseUrl}/api/judges/by-slug?slug=${encodeURIComponent(slug)}`, {
-      next: { revalidate: 3600 }, // Cache for 1 hour (judge data is stable)
+      next: { revalidate: 0 }, // Align with page revalidate: 0 for consistency
       headers: {
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=1800',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
       },
     })
 
@@ -700,6 +713,6 @@ function generateJudgeUrlVariations(judgeName: string, baseUrl: string): string[
   return [...new Set(variations)]
 }
 
-// Enable ISR for judge pages
 // Disable ISR for judge pages to avoid stale HTML serving old asset hashes
+// Aligned with fetch cache strategy for consistency
 export const revalidate = 0
