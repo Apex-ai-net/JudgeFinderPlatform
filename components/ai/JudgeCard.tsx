@@ -15,16 +15,16 @@ function AnalyticsMetric({
   if (value === null || value === undefined) {
     return (
       <div className="flex flex-col">
-        <span className="text-xs font-medium text-muted-foreground">{label}</span>
-        <span className="text-sm text-muted-foreground">Data unavailable</span>
+        <span className="text-xs font-medium text-gray-600">{label}</span>
+        <span className="text-sm text-gray-500">Data unavailable</span>
       </div>
     )
   }
 
   return (
     <div className="flex flex-col">
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
-      <span className="text-lg font-semibold text-foreground">
+      <span className="text-xs font-medium text-gray-600">{label}</span>
+      <span className="text-lg font-semibold text-gray-900">
         {value}
         {suffix}
       </span>
@@ -122,38 +122,34 @@ export default function JudgeCard({ judge, compact = false }: JudgeCardProps): J
             <Gavel className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-foreground">
-              Judge {judge.name.replace(/^(judge|justice|the honorable)\s+/i, '')}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {judge.court_name || 'California Court'}
-            </p>
+            <h3 className="text-lg font-bold text-gray-900">{judge.name}</h3>
+            <p className="text-sm text-gray-600">{judge.court_name || 'California Court'}</p>
           </div>
         </div>
       </div>
 
       {/* Info Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-4">
-        <div className="flex items-center gap-2 text-sm text-foreground">
-          <MapPin className="w-4 h-4 text-muted-foreground" />
+        <div className="flex items-center gap-2 text-sm text-gray-700">
+          <MapPin className="w-4 h-4 text-gray-500" />
           <span>{judge.jurisdiction || 'California'}</span>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-foreground">
-          <Building className="w-4 h-4 text-muted-foreground" />
+        <div className="flex items-center gap-2 text-sm text-gray-700">
+          <Building className="w-4 h-4 text-gray-500" />
           <span>Superior Court</span>
         </div>
 
         {yearsOfService && (
-          <div className="flex items-center gap-2 text-sm text-foreground">
-            <Calendar className="w-4 h-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 text-sm text-gray-700">
+            <Calendar className="w-4 h-4 text-gray-500" />
             <span>{yearsOfService}+ Years</span>
           </div>
         )}
 
         {judge.case_count && (
-          <div className="flex items-center gap-2 text-sm text-foreground">
-            <Scale className="w-4 h-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 text-sm text-gray-700">
+            <Scale className="w-4 h-4 text-gray-500" />
             <span>{judge.case_count.toLocaleString()} Cases</span>
           </div>
         )}
@@ -163,8 +159,8 @@ export default function JudgeCard({ judge, compact = false }: JudgeCardProps): J
       {judge.analytics_preview && (
         <div className="mb-4 p-3 bg-white/70 rounded-lg">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-foreground">Analytics Snapshot</span>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-sm font-medium text-gray-900">Analytics Snapshot</span>
+            <span className="text-xs text-gray-600">
               {judge.analytics_preview.total_cases_analyzed
                 ? `${judge.analytics_preview.total_cases_analyzed.toLocaleString()} cases`
                 : 'Data pending'}
@@ -184,7 +180,7 @@ export default function JudgeCard({ judge, compact = false }: JudgeCardProps): J
             />
           </div>
 
-          <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+          <div className="mt-3 flex items-center justify-between text-xs text-gray-600">
             <span>Confidence: {judge.analytics_preview.overall_confidence ?? 'N/A'}%</span>
             <span>
               Updated{' '}
@@ -194,9 +190,7 @@ export default function JudgeCard({ judge, compact = false }: JudgeCardProps): J
             </span>
           </div>
 
-          <p className="text-xs text-muted-foreground mt-2">
-            Full analytics available on profile page
-          </p>
+          <p className="text-xs text-gray-600 mt-2">Full analytics available on profile page</p>
         </div>
       )}
 
@@ -213,7 +207,7 @@ export default function JudgeCard({ judge, compact = false }: JudgeCardProps): J
 
       {/* Trust Badge */}
       <div className="mt-3 text-center">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-gray-600">
           Built with public court data. Verify details on each profile.
         </p>
       </div>
