@@ -74,7 +74,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Get judge data - only fields needed for analytics generation
     const { data: judge, error: judgeError } = await supabase
       .from('judges')
-      .select('id, name, court_id, court_name, jurisdiction, total_cases, appointed_date, status')
+      .select('id, name, court_id, court_name, jurisdiction, total_cases, appointed_date')
       .eq('id', resolvedParams.id)
       .single()
 
@@ -270,15 +270,8 @@ async function generateAnalyticsFromMaterializedViews(
   try {
     // Fetch from materialized views in parallel for optimal performance
     const [statsResult, outcomesResult, caseTypesResult] = await Promise.all([
-      supabase
-        .from('mv_judge_statistics_summary')
-        .select('*')
-        .eq('judge_id', judgeId)
-        .single(),
-      supabase
-        .from('mv_judge_outcome_distributions')
-        .select('*')
-        .eq('judge_id', judgeId),
+      supabase.from('mv_judge_statistics_summary').select('*').eq('judge_id', judgeId).single(),
+      supabase.from('mv_judge_outcome_distributions').select('*').eq('judge_id', judgeId),
       supabase
         .from('mv_judge_case_type_summary')
         .select('*')
