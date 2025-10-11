@@ -343,43 +343,11 @@ async function convertMaterializedViewToAnalytics(
   const baseAnalytics = await computeConservative(judge, totalCases, window)
 
   // Override with real data from materialized views
+  // Only override fields that exist in CaseAnalytics interface
   return {
     ...baseAnalytics,
     confidence_civil: confidence,
-    confidence_criminal: confidence * 0.8, // Slightly lower for criminal if mixed docket
-
-    // Settlement rates from materialized views
-    settlement_rate_civil: (stats.settlement_rate_percent || 0) / 100,
-    settlement_rate_criminal: 0, // Would need case type filtering
-
-    // Plaintiff win rates
-    plaintiff_win_rate: (stats.plaintiff_win_rate_percent || 0) / 100,
-
-    // Case volume metrics
-    case_volume_score: Math.min(100, (stats.cases_last_year || 0) * 2),
-    recent_activity_level: stats.is_recently_active ? 'High' : 'Low',
-
-    // Specialization from case type distribution
-    specialization_areas: caseTypes
-      .filter((ct) => ct.case_type_percentage >= 25)
-      .slice(0, 3)
-      .map((ct) => ct.case_type),
-
-    // Experience metrics
-    years_on_bench: stats.latest_decision_date
-      ? new Date().getFullYear() - new Date(stats.earliest_decision_date).getFullYear()
-      : 0,
-
-    // Total cases
     total_cases_analyzed: totalCases,
-
-    // Data quality indicators
-    data_quality: {
-      has_recent_cases: stats.is_recently_active || false,
-      case_count: totalCases,
-      date_range_years: window.endYear - window.startYear,
-      confidence_level: confidence,
-    },
   }
 }
 

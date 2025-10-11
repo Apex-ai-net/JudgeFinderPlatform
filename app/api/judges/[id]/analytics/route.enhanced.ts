@@ -495,9 +495,7 @@ function convertMaterializedViewToAnalytics(
   return {
     ...baseAnalytics,
     confidence_civil: confidence,
-    confidence_criminal: confidence * 0.8,
     settlement_rate_civil: (stats.settlement_rate_percent || 0) / 100,
-    settlement_rate_criminal: 0,
     plaintiff_win_rate: (stats.plaintiff_win_rate_percent || 0) / 100,
     case_volume_score: Math.min(100, (stats.cases_last_year || 0) * 2),
     recent_activity_level: stats.is_recently_active ? 'High' : 'Low',

@@ -3,23 +3,29 @@ import { NextResponse } from 'next/server'
 import { logger } from './logger'
 
 // Common validation schemas
-export const slugSchema = z.string()
-  .min(1, 'Slug is required')
+export const slugSchema = z
+  .string()
+  .min(2, 'Slug too short (minimum 2 characters)')
   .max(200, 'Slug too long')
-  .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens')
+  .regex(
+    /^[a-z0-9]+(-[a-z0-9]+)*$/,
+    'Slug must be lowercase alphanumeric with single hyphens between words'
+  )
 
-export const searchQuerySchema = z.string()
+export const searchQuerySchema = z
+  .string()
   .min(1, 'Search query is required')
   .max(100, 'Search query too long')
   .trim()
 
 export const paginationSchema = z.object({
   page: z.number().int().min(1).default(1),
-  limit: z.number().int().min(1).max(100).default(20)
+  limit: z.number().int().min(1).max(100).default(20),
 })
 
-export const jurisdictionSchema = z.string()
-  .min(2, 'Jurisdiction code must be at least 2 characters')
+export const jurisdictionSchema = z
+  .string()
+  .min(1, 'Jurisdiction code required')
   .max(10, 'Jurisdiction code too long')
   .regex(/^[A-Z0-9]+$/, 'Jurisdiction must be uppercase letters and numbers only')
   .optional()
@@ -32,15 +38,15 @@ export const judgeSearchParamsSchema = z.object({
   jurisdiction: z.string().optional(),
   court_id: z.string().uuid('Invalid court ID format').optional(),
   only_with_decisions: z.coerce.boolean().optional(),
-  recent_years: z.coerce.number().int().min(1).max(10).optional()
+  recent_years: z.coerce.number().int().min(1).max(10).optional(),
 })
 
 export const judgeBySlugParamsSchema = z.object({
-  slug: slugSchema
+  slug: slugSchema,
 })
 
 export const judgeIdParamsSchema = z.object({
-  id: z.string().uuid('Invalid judge ID format')
+  id: z.string().uuid('Invalid judge ID format'),
 })
 
 // Court API specific schemas
@@ -49,20 +55,20 @@ export const courtSearchParamsSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
   page: z.coerce.number().int().min(1).default(1),
   jurisdiction: z.string().optional(),
-  court_type: z.string().max(50).optional()
+  court_type: z.string().max(50).optional(),
 })
 
 export const courtJudgesSearchParamsSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
   page: z.coerce.number().int().min(1).default(1),
   status: z.enum(['active', 'retired', 'inactive', 'all']).default('all'),
-  position_type: z.string().max(50).optional()
+  position_type: z.string().max(50).optional(),
 })
 
 // Analytics API schemas
 export const analyticsParamsSchema = z.object({
   id: z.string().uuid('Invalid ID format'),
-  force: z.coerce.boolean().optional()
+  force: z.coerce.boolean().optional(),
 })
 
 // Validation helper function
@@ -73,18 +79,18 @@ export function validateParams<T>(
 ): { success: true; data: T } | { success: false; response: NextResponse } {
   try {
     const result = schema.safeParse(params)
-    
+
     if (!result.success) {
-      const errors = result.error.errors.map(err => ({
+      const errors = result.error.errors.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
-        code: err.code
+        code: err.code,
       }))
 
       logger.warn('Validation failed', {
         context,
         errors,
-        receivedParams: params
+        receivedParams: params,
       })
 
       return {
@@ -93,26 +99,26 @@ export function validateParams<T>(
           {
             error: 'Validation failed',
             code: 'VALIDATION_ERROR',
-            details: errors
+            details: errors,
           },
           { status: 400 }
-        )
+        ),
       }
     }
 
     return { success: true, data: result.data }
   } catch (error) {
     logger.error('Validation error', { context }, error instanceof Error ? error : undefined)
-    
+
     return {
       success: false,
       response: NextResponse.json(
         {
           error: 'Internal validation error',
-          code: 'VALIDATION_INTERNAL_ERROR'
+          code: 'VALIDATION_INTERNAL_ERROR',
         },
         { status: 500 }
-      )
+      ),
     }
   }
 }
@@ -138,16 +144,16 @@ export async function validateJsonBody<T>(
     return validateParams(schema, body, context)
   } catch (error) {
     logger.warn('Invalid JSON body', { context })
-    
+
     return {
       success: false,
       response: NextResponse.json(
         {
           error: 'Invalid JSON body',
-          code: 'INVALID_JSON'
+          code: 'INVALID_JSON',
         },
         { status: 400 }
-      )
+      ),
     }
   }
 }
@@ -163,9 +169,13 @@ export function isValidSlug(value: string): boolean {
 }
 
 export function sanitizeSearchQuery(query: string): string {
+  if (!query) return ''
   return query
     .trim()
     .replace(/[<>]/g, '') // Remove potential XSS characters
+    .replace(/script/gi, '') // Remove script tags content
+    .replace(/[;"]/g, '') // Remove SQL injection characters (keep ' for names like O'Brien)
+    .replace(/--/g, '') // Remove SQL comment indicators
     .substring(0, 100) // Limit length
 }
 
@@ -178,7 +188,7 @@ export function normalizeJudgeSearchQuery(query: string): string {
   const sanitized = sanitizeSearchQuery(query)
   // Remove common noise tokens that users often include
   const cleaned = sanitized
-    .replace(/\b(judge|judges)\b/gi, ' ')
+    .replace(/\b(judge|judges|hon\.|justice|magistrate)\b/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim()
 
@@ -189,12 +199,15 @@ export function normalizeJudgeSearchQuery(query: string): string {
 // Rate limiting validation
 export const rateLimitSchema = z.object({
   requests: z.number().int().min(1).max(1000),
-  windowMs: z.number().int().min(1000).max(3600000) // 1 second to 1 hour
+  windowMs: z.number().int().min(1000).max(3600000), // 1 second to 1 hour
 })
 
 // File upload validation (for future use)
 export const fileUploadSchema = z.object({
   filename: z.string().max(255),
-  size: z.number().int().max(10 * 1024 * 1024), // 10MB max
-  type: z.enum(['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])
+  size: z
+    .number()
+    .int()
+    .max(10 * 1024 * 1024), // 10MB max
+  type: z.enum(['image/jpeg', 'image/png', 'image/webp', 'application/pdf']),
 })

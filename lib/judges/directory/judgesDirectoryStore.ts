@@ -199,7 +199,7 @@ let sharedStore: JudgesDirectoryStore | null = null
 export function getJudgesDirectoryStore(
   manager: JudgesDirectoryDataManager,
   initialState?: JudgeDirectoryFetchResult['response']
-): void {
+): JudgesDirectoryStore {
   if (!sharedStore) {
     sharedStore = new JudgesDirectoryStore({ manager, initialState })
   } else if (initialState && !sharedStore.state.initialized) {

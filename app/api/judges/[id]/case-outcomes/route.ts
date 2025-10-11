@@ -71,7 +71,10 @@ export async function GET(
         },
       })
     } catch (mvError) {
-      console.warn('Materialized views not available, falling back to raw case aggregation:', mvError)
+      console.warn(
+        'Materialized views not available, falling back to raw case aggregation:',
+        mvError
+      )
 
       // Fallback to original raw case aggregation method
       const outcomeStats = await generateStatsFromRawCases(supabase, judgeId)
@@ -99,15 +102,8 @@ async function generateStatsFromMaterializedViews(
 ): Promise<CaseOutcomeStats> {
   // Fetch from materialized views in parallel for optimal performance
   const [statsResult, outcomesResult, caseTypesResult] = await Promise.all([
-    supabase
-      .from('mv_judge_statistics_summary')
-      .select('*')
-      .eq('judge_id', judgeId)
-      .single(),
-    supabase
-      .from('mv_judge_outcome_distributions')
-      .select('*')
-      .eq('judge_id', judgeId),
+    supabase.from('mv_judge_statistics_summary').select('*').eq('judge_id', judgeId).single(),
+    supabase.from('mv_judge_outcome_distributions').select('*').eq('judge_id', judgeId),
     supabase
       .from('mv_judge_case_type_summary')
       .select('*')
@@ -138,7 +134,7 @@ async function generateStatsFromMaterializedViews(
   }
 
   // Build case type breakdown from mv_judge_case_type_summary
-  const caseTypeBreakdown = caseTypes.map((ct) => ({
+  const caseTypeBreakdown = caseTypes.map((ct: any) => ({
     case_type: ct.case_type,
     total_cases: ct.case_count,
     win_rate: calculateWinRateForCaseType(ct),
@@ -237,8 +233,10 @@ function calculateWinRateFromOutcomes(outcomes: any[]): number {
   if (total === 0) return 0
 
   const settled = outcomes.find((o) => o.outcome === 'settled')?.outcome_count || 0
-  const plaintiffWins = outcomes.find((o) => o.outcome === 'judgment_for_plaintiff')?.outcome_count || 0
-  const defendantWins = outcomes.find((o) => o.outcome === 'judgment_for_defendant')?.outcome_count || 0
+  const plaintiffWins =
+    outcomes.find((o) => o.outcome === 'judgment_for_plaintiff')?.outcome_count || 0
+  const defendantWins =
+    outcomes.find((o) => o.outcome === 'judgment_for_defendant')?.outcome_count || 0
   const totalJudgments = plaintiffWins + defendantWins
 
   // Win rate = settlements + 60% of judgments (estimated favorable outcomes)
@@ -266,7 +264,7 @@ function calculateWinRateForCaseType(caseType: any): number {
 
   const settled = caseType.settled_count || 0
   // Assume 60% of non-settled cases with outcomes are favorable
-  const estimatedWins = settled + ((total - settled) * 0.6)
+  const estimatedWins = settled + (total - settled) * 0.6
   return estimatedWins / total
 }
 
