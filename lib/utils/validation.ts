@@ -176,7 +176,19 @@ export function sanitizeSearchQuery(query: string): string {
     .replace(/script/gi, '') // Remove script tags content
     .replace(/[;"]/g, '') // Remove SQL injection characters (keep ' for names like O'Brien)
     .replace(/--/g, '') // Remove SQL comment indicators
+    .replace(/\b(DROP|TABLE|DELETE|INSERT|UPDATE|SELECT|UNION|ALTER|CREATE)\b/gi, '') // Remove SQL keywords
+    .replace(/\s+/g, ' ') // Collapse multiple spaces
     .substring(0, 100) // Limit length
+}
+
+/**
+ * Sanitizes user input for use in SQL LIKE patterns by removing special wildcards.
+ * This prevents SQL injection via LIKE clause wildcards.
+ */
+export function sanitizeLikePattern(pattern: string): string {
+  if (!pattern) return ''
+  // Remove all SQL LIKE special characters
+  return pattern.replace(/[\\%_]/g, '')
 }
 
 /**
@@ -188,7 +200,9 @@ export function normalizeJudgeSearchQuery(query: string): string {
   const sanitized = sanitizeSearchQuery(query)
   // Remove common noise tokens that users often include
   const cleaned = sanitized
-    .replace(/\b(judge|judges|hon\.|justice|magistrate)\b/gi, ' ')
+    .replace(/\bHon\.\s*/gi, '') // Remove "Hon." prefix
+    .replace(/\b(judge|judges|justice|magistrate)\b/gi, ' ')
+    .replace(/\s*\(Ret\.\)\s*/gi, '') // Remove (Ret.) suffix
     .replace(/\s+/g, ' ')
     .trim()
 

@@ -20,7 +20,7 @@ export function sanitizeLikePattern(input: string, maxLength: number = 100): str
 
   return input
     .substring(0, maxLength)
-    .replace(/[%_\\]/g, '\\$&') // Escape SQL wildcards and backslash
+    .replace(/[%_\\]/g, '') // Remove SQL wildcards and backslash
     .replace(/'/g, "''") // Escape single quotes
     .trim()
 }
