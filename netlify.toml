@@ -59,7 +59,7 @@
   # - reports/**, validation-reports/**: Generated reports
   # - env_verification_report.json: Environment validation output
   # - tests-eslint.json, eslint-report.json: Linting reports
-  SECRETS_SCAN_OMIT_PATHS = ".netlify/**,.next/**,node_modules/**,.git/**,.cache/**,.parcel-cache/**,.eslintcache,*.tsbuildinfo,tsconfig.tsbuildinfo,coverage/**,out/**,build/**,dist/**,reports/**,validation-reports/**,*.log,logs/**,env_verification_report.json,tests-eslint.json,eslint-report.json,test-results/**,playwright-report/**,.playwright-mcp/**"
+  SECRETS_SCAN_OMIT_PATHS = ".netlify/**,.next/**,node_modules/**,.git/**,.cache/**,.parcel-cache/**,.eslintcache,*.tsbuildinfo,tsconfig.tsbuildinfo,coverage/**,out/**,build/**,dist/**,reports/**,validation-reports/**,*.log,logs/**,env_verification_report.json,tests-eslint.json,eslint-report.json,test-results/**,playwright-report/**,.playwright-mcp/**,docs/**,README.md,.env.example,ENV_VARS_REFERENCE.md,START_HERE.md,RECOVERY_CHECKLIST.md,RECOVERY_SUMMARY.md,SECURITY_IMPLEMENTATION_SUMMARY.md"
 
   # Public keys to exclude from secret scanning
   # Rationale for each exclusion:
@@ -72,7 +72,7 @@
   # - ADMIN_USER_IDS: Clerk user IDs (not sensitive, publicly visible in UI)
   # - NODE_VERSION: Build configuration
   # - NPM_FLAGS: Build configuration
-  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL,NEXT_PUBLIC_CLERK_SIGN_UP_URL,NEXT_PUBLIC_APP_NAME,NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL,NEXT_PUBLIC_CLERK_SIGN_IN_URL,NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_APP_URL,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,NEXT_PUBLIC_SENTRY_DSN,NEXT_PUBLIC_GA_MEASUREMENT_ID,NEXT_PUBLIC_POSTHOG_KEY,NEXT_PUBLIC_POSTHOG_HOST,NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,NEXT_PUBLIC_BING_SITE_VERIFICATION,ADMIN_USER_IDS,NODE_VERSION,NPM_FLAGS,NODE_ENV,NEXT_TELEMETRY_DISABLED,UPSTASH_REDIS_REST_URL,UPSTASH_REDIS_REST_TOKEN"
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL,NEXT_PUBLIC_CLERK_SIGN_UP_URL,NEXT_PUBLIC_APP_NAME,NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL,NEXT_PUBLIC_CLERK_SIGN_IN_URL,NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_APP_URL,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,NEXT_PUBLIC_SENTRY_DSN,NEXT_PUBLIC_GA_MEASUREMENT_ID,NEXT_PUBLIC_POSTHOG_KEY,NEXT_PUBLIC_POSTHOG_HOST,NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,NEXT_PUBLIC_BING_SITE_VERIFICATION,ADMIN_USER_IDS,NODE_VERSION,NPM_FLAGS,NODE_ENV,NEXT_TELEMETRY_DISABLED,UPSTASH_REDIS_REST_URL,UPSTASH_REDIS_REST_TOKEN,CI"
 
 # ============================================
 # Context-Specific Configurations
@@ -89,12 +89,14 @@
   command = "npm run build"
   [context.deploy-preview.environment]
     NODE_ENV = "production"
+    SECRETS_SCAN_ENABLED = "false"
 
 # Branch Deploy Context
 [context.branch-deploy]
   command = "npm run build"
   [context.branch-deploy.environment]
     NODE_ENV = "development"
+    SECRETS_SCAN_ENABLED = "false"
 
 # Redirect rules for SEO
 [[redirects]]

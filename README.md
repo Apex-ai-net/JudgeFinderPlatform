@@ -56,8 +56,8 @@ analysis and automated data ingestion from official sources.
 
 ```bash
 # Authentication (REQUIRED for production)
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_xxx  # Must start with pk_
-CLERK_SECRET_KEY=sk_live_xxx
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=YOUR_CLERK_PUBLISHABLE_KEY_HERE
+CLERK_SECRET_KEY=YOUR_CLERK_SECRET_KEY_HERE
 
 # AI Services
 GOOGLE_AI_API_KEY=your_gemini_api_key

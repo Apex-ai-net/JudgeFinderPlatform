@@ -1,6 +1,7 @@
 /**
  * Safe auth wrapper that prevents build failures when Clerk is not configured
  */
+import 'server-only'
 
 import { logger } from '@/lib/utils/logger'
 

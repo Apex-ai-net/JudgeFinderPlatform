@@ -24,8 +24,8 @@ netlify env:set SUPABASE_JWT_SECRET "your-jwt-secret-from-supabase"
 ### 2. Clerk Authentication (2 variables)
 
 ```powershell
-netlify env:set NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY "pk_live_..."
-netlify env:set CLERK_SECRET_KEY "sk_live_..."
+netlify env:set NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY "YOUR_CLERK_PUBLISHABLE_KEY_HERE"
+netlify env:set CLERK_SECRET_KEY "YOUR_CLERK_SECRET_KEY_HERE"
 ```
 
 **Where to get**:
@@ -125,8 +125,8 @@ netlify env:set NEXT_PUBLIC_POSTHOG_KEY "phc_YOUR_KEY_HERE"
 ### 10. Stripe Payment (3 variables)
 
 ```powershell
-netlify env:set STRIPE_SECRET_KEY "sk_live_YOUR_LIVE_KEY"
-netlify env:set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY "pk_live_YOUR_LIVE_KEY"
+netlify env:set STRIPE_SECRET_KEY "YOUR_STRIPE_SECRET_KEY_HERE"
+netlify env:set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY "YOUR_STRIPE_PUBLISHABLE_KEY_HERE"
 netlify env:set STRIPE_WEBHOOK_SECRET "whsec_YOUR_WEBHOOK_SECRET"
 ```
 
@@ -265,9 +265,9 @@ netlify env:list
 
 ---
 
-**Last Updated**: October 10, 2025  
-**Total Required Variables**: 12 (critical)  
-**Total Recommended Variables**: 7  
+**Last Updated**: October 10, 2025
+**Total Required Variables**: 12 (critical)
+**Total Recommended Variables**: 7
 **Site Won't Work Without**: The 12 critical variables
 
 🔐 **Remember**: Never share these values publicly or commit them to git!

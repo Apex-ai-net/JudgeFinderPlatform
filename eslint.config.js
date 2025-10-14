@@ -18,7 +18,7 @@ module.exports = [
     ],
   },
   // Bring in Next.js defaults and Prettier compatibility
-  ...compat.extends('next/core-web-vitals', 'eslint-config-prettier'),
+  ...compat.extends('next/core-web-vitals', 'prettier'),
   // Repo-wide settings (mostly warnings to guide gradual hardening)
   {
     rules: {
