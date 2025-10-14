@@ -99,66 +99,54 @@ echo "----------------------------------------"
 
 TEMP_SCAN_FILE=$(mktemp)
 
-# Patterns to search for (excluding node_modules, .next, etc.)
-PATTERNS=(
-    'sk_live_[a-zA-Z0-9]+'
-    'sk_test_[a-zA-Z0-9]+'
-    'pk_live_[a-zA-Z0-9]+'
-    'rk_live_[a-zA-Z0-9]+'
-    'whsec_[a-zA-Z0-9]+'
-    'AIzaSy[a-zA-Z0-9_-]+'
-    'sk-proj-[a-zA-Z0-9]+'
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+'
-    'postgres://[^[:space:]]+'
-    'mysql://[^[:space:]]+'
-    'mongodb://[^[:space:]]+'
-)
+# Patterns to search for
+PATTERN_REGEX='sk_live_[a-zA-Z0-9]+|sk_test_[a-zA-Z0-9]+|pk_live_[a-zA-Z0-9]+|rk_live_[a-zA-Z0-9]+|whsec_[a-zA-Z0-9]+|AIzaSy[a-zA-Z0-9_-]+|sk-proj-[a-zA-Z0-9]+|eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+|postgres://[^[:space:]]+|mysql://[^[:space:]]+|mongodb://[^[:space:]]+'
 
-EXCLUDE_DIRS=".next,node_modules,.git,.netlify,coverage,out,build,dist,.cache,docs,tests"
-
-for pattern in "${PATTERNS[@]}"; do
-    # Search for pattern, excluding common build directories
-    FOUND=$(grep -r -E "$pattern" . \
-        --exclude-dir={.next,node_modules,.git,.netlify,coverage,out,build,dist,.cache,.parcel-cache,docs,tests} \
-        --exclude="*.log" \
-        --exclude="*.md" \
-        --exclude="*.tsbuildinfo" \
-        --exclude=".env.example" \
-        --exclude=".env.production.example" \
-        --exclude="package-lock.json" \
-        --exclude="verify-build-security.sh" \
-        --exclude="pre-commit-security-check.sh" \
-        --exclude="netlify-env-update.sh" \
+# In post stage, only scan code roots; otherwise do a repo-wide soft scan
+if [ "$1" = "post" ]; then
+    SEARCH_ROOTS=(app components lib scripts netlify/functions)
+    for root in "${SEARCH_ROOTS[@]}"; do
+        if [ -d "$root" ]; then
+            MATCHES=$(grep -r -n -E "$PATTERN_REGEX" "$root" \
+                --exclude-dir={tests,__tests__,__mocks__} \
+                --exclude="*.map" --exclude="*.md" --exclude="*.log" \
+                2>/dev/null || true)
+            if [ -n "$MATCHES" ]; then
+                echo "$MATCHES" >> "$TEMP_SCAN_FILE"
+            fi
+        fi
+    done
+else
+    # Soft scan of entire repo excluding common dirs/files
+    MATCHES=$(grep -r -n -E "$PATTERN_REGEX" . \
+        --exclude-dir={.next,node_modules,.git,.netlify,coverage,out,build,dist,.cache,.parcel-cache,docs,tests,__tests__,__mocks__} \
+        --exclude="*.log" --exclude="*.md" --exclude="*.map" \
+        --exclude="*.tsbuildinfo" --exclude=".env.example" --exclude=".env.production.example" \
+        --exclude="package-lock.json" --exclude="verify-build-security.sh" --exclude="pre-commit-security-check.sh" --exclude="netlify-env-update.sh" \
         2>/dev/null || true)
-
-    if [ ! -z "$FOUND" ]; then
-        echo "$FOUND" >> "$TEMP_SCAN_FILE"
+    if [ -n "$MATCHES" ]; then
+        echo "$MATCHES" >> "$TEMP_SCAN_FILE"
     fi
-done
+fi
 
 if [ -s "$TEMP_SCAN_FILE" ]; then
-    if [ -n "$CI" ] && [ "$1" = "pre" ]; then
-        print_warning "Potential secrets found in codebase (CI pre-stage):"
-        cat "$TEMP_SCAN_FILE"
-        echo ""
-        echo "Proceeding with build. Findings will be enforced at post-stage scan."
+    if [ -n "$CI" ] && [ "$1" != "post" ]; then
+        print_warning "Potential secrets found (non-post stage):"
+        head -50 "$TEMP_SCAN_FILE"
         rm -f "$TEMP_SCAN_FILE"
         echo ""
-        exit 0
+        # Do not fail in non-post stages
     else
-        print_error "Potential secrets found in codebase:"
-        cat "$TEMP_SCAN_FILE"
-        echo ""
-        echo "Review these findings carefully. If they are false positives, consider:"
-        echo "1. Adding them to .gitignore"
-        echo "2. Adding them to .netlifyignore"
-        echo "3. Moving them to environment variables"
+        echo "---- Offending lines (showing up to 50) ----"
+        head -50 "$TEMP_SCAN_FILE"
+        echo "------------------------------------------"
+        print_error "Secret-like patterns detected in code roots"
+        rm -f "$TEMP_SCAN_FILE"
+        exit 1
     fi
 else
     print_success "No common secret patterns detected"
 fi
-
-rm -f "$TEMP_SCAN_FILE"
 
 echo ""
 

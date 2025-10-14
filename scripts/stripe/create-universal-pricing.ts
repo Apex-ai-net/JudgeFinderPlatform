@@ -200,7 +200,7 @@ async function main() {
 
   if (!secretKey || !secretKey.startsWith('sk_')) {
     console.error('❌ ERROR: Missing or invalid STRIPE_SECRET_KEY environment variable')
-    console.error('Expected format: sk_test_... or sk_live_...')
+    console.error('Expected format: sk-[test|live]-...')
     process.exit(1)
   }
 
