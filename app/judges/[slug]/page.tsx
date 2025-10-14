@@ -64,19 +64,19 @@ async function getJudge(slug: string): Promise<Judge | null> {
 
     if (!response.ok) {
       if (response.status === 404) {
-        // Try to get suggestions from the API response
+        // Try to get suggestions from the API response, then fallback to direct DB lookup
         try {
           const errorData = await response.json()
           if (errorData.suggestions && errorData.suggestions.length > 0) {
             console.log(
               `Judge not found for slug: ${slug}, but found ${errorData.suggestions.length} suggestions`
             )
-            // Could potentially redirect to the first suggestion, but for now return null
           }
-        } catch (parseError) {
-          console.log('Could not parse error response for suggestions')
+        } catch {
+          // ignore parse errors
         }
-        return null
+        // Fallback to direct database access on 404
+        return await getJudgeFallback(slug)
       }
       throw new Error(`API request failed: ${response.status}`)
     }
