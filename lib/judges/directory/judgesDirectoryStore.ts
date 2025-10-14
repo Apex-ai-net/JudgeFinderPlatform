@@ -66,7 +66,9 @@ export class JudgesDirectoryStore {
   }
 
   setPage(page: number) {
-    if (page < 1 || page > this.state.totalPages) return
+    // Allow fetch when totalPages is unknown (0) to compute server-side
+    if (page < 1) return
+    if (this.state.totalPages > 0 && page > this.state.totalPages) return
     void this.fetchPage({ page, replace: true })
   }
 
