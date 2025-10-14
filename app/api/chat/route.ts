@@ -43,7 +43,7 @@ interface ChatMessage {
 export async function POST(request: NextRequest): Promise<Response | NextResponse> {
   try {
     const body = await request.json()
-    const { messages, stream = true } = body
+    const { messages, stream = true, judge_id, judge_slug } = body
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'Messages array is required' }, { status: 400 })
@@ -54,8 +54,9 @@ export async function POST(request: NextRequest): Promise<Response | NextRespons
     }
 
     // Get context about judges if the query mentions any
+    // If judge_id or judge_slug is provided, filter context to that specific judge only
     const userQuery = messages[messages.length - 1]?.content || ''
-    const context = await getRelevantContext(userQuery)
+    const context = await getRelevantContext(userQuery, judge_id, judge_slug)
 
     // Build messages array with system prompt and context
     const chatMessages: ChatMessage[] = [
@@ -131,42 +132,86 @@ export async function POST(request: NextRequest): Promise<Response | NextRespons
   }
 }
 
-async function getRelevantContext(query: string): Promise<ChatMessage[]> {
+async function getRelevantContext(
+  query: string,
+  judgeId?: string,
+  judgeSlug?: string
+): Promise<ChatMessage[]> {
   const context: ChatMessage[] = []
 
   try {
     const supabase = await createServerClient()
 
-    // Check if query mentions specific judges or courts
+    // PRIORITY 1: If judge_id or judge_slug is provided, fetch ONLY that specific judge
+    if (judgeId || judgeSlug) {
+      let judgeQuery = supabase
+        .from('judges')
+        .select(
+          'id, name, court_name, appointed_date, case_analytics, jurisdiction, total_cases, slug'
+        )
+        .limit(1)
+
+      if (judgeId) {
+        judgeQuery = judgeQuery.eq('id', judgeId)
+      } else if (judgeSlug) {
+        judgeQuery = judgeQuery.eq('slug', judgeSlug)
+      }
+
+      const { data: judges } = await judgeQuery
+
+      if (judges && judges.length > 0) {
+        const judge = judges[0]
+        context.push({
+          role: 'system',
+          content: `User is currently viewing Judge ${judge.name} from ${judge.court_name || 'California'} (${judge.jurisdiction || 'CA'}). Appointed: ${judge.appointed_date || 'unknown'}, Total cases: ${judge.total_cases || 0}. All responses should be SPECIFICALLY about this judge. Do not reference other judges unless explicitly asked to compare.`,
+        })
+        return context // Return early - only this judge matters
+      }
+    }
+
+    // PRIORITY 2: If no specific judge, check if query mentions specific judges or courts
     const lowerQuery = query.toLowerCase()
 
-    // Look for judge names (simple pattern matching)
+    // Look for judge names (improved pattern matching)
     if (lowerQuery.includes('judge')) {
-      // Extract potential judge name
-      const nameMatch = query.match(/judge\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i)
+      // Extract potential judge name (handles "Hon." prefix and "(Ret.)" suffix)
+      const nameMatch = query.match(
+        /(?:hon\.?\s+)?judge\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s*(?:\(ret\.?\))?/i
+      )
 
       if (nameMatch) {
         const judgeName = nameMatch[1]
 
-        // Search for judge in database
-        const { data: judges } = await supabase
-          .from('judges')
-          .select('id, name, court_name, appointed_date, case_analytics')
-          .ilike('name', `%${judgeName}%`)
-          .limit(3)
+        // Use the full-text search function for better results
+        const { data: judges, error } = await supabase.rpc('search_judges_ranked', {
+          search_query: judgeName,
+          result_limit: 5,
+          similarity_threshold: 0.3,
+        })
 
-        if (judges && judges.length > 0) {
-          const judgeInfo = judges
-            .map(
-              (j) =>
-                `Judge ${j.name} - ${j.court_name || 'Court not specified'}, appointed ${j.appointed_date || 'date unknown'}`
-            )
-            .join('\n')
+        if (!error && judges && judges.length > 0) {
+          if (judges.length === 1) {
+            // Single match - provide full info
+            const j = judges[0]
+            context.push({
+              role: 'system',
+              content: `Judge ${j.name} - ${j.court_name || 'Court not specified'}, ${j.jurisdiction || 'California'}, ${j.total_cases || 0} cases`,
+            })
+          } else {
+            // Multiple matches - ask for disambiguation
+            const judgeList = judges
+              .slice(0, 5)
+              .map(
+                (j, i) =>
+                  `${i + 1}. Judge ${j.name} - ${j.court_name || 'Court not specified'} (${j.jurisdiction || 'CA'})`
+              )
+              .join('\n')
 
-          context.push({
-            role: 'system',
-            content: `Relevant judges found:\n${judgeInfo}`,
-          })
+            context.push({
+              role: 'system',
+              content: `Multiple judges match "${judgeName}". Please ask the user to clarify which judge they mean:\n${judgeList}`,
+            })
+          }
         }
       }
     }

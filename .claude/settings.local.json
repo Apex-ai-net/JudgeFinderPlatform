@@ -185,7 +185,13 @@
       "Bash(git -C /Users/tannerosterkamp/JudgeFinder/JudgeFinderPlatform add lib/utils/sql-sanitize.ts lib/utils/validation.ts)",
       "Bash(git -C /Users/tannerosterkamp/JudgeFinder/JudgeFinderPlatform commit -m \"fix(security): enhance input validation and SQL injection protection\n\nCRITICAL SECURITY FIXES:\n✓ Fixed sanitizeLikePattern to REMOVE wildcards instead of escaping (sql-sanitize.ts)\n✓ Added SQL keyword filtering (DROP, TABLE, DELETE, etc.) to sanitizeSearchQuery\n✓ Enhanced normalizeJudgeSearchQuery to properly remove \"\"Hon.\"\" prefix and \"\"(Ret.)\"\" suffix\n✓ Improved XSS protection and SQL injection prevention\n\nTEST IMPROVEMENTS:\nBefore: 24 failing tests\nAfter: 9 failing tests (15 tests fixed)\n\nVALIDATION FIXES:\n✓ SQL injection tests now passing\n✓ LIKE pattern sanitization tests passing  \n✓ Judge name normalization tests passing\n✓ XSS protection tests passing\n✓ Input validation edge cases passing\n\nFILES MODIFIED:\n- lib/utils/sql-sanitize.ts: Changed .replace(/[%_\\\\]/g, ''\\\\\\$&'') to .replace(/[%_\\\\]/g, '''')\n- lib/utils/validation.ts: Added SQL keyword filtering, enhanced Hon./Ret. removal\n\nREMAINING FAILURES (9 tests):\n- Bias calculations edge cases (4)\n- Assignment validation (1)  \n- Auth admin check (1)\n- Search intelligence (2)\n- Judge slug generation (1)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\")",
       "Bash(PGPASSWORD='g7gsBTUa_Ij2aLJ6dYxMUkurHmg8VDjd_Ma_4JvbXRY' psql:*)",
-      "Bash(NODE_ENV=production next build:*)"
+      "Bash(NODE_ENV=production next build:*)",
+      "Bash(git -C /Users/tannerosterkamp/JudgeFinder/JudgeFinderPlatform status)",
+      "Bash(git -C /Users/tannerosterkamp/JudgeFinder/JudgeFinderPlatform log --oneline -5)",
+      "Bash(git -C /Users/tannerosterkamp/JudgeFinder/JudgeFinderPlatform remote -v)",
+      "Bash(git -C /Users/tannerosterkamp/JudgeFinder/JudgeFinderPlatform log origin/main..HEAD --oneline)",
+      "Bash(git -C /Users/tannerosterkamp/JudgeFinder/JudgeFinderPlatform diff .claude/settings.local.json)",
+      "Bash(git -C /Users/tannerosterkamp/JudgeFinder/JudgeFinderPlatform show 150be7c --stat)"
     ],
     "deny": [],
     "ask": [],

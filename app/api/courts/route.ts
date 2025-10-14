@@ -28,7 +28,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100)
     const page = Math.max(parseInt(searchParams.get('page') || '1'), 1)
     const type = searchParams.get('type') || undefined
-    const jurisdiction = searchParams.get('jurisdiction') || undefined
+    // CRITICAL: Always enforce California-only filtering for judgefinder.io
+    // The platform is CA-specific, so we must filter out non-CA courts
+    const requestedJurisdiction = searchParams.get('jurisdiction') || 'CA'
+    const jurisdiction = requestedJurisdiction === 'ALL' ? 'CA' : requestedJurisdiction
     const courtLevel = searchParams.get('court_level') || undefined
 
     const supabase = await createServerClient()
@@ -65,8 +68,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { data, error, count } = await queryBuilder
 
     if (error) {
-      console.error('Supabase error:', error)
-      return NextResponse.json({ error: 'Failed to list courts' }, { status: 500 })
+      console.error('Supabase error fetching courts:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        query: { q, jurisdiction, courtLevel, type, page, limit },
+      })
+      return NextResponse.json(
+        {
+          error: 'Failed to load courts. Please try again.',
+          details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        },
+        { status: 500 }
+      )
     }
 
     const totalCount = count || 0
