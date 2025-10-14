@@ -44,7 +44,8 @@ export interface JudgeDirectoryState extends JudgeDirectoryApiResponse {
   jurisdiction: string | null
   onlyWithDecisions: boolean
   recentYears: number
-  visibleCount: number
+  currentPage: number
+  totalPages: number
   metricsHistory: JudgeDirectoryMetrics[]
   initialized: boolean
 }
@@ -58,4 +59,3 @@ export interface JudgesDirectoryViewModelOptions {
   manager: any
   initialState?: JudgeDirectoryApiResponse
 }
-

@@ -1,7 +1,7 @@
 'use client'
 
 import { observer } from 'mobx-react-lite'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { JudgesDirectoryHeader } from './components/JudgesDirectoryHeader'
 import { JudgesDirectoryLayout } from './components/JudgesDirectoryLayout'
@@ -57,16 +57,40 @@ const ResultsSection = observer(function ResultsSection() {
 
 export const JudgesView = observer(function JudgesView({ initialData }: JudgesViewProps) {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const viewModel = useJudgesDirectoryViewModel({ initialData })
 
   useEffect(() => {
     const searchQuery = searchParams.get('search') || searchParams.get('q') || ''
+    const pageParam = searchParams.get('page')
+    const page = pageParam ? parseInt(pageParam, 10) : 1
+
     if (searchQuery) {
       viewModel.setSearchTerm(searchQuery)
       void viewModel.refresh()
     }
+
+    if (page > 1 && page !== viewModel.state.currentPage) {
+      viewModel.setPage(page)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const currentPageInUrl = parseInt(params.get('page') || '1', 10)
+
+    if (viewModel.state.currentPage !== currentPageInUrl) {
+      if (viewModel.state.currentPage === 1) {
+        params.delete('page')
+      } else {
+        params.set('page', viewModel.state.currentPage.toString())
+      }
+      const newUrl = params.toString() ? `/judges?${params.toString()}` : '/judges'
+      router.push(newUrl, { scroll: false })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewModel.state.currentPage])
 
   return (
     <JudgesDirectoryLayout

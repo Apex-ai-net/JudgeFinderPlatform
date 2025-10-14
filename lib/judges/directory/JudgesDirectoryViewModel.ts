@@ -1,5 +1,5 @@
 import type { JudgesDirectoryDataManager } from './JudgesDirectoryDataManager'
-import type { JudgeDirectoryState, JudgeWithDecisions, JudgesDirectoryViewModelOptions } from './types'
+import type { JudgeDirectoryState, JudgesDirectoryViewModelOptions } from './types'
 import { JudgesDirectoryStore, getJudgesDirectoryStore } from './judgesDirectoryStore'
 
 export class JudgesDirectoryViewModel {
@@ -14,16 +14,8 @@ export class JudgesDirectoryViewModel {
     return this.store.state
   }
 
-  get visibleJudges(): JudgeWithDecisions[] {
-    return this.store.visibleJudges
-  }
-
   get hasCachedResults(): boolean {
     return this.store.hasCachedResults
-  }
-
-  get canLoadMore(): boolean {
-    return this.store.canLoadMore
   }
 
   get isInitialLoading(): boolean {
@@ -46,8 +38,8 @@ export class JudgesDirectoryViewModel {
     this.store.setRecentYears(years)
   }
 
-  increaseVisibleCount() {
-    this.store.increaseVisibleCount()
+  setPage(page: number) {
+    this.store.setPage(page)
   }
 
   clearError() {
@@ -61,9 +53,4 @@ export class JudgesDirectoryViewModel {
   async refresh() {
     await this.store.refresh()
   }
-
-  async loadMore() {
-    await this.store.loadMore()
-  }
 }
-

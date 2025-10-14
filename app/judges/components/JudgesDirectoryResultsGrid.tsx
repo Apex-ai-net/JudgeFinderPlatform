@@ -1,20 +1,16 @@
 'use client'
 
-import { useEffect, useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import {
-  FixedSizeGrid as Grid,
-  type GridChildComponentProps,
-  type GridOnItemsRenderedProps,
-} from 'react-window'
+import { FixedSizeGrid as Grid, type GridChildComponentProps } from 'react-window'
 import { motion } from 'framer-motion'
 import { JudgeCardSkeleton } from '@/components/ui/Skeleton'
 import type { JudgesDirectoryViewModel } from '@/lib/judges/directory/JudgesDirectoryViewModel'
 import { JudgesDirectoryGridCard } from './JudgesDirectoryGridCard'
+import { JudgesPagination } from './JudgesPagination'
 
 const GRID_COLUMN_GAP = 24
 const GRID_ROW_GAP = 24
-const CARD_WIDTH = 360
 const CARD_HEIGHT = 320
 
 interface JudgesDirectoryResultsGridProps {
@@ -24,41 +20,9 @@ interface JudgesDirectoryResultsGridProps {
 export function JudgesDirectoryResultsGrid({
   viewModel,
 }: JudgesDirectoryResultsGridProps): JSX.Element {
-  const judges = viewModel.visibleJudges
+  const judges = viewModel.state.judges
   const count = judges.length
   const loading = viewModel.state.loading
-  const hasMore = viewModel.state.has_more
-  const sentinelRef = useRef<HTMLDivElement | null>(null)
-
-  // Infinite scroll sentinel with debounce to prevent rapid triggers
-  useEffect(() => {
-    if (!sentinelRef.current) return
-    if (!hasMore) return
-    if (loading) return // Don't set up observer while loading
-
-    const el = sentinelRef.current
-    let timeoutId: NodeJS.Timeout | null = null
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0]
-        if (entry.isIntersecting && !viewModel.state.loading && viewModel.state.has_more) {
-          // Debounce to prevent rapid-fire calls
-          if (timeoutId) clearTimeout(timeoutId)
-          timeoutId = setTimeout(() => {
-            void viewModel.loadMore()
-          }, 300)
-        }
-      },
-      { root: null, rootMargin: '200px', threshold: 0 }
-    )
-    observer.observe(el)
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId)
-      observer.disconnect()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore, loading])
 
   const itemData = useMemo(
     () => ({
@@ -72,43 +36,40 @@ export function JudgesDirectoryResultsGrid({
     return null
   }
 
+  const handlePageChange = (page: number): void => {
+    viewModel.setPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
     <div className="relative" aria-busy={loading}>
       <AutoSizer disableHeight>
         {({ width }) => {
-          // Responsive column calculation with a smaller minimum card width on mobile
           const MIN_CARD_WIDTH = 280
           const gridColumnCount = Math.max(
             1,
             Math.floor((width + GRID_COLUMN_GAP) / (MIN_CARD_WIDTH + GRID_COLUMN_GAP))
           )
-          const rowCount = Math.ceil(count / gridColumnCount)
+          const rowCount = Math.min(Math.ceil(count / gridColumnCount), count)
           const perColumnWidth = Math.floor(
             (width - GRID_COLUMN_GAP * (gridColumnCount + 1)) / gridColumnCount
           )
-
-          const handleItemsRendered = ({ visibleRowStopIndex }: GridOnItemsRenderedProps) => {
-            if (visibleRowStopIndex >= rowCount - 2 && hasMore && !loading) {
-              void viewModel.loadMore()
-            }
-          }
+          const gridHeight = Math.min(rowCount * (CARD_HEIGHT + GRID_ROW_GAP) + GRID_ROW_GAP, 10000)
 
           return (
             <Grid
               columnCount={gridColumnCount}
               columnWidth={perColumnWidth + GRID_COLUMN_GAP}
-              height={rowCount * (CARD_HEIGHT + GRID_ROW_GAP)}
+              height={gridHeight}
               rowCount={rowCount}
               rowHeight={CARD_HEIGHT + GRID_ROW_GAP}
               width={width}
               itemData={itemData}
               itemKey={({ columnIndex, rowIndex, data }) => {
-                // Use actual judge ID to prevent React Window from reusing cells when new data loads
                 const index = rowIndex * gridColumnCount + columnIndex
                 const judge = data.judges[index]
                 return judge?.id || `empty-${rowIndex}-${columnIndex}`
               }}
-              onItemsRendered={handleItemsRendered}
             >
               {({ columnIndex, rowIndex, style }: GridChildComponentProps) => {
                 const index = rowIndex * gridColumnCount + columnIndex
@@ -137,7 +98,7 @@ export function JudgesDirectoryResultsGrid({
         }}
       </AutoSizer>
 
-      {loading && hasMore && (
+      {loading && (
         <motion.div
           className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           initial={{ opacity: 0 }}
@@ -150,26 +111,13 @@ export function JudgesDirectoryResultsGrid({
         </motion.div>
       )}
 
-      {/* Infinite scroll sentinel */}
-      <div ref={sentinelRef} className="h-8" />
-
-      {/* Manual fallback for accessibility and older browsers */}
-      {hasMore && !loading && (
-        <motion.div
-          className="mt-4 flex justify-center"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <motion.button
-            onClick={() => void viewModel.loadMore()}
-            className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium text-foreground hover:bg-muted/80 transition-colors"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Load more
-          </motion.button>
-        </motion.div>
+      {viewModel.state.totalPages > 1 && (
+        <JudgesPagination
+          currentPage={viewModel.state.currentPage}
+          totalPages={viewModel.state.totalPages}
+          onPageChange={handlePageChange}
+          loading={loading}
+        />
       )}
     </div>
   )

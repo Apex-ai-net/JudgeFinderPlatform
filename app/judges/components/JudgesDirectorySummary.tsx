@@ -9,11 +9,23 @@ interface JudgesDirectorySummaryProps {
   viewModel: JudgesDirectoryViewModel
 }
 
-export const JudgesDirectorySummary = observer(function JudgesDirectorySummary({ viewModel }: JudgesDirectorySummaryProps) {
+export const JudgesDirectorySummary = observer(function JudgesDirectorySummary({
+  viewModel,
+}: JudgesDirectorySummaryProps) {
   const { state } = viewModel
-  const { total_count: totalCount, judges, error, loading, onlyWithDecisions, recentYears, has_more: hasMore } = state
+  const {
+    total_count: totalCount,
+    judges,
+    error,
+    loading,
+    onlyWithDecisions,
+    recentYears,
+    has_more: hasMore,
+    currentPage,
+    per_page: perPage,
+  } = state
 
-  const filteredCount = onlyWithDecisions ? viewModel.visibleJudges.length : judges.length
+  const filteredCount = judges.length
   const recentStart = new Date().getFullYear() - (recentYears - 1)
 
   return (
@@ -55,14 +67,15 @@ export const JudgesDirectorySummary = observer(function JudgesDirectorySummary({
                 </span>
               </motion.div>
             ) : (
-              <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                {onlyWithDecisions ? (
-                  hasMore
-                    ? `Showing ${filteredCount} of ${totalCount} judges with decisions since ${recentStart}. Load more to discover additional judges.`
-                    : `Showing ${filteredCount} judges with decisions since ${recentStart} (of ${totalCount} total).`
-                ) : (
-                  `Found ${totalCount} judges matching your criteria`
-                )}
+              <motion.div
+                key="results"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                {onlyWithDecisions
+                  ? `Showing page ${currentPage} of judges with decisions since ${recentStart} (${totalCount} total).`
+                  : `Found ${totalCount} judges matching your criteria`}
               </motion.div>
             )}
           </AnimatePresence>
@@ -84,4 +97,3 @@ export const JudgesDirectorySummary = observer(function JudgesDirectorySummary({
     </motion.div>
   )
 })
-

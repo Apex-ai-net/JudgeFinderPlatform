@@ -5,11 +5,9 @@ import type {
   JudgeDirectoryFetchResult,
   JudgeDirectoryState,
   JudgesDirectoryViewModelOptions,
-  JudgeWithDecisions,
 } from './types'
 
-const DEFAULT_VISIBLE = 24
-const VISIBLE_INCREMENT = 12
+const DEFAULT_PER_PAGE = 24
 
 export class JudgesDirectoryStore {
   private readonly manager: JudgesDirectoryDataManager
@@ -18,7 +16,7 @@ export class JudgesDirectoryStore {
     judges: [],
     total_count: 0,
     page: 1,
-    per_page: DEFAULT_VISIBLE,
+    per_page: DEFAULT_PER_PAGE,
     has_more: false,
     loading: false,
     error: null,
@@ -27,7 +25,8 @@ export class JudgesDirectoryStore {
     jurisdiction: 'CA',
     onlyWithDecisions: false,
     recentYears: 3,
-    visibleCount: DEFAULT_VISIBLE,
+    currentPage: 1,
+    totalPages: 0,
     metricsHistory: [],
     initialized: false,
   }
@@ -37,21 +36,13 @@ export class JudgesDirectoryStore {
     makeAutoObservable(this, {}, { autoBind: true })
 
     if (options.initialState) {
-      this.applyResponse(options.initialState, { append: false })
+      this.applyResponse(options.initialState)
       this.state.initialized = true
     }
   }
 
-  get visibleJudges(): JudgeWithDecisions[] {
-    return this.state.judges.slice(0, this.state.visibleCount)
-  }
-
   get hasCachedResults(): boolean {
     return this.state.judges.length > 0
-  }
-
-  get canLoadMore(): boolean {
-    return this.state.visibleCount < this.state.judges.length || this.state.has_more
   }
 
   get isInitialLoading(): boolean {
@@ -74,11 +65,9 @@ export class JudgesDirectoryStore {
     this.state.recentYears = years
   }
 
-  increaseVisibleCount() {
-    this.state.visibleCount = Math.min(
-      this.state.visibleCount + VISIBLE_INCREMENT,
-      this.state.judges.length
-    )
+  setPage(page: number) {
+    if (page < 1 || page > this.state.totalPages) return
+    void this.fetchPage({ page, replace: true })
   }
 
   clearError() {
@@ -91,12 +80,7 @@ export class JudgesDirectoryStore {
   }
 
   async refresh() {
-    await this.fetchPage({ page: 1, replace: true })
-  }
-
-  async loadMore() {
-    if (!this.state.has_more || this.state.loading) return
-    await this.fetchPage({ page: this.state.page + 1, replace: false })
+    await this.fetchPage({ page: this.state.currentPage, replace: true })
   }
 
   private buildRequestParams(page: number) {
@@ -111,25 +95,15 @@ export class JudgesDirectoryStore {
     }
   }
 
-  private applyResponse(
-    response: JudgeDirectoryFetchResult['response'],
-    { append }: { append: boolean }
-  ) {
-    const nextJudges = append ? [...this.state.judges, ...response.judges] : response.judges
-    this.state.judges = nextJudges
+  private applyResponse(response: JudgeDirectoryFetchResult['response']) {
+    this.state.judges = response.judges
     this.state.total_count = response.total_count
     this.state.page = response.page
     this.state.per_page = response.per_page
     this.state.has_more = response.has_more
-    if (append) {
-      this.state.visibleCount = Math.min(
-        this.state.visibleCount + response.judges.length,
-        nextJudges.length
-      )
-    } else {
-      this.state.visibleCount = Math.min(DEFAULT_VISIBLE, nextJudges.length)
-      this.state.appliedSearchTerm = this.state.searchTerm
-    }
+    this.state.currentPage = response.page
+    this.state.totalPages = Math.ceil(response.total_count / response.per_page)
+    this.state.appliedSearchTerm = this.state.searchTerm
   }
 
   private trackMetrics(metrics: JudgeDirectoryFetchResult['metrics']) {
@@ -145,7 +119,7 @@ export class JudgesDirectoryStore {
       const { response, metrics } = await this.manager.fetchJudges(requestParams)
 
       runInAction(() => {
-        this.applyResponse(response, { append: !replace })
+        this.applyResponse(response)
         this.trackMetrics(metrics)
       })
 
