@@ -8,7 +8,6 @@ import { JudgeCardSkeleton } from '@/components/ui/Skeleton'
 import type { JudgesDirectoryViewModel } from '@/lib/judges/directory/JudgesDirectoryViewModel'
 import { JudgesDirectoryGridCard } from './JudgesDirectoryGridCard'
 import { JudgesPagination } from './JudgesPagination'
-import { useRouter, useSearchParams } from 'next/navigation'
 
 const GRID_COLUMN_GAP = 24
 const GRID_ROW_GAP = 24
@@ -21,8 +20,6 @@ interface JudgesDirectoryResultsGridProps {
 export function JudgesDirectoryResultsGrid({
   viewModel,
 }: JudgesDirectoryResultsGridProps): JSX.Element {
-  const router = useRouter()
-  const searchParams = useSearchParams()
   const judges = viewModel.state.judges
   const count = judges.length
   const loading = viewModel.state.loading
@@ -41,10 +38,6 @@ export function JudgesDirectoryResultsGrid({
 
   const handlePageChange = (page: number): void => {
     viewModel.setPage(page)
-    const params = new URLSearchParams(searchParams.toString())
-    if (page === 1) params.delete('page')
-    else params.set('page', page.toString())
-    router.push(params.toString() ? `/judges?${params.toString()}` : '/judges', { scroll: false })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
