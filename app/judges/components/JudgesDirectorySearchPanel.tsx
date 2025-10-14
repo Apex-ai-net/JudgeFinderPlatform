@@ -32,7 +32,9 @@ interface JudgesDirectorySearchPanelProps {
   viewModel: JudgesDirectoryViewModel
 }
 
-export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearchPanel({ viewModel }: JudgesDirectorySearchPanelProps) {
+export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearchPanel({
+  viewModel,
+}: JudgesDirectorySearchPanelProps) {
   const { state } = viewModel
   const [searchInput, setSearchInput] = useState(state.searchTerm)
   const { debouncedSearchQuery, isSearching } = useSearchDebounce(searchInput, 300)
@@ -49,7 +51,8 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
     }
     viewModel.setSearchTerm(nextValue)
     void viewModel.refresh()
-  }, [debouncedSearchQuery, viewModel])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchQuery])
 
   const decisionWindowLabel = useMemo(() => {
     const currentYear = new Date().getFullYear()
@@ -73,8 +76,14 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
       </motion.h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
-          <label className="block text-sm font-medium text-muted-foreground mb-2">Search judges</label>
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
+            Search judges
+          </label>
           <AnimatedInput
             type="text"
             value={searchInput}
@@ -87,8 +96,14 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
           />
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-          <label className="block text-sm font-medium text-muted-foreground mb-2">Jurisdiction</label>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
+            Jurisdiction
+          </label>
           <motion.select
             whileHover={{ scale: 1.02 }}
             value={state.jurisdiction ?? ''}
@@ -115,7 +130,10 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
         transition={{ delay: 0.4 }}
         className="mt-4 md:mt-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
       >
-        <motion.label whileHover={{ scale: 1.02 }} className="flex items-center cursor-pointer gap-2">
+        <motion.label
+          whileHover={{ scale: 1.02 }}
+          className="flex items-center cursor-pointer gap-2"
+        >
           <input
             type="checkbox"
             checked={state.onlyWithDecisions}
@@ -144,7 +162,9 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
                 className="flex flex-col gap-2 md:gap-4 md:flex-row md:items-center"
               >
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1">Decision window</label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    Decision window
+                  </label>
                   <select
                     value={state.recentYears}
                     onChange={(event) => {
@@ -235,4 +255,3 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
     </motion.div>
   )
 })
-

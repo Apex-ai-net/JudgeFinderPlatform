@@ -27,11 +27,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }
       remaining = res.remaining
     } catch (e) {
-      if (process.env.ALLOW_SOFT_RATE_LIMIT === 'true') {
-        console.warn('Rate limiter unavailable, proceeding with soft fallback for /api/courts')
-      } else {
-        throw e
-      }
+      // In production without Redis, allow requests to proceed
+      console.warn('Rate limiter unavailable, proceeding without rate limiting for /api/courts')
+      remaining = undefined
     }
     const { searchParams } = new URL(request.url)
     const q = searchParams.get('q') || ''

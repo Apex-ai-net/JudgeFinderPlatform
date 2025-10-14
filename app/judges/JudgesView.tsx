@@ -40,7 +40,9 @@ const ResultsSection = observer(function ResultsSection() {
   if (state.judges.length === 0) {
     return (
       <JudgesDirectoryEmptyState
-        message={state.onlyWithDecisions ? 'No judges with recent decisions found' : 'No judges found'}
+        message={
+          state.onlyWithDecisions ? 'No judges with recent decisions found' : 'No judges found'
+        }
         description={
           state.onlyWithDecisions
             ? 'Try unchecking the filter to see all judges or adjusting your search criteria.'
@@ -63,7 +65,8 @@ export const JudgesView = observer(function JudgesView({ initialData }: JudgesVi
       viewModel.setSearchTerm(searchQuery)
       void viewModel.refresh()
     }
-  }, [searchParams, viewModel])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   return (
     <JudgesDirectoryLayout
@@ -76,4 +79,3 @@ export const JudgesView = observer(function JudgesView({ initialData }: JudgesVi
     />
   )
 })
-

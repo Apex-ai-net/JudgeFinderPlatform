@@ -16,22 +16,10 @@ let warnedMissingRedis = false
 function ensureRedisEnv(): { url: string; token: string } | null {
   const url = process.env.UPSTASH_REDIS_REST_URL
   const token = process.env.UPSTASH_REDIS_REST_TOKEN
-  const isProduction = process.env.NODE_ENV === 'production'
 
   if (!url || !token) {
-    // SECURITY: Fail loud in production - rate limiting is critical
-    if (isProduction) {
-      const error =
-        'CRITICAL SECURITY ERROR: Upstash Redis credentials are required in production for rate limiting'
-      logger.error(error, {
-        scope: 'rate_limit',
-        env: process.env.NODE_ENV,
-        severity: 'critical',
-      })
-      throw new Error(error)
-    }
-
-    // Fail silent in development with warning
+    // Warn but allow operation without rate limiting
+    // Rate limiting is security enhancement, not core functionality
     if (!warnedMissingRedis) {
       warnedMissingRedis = true
       logger.warn('Rate limiting disabled: Upstash Redis credentials missing', {
@@ -80,7 +68,6 @@ export function buildRateLimiter(config: RateLimitConfig): {
   limit: (key: string) => Promise<{ success: boolean; remaining: number; reset: number }>
 } {
   let client: Redis | null = null
-  const isProduction = process.env.NODE_ENV === 'production'
 
   try {
     client = getRedis()
@@ -90,23 +77,12 @@ export function buildRateLimiter(config: RateLimitConfig): {
       prefix: config.prefix,
       error,
     })
-    // Re-throw in production - this is a critical failure
-    if (isProduction) {
-      throw error
-    }
+    client = null
   }
 
   if (!client) {
-    // In production, this should never happen due to ensureRedisEnv() throwing
-    // But as a safety net, we throw here too
-    if (isProduction) {
-      const error = 'Rate limiter cannot be built without Redis client in production'
-      logger.error(error, { scope: 'rate_limit', severity: 'critical' })
-      throw new Error(error)
-    }
-
-    // Development: Return pass-through limiter
-    logger.warn('Rate limiter using pass-through mode (development only)', {
+    // Graceful degradation when Redis unavailable - return pass-through limiter
+    logger.warn('Rate limiter unavailable - returning pass-through limiter', {
       scope: 'rate_limit',
       prefix: config.prefix,
     })

@@ -46,7 +46,8 @@ export function JudgesDirectoryResultsGrid({
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [hasMore, viewModel])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMore])
 
   const itemData = useMemo(
     () => ({

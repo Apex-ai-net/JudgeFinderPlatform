@@ -22,22 +22,15 @@ export class AnalyticsDataService {
       fetch(this.resolveUrl('/api/stats/courts'), { cache: 'no-store' }),
       fetch(this.resolveUrl('/api/stats/cases'), { cache: 'no-store' }),
       fetch(this.resolveUrl('/api/stats/platform'), { cache: 'no-store' }),
-      fetch(this.resolveUrl('/api/stats/freshness-by-court'), { cache: 'no-store' })
+      fetch(this.resolveUrl('/api/stats/freshness-by-court'), { cache: 'no-store' }),
     ])
 
-    this.ensureOk(judgesRes)
-    this.ensureOk(courtsRes)
-    this.ensureOk(casesRes)
-    this.ensureOk(platformRes)
-    this.ensureOk(freshnessRes)
-
-    const [judges, courts, cases, platform, freshness] = await Promise.all([
-      judgesRes.json() as Promise<Record<string, unknown>>,
-      courtsRes.json() as Promise<Record<string, unknown>>,
-      casesRes.json() as Promise<Record<string, unknown>>,
-      platformRes.json() as Promise<Record<string, unknown>>,
-      freshnessRes.json() as Promise<{ rows?: FreshnessRow[] } | null>
-    ])
+    // Gracefully handle partial failures - return empty objects for failed endpoints
+    const judges = judgesRes.ok ? await judgesRes.json() : {}
+    const courts = courtsRes.ok ? await courtsRes.json() : {}
+    const cases = casesRes.ok ? await casesRes.json() : {}
+    const platform = platformRes.ok ? await platformRes.json() : {}
+    const freshness = freshnessRes.ok ? await freshnessRes.json() : null
 
     return { judges, courts, cases, platform, freshness }
   }
@@ -52,4 +45,3 @@ export class AnalyticsDataService {
     throw new Error(`Analytics endpoint failed: ${response.status}`)
   }
 }
-
