@@ -48,12 +48,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     let queryBuilder = supabase
       .from('courts')
-      .select(
-        'id, name, type, jurisdiction, address, phone, website, judge_count, court_level, slug',
-        {
-          count: 'exact',
-        }
-      )
+      .select('id, name, type, jurisdiction, address, phone, website, judge_count, slug', {
+        count: 'exact',
+      })
       .order('name')
       .range(from, to)
 
@@ -62,10 +59,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       queryBuilder = queryBuilder.ilike('name', `%${q}%`)
     }
 
-    if (courtLevel && courtLevel !== '') {
-      queryBuilder = queryBuilder.eq('court_level', courtLevel)
-    } else if (type && type !== '') {
-      // Fallback to type filter if court_level not specified
+    if (type && type !== '') {
       queryBuilder = queryBuilder.ilike('type', `%${type}%`)
     }
 
