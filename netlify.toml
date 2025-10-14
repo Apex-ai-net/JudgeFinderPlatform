@@ -21,9 +21,11 @@
   NPM_FLAGS = "--legacy-peer-deps"
   NODE_ENV = "production"
 
-  # IMPORTANT: Set ENCRYPTION_KEY in Netlify UI
-  # Navigate to: Site settings > Environment variables > Add variable
-  # Required for secure data encryption in production
+  # IMPORTANT: Set these in Netlify UI (Site settings > Environment variables)
+  # ENCRYPTION_KEY - Required for secure data encryption in production
+  # STRIPE_PRICE_MONTHLY - Stripe price ID for $500/month universal access
+  # STRIPE_PRICE_YEARLY - Stripe price ID for $5,000/year universal access
+  # STRIPE_PRICE_ADSPACE - (deprecated) Legacy price ID, use STRIPE_PRICE_MONTHLY
 
   # Public Environment Variables (safe for client-side, NEXT_PUBLIC_ prefix)
   NEXT_PUBLIC_APP_NAME = "JudgeFinder Platform"

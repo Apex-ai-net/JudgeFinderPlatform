@@ -17,7 +17,7 @@ function createStripeClient(): Stripe | null {
   }
 
   return new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2024-12-18.acacia',
+    apiVersion: '2023-10-16',
     typescript: true,
     maxNetworkRetries: 3,
   })
@@ -45,11 +45,12 @@ export function verifyWebhookSignature(payload: string | Buffer, signature: stri
 }
 
 /**
- * Create a checkout session for ad space purchase
+ * Create a checkout session for universal access purchase
  * @param params - Session parameters
  * @returns Stripe checkout session
  */
 export async function createCheckoutSession(params: {
+  priceId?: string
   customer_email?: string
   success_url: string
   cancel_url: string
@@ -59,16 +60,19 @@ export async function createCheckoutSession(params: {
     throw new Error('Stripe not configured')
   }
 
-  if (!process.env.STRIPE_PRICE_ADSPACE) {
-    throw new Error('STRIPE_PRICE_ADSPACE not configured')
+  // Use provided priceId, or fall back to legacy STRIPE_PRICE_ADSPACE for backward compatibility
+  const priceId = params.priceId || process.env.STRIPE_PRICE_ADSPACE
+
+  if (!priceId) {
+    throw new Error('No Stripe price ID provided and STRIPE_PRICE_ADSPACE not configured')
   }
 
   return await stripe.checkout.sessions.create({
-    mode: 'payment',
+    mode: 'subscription',
     payment_method_types: ['card'],
     line_items: [
       {
-        price: process.env.STRIPE_PRICE_ADSPACE,
+        price: priceId,
         quantity: 1,
       },
     ],
@@ -101,5 +105,9 @@ export async function getCheckoutSession(sessionId: string): Promise<Stripe.Chec
  * @returns true if Stripe is configured
  */
 export function isStripeConfigured(): boolean {
-  return !!(stripe && process.env.STRIPE_WEBHOOK_SECRET && process.env.STRIPE_PRICE_ADSPACE)
+  return !!(
+    stripe &&
+    process.env.STRIPE_WEBHOOK_SECRET &&
+    (process.env.STRIPE_PRICE_MONTHLY || process.env.STRIPE_PRICE_ADSPACE)
+  )
 }

@@ -7,13 +7,14 @@ export const dynamic = 'force-dynamic'
 /**
  * POST /api/checkout/adspace
  *
- * Creates a Stripe Checkout session for ad space purchase
+ * Creates a Stripe Checkout session for universal access purchase
  *
  * Request body:
  * {
  *   organization_name: string
  *   email: string
- *   ad_type: string (judge-profile, court-listing, featured-spot)
+ *   billing_cycle: string ('monthly' | 'annual')
+ *   ad_type?: string (deprecated - kept for backward compatibility)
  *   notes?: string
  * }
  *
@@ -57,12 +58,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Parse and validate request
     const body = await request.json()
-    const { organization_name, email, ad_type, notes } = body
+    const { organization_name, email, billing_cycle, ad_type, notes } = body
 
-    if (!organization_name || !email || !ad_type) {
+    if (!organization_name || !email || !billing_cycle) {
       return NextResponse.json(
         {
-          error: 'Missing required fields: organization_name, email, ad_type',
+          error: 'Missing required fields: organization_name, email, billing_cycle',
         },
         { status: 400 }
       )
@@ -79,14 +80,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    // Validate ad type
-    const validAdTypes = ['judge-profile', 'court-listing', 'featured-spot']
-    if (!validAdTypes.includes(ad_type)) {
+    // Validate billing cycle
+    const validCycles = ['monthly', 'annual']
+    if (!validCycles.includes(billing_cycle)) {
       return NextResponse.json(
         {
-          error: `Invalid ad_type. Must be one of: ${validAdTypes.join(', ')}`,
+          error: `Invalid billing_cycle. Must be one of: ${validCycles.join(', ')}`,
         },
         { status: 400 }
+      )
+    }
+
+    // Get appropriate Stripe price ID based on billing cycle
+    const priceId =
+      billing_cycle === 'annual'
+        ? process.env.STRIPE_PRICE_YEARLY
+        : process.env.STRIPE_PRICE_MONTHLY
+
+    if (!priceId) {
+      logger.error(`Missing Stripe price ID for billing cycle: ${billing_cycle}`)
+      return NextResponse.json(
+        {
+          error: 'Pricing configuration error. Please contact support.',
+        },
+        { status: 503 }
       )
     }
 
@@ -94,17 +111,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || 'https://judgefinder.io'
 
-    // Create Stripe Checkout session
+    // Create Stripe Checkout session with explicit price ID
     const session = await createCheckoutSession({
+      priceId,
       customer_email: email,
       success_url: `${baseUrl}/ads/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/ads/buy?canceled=true`,
       metadata: {
         organization_name,
-        ad_type,
+        billing_cycle,
+        ad_type: ad_type || 'universal_access', // backward compatibility
         notes: notes || '',
         client_ip: clientIp,
         created_at: new Date().toISOString(),
+        tier: 'universal_access',
+        domain: 'judgefinder',
       },
     })
 
@@ -112,7 +133,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       session_id: session.id,
       organization_name,
       email,
-      ad_type,
+      billing_cycle,
+      price_id: priceId,
     })
 
     return NextResponse.json({
