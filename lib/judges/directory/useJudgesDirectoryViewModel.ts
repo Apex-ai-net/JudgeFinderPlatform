@@ -35,7 +35,8 @@ export function useJudgesDirectoryViewModel(
 
   useEffect(() => {
     void viewModel.loadInitial()
-  }, [viewModel])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  return useMemo(() => viewModel, [viewModel])
+  return viewModel
 }
