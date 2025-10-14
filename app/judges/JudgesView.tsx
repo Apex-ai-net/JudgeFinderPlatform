@@ -18,8 +18,11 @@ interface JudgesViewProps {
   initialData?: JudgeDirectoryApiResponse
 }
 
-const ResultsSection = observer(function ResultsSection() {
-  const viewModel = useJudgesDirectoryViewModel()
+const ResultsSection = observer(function ResultsSection({
+  viewModel,
+}: {
+  viewModel: ReturnType<typeof useJudgesDirectoryViewModel>
+}) {
   const { state } = viewModel
 
   if (state.loading && !viewModel.hasCachedResults) {
@@ -97,7 +100,7 @@ export const JudgesView = observer(function JudgesView({ initialData }: JudgesVi
       header={<JudgesDirectoryHeader showSkeleton={viewModel.isInitialLoading} />}
       search={<JudgesDirectorySearchPanel viewModel={viewModel} />}
       summary={<JudgesDirectorySummary viewModel={viewModel} />}
-      results={<ResultsSection />}
+      results={<ResultsSection viewModel={viewModel} />}
       metrics={<JudgesDirectoryMetrics viewModel={viewModel} />}
       topbar={<JudgesDirectoryTopBar viewModel={viewModel} />}
     />
