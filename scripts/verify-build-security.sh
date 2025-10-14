@@ -110,6 +110,8 @@ if [ "$1" = "post" ]; then
             MATCHES=$(grep -r -n -E "$PATTERN_REGEX" "$root" \
                 --exclude-dir={tests,__tests__,__mocks__} \
                 --exclude="*.map" --exclude="*.md" --exclude="*.log" \
+                --exclude="verify-build-security.sh" \
+                --exclude="pre-commit-security-check.sh" \
                 2>/dev/null || true)
             if [ -n "$MATCHES" ]; then
                 echo "$MATCHES" >> "$TEMP_SCAN_FILE"
