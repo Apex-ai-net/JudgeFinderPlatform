@@ -73,27 +73,11 @@ export const JudgesView = observer(function JudgesView({ initialData }: JudgesVi
       void viewModel.refresh()
     }
 
-    if (page > 1 && page !== viewModel.state.currentPage) {
+    if (page !== viewModel.state.currentPage) {
       viewModel.setPage(page)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const currentPageInUrl = parseInt(params.get('page') || '1', 10)
-
-    if (viewModel.state.currentPage !== currentPageInUrl) {
-      if (viewModel.state.currentPage === 1) {
-        params.delete('page')
-      } else {
-        params.set('page', viewModel.state.currentPage.toString())
-      }
-      const newUrl = params.toString() ? `/judges?${params.toString()}` : '/judges'
-      router.push(newUrl, { scroll: false })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewModel.state.currentPage])
 
   return (
     <JudgesDirectoryLayout

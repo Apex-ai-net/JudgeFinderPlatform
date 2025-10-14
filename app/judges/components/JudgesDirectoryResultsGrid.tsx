@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid, type GridChildComponentProps } from 'react-window'
 import { motion } from 'framer-motion'
@@ -20,6 +21,8 @@ interface JudgesDirectoryResultsGridProps {
 export function JudgesDirectoryResultsGrid({
   viewModel,
 }: JudgesDirectoryResultsGridProps): JSX.Element {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const judges = viewModel.state.judges
   const count = judges.length
   const loading = viewModel.state.loading
@@ -37,7 +40,14 @@ export function JudgesDirectoryResultsGrid({
   }
 
   const handlePageChange = (page: number): void => {
-    viewModel.setPage(page)
+    const params = new URLSearchParams(searchParams.toString())
+    if (page === 1) {
+      params.delete('page')
+    } else {
+      params.set('page', page.toString())
+    }
+    const newUrl = params.toString() ? `/judges?${params.toString()}` : '/judges'
+    router.push(newUrl, { scroll: false })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
