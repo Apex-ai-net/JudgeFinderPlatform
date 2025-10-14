@@ -40,6 +40,8 @@ export function JudgesDirectoryResultsGrid({
   }
 
   const handlePageChange = (page: number): void => {
+    // Prefetch/update view state immediately for better UX
+    viewModel.setPage(page)
     const params = new URLSearchParams(searchParams.toString())
     if (page === 1) {
       params.delete('page')

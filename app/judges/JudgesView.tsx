@@ -74,10 +74,10 @@ export const JudgesView = observer(function JudgesView({ initialData }: JudgesVi
     }
 
     if (page !== viewModel.state.currentPage) {
-      viewModel.setPage(page)
+      viewModel.setPage(Number.isFinite(page) && page >= 1 ? page : 1)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams])
+  }, [searchParams.toString()])
 
   return (
     <JudgesDirectoryLayout
