@@ -142,6 +142,9 @@ if [ -s "$TEMP_SCAN_FILE" ]; then
         cat "$TEMP_SCAN_FILE"
         echo ""
         echo "Proceeding with build. Findings will be enforced at post-stage scan."
+        rm -f "$TEMP_SCAN_FILE"
+        echo ""
+        exit 0
     else
         print_error "Potential secrets found in codebase:"
         cat "$TEMP_SCAN_FILE"
