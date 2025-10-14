@@ -1,0 +1,81 @@
+================================================================================
+🚨 CRITICAL: DELETE THESE 14 VARIABLES FROM NETLIFY UI NOW
+================================================================================
+
+Go to: https://app.netlify.com/sites/8b098167-7710-4770-81ae-1eb3eb75c84b/configuration/env
+
+Click "Edit variables" and DELETE these ONE BY ONE:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BUILD CONFIG - Delete (7 variables)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ 1. SECRETS_SCAN_OMIT_KEYS     <- BIGGEST (saves ~2KB)
+❌ 2. SECRETS_SCAN_OMIT_PATHS    <- SECOND BIGGEST (saves ~1.5KB)
+❌ 3. NODE_ENV
+❌ 4. NODE_VERSION
+❌ 5. NPM_FLAGS
+❌ 6. CI
+❌ 7. NEXT_TELEMETRY_DISABLED
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DUPLICATES - Delete (3 variables)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ 8.  SUPABASE_ANON_KEY              (duplicate of NEXT_PUBLIC_SUPABASE_ANON_KEY)
+❌ 9.  PGPASSWORD                     (already in SUPABASE_DATABASE_URL)
+❌ 10. GOOGLE_GENERATIVE_AI_API_KEY   (wrong var - use GOOGLE_AI_API_KEY)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DEPRECATED STRIPE - Delete (4 variables)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ 11. STRIPE_PRICE_ADSPACE
+❌ 12. STRIPE_PRICE_AD_SLOT
+❌ 13. STRIPE_PRICE_PRO
+❌ 14. STRIPE_PRICE_TEAM
+
+================================================================================
+RESULT AFTER DELETION
+================================================================================
+
+Variables count:  46 → 32 (reduced by 14)
+Size estimate:    ~5KB → ~2KB ✅ UNDER AWS Lambda 4KB limit
+Status:           ✅ DEPLOYMENT WILL SUCCEED
+
+================================================================================
+AFTER YOU DELETE THESE 14 VARIABLES
+================================================================================
+
+1. Click "Save" in Netlify UI
+2. Go to: Deploys tab
+3. Click: "Trigger deploy" → "Deploy site"
+4. Watch build complete successfully! 🎉
+
+================================================================================
+QUICK VERIFICATION
+================================================================================
+
+After deletion, Netlify should show approximately 32 environment variables.
+
+You can verify by visiting:
+https://app.netlify.com/sites/8b098167-7710-4770-81ae-1eb3eb75c84b/configuration/env
+
+Count should be around 32 (down from 46).
+
+================================================================================
+WHY THIS FIXES THE ERROR
+================================================================================
+
+AWS Lambda has a hard limit of 4KB for all environment variables combined.
+
+The TWO variables causing the most bloat:
+  • SECRETS_SCAN_OMIT_KEYS    = ~2,000 bytes (huge string)
+  • SECRETS_SCAN_OMIT_PATHS   = ~1,500 bytes (huge string)
+
+These belong in netlify.toml ONLY (build config), NOT as environment variables.
+
+By removing these + 12 other unnecessary vars, you'll be well under the limit.
+
+================================================================================
+
