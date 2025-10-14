@@ -76,6 +76,7 @@
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.10",
     "@types/d3": "^7.4.3",
+    "@eslint/eslintrc": "^3.3.1",
     "@types/node": "^24.7.1",
     "@types/react": "18.3.18",
     "@types/react-dom": "18.3.5",
@@ -123,7 +124,6 @@
   },
   "devDependencies": {
     "@axe-core/react": "^4.10.2",
-    "@eslint/eslintrc": "^3.3.1",
     "@lhci/cli": "^0.15.1",
     "@netlify/plugin-nextjs": "^5.13.5",
     "@playwright/test": "^1.49.1",
