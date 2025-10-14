@@ -127,6 +127,7 @@ for pattern in "${PATTERNS[@]}"; do
         --exclude=".env.production.example" \
         --exclude="package-lock.json" \
         --exclude="verify-build-security.sh" \
+        --exclude="pre-commit-security-check.sh" \
         --exclude="netlify-env-update.sh" \
         2>/dev/null || true)
 
