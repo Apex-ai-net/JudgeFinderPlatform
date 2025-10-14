@@ -40,34 +40,111 @@ export default function PurchaseAdSpacePage({
 
         {/* Pricing Information */}
         <div className="mt-8 bg-muted/50 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Ad Placement Options</h2>
-          <div className="space-y-3 text-sm text-muted-foreground">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-medium text-foreground">Judge Profile Ads</p>
-                <p className="text-xs">Featured banner on specific judge profiles</p>
+          <h2 className="text-lg font-semibold text-foreground mb-4">Universal Access Pricing</h2>
+          <div className="space-y-4">
+            {/* Monthly Option */}
+            <div className="bg-background rounded-lg p-4 border-2 border-border">
+              <div className="flex justify-between items-center mb-2">
+                <div>
+                  <p className="font-semibold text-foreground text-lg">Monthly</p>
+                  <p className="text-xs text-muted-foreground">Billed monthly • Cancel anytime</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-3xl font-bold text-foreground">$500</p>
+                  <p className="text-xs text-muted-foreground">/month</p>
+                </div>
               </div>
-              <span className="font-semibold text-foreground">Starting at $299/mo</span>
             </div>
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-medium text-foreground">Court Listing Ads</p>
-                <p className="text-xs">Sponsored listings on court directory pages</p>
+
+            {/* Annual Option - Highlighted */}
+            <div className="bg-primary/5 rounded-lg p-4 border-2 border-primary relative">
+              <div className="absolute -top-3 left-4 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
+                Save $1,000
               </div>
-              <span className="font-semibold text-foreground">Starting at $199/mo</span>
-            </div>
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-medium text-foreground">Featured Spot</p>
-                <p className="text-xs">Homepage featured placement</p>
+              <div className="flex justify-between items-center mb-2">
+                <div>
+                  <p className="font-semibold text-foreground text-lg">Annual</p>
+                  <p className="text-xs text-muted-foreground">Billed annually • Best value</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-3xl font-bold text-foreground">$5,000</p>
+                  <p className="text-xs text-muted-foreground">/year</p>
+                  <p className="text-xs text-primary font-medium">($417/mo • 2 months free)</p>
+                </div>
               </div>
-              <span className="font-semibold text-foreground">Starting at $499/mo</span>
             </div>
           </div>
-          <p className="mt-4 text-xs text-muted-foreground">
-            * Pricing shown is for standard monthly placements. Custom packages available. Contact
-            us for volume discounts.
-          </p>
+
+          {/* Features List */}
+          <div className="mt-6 pt-6 border-t border-border">
+            <p className="text-sm font-medium text-foreground mb-3">Universal access includes:</p>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-start gap-2">
+                <svg
+                  className="h-5 w-5 text-primary flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                <span>Unlimited placements on all California judge profiles</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <svg
+                  className="h-5 w-5 text-primary flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                <span>Featured listings on all court directory pages</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <svg
+                  className="h-5 w-5 text-primary flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                <span>Full analytics dashboard and performance metrics</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <svg
+                  className="h-5 w-5 text-primary flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                <span>Priority support and account management</span>
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Trust Signals */}

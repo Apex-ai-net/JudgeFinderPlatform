@@ -27,7 +27,7 @@ export function PurchaseAdForm({ searchParams }: PurchaseAdFormProps) {
   const [formData, setFormData] = useState({
     organization_name: '',
     email: '',
-    ad_type: 'judge-profile',
+    billing_cycle: 'monthly' as 'monthly' | 'annual',
     notes: '',
   })
 
@@ -162,24 +162,77 @@ export function PurchaseAdForm({ searchParams }: PurchaseAdFormProps) {
           </p>
         </div>
 
-        {/* Ad Type */}
+        {/* Billing Cycle */}
         <div>
-          <label htmlFor="ad_type" className="block text-sm font-medium text-foreground mb-2">
-            Ad Placement Type *
-          </label>
-          <select
-            id="ad_type"
-            name="ad_type"
-            required
-            value={formData.ad_type}
-            onChange={(e) => setFormData({ ...formData, ad_type: e.target.value })}
-            className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            disabled={isSubmitting}
-          >
-            <option value="judge-profile">Judge Profile Banner ($299/mo)</option>
-            <option value="court-listing">Court Listing Sponsored ($199/mo)</option>
-            <option value="featured-spot">Homepage Featured Spot ($499/mo)</option>
-          </select>
+          <label className="block text-sm font-medium text-foreground mb-3">Billing Cycle *</label>
+          <div className="space-y-3">
+            {/* Monthly Option */}
+            <label
+              htmlFor="billing-monthly"
+              className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                formData.billing_cycle === 'monthly'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border bg-background hover:border-primary/50'
+              } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <div className="flex items-center gap-3">
+                <input
+                  type="radio"
+                  id="billing-monthly"
+                  name="billing_cycle"
+                  value="monthly"
+                  checked={formData.billing_cycle === 'monthly'}
+                  onChange={(e) => setFormData({ ...formData, billing_cycle: 'monthly' })}
+                  className="h-4 w-4 text-primary focus:ring-primary"
+                  disabled={isSubmitting}
+                />
+                <div>
+                  <p className="font-semibold text-foreground">Monthly</p>
+                  <p className="text-xs text-muted-foreground">Billed monthly • Cancel anytime</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xl font-bold text-foreground">$500</p>
+                <p className="text-xs text-muted-foreground">/month</p>
+              </div>
+            </label>
+
+            {/* Annual Option */}
+            <label
+              htmlFor="billing-annual"
+              className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-all relative ${
+                formData.billing_cycle === 'annual'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border bg-background hover:border-primary/50'
+              } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {/* Savings Badge */}
+              <div className="absolute -top-2 right-4 bg-primary text-primary-foreground text-xs font-semibold px-2 py-0.5 rounded-full">
+                Save $1,000
+              </div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="radio"
+                  id="billing-annual"
+                  name="billing_cycle"
+                  value="annual"
+                  checked={formData.billing_cycle === 'annual'}
+                  onChange={(e) => setFormData({ ...formData, billing_cycle: 'annual' })}
+                  className="h-4 w-4 text-primary focus:ring-primary"
+                  disabled={isSubmitting}
+                />
+                <div>
+                  <p className="font-semibold text-foreground">Annual</p>
+                  <p className="text-xs text-muted-foreground">Billed annually • Best value</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xl font-bold text-foreground">$5,000</p>
+                <p className="text-xs text-muted-foreground">/year</p>
+                <p className="text-xs text-primary font-medium">($417/mo)</p>
+              </div>
+            </label>
+          </div>
         </div>
 
         {/* Notes */}
