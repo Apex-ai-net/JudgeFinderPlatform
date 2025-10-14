@@ -75,14 +75,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning className={`${inter.className} dark`}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-        {/* Performance: Preload primary font for faster LCP */}
-        <link
-          rel="preload"
-          href="/fonts/inter-latin-400-normal.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
         {/* Performance: DNS Prefetch + Preconnect for common origins */}
         {(() => {
           try {
@@ -116,6 +108,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="JudgeFinder" />
         <meta name="application-name" content="JudgeFinder" />
         <meta name="theme-color" content="hsl(199 82% 53%)" />
+        {/* Google AdSense site verification */}
+        <meta name="google-adsense-account" content="ca-pub-8709825921443973" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.svg" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         {/* Search Engine Verification Codes
@@ -134,13 +128,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION && (
           <meta name="msvalidate.01" content={process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION} />
         )}
-        {process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT && (
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT}`}
-            crossOrigin="anonymous"
-          />
-        )}
+        {(() => {
+          const client = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT
+          const isValidClient =
+            typeof client === 'string' &&
+            /^ca-pub-\d{16,}$/.test(client) &&
+            !client.endsWith('0000000000000000')
+
+          if (!isValidClient) return null
+
+          return process.env.NODE_ENV !== 'production' ? (
+            <script
+              async
+              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}`}
+              crossOrigin="anonymous"
+              data-adtest="on"
+            />
+          ) : (
+            <script
+              async
+              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${client}`}
+              crossOrigin="anonymous"
+            />
+          )
+        })()}
         {/* Google Analytics 4
             IMPORTANT: Add NEXT_PUBLIC_GA_MEASUREMENT_ID to your environment variables
             Format: G-XXXXXXXXXX (obtainable from Google Analytics dashboard)

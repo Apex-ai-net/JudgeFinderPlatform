@@ -109,12 +109,12 @@ purchase_type: subscription
 
 All environment variables confirmed in production:
 
-| Variable              | Value                                  | Status |
-| --------------------- | -------------------------------------- | ------ |
-| STRIPE_PRICE_MONTHLY  | price_1SHzV3B1lwwjVYGvds7yjy18         | ✅     |
-| STRIPE_PRICE_YEARLY   | price_1SHzV3B1lwwjVYGv1CPvzsC0         | ✅     |
-| STRIPE_PRICE_ADSPACE  | price_1SHzV3B1lwwjVYGvds7yjy18         | ✅     |
-| STRIPE_WEBHOOK_SECRET | whsec_xkX02igQS70Mh7mHljvdGITmTPKn28qY | ✅     |
+| Variable              | Value                               | Status |
+| --------------------- | ----------------------------------- | ------ |
+| STRIPE_PRICE_MONTHLY  | price_1SHzV3B1lwwjVYGvds7yjy18      | ✅     |
+| STRIPE_PRICE_YEARLY   | price_1SHzV3B1lwwjVYGv1CPvzsC0      | ✅     |
+| STRIPE_PRICE_ADSPACE  | price_1SHzV3B1lwwjVYGvds7yjy18      | ✅     |
+| STRIPE_WEBHOOK_SECRET | whsec\_**\*\*\*\***\*\***\*\*\*\*** | ✅     |
 
 ### Phase 5: Code Updates ✅
 
@@ -302,7 +302,7 @@ All required environment variables set across all contexts:
 5. Copy webhook signing secret
 6. Verify it matches Netlify env var: `STRIPE_WEBHOOK_SECRET`
 
-**Note**: The webhook secret is already configured in Netlify (`whsec_xkX02igQS70Mh7mHljvdGITmTPKn28qY`). Verify it matches the one in Stripe dashboard.
+**Note**: The webhook secret is already configured in Netlify (`whsec_******************`). Verify it matches the one in Stripe dashboard.
 
 ### 2. Production Smoke Test
 

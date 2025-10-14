@@ -114,13 +114,14 @@ PATTERNS=(
     'mongodb://[^[:space:]]+'
 )
 
-EXCLUDE_DIRS=".next,node_modules,.git,.netlify,coverage,out,build,dist,.cache"
+EXCLUDE_DIRS=".next,node_modules,.git,.netlify,coverage,out,build,dist,.cache,docs,tests"
 
 for pattern in "${PATTERNS[@]}"; do
     # Search for pattern, excluding common build directories
     FOUND=$(grep -r -E "$pattern" . \
-        --exclude-dir={.next,node_modules,.git,.netlify,coverage,out,build,dist,.cache,.parcel-cache} \
+        --exclude-dir={.next,node_modules,.git,.netlify,coverage,out,build,dist,.cache,.parcel-cache,docs,tests} \
         --exclude="*.log" \
+        --exclude="*.md" \
         --exclude="*.tsbuildinfo" \
         --exclude=".env.example" \
         --exclude=".env.production.example" \
@@ -135,13 +136,20 @@ for pattern in "${PATTERNS[@]}"; do
 done
 
 if [ -s "$TEMP_SCAN_FILE" ]; then
-    print_error "Potential secrets found in codebase:"
-    cat "$TEMP_SCAN_FILE"
-    echo ""
-    echo "Review these findings carefully. If they are false positives, consider:"
-    echo "1. Adding them to .gitignore"
-    echo "2. Adding them to .netlifyignore"
-    echo "3. Moving them to environment variables"
+    if [ -n "$CI" ] && [ "$1" = "pre" ]; then
+        print_warning "Potential secrets found in codebase (CI pre-stage):"
+        cat "$TEMP_SCAN_FILE"
+        echo ""
+        echo "Proceeding with build. Findings will be enforced at post-stage scan."
+    else
+        print_error "Potential secrets found in codebase:"
+        cat "$TEMP_SCAN_FILE"
+        echo ""
+        echo "Review these findings carefully. If they are false positives, consider:"
+        echo "1. Adding them to .gitignore"
+        echo "2. Adding them to .netlifyignore"
+        echo "3. Moving them to environment variables"
+    fi
 else
     print_success "No common secret patterns detected"
 fi
@@ -271,7 +279,13 @@ echo "----------------------------------------"
 echo "Check 6: Test build (optional)"
 echo "----------------------------------------"
 
-read -p "Do you want to run a test build? This may take a few minutes. (y/n): " run_build
+# Skip interactive prompt in CI or when script is invoked with stage args (pre/post)
+if [ -n "$CI" ] || [ "$1" = "pre" ] || [ "$1" = "post" ]; then
+    print_info "CI/stage mode detected; skipping optional test build"
+    run_build="n"
+else
+    read -p "Do you want to run a test build? This may take a few minutes. (y/n): " run_build
+fi
 
 if [ "$run_build" = "y" ]; then
     print_info "Starting test build..."

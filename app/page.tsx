@@ -11,16 +11,16 @@ const BASE_URL = getBaseUrl()
 
 // Server-side metadata generation for SEO & AEO (2025)
 export const metadata: Metadata = {
-  title: 'JudgeFinder.io - California Judicial Transparency Platform 2025 | Free Legal Research',
+  title: 'JudgeFinder.io – California Judicial Research',
   description:
-    'Research California judges instantly with comprehensive judicial analytics, pattern analysis, ruling insights, and case outcomes. Free access to complete court data for attorneys, litigants, and citizens. Updated 2025.',
+    'Research California judges with analytics, ruling patterns, and court information. Free statewide data for attorneys and citizens.',
   keywords:
     'california judges, find my judge, court appearance preparation, judicial analytics, judge patterns, california courts, legal research, judge profiles, court analytics, judicial transparency, california superior court judges, judge ruling patterns, legal intelligence, court preparation, judge information, california judicial directory, court case research, judge decision history, legal transparency platform, free judge lookup, 2025',
 
   openGraph: {
-    title: 'JudgeFinder.io - California Judicial Research Platform 2025',
+    title: 'JudgeFinder.io – California Judicial Research',
     description:
-      'Instant access to California judge profiles with comprehensive analytics. Research ruling patterns, judicial tendencies, and case outcomes. 100% free for attorneys and citizens.',
+      'Access California judge profiles with analytics, ruling patterns, and case outcomes. Free for attorneys and citizens.',
     type: 'website',
     url: BASE_URL,
     siteName: 'JudgeFinder.io',
@@ -37,9 +37,9 @@ export const metadata: Metadata = {
 
   twitter: {
     card: 'summary_large_image',
-    title: 'Find Your California Judge - Free Judicial Research 2025',
+    title: 'Find Your California Judge – Free Judicial Research',
     description:
-      'Research California judges with comprehensive data analytics. Ruling patterns, judicial insights, case outcomes. 100% free access.',
+      'Research California judges with analytics, judicial insights, and case outcomes. Free access.',
     images: ['/twitter-image'],
     creator: '@judgefinder',
     site: '@judgefinder',

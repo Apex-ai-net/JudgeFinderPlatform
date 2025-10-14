@@ -103,7 +103,7 @@ export function Header(): JSX.Element {
           <ThemeToggle />
           {isSignedIn ? (
             <SafeUserButton
-              afterSignOutUrl="/"
+              signOutRedirectUrl="/"
               appearance={{ elements: { userButtonAvatarBox: { width: '32px', height: '32px' } } }}
             />
           ) : (
@@ -112,11 +112,13 @@ export function Header(): JSX.Element {
               fallbackRedirectUrl="/dashboard"
               forceRedirectUrl="/dashboard"
             >
-              <span
-                className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'cursor-pointer')}
+              <button
+                type="button"
+                className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}
+                aria-label="Sign in"
               >
                 Sign in
-              </span>
+              </button>
             </SafeSignInButton>
           )}
         </div>

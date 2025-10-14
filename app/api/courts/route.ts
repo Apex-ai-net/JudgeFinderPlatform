@@ -17,11 +17,21 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       })
     }
 
-    const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
-    const rl = buildRateLimiter({ tokens: 180, window: '1 m', prefix: 'api:courts:list' })
-    const { success, remaining } = await rl.limit(`${getClientIp(request)}:global`)
-    if (!success) {
-      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+    let remaining: number | undefined
+    try {
+      const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
+      const rl = buildRateLimiter({ tokens: 180, window: '1 m', prefix: 'api:courts:list' })
+      const res = await rl.limit(`${getClientIp(request)}:global`)
+      if (!res.success) {
+        return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+      }
+      remaining = res.remaining
+    } catch (e) {
+      if (process.env.ALLOW_SOFT_RATE_LIMIT === 'true') {
+        console.warn('Rate limiter unavailable, proceeding with soft fallback for /api/courts')
+      } else {
+        throw e
+      }
     }
     const { searchParams } = new URL(request.url)
     const q = searchParams.get('q') || ''
