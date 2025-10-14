@@ -30,24 +30,35 @@ export function JudgesDirectoryResultsGrid({
   const hasMore = viewModel.state.has_more
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
-  // Infinite scroll sentinel
+  // Infinite scroll sentinel with debounce to prevent rapid triggers
   useEffect(() => {
     if (!sentinelRef.current) return
     if (!hasMore) return
+    if (loading) return // Don't set up observer while loading
+
     const el = sentinelRef.current
+    let timeoutId: NodeJS.Timeout | null = null
+
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0]
-        if (entry.isIntersecting && !viewModel.state.loading) {
-          void viewModel.loadMore()
+        if (entry.isIntersecting && !viewModel.state.loading && viewModel.state.has_more) {
+          // Debounce to prevent rapid-fire calls
+          if (timeoutId) clearTimeout(timeoutId)
+          timeoutId = setTimeout(() => {
+            void viewModel.loadMore()
+          }, 300)
         }
       },
       { root: null, rootMargin: '200px', threshold: 0 }
     )
     observer.observe(el)
-    return () => observer.disconnect()
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+      observer.disconnect()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore])
+  }, [hasMore, loading])
 
   const itemData = useMemo(
     () => ({
