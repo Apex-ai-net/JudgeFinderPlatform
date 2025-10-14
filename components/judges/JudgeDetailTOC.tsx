@@ -22,6 +22,7 @@ const tocItems: TOCItem[] = [
 export function JudgeDetailTOC(): JSX.Element {
   const [activeSection, setActiveSection] = useState('profile')
   const [isOpen, setIsOpen] = useState(false)
+  const [isDesktopExpanded, setIsDesktopExpanded] = useState(false)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -123,69 +124,102 @@ export function JudgeDetailTOC(): JSX.Element {
         initial="initial"
         animate="animate"
       >
-        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-          <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Menu className="w-4 h-4" />
-            On this page
-          </h3>
-          <nav className="space-y-1">
-            {tocItems.map((item) => (
-              <motion.button
-                key={item.id}
-                onClick={() => scrollToSection(item.id)}
-                className={cn(
-                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200',
-                  activeSection === item.id
-                    ? 'bg-primary text-primary-foreground font-semibold shadow-md'
-                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                )}
-                whileHover={{ x: 4 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span className={cn('flex-shrink-0', activeSection === item.id && 'animate-pulse')}>
-                  {item.icon}
-                </span>
-                <span className="flex-1 text-left">{item.label}</span>
-                {activeSection === item.id && (
-                  <motion.div
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </motion.div>
-                )}
-              </motion.button>
-            ))}
-          </nav>
+        <div className="bg-card border border-border rounded-xl shadow-sm">
+          {/* Header with Toggle */}
+          <button
+            onClick={() => setIsDesktopExpanded(!isDesktopExpanded)}
+            className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors rounded-t-xl"
+          >
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Menu className="w-4 h-4" />
+              On this page
+            </h3>
+            <motion.div
+              animate={{ rotate: isDesktopExpanded ? 90 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </motion.div>
+          </button>
 
-          {/* Progress indicator */}
-          <div className="mt-4 pt-4 border-t border-border">
-            <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-              <span>Reading progress</span>
-              <span>
-                {Math.round(
-                  ((tocItems.findIndex((item) => item.id === activeSection) + 1) /
-                    tocItems.length) *
-                    100
-                )}
-                %
-              </span>
-            </div>
-            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+          {/* Collapsible Content */}
+          <AnimatePresence>
+            {isDesktopExpanded && (
               <motion.div
-                className="h-full bg-primary"
-                initial={{ width: 0 }}
-                animate={{
-                  width: `${((tocItems.findIndex((item) => item.id === activeSection) + 1) / tocItems.length) * 100}%`,
-                }}
-                transition={{ duration: 0.3 }}
-              />
-            </div>
-          </div>
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="overflow-hidden"
+              >
+                <div className="px-6 pb-6">
+                  <nav className="space-y-1">
+                    {tocItems.map((item) => (
+                      <motion.button
+                        key={item.id}
+                        onClick={() => scrollToSection(item.id)}
+                        className={cn(
+                          'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200',
+                          activeSection === item.id
+                            ? 'bg-primary text-primary-foreground font-semibold shadow-md'
+                            : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                        )}
+                        whileHover={{ x: 4 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <span
+                          className={cn(
+                            'flex-shrink-0',
+                            activeSection === item.id && 'animate-pulse'
+                          )}
+                        >
+                          {item.icon}
+                        </span>
+                        <span className="flex-1 text-left">{item.label}</span>
+                        {activeSection === item.id && (
+                          <motion.div
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </motion.div>
+                        )}
+                      </motion.button>
+                    ))}
+                  </nav>
+
+                  {/* Progress indicator */}
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                      <span>Reading progress</span>
+                      <span>
+                        {Math.round(
+                          ((tocItems.findIndex((item) => item.id === activeSection) + 1) /
+                            tocItems.length) *
+                            100
+                        )}
+                        %
+                      </span>
+                    </div>
+                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-primary"
+                        initial={{ width: 0 }}
+                        animate={{
+                          width: `${((tocItems.findIndex((item) => item.id === activeSection) + 1) / tocItems.length) * 100}%`,
+                        }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions - Always Visible */}
         <motion.div
           className="mt-4 bg-card border border-border rounded-xl p-4 shadow-sm"
           initial={{ opacity: 0, y: 20 }}
