@@ -1,12 +1,13 @@
 import Stripe from 'stripe'
 
 /**
- * Stripe client configuration for ad space purchases
+ * Stripe client configuration for universal access subscriptions
  *
  * Environment variables required:
  * - STRIPE_SECRET_KEY: Secret key from Stripe dashboard
  * - STRIPE_WEBHOOK_SECRET: Webhook signing secret for security
- * - STRIPE_PRICE_ADSPACE: Price ID for ad placement product
+ * - STRIPE_PRICE_MONTHLY: Monthly subscription price ID ($500/month)
+ * - STRIPE_PRICE_YEARLY: Annual subscription price ID ($5,000/year)
  */
 
 // Initialize Stripe client with proper error handling
@@ -60,11 +61,11 @@ export async function createCheckoutSession(params: {
     throw new Error('Stripe not configured')
   }
 
-  // Use provided priceId, or fall back to legacy STRIPE_PRICE_ADSPACE for backward compatibility
-  const priceId = params.priceId || process.env.STRIPE_PRICE_ADSPACE
+  // priceId must be provided by the caller (STRIPE_PRICE_MONTHLY or STRIPE_PRICE_YEARLY)
+  const priceId = params.priceId
 
   if (!priceId) {
-    throw new Error('No Stripe price ID provided and STRIPE_PRICE_ADSPACE not configured')
+    throw new Error('No Stripe price ID provided. Caller must specify priceId parameter.')
   }
 
   return await stripe.checkout.sessions.create({
@@ -108,6 +109,7 @@ export function isStripeConfigured(): boolean {
   return !!(
     stripe &&
     process.env.STRIPE_WEBHOOK_SECRET &&
-    (process.env.STRIPE_PRICE_MONTHLY || process.env.STRIPE_PRICE_ADSPACE)
+    process.env.STRIPE_PRICE_MONTHLY &&
+    process.env.STRIPE_PRICE_YEARLY
   )
 }

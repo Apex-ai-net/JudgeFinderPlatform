@@ -51,7 +51,7 @@ const REQUIRED_VARS = {
   payments: ['STRIPE_SECRET_KEY', 'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY'],
 
   // Optional - external APIs
-  apis: ['COURTLISTENER_API_KEY', 'GOOGLE_GENERATIVE_AI_API_KEY'],
+  apis: ['COURTLISTENER_API_KEY', 'GOOGLE_AI_API_KEY'],
 }
 
 // Parse command line arguments
