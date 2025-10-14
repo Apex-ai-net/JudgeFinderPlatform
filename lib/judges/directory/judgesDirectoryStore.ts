@@ -194,17 +194,10 @@ export class JudgesDirectoryStore {
   }
 }
 
-let sharedStore: JudgesDirectoryStore | null = null
-
 export function getJudgesDirectoryStore(
   manager: JudgesDirectoryDataManager,
   initialState?: JudgeDirectoryFetchResult['response']
 ): JudgesDirectoryStore {
-  if (!sharedStore) {
-    sharedStore = new JudgesDirectoryStore({ manager, initialState })
-  } else if (initialState && !sharedStore.state.initialized) {
-    sharedStore = new JudgesDirectoryStore({ manager, initialState })
-  }
-
-  return sharedStore
+  // Create new store instance per component to avoid stale state issues
+  return new JudgesDirectoryStore({ manager, initialState })
 }
