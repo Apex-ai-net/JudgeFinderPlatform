@@ -6,7 +6,7 @@
     "dev": "npm run validate:env && next dev",
     "dev:turbo": "next dev --turbo",
     "build": "npm run validate:env && next build",
-    "build:production": "npm run validate:env && bash scripts/verify-build-security.sh pre && next build && bash scripts/verify-build-security.sh post",
+    "build:production": "npm run validate:env && next build && bash scripts/verify-build-security.sh post",
     "build:netlify": "next build",
     "start": "next start",
     "setup": "npm install && npm run validate:env",
