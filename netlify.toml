@@ -59,7 +59,8 @@
   # - reports/**, validation-reports/**: Generated reports
   # - env_verification_report.json: Environment validation output
   # - tests-eslint.json, eslint-report.json: Linting reports
-  SECRETS_SCAN_OMIT_PATHS = ".netlify/**,.next/**,node_modules/**,.git/**,.cache/**,.parcel-cache/**,.eslintcache,*.tsbuildinfo,tsconfig.tsbuildinfo,coverage/**,out/**,build/**,dist/**,reports/**,validation-reports/**,*.log,logs/**,env_verification_report.json,tests-eslint.json,eslint-report.json,test-results/**,playwright-report/**,.playwright-mcp/**,docs/**,README.md,.env.example,ENV_VARS_REFERENCE.md,START_HERE.md,RECOVERY_CHECKLIST.md,RECOVERY_SUMMARY.md,SECURITY_IMPLEMENTATION_SUMMARY.md"
+  # - .claude/**: IDE configuration files
+  SECRETS_SCAN_OMIT_PATHS = ".netlify/**,.next/**,node_modules/**,.git/**,.cache/**,.parcel-cache/**,.eslintcache,*.tsbuildinfo,tsconfig.tsbuildinfo,coverage/**,out/**,build/**,dist/**,reports/**,validation-reports/**,*.log,logs/**,env_verification_report.json,tests-eslint.json,eslint-report.json,test-results/**,playwright-report/**,.playwright-mcp/**,.claude/**,docs/**,README.md,.env.example,ENV_VARS_REFERENCE.md,START_HERE.md,RECOVERY_CHECKLIST.md,RECOVERY_SUMMARY.md,SECURITY_IMPLEMENTATION_SUMMARY.md"
 
   # Public keys to exclude from secret scanning
   # Rationale for each exclusion:

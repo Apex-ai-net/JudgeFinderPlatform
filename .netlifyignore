@@ -140,6 +140,7 @@ scripts/backup-*.js
 .codex/
 .giga/
 .claude/
+*.claude/
 
 # Editor temporary files
 *.swp

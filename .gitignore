@@ -46,6 +46,7 @@ next-env.d.ts
 *.swo
 *~
 .cursor/
+.claude/
 
 # Documentation (temporary/planning)
 REACTBITS_*.md
@@ -215,6 +216,7 @@ dist
 .pnp.*
 
 .cursor/
+.claude/
 
 # Environment variables
 .env
