@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { observer } from 'mobx-react-lite'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid, type GridChildComponentProps } from 'react-window'
 import { motion } from 'framer-motion'
@@ -18,7 +19,7 @@ interface JudgesDirectoryResultsGridProps {
   viewModel: JudgesDirectoryViewModel
 }
 
-export function JudgesDirectoryResultsGrid({
+export const JudgesDirectoryResultsGrid = observer(function JudgesDirectoryResultsGrid({
   viewModel,
 }: JudgesDirectoryResultsGridProps): JSX.Element {
   const router = useRouter()
@@ -133,4 +134,4 @@ export function JudgesDirectoryResultsGrid({
       )}
     </div>
   )
-}
+})
