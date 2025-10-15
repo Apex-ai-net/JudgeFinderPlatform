@@ -52,10 +52,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         // Extract metadata
         const metadata = session.metadata || {}
-        const { organization_name, ad_type, notes, client_ip, created_at } = metadata
+        const { organization_name, ad_type, notes, client_ip, created_at, clerk_user_id } = metadata
 
         // Extract customer email from session
         const customer_email = session.customer_details?.email || session.customer_email
+
+        // CRITICAL: Verify clerk_user_id is present
+        if (!clerk_user_id) {
+          logger.error('Missing clerk_user_id in webhook metadata - cannot link to user', {
+            session_id: session.id,
+            organization_name,
+          })
+          // Continue processing but flag the issue
+        }
 
         // Create order record in database
         const supabase = await createServerClient()
@@ -65,6 +74,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           .insert({
             stripe_session_id: session.id,
             stripe_payment_intent: session.payment_intent as string,
+            created_by: clerk_user_id || null, // NEW: Link to Clerk user
             organization_name,
             customer_email,
             ad_type,
@@ -78,6 +88,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               created_at,
               checkout_completed_at: new Date().toISOString(),
               stripe_customer: session.customer,
+              clerk_user_id, // NEW: Also store in JSONB metadata
             },
           })
           .select()
@@ -86,6 +97,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         if (orderError) {
           logger.error('Failed to create order record', {
             session_id: session.id,
+            clerk_user_id,
             error: orderError.message,
           })
           // Don't return error - we don't want to tell Stripe the webhook failed
@@ -93,6 +105,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         } else {
           logger.info('Order created successfully', {
             order_id: order.id,
+            clerk_user_id,
             organization_name,
             ad_type,
             amount: session.amount_total,

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createCheckoutSession, isStripeConfigured } from '@/lib/stripe/client'
+import { auth, currentUser, clerkClient } from '@clerk/nextjs/server'
+import { createCheckoutSession, isStripeConfigured, getStripeClient } from '@/lib/stripe/client'
 import { logger } from '@/lib/utils/logger'
 
 export const dynamic = 'force-dynamic'
@@ -8,6 +9,8 @@ export const dynamic = 'force-dynamic'
  * POST /api/checkout/adspace
  *
  * Creates a Stripe Checkout session for universal access purchase
+ *
+ * SECURITY: Requires authentication (enforced by middleware + this handler)
  *
  * Request body:
  * {
@@ -26,6 +29,25 @@ export const dynamic = 'force-dynamic'
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    // CRITICAL: Require authentication (also enforced by middleware)
+    const { userId } = await auth()
+    if (!userId) {
+      logger.warn('Unauthorized checkout attempt - user not signed in')
+      return NextResponse.json(
+        { error: 'Unauthorized - Please sign in to purchase ad space' },
+        { status: 401 }
+      )
+    }
+
+    const user = await currentUser()
+    if (!user || !user.primaryEmailAddress) {
+      logger.error('User profile incomplete', { userId })
+      return NextResponse.json(
+        { error: 'User profile incomplete - please update your profile' },
+        { status: 400 }
+      )
+    }
+
     // Check Stripe configuration
     if (!isStripeConfigured()) {
       logger.error('Stripe not configured - cannot create checkout session')
@@ -45,7 +67,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       prefix: 'api:checkout:adspace',
     })
     const clientIp = getClientIp(request)
-    const { success, remaining } = await rl.limit(`${clientIp}:global`)
+    const { success, remaining } = await rl.limit(`${userId}:checkout`)
 
     if (!success) {
       return NextResponse.json(
@@ -107,20 +129,52 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
+    // Link to existing Stripe customer or create new one
+    let stripeCustomerId = user.privateMetadata?.stripe_customer_id as string | undefined
+
+    if (!stripeCustomerId) {
+      logger.info('Creating Stripe customer for new user', { userId })
+
+      const stripe = getStripeClient()
+      const customer = await stripe.customers.create({
+        email: user.primaryEmailAddress.emailAddress,
+        name: user.fullName || organization_name,
+        metadata: {
+          clerk_user_id: userId,
+          clerk_email: user.primaryEmailAddress.emailAddress,
+        },
+      })
+
+      // Save to Clerk private metadata
+      const clerk = await clerkClient()
+      await clerk.users.updateUserMetadata(userId, {
+        privateMetadata: {
+          ...user.privateMetadata,
+          stripe_customer_id: customer.id,
+        },
+      })
+
+      stripeCustomerId = customer.id
+      logger.info('Stripe customer created and linked', { userId, customerId: customer.id })
+    } else {
+      logger.info('Using existing Stripe customer', { userId, customerId: stripeCustomerId })
+    }
+
     // Get base URL for success/cancel redirects
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || 'https://judgefinder.io'
 
-    // Create Stripe Checkout session with explicit price ID
+    // Create Stripe Checkout session with linked customer
     const session = await createCheckoutSession({
       priceId,
-      customer_email: email,
-      success_url: `${baseUrl}/ads/success?session_id={CHECKOUT_SESSION_ID}`,
+      customer: stripeCustomerId, // Use linked Stripe customer
+      success_url: `${baseUrl}/dashboard/billing?success=1&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/ads/buy?canceled=true`,
       metadata: {
+        clerk_user_id: userId, // CRITICAL: track Clerk user for webhook
         organization_name,
         billing_cycle,
-        ad_type: ad_type || 'universal_access', // backward compatibility
+        ad_type: ad_type || 'universal_access',
         notes: notes || '',
         client_ip: clientIp,
         created_at: new Date().toISOString(),
@@ -131,8 +185,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     logger.info('Checkout session created', {
       session_id: session.id,
+      user_id: userId,
+      customer_id: stripeCustomerId,
       organization_name,
-      email,
       billing_cycle,
       price_id: priceId,
     })

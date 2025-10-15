@@ -27,6 +27,18 @@ function createStripeClient(): Stripe | null {
 export const stripe = createStripeClient()
 
 /**
+ * Get Stripe client instance (throws if not configured)
+ * @returns Stripe client instance
+ * @throws Error if Stripe is not configured
+ */
+export function getStripeClient(): Stripe {
+  if (!stripe) {
+    throw new Error('Stripe not configured - missing STRIPE_SECRET_KEY')
+  }
+  return stripe
+}
+
+/**
  * Verify Stripe webhook signature
  * @param payload - Raw request body
  * @param signature - Stripe-Signature header value
@@ -53,6 +65,7 @@ export function verifyWebhookSignature(payload: string | Buffer, signature: stri
 export async function createCheckoutSession(params: {
   priceId?: string
   customer_email?: string
+  customer?: string // NEW: Use existing Stripe customer ID
   success_url: string
   cancel_url: string
   metadata?: Record<string, string>
@@ -77,7 +90,10 @@ export async function createCheckoutSession(params: {
         quantity: 1,
       },
     ],
-    customer_email: params.customer_email,
+    // Use customer ID if provided, otherwise fall back to customer_email
+    ...(params.customer
+      ? { customer: params.customer }
+      : { customer_email: params.customer_email }),
     success_url: params.success_url,
     cancel_url: params.cancel_url,
     metadata: params.metadata || {},

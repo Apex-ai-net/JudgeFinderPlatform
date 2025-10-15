@@ -25,6 +25,9 @@ const isProtectedRoute = createRouteMatcher([
   '/settings(.*)',
   '/dashboard(.*)',
   '/welcome(.*)',
+  '/ads/buy', // NEW: require sign-in to view purchase page
+  '/api/checkout(.*)', // NEW: protect all checkout API routes
+  '/api/billing(.*)', // NEW: protect billing routes
 ])
 
 const isAdminRoute = createRouteMatcher(['/admin(.*)'])
