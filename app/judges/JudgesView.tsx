@@ -65,16 +65,10 @@ export const JudgesView = observer(function JudgesView({ initialData }: JudgesVi
 
   useEffect(() => {
     const searchQuery = searchParams.get('search') || searchParams.get('q') || ''
-    const pageParam = searchParams.get('page')
-    const page = pageParam ? parseInt(pageParam, 10) : 1
 
     if (searchQuery) {
       viewModel.setSearchTerm(searchQuery)
       void viewModel.refresh()
-    }
-
-    if (page !== viewModel.state.currentPage) {
-      viewModel.setPage(Number.isFinite(page) && page >= 1 ? page : 1)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.toString()])
