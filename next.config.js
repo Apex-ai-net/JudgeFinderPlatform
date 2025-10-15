@@ -153,8 +153,8 @@ const nextConfig = {
   poweredByHeader: false,
 
   // Optimize for deployment
-  // Required for Netlify with Next.js 15 App Router
-  output: 'standalone',
+  // Netlify handles output automatically via @netlify/plugin-nextjs
+  // DO NOT use output: 'standalone' - that's for self-hosting (Docker/VPS), not Netlify
 }
 
 module.exports = nextConfig
