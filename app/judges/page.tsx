@@ -83,11 +83,11 @@ function JudgesLoading(): JSX.Element {
   )
 }
 
-async function getInitialJudges(): JSX.Element {
+async function getInitialJudges(page: number = 1): Promise<any> {
   try {
     const baseUrl = getBaseUrl()
     const response = await fetch(
-      `${baseUrl}/api/judges/list?limit=24&page=1&jurisdiction=CA&include_decisions=true`,
+      `${baseUrl}/api/judges/list?limit=24&page=${page}&jurisdiction=CA&include_decisions=true`,
       {
         cache: 'force-cache',
         next: { revalidate: 600 },
@@ -101,8 +101,20 @@ async function getInitialJudges(): JSX.Element {
   }
 }
 
-export default async function JudgesPage(): Promise<JSX.Element> {
-  const initialData = await getInitialJudges()
+export default async function JudgesPage({
+  searchParams,
+}: {
+  searchParams: { page?: string }
+}): Promise<JSX.Element> {
+  // Read page from URL query parameter
+  const pageParam = searchParams.page ? parseInt(searchParams.page, 10) : 1
+
+  // Validate page number (must be positive integer)
+  const validPage = Number.isFinite(pageParam) && pageParam >= 1 ? pageParam : 1
+
+  // Fetch data for the requested page
+  const initialData = await getInitialJudges(validPage)
+
   return (
     <Suspense fallback={<JudgesLoading />}>
       <JudgesView initialData={initialData || undefined} />
