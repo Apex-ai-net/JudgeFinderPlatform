@@ -4,6 +4,8 @@ import { createServerClient } from '@/lib/supabase/server'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { CheckCircle2, AlertCircle, Package } from 'lucide-react'
+import ManageBillingButton from '@/components/billing/ManageBillingButton'
+import BillingDataClient from '@/components/billing/BillingDataClient'
 
 export const metadata: Metadata = {
   title: 'Billing & Purchases | JudgeFinder Dashboard',
@@ -80,10 +82,28 @@ export default async function BillingDashboard({
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Billing & Purchases</h1>
-          <p className="mt-2 text-muted-foreground">
-            View your ad space purchases and billing history
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                Billing & Purchases
+              </h1>
+              <p className="mt-2 text-muted-foreground">
+                View your ad space purchases and billing history
+              </p>
+            </div>
+            <div className="hidden sm:block">
+              <ManageBillingButton />
+            </div>
+          </div>
+          {/* Mobile button */}
+          <div className="sm:hidden mt-4">
+            <ManageBillingButton />
+          </div>
+        </div>
+
+        {/* Active Subscriptions & Payment Methods */}
+        <div className="mb-8">
+          <BillingDataClient />
         </div>
 
         {/* Orders List */}
