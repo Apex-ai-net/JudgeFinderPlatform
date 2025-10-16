@@ -19,7 +19,7 @@ export function DonationButton({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleDonate(): JSX.Element {
+  async function handleDonate(): Promise<void> {
     try {
       setLoading(true)
       setError(null)

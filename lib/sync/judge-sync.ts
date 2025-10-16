@@ -69,12 +69,14 @@ export class JudgeSyncManager {
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
     if (!supabaseUrl || !serviceRoleKey) {
-      throw new Error('Supabase credentials missing: set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
+      throw new Error(
+        'Supabase credentials missing: set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY'
+      )
     }
 
     return new SupabaseServiceRoleFactory({
       url: supabaseUrl,
-      serviceRoleKey
+      serviceRoleKey,
     }).create()
   }
 
@@ -89,13 +91,13 @@ export class JudgeSyncManager {
           page_type: 'sync',
           metric_id: name,
           rating: 'needs-improvement',
-          metadata: meta || null
+          metadata: meta || null,
         })
       } catch (error) {
         logger.warn('Failed to record performance metric', {
           context: 'judge_sync_metrics',
           metric_name: name,
-          error
+          error,
         })
       }
     })
@@ -149,7 +151,7 @@ export class JudgeSyncManager {
       judgesRetired: 0, // NEW: Initialize retired count
       profilesEnhanced: 0,
       errors: [],
-      duration: 0
+      duration: 0,
     }
 
     try {
@@ -171,16 +173,15 @@ export class JudgeSyncManager {
 
       await this.logSyncCompletion('judge', result)
 
-      logger.info('Judge sync completed', { 
-        syncId: this.syncId, 
+      logger.info('Judge sync completed', {
+        syncId: this.syncId,
         result: {
           ...result,
-          errors: result.errors.length
-        }
+          errors: result.errors.length,
+        },
       })
 
       return result
-
     } catch (error) {
       result.duration = Date.now() - startTime
       result.success = false
@@ -188,7 +189,7 @@ export class JudgeSyncManager {
 
       logger.error('Judge sync failed', { syncId: this.syncId, error })
       await this.logSyncError('judge', error as Error)
-      
+
       return result
     }
   }
@@ -206,7 +207,7 @@ export class JudgeSyncManager {
       created: 0,
       retired: 0, // NEW: Initialize retired count
       enhanced: 0,
-      errors: []
+      errors: [],
     }
 
     const batchSize = this.resolveBatchSize(options.batchSize)
@@ -218,7 +219,7 @@ export class JudgeSyncManager {
       }
 
       const batch = judgeIds.slice(i, i + batchSize)
-      
+
       try {
         for (const judgeId of batch) {
           if (this.shouldAbortSync()) {
@@ -266,7 +267,7 @@ export class JudgeSyncManager {
       created: 0,
       retired: 0, // NEW: Initialize retired count
       enhanced: 0,
-      errors: []
+      errors: [],
     }
 
     // Get judges from our database that need updating
@@ -282,7 +283,7 @@ export class JudgeSyncManager {
         }
 
         const batch = judgesToSync.slice(i, i + batchSize)
-        
+
         try {
           const batchResult = await this.processBatch(batch, options)
           stats.processed += batchResult.processed
@@ -367,7 +368,7 @@ export class JudgeSyncManager {
       created: 0,
       retired: 0, // NEW: Initialize retired count
       enhanced: 0,
-      errors: []
+      errors: [],
     }
 
     for (const judge of judges) {
@@ -411,7 +412,7 @@ export class JudgeSyncManager {
         const response = await this.courtListener.listJudges({
           cursorUrl: cursor,
           ordering: '-date_modified',
-          filters
+          filters,
         })
 
         for (const judge of response.results || []) {
@@ -430,9 +431,14 @@ export class JudgeSyncManager {
         await sleep(750)
       }
 
-      const perRunLimit = Math.max(1, Math.min(options.discoverLimit || (options.batchSize ? options.batchSize * 5 : 150), this.perRunCreateLimit - this.createdCount))
+      const perRunLimit = Math.max(
+        1,
+        Math.min(
+          options.discoverLimit || (options.batchSize ? options.batchSize * 5 : 150),
+          this.perRunCreateLimit - this.createdCount
+        )
+      )
       return Array.from(newIds).slice(0, perRunLimit)
-
     } catch (error) {
       logger.error('Failed to discover new judges', { error })
       return []
@@ -447,14 +453,14 @@ export class JudgeSyncManager {
     const normalized = jurisdiction.toUpperCase()
 
     if (['US', 'F', 'FEDERAL'].includes(normalized)) {
-      return { 'positions__court__jurisdiction': 'F' }
+      return { positions__court__jurisdiction: 'F' }
     }
 
     if (/^[A-Z]{2}$/.test(normalized)) {
-      return { 'positions__court__state': normalized.toLowerCase() }
+      return { positions__court__state: normalized.toLowerCase() }
     }
 
-    return { 'positions__court__jurisdiction': normalized }
+    return { positions__court__jurisdiction: normalized }
   }
 
   private async getExistingCourtListenerIds(options: JudgeSyncOptions): Promise<Set<string>> {
@@ -530,7 +536,6 @@ export class JudgeSyncManager {
         this.createdCount++
         return { updated: false, created: true, retired: false, enhanced }
       }
-
     } catch (error) {
       logger.error('Failed to sync single judge', { judgeId: courtlistenerJudgeId, error })
       throw error
@@ -573,22 +578,21 @@ export class JudgeSyncManager {
     const updateData: any = {
       name: judgeData.name_full || judgeData.name,
       courtlistener_data: judgeData,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }
 
     // Extract court assignment from positions
     if (judgeData.positions && judgeData.positions.length > 0) {
-      const currentPosition = judgeData.positions.find(p => !p.date_termination) || judgeData.positions[0]
-      if (currentPosition) {
-        updateData.court_name = currentPosition.court?.full_name || currentPosition.court?.name
+      const currentPosition =
+        judgeData.positions.find((p) => !p.date_termination) || judgeData.positions[0]
+      if (currentPosition && typeof currentPosition === 'object' && currentPosition !== null) {
+        const court = currentPosition.court as { full_name?: string; name?: string } | undefined
+        updateData.court_name = court?.full_name || court?.name
         updateData.jurisdiction = this.extractJurisdiction(currentPosition)
       }
     }
 
-    const { error } = await this.supabase
-      .from('judges')
-      .update(updateData)
-      .eq('id', judgeId)
+    const { error } = await this.supabase.from('judges').update(updateData).eq('id', judgeId)
 
     if (error) {
       throw new Error(`Failed to update judge: ${error.message}`)
@@ -606,14 +610,16 @@ export class JudgeSyncManager {
       courtlistener_id: judgeData.id,
       courtlistener_data: judgeData,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }
 
     // Extract court assignment from positions
     if (judgeData.positions && judgeData.positions.length > 0) {
-      const currentPosition = judgeData.positions.find(p => !p.date_termination) || judgeData.positions[0]
-      if (currentPosition) {
-        insertData.court_name = currentPosition.court?.full_name || currentPosition.court?.name
+      const currentPosition =
+        judgeData.positions.find((p) => !p.date_termination) || judgeData.positions[0]
+      if (currentPosition && typeof currentPosition === 'object' && currentPosition !== null) {
+        const court = currentPosition.court as { full_name?: string; name?: string } | undefined
+        insertData.court_name = court?.full_name || court?.name
         insertData.jurisdiction = this.extractJurisdiction(currentPosition)
         insertData.appointed_date = currentPosition.date_start
       }
@@ -635,7 +641,10 @@ export class JudgeSyncManager {
   /**
    * Enhance judge profile with additional data
    */
-  private async enhanceJudgeProfile(judgeId: string, judgeData: CourtListenerJudge): Promise<boolean> {
+  private async enhanceJudgeProfile(
+    judgeId: string,
+    judgeData: CourtListenerJudge
+  ): Promise<boolean> {
     try {
       let enhanced = false
       const updateData: any = {}
@@ -643,7 +652,17 @@ export class JudgeSyncManager {
       // Add education information
       if (judgeData.educations && judgeData.educations.length > 0) {
         const education = judgeData.educations
-          .map(edu => `${edu.school?.name || 'Unknown'} (${edu.degree || 'Unknown degree'})`)
+          .map((edu) => {
+            const school =
+              typeof edu === 'object' && edu !== null && 'school' in edu
+                ? (edu.school as { name?: string } | undefined)
+                : undefined
+            const degree =
+              typeof edu === 'object' && edu !== null && 'degree' in edu
+                ? (edu.degree as string | undefined)
+                : undefined
+            return `${school?.name || 'Unknown'} (${degree || 'Unknown degree'})`
+          })
           .join('; ')
         updateData.education = education
         enhanced = true
@@ -652,17 +671,24 @@ export class JudgeSyncManager {
       // Add bio from positions
       if (judgeData.positions && judgeData.positions.length > 0) {
         const bio = judgeData.positions
-          .map(pos => `${pos.position_type || 'Judge'} at ${pos.court?.full_name || pos.court?.name || 'Unknown Court'}`)
+          .map((pos) => {
+            const posType =
+              typeof pos === 'object' && pos !== null && 'position_type' in pos
+                ? (pos.position_type as string | undefined)
+                : undefined
+            const court =
+              typeof pos === 'object' && pos !== null && 'court' in pos
+                ? (pos.court as { full_name?: string; name?: string } | undefined)
+                : undefined
+            return `${posType || 'Judge'} at ${court?.full_name || court?.name || 'Unknown Court'}`
+          })
           .join('; ')
         updateData.bio = bio
         enhanced = true
       }
 
       if (enhanced) {
-        const { error } = await this.supabase
-          .from('judges')
-          .update(updateData)
-          .eq('id', judgeId)
+        const { error } = await this.supabase.from('judges').update(updateData).eq('id', judgeId)
 
         if (error) {
           throw new Error(`Failed to enhance judge profile: ${error.message}`)
@@ -670,7 +696,6 @@ export class JudgeSyncManager {
       }
 
       return enhanced
-
     } catch (error) {
       logger.error('Failed to enhance judge profile', { judgeId, error })
       return false
@@ -682,17 +707,20 @@ export class JudgeSyncManager {
    * FIX: Check CourtListener positions for date_termination
    * If all positions have termination dates, mark judge as retired
    */
-  private async detectAndMarkRetirement(existingJudge: any, clData: CourtListenerJudge): Promise<boolean> {
+  private async detectAndMarkRetirement(
+    existingJudge: any,
+    clData: CourtListenerJudge
+  ): Promise<boolean> {
     try {
       // Check if judge has any active positions (positions without termination date)
-      const hasActivePosition = clData.positions?.some(p => !p.date_termination)
+      const hasActivePosition = clData.positions?.some((p) => !p.date_termination)
 
       // If judge currently has 'active' status but no active positions, mark as retired
       if (!hasActivePosition && (!existingJudge.status || existingJudge.status === 'active')) {
         logger.info('Detected retired judge - all positions terminated', {
           judgeId: existingJudge.id,
           judgeName: existingJudge.name,
-          positionsCount: clData.positions?.length || 0
+          positionsCount: clData.positions?.length || 0,
         })
 
         // Update judge status to retired
@@ -700,32 +728,31 @@ export class JudgeSyncManager {
           .from('judges')
           .update({
             status: 'retired',
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
           .eq('id', existingJudge.id)
 
         if (error) {
           logger.error('Failed to mark judge as retired', {
             judgeId: existingJudge.id,
-            error: error.message
+            error: error.message,
           })
           return false
         }
 
         logger.info('Successfully marked judge as retired', {
           judgeId: existingJudge.id,
-          judgeName: existingJudge.name
+          judgeName: existingJudge.name,
         })
 
         return true
       }
 
       return false
-
     } catch (error) {
       logger.error('Error during retirement detection', {
         judgeId: existingJudge.id,
-        error
+        error,
       })
       return false
     }
@@ -756,15 +783,13 @@ export class JudgeSyncManager {
    */
   private async logSyncStart(syncType: string, options: any) {
     try {
-      await this.supabase
-        .from('sync_logs')
-        .insert({
-          sync_id: this.syncId,
-          sync_type: syncType,
-          status: 'started',
-          options: options,
-          started_at: new Date().toISOString()
-        })
+      await this.supabase.from('sync_logs').insert({
+        sync_id: this.syncId,
+        sync_type: syncType,
+        status: 'started',
+        options: options,
+        started_at: new Date().toISOString(),
+      })
     } catch (error) {
       logger.error('Failed to log sync start', { error })
     }
@@ -781,7 +806,7 @@ export class JudgeSyncManager {
           status: result.success ? 'completed' : 'failed',
           result: result,
           completed_at: new Date().toISOString(),
-          duration_ms: result.duration
+          duration_ms: result.duration,
         })
         .eq('sync_id', this.syncId)
     } catch (error) {
@@ -799,7 +824,7 @@ export class JudgeSyncManager {
         .update({
           status: 'failed',
           error_message: error.message,
-          completed_at: new Date().toISOString()
+          completed_at: new Date().toISOString(),
         })
         .eq('sync_id', this.syncId)
     } catch (logError) {

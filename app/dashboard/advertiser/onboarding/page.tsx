@@ -47,7 +47,7 @@ export default function AdvertiserOnboardingPage(): JSX.Element {
     'Civil Litigation',
   ]
 
-  async function handleSubmit(): JSX.Element {
+  async function handleSubmit(): Promise<void> {
     try {
       setLoading(true)
       setError('')

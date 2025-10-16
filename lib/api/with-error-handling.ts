@@ -210,7 +210,7 @@ export function withErrorHandling(config?: ErrorHandlingConfig): Middleware {
           {
             error: error.message,
             code: error.code,
-            ...(error.details && { details: error.details }),
+            ...(error.details !== undefined && { details: error.details }),
             ...(isDevelopment && config?.includeStack && error.stack && { stack: error.stack }),
           },
           { status: error.statusCode }

@@ -126,7 +126,9 @@ async function fetchAdSpots(
 
   return (data || []).map((spot) => ({
     ...(spot as AdSpot),
-    advertiser: (spot as Record<string, unknown>).advertiser || null,
+    advertiser: (spot as Record<string, unknown>).advertiser
+      ? ((spot as Record<string, unknown>).advertiser as AdvertiserProfile)
+      : null,
   }))
 }
 

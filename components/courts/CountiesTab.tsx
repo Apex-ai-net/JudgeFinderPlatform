@@ -27,7 +27,7 @@ export function CountiesTab(): JSX.Element {
   useEffect(() => {
     let isMounted = true
 
-    async function fetchCountsByJurisdiction(): JSX.Element {
+    async function fetchCountsByJurisdiction(): Promise<void> {
       try {
         setLoading(true)
         setError(null)

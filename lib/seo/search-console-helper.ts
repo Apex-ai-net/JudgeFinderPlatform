@@ -163,8 +163,11 @@ export function validateStructuredData(
     // Check for @context
     if (!data['@context']) {
       errors.push(`${prefix}Missing @context property`)
-    } else if (!data['@context'].includes('schema.org')) {
-      warnings.push(`${prefix}@context should reference schema.org`)
+    } else {
+      const context = String(data['@context'])
+      if (!context.includes('schema.org')) {
+        warnings.push(`${prefix}@context should reference schema.org`)
+      }
     }
 
     // Check for @type

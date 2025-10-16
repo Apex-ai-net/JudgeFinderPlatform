@@ -23,7 +23,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // For now, just return success
     return NextResponse.json({ success: true })
   } catch (error) {
-    log.error('Failed to track chat funnel event:', error)
+    log.error(
+      'Failed to track chat funnel event:',
+      undefined,
+      error instanceof Error ? error : new Error(String(error))
+    )
     // Don't fail the request - analytics tracking is non-critical
     return NextResponse.json({ success: false }, { status: 200 })
   }

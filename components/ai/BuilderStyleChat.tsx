@@ -284,14 +284,28 @@ export default function BuilderStyleChat(): JSX.Element {
           {messages.map((message) => (
             <div key={message.id}>
               {message.type === 'judge_card' && message.judgeData ? (
-                <JudgeCard judge={message.judgeData} />
+                <JudgeCard
+                  judge={{
+                    ...message.judgeData,
+                    court_name: message.judgeData.court_name ?? undefined,
+                    appointed_date: message.judgeData.appointed_date ?? undefined,
+                  }}
+                />
               ) : message.type === 'judge_list' && message.judgesData ? (
                 <div className="space-y-3">
                   <p className="text-sm text-muted-foreground mb-2">
                     I found multiple judges matching your query:
                   </p>
                   {message.judgesData.slice(0, 3).map((judge, idx) => (
-                    <JudgeCard key={idx} judge={judge} compact />
+                    <JudgeCard
+                      key={idx}
+                      judge={{
+                        ...judge,
+                        court_name: judge.court_name ?? undefined,
+                        appointed_date: judge.appointed_date ?? undefined,
+                      }}
+                      compact
+                    />
                   ))}
                 </div>
               ) : (

@@ -13,7 +13,7 @@ interface UnifiedSearchProps {
 }
 
 // Debounce hook
-function useDebounce(value: string, delay: number): JSX.Element {
+function useDebounce(value: string, delay: number): string {
   const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {
@@ -93,7 +93,8 @@ const UnifiedSearchComponent: React.FC<UnifiedSearchProps> = ({
   // Fetch real search results from API
   useEffect(() => {
     const fetchSearchResults = async () => {
-      if (!debouncedQuery.trim()) {
+      const trimmedQuery = debouncedQuery.trim()
+      if (!trimmedQuery) {
         setSearchResults([])
         return
       }

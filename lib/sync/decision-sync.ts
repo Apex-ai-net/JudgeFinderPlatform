@@ -13,9 +13,16 @@ import {
   normalizeCaseNumber,
   normalizeOutcomeLabel,
   normalizeJurisdiction,
-  toTitle
+  toTitle,
 } from '@/lib/sync/normalization'
-import { getDecisionKey, determineCaseOutcomeAndStatus, classifyCaseTypeFromDocket, formatDate, buildCaseSummaryFromDocket, buildCourtListenerUrl } from '@/lib/sync/decision-helpers'
+import {
+  getDecisionKey,
+  determineCaseOutcomeAndStatus,
+  classifyCaseTypeFromDocket,
+  formatDate,
+  buildCaseSummaryFromDocket,
+  buildCourtListenerUrl,
+} from '@/lib/sync/decision-helpers'
 import { syncJudgeFilings as syncJudgeFilingsExternal } from '@/lib/sync/decision-filings'
 import { DecisionRepository } from '@/lib/sync/decision-repository'
 import { ensureOpinionForCase as ensureOpinionForCaseExternal } from '@/lib/sync/decision-opinions'
@@ -30,7 +37,7 @@ export const DecisionSyncOptionsSchema = z.object({
   includeDockets: z.boolean().optional(),
   maxFilingsPerJudge: z.number().int().min(1).max(400).optional(),
   filingYearsBack: z.number().int().min(1).max(10).optional(),
-  filingDaysSinceLast: z.number().int().min(1).max(365).optional()
+  filingDaysSinceLast: z.number().int().min(1).max(365).optional(),
 })
 
 export type DecisionSyncOptions = z.infer<typeof DecisionSyncOptionsSchema>
@@ -78,11 +85,13 @@ export class DecisionSyncManager {
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
     if (!supabaseUrl || !serviceRoleKey) {
-      throw new Error('Supabase credentials missing: set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
+      throw new Error(
+        'Supabase credentials missing: set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY'
+      )
     }
 
     this.supabase = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false }
+      auth: { persistSession: false },
     })
     this.courtListener = new CourtListenerClient()
     this.courtListener.setMetricsReporter(async (name, value, meta) => {
@@ -94,13 +103,13 @@ export class DecisionSyncManager {
           page_type: 'sync',
           metric_id: name,
           rating: 'needs-improvement',
-          metadata: meta || null
+          metadata: meta || null,
         })
       } catch (error) {
         logger.warn('Failed to record performance metric', {
           context: 'decision_sync_metrics',
           metric_name: name,
-          error
+          error,
         })
       }
     })
@@ -126,7 +135,7 @@ export class DecisionSyncManager {
       filingsUpdated: 0,
       filingsSkipped: 0,
       errors: [],
-      duration: 0
+      duration: 0,
     }
 
     try {
@@ -147,10 +156,10 @@ export class DecisionSyncManager {
 
       // Process judges in batches to respect rate limits
       const batchSize = safeOptions.batchSize || 5 // Smaller batches for decisions
-      
+
       for (let i = 0; i < judgesToSync.length; i += batchSize) {
         const batch = judgesToSync.slice(i, i + batchSize)
-        
+
         try {
           const batchResult = await this.processBatch(batch, safeOptions)
           result.decisionsProcessed += batchResult.decisionsProcessed
@@ -178,16 +187,15 @@ export class DecisionSyncManager {
 
       await this.logSyncCompletion('decision', result)
 
-      logger.info('Decision sync completed', { 
-        syncId: this.syncId, 
+      logger.info('Decision sync completed', {
+        syncId: this.syncId,
         result: {
           ...result,
-          errors: result.errors.length
-        }
+          errors: result.errors.length,
+        },
       })
 
       return result
-
     } catch (error) {
       result.duration = Date.now() - startTime
       result.success = false
@@ -195,7 +203,7 @@ export class DecisionSyncManager {
 
       logger.error('Decision sync failed', { syncId: this.syncId, error })
       await this.logSyncError('decision', error as Error)
-      
+
       return result
     }
   }
@@ -253,12 +261,11 @@ export class DecisionSyncManager {
 
         // Small delay between judges
         await sleep(1000)
-
       } catch (error) {
-        logger.error('Failed to sync decisions for judge', { 
-          judge: judge.name, 
-          judgeId: judge.id, 
-          error 
+        logger.error('Failed to sync decisions for judge', {
+          judge: judge.name,
+          judgeId: judge.id,
+          error,
         })
         // Continue with other judges
       }
@@ -272,7 +279,7 @@ export class DecisionSyncManager {
       filingsProcessed,
       filingsCreated,
       filingsUpdated,
-      filingsSkipped
+      filingsSkipped,
     }
   }
 
@@ -284,14 +291,14 @@ export class DecisionSyncManager {
       processed: 0,
       created: 0,
       updated: 0,
-      duplicatesSkipped: 0
+      duplicatesSkipped: 0,
     }
 
     let filingStats = {
       processed: 0,
       created: 0,
       updated: 0,
-      skipped: 0
+      skipped: 0,
     }
 
     try {
@@ -301,7 +308,7 @@ export class DecisionSyncManager {
       logger.info('Syncing decisions for judge', {
         judge: judge.name,
         courtlistenerId: judge.courtlistener_id,
-        sinceDate
+        sinceDate,
       })
 
       // Fetch recent decisions from CourtListener
@@ -313,7 +320,7 @@ export class DecisionSyncManager {
       } else {
         // Check for existing decisions to avoid duplicates
         const decisionKeys = decisions
-          .map(decision => getDecisionKey(decision))
+          .map((decision) => getDecisionKey(decision))
           .filter(Boolean) as string[]
         const existingDecisions = await this.repository.getExistingDecisions(judge.id, decisionKeys)
 
@@ -321,7 +328,12 @@ export class DecisionSyncManager {
       }
 
       if (options.includeDockets !== false) {
-        filingStats = await syncJudgeFilingsExternal(this.supabase, this.courtListener, judge, options)
+        filingStats = await syncJudgeFilingsExternal(
+          this.supabase,
+          this.courtListener,
+          judge,
+          options
+        )
       }
 
       // Update judge's total case count after decisions and filings
@@ -330,7 +342,7 @@ export class DecisionSyncManager {
       logger.info('Completed decision sync for judge', {
         judge: judge.name,
         decisions: decisionStats,
-        filings: filingStats
+        filings: filingStats,
       })
 
       return {
@@ -341,9 +353,8 @@ export class DecisionSyncManager {
         filingsProcessed: filingStats.processed,
         filingsCreated: filingStats.created,
         filingsUpdated: filingStats.updated,
-        filingsSkipped: filingStats.skipped
+        filingsSkipped: filingStats.skipped,
       }
-
     } catch (error) {
       logger.error('Error syncing judge decisions', { judge: judge.name, error })
       throw error
@@ -353,7 +364,10 @@ export class DecisionSyncManager {
   /**
    * Get the date from which to fetch decisions for a judge
    */
-  private async getSinceDateForJudge(judgeId: string, options: DecisionSyncOptions): Promise<string> {
+  private async getSinceDateForJudge(
+    judgeId: string,
+    options: DecisionSyncOptions
+  ): Promise<string> {
     if (options.daysSinceLast) {
       const daysAgo = new Date()
       daysAgo.setDate(daysAgo.getDate() - options.daysSinceLast)
@@ -392,36 +406,43 @@ export class DecisionSyncManager {
   /**
    * Get the date from which to fetch filings (dockets) for a judge
    */
-  
 
   /**
    * Fetch decisions for a judge from CourtListener
    */
   private async fetchJudgeDecisions(
-    courtlistenerJudgeId: string, 
-    sinceDate: string, 
+    courtlistenerJudgeId: string,
+    sinceDate: string,
     options: DecisionSyncOptions
   ): Promise<CourtListenerDecision[]> {
     const maxDecisions = options.maxDecisionsPerJudge || 150
     const yearsBack = options.yearsBack && options.yearsBack > 0 ? options.yearsBack : 5
-    
+
     try {
-      const decisions = await this.courtListener.getRecentOpinionsByJudge(
-        courtlistenerJudgeId, 
+      const opinions = await this.courtListener.getRecentOpinionsByJudge(
+        courtlistenerJudgeId,
         yearsBack
       )
 
-      // Filter by date and limit
-      const filteredDecisions = decisions
-        .filter(decision => decision.date_filed >= sinceDate)
+      // Transform CourtListenerOpinion to CourtListenerDecision
+      const decisions: CourtListenerDecision[] = opinions
+        .filter((opinion) => opinion.date_filed >= sinceDate)
         .slice(0, maxDecisions)
+        .map((opinion) => ({
+          id: opinion.id,
+          cluster_id: opinion.cluster,
+          case_name: opinion.case_name,
+          date_filed: opinion.date_filed,
+          precedential_status: 'Unknown',
+          date_created: opinion.date_filed,
+          opinion_id: opinion.id,
+        }))
 
-      return filteredDecisions
-
+      return decisions
     } catch (error) {
-      logger.error('Failed to fetch decisions from CourtListener', { 
-        judgeId: courtlistenerJudgeId, 
-        error 
+      logger.error('Failed to fetch decisions from CourtListener', {
+        judgeId: courtlistenerJudgeId,
+        error,
       })
       try {
         await this.supabase.from('performance_metrics').insert({
@@ -430,20 +451,17 @@ export class DecisionSyncManager {
           page_url: '/lib/sync/decision-sync',
           page_type: 'sync',
           metric_id: 'fetch_decisions_failed',
-          rating: 'poor'
+          rating: 'poor',
         })
       } catch (metricError) {
         logger.warn('Failed to record failure metric', {
           context: 'fetch_decisions_failed_metric',
-          error: metricError
+          error: metricError,
         })
       }
       throw error
     }
   }
-
-
-
 
   private buildCaseRecordFromDocket(
     judge: any,
@@ -452,7 +470,10 @@ export class DecisionSyncManager {
     docketHash: string | null,
     normalizedJurisdiction: string | null
   ) {
-    const caseName = (docket.case_name || docket.case_name_short || 'Unknown Case').substring(0, 500)
+    const caseName = (docket.case_name || docket.case_name_short || 'Unknown Case').substring(
+      0,
+      500
+    )
     const { decisionDate, status, outcomeLabel } = determineCaseOutcomeAndStatus(docket)
 
     const caseType = classifyCaseTypeFromDocket(docket)
@@ -471,7 +492,7 @@ export class DecisionSyncManager {
       courtlistener_id: docket.id ? `docket-${docket.id}` : null,
       source_url: buildCourtListenerUrl(docket.absolute_url),
       jurisdiction: normalizedJurisdiction,
-      docket_hash: docketHash
+      docket_hash: docketHash,
     }
   }
 
@@ -479,11 +500,22 @@ export class DecisionSyncManager {
     judge: any,
     decisions: CourtListenerDecision[],
     existingDecisions: Map<string, string>,
-    decisionStats: { processed: number; created: number; updated: number; duplicatesSkipped: number }
+    decisionStats: {
+      processed: number
+      created: number
+      updated: number
+      duplicatesSkipped: number
+    }
   ) {
     const jurisdiction = normalizeJurisdiction(judge.jurisdiction || null)
     for (const decision of decisions) {
-      await this.handleSingleDecision(judge, decision, existingDecisions, decisionStats, jurisdiction)
+      await this.handleSingleDecision(
+        judge,
+        decision,
+        existingDecisions,
+        decisionStats,
+        jurisdiction
+      )
     }
   }
 
@@ -491,7 +523,12 @@ export class DecisionSyncManager {
     judge: any,
     decision: CourtListenerDecision,
     existingDecisions: Map<string, string>,
-    decisionStats: { processed: number; created: number; updated: number; duplicatesSkipped: number },
+    decisionStats: {
+      processed: number
+      created: number
+      updated: number
+      duplicatesSkipped: number
+    },
     jurisdiction: string | null
   ) {
     const decisionKey = getDecisionKey(decision)
@@ -503,7 +540,12 @@ export class DecisionSyncManager {
           await this.updateExistingCaseIfNewer(existingCaseId, decision)
 
           // Always ensure opinion text is synced
-          await ensureOpinionForCaseExternal(this.supabase, this.courtListener, existingCaseId, decision)
+          await ensureOpinionForCaseExternal(
+            this.supabase,
+            this.courtListener,
+            existingCaseId,
+            decision
+          )
           decisionStats.updated++
         } else {
           decisionStats.duplicatesSkipped++
@@ -513,7 +555,12 @@ export class DecisionSyncManager {
 
       const caseResult = await this.repository.upsertDecision(judge.id, jurisdiction, decision)
       if (caseResult.caseId) {
-        await ensureOpinionForCaseExternal(this.supabase, this.courtListener, caseResult.caseId, decision)
+        await ensureOpinionForCaseExternal(
+          this.supabase,
+          this.courtListener,
+          caseResult.caseId,
+          decision
+        )
         if (decisionKey) existingDecisions.set(decisionKey, caseResult.caseId)
       }
 
@@ -524,9 +571,12 @@ export class DecisionSyncManager {
       } else {
         decisionStats.duplicatesSkipped++
       }
-
     } catch (error) {
-      logger.error('Failed to process decision', { judge: judge.name, decision: decision.case_name, error })
+      logger.error('Failed to process decision', {
+        judge: judge.name,
+        decision: decision.case_name,
+        error,
+      })
     }
   }
 
@@ -534,7 +584,10 @@ export class DecisionSyncManager {
    * Update existing case metadata if CourtListener has newer data
    * Compares date_modified and updates ALL fields if remote is newer
    */
-  private async updateExistingCaseIfNewer(caseId: string, decision: CourtListenerDecision): Promise<boolean> {
+  private async updateExistingCaseIfNewer(
+    caseId: string,
+    decision: CourtListenerDecision
+  ): Promise<boolean> {
     try {
       // Get existing case to check last update time
       const { data: existingCase, error: fetchError } = await this.supabase
@@ -561,7 +614,7 @@ export class DecisionSyncManager {
       const updateData: any = {
         case_name: (decision.case_name || existingCase.case_name).substring(0, 500),
         precedential_status: decision.precedential_status || null,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       }
 
       // Update the case with fresh metadata
@@ -578,11 +631,10 @@ export class DecisionSyncManager {
       logger.info('Updated case metadata from CourtListener', {
         caseId,
         courtlistenerId: decision.cluster_id,
-        fieldsUpdated: Object.keys(updateData).length
+        fieldsUpdated: Object.keys(updateData).length,
       })
 
       return true
-
     } catch (error) {
       logger.error('Error updating existing case', { caseId, error })
       return false
@@ -609,15 +661,13 @@ export class DecisionSyncManager {
    */
   private async logSyncStart(syncType: string, options: any) {
     try {
-      await this.supabase
-        .from('sync_logs')
-        .insert({
-          sync_id: this.syncId,
-          sync_type: syncType,
-          status: 'started',
-          options: options,
-          started_at: new Date().toISOString()
-        })
+      await this.supabase.from('sync_logs').insert({
+        sync_id: this.syncId,
+        sync_type: syncType,
+        status: 'started',
+        options: options,
+        started_at: new Date().toISOString(),
+      })
     } catch (error) {
       logger.error('Failed to log sync start', { error })
     }
@@ -634,7 +684,7 @@ export class DecisionSyncManager {
           status: result.success ? 'completed' : 'failed',
           result: result,
           completed_at: new Date().toISOString(),
-          duration_ms: result.duration
+          duration_ms: result.duration,
         })
         .eq('sync_id', this.syncId)
     } catch (error) {
@@ -652,13 +702,11 @@ export class DecisionSyncManager {
         .update({
           status: 'failed',
           error_message: error.message,
-          completed_at: new Date().toISOString()
+          completed_at: new Date().toISOString(),
         })
         .eq('sync_id', this.syncId)
     } catch (logError) {
       logger.error('Failed to log sync error', { logError })
     }
   }
-
-  
 }

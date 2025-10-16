@@ -103,10 +103,24 @@ export async function updateUserRole(userId: string, role: UserRole): Promise<vo
 }
 
 /**
+ * User permissions interface
+ */
+export interface UserPermissions {
+  can_create_campaigns: boolean
+  can_manage_billing: boolean
+  can_view_analytics: boolean
+  can_book_spots: boolean
+  can_approve_campaigns: boolean
+  can_manage_all_advertisers: boolean
+  can_view_revenue_reports: boolean
+  can_manage_ad_spots: boolean
+}
+
+/**
  * Get user permissions based on role
  */
-export function getRolePermissions(role: UserRole): void {
-  const permissions = {
+export function getRolePermissions(role: UserRole): UserPermissions {
+  const permissions: Record<UserRole, UserPermissions> = {
     admin: {
       can_create_campaigns: true,
       can_manage_billing: true,

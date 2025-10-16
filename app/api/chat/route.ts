@@ -202,7 +202,7 @@ async function getRelevantContext(
             const judgeList = judges
               .slice(0, 5)
               .map(
-                (j, i) =>
+                (j: any, i: number) =>
                   `${i + 1}. Judge ${j.name} - ${j.court_name || 'Court not specified'} (${j.jurisdiction || 'CA'})`
               )
               .join('\n')

@@ -130,7 +130,7 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps): J
     }))
   }
 
-  function trackClick(slotId: string, url: string): JSX.Element {
+  function trackClick(slotId: string, url: string): void {
     fetch('/api/advertising/track-click', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

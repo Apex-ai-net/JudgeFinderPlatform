@@ -306,7 +306,7 @@ export class CourtListenerClient {
           return data
         }
       } catch (error) {
-        lastError = error
+        lastError = error instanceof Error ? error : new Error(String(error))
         lastStatus = undefined
         lastRetryAfterMs = null
         // AbortError or network error should retry
@@ -478,16 +478,21 @@ export class CourtListenerClient {
               const cluster = await this.getClusterDetails(clusterId)
 
               // Combine opinion and cluster data
-              const caseData = {
+              const caseData: CourtListenerOpinion = {
                 id: opinionId,
-                opinion_id: opinionId,
-                cluster_id: clusterId,
+                cluster: clusterId,
+                date_filed: cluster.date_filed || dateField,
                 case_name: cluster.case_name || 'Unknown Case',
-                date_filed: cluster.date_filed,
-                precedential_status: cluster.precedential_status,
-                author_id: null, // Not available in opinion object
-                author_str: null, // Not available in opinion object
-                date_created: dateField, // Use date_filed instead
+                court: {
+                  id: cluster.court || 'unknown',
+                  name: cluster.court_name || 'Unknown Court',
+                },
+                cluster_obj: {
+                  case_name: cluster.case_name || 'Unknown Case',
+                  date_filed: cluster.date_filed || dateField,
+                  citation_count: cluster.citation_count || 0,
+                  disposition: cluster.disposition || '',
+                },
               }
 
               allCases.push(caseData)
@@ -499,13 +504,13 @@ export class CourtListenerClient {
               // Add opinion without cluster details
               allCases.push({
                 id: opinionId,
-                opinion_id: opinionId,
-                cluster_id: clusterId,
+                cluster: clusterId,
+                date_filed: dateField,
                 case_name: 'Unknown Case',
-                date_filed: null,
-                author_id: null, // Not available in opinion object
-                author_str: null, // Not available in opinion object
-                date_created: dateField, // Use date_filed instead
+                court: {
+                  id: 'unknown',
+                  name: 'Unknown Court',
+                },
               })
             }
           }
@@ -704,13 +709,13 @@ export class CourtListenerClient {
     return {
       judge_id: judgeId,
       case_name: caseName.substring(0, 500), // Truncate if too long
-      case_number: `CL-O${caseData.opinion_id}`,
+      case_number: `CL-O${caseData.id}`,
       decision_date: decisionDate,
       case_type: 'Opinion',
       status: 'decided' as const,
-      outcome: caseData.precedential_status || null,
-      summary: `CourtListener opinion ${caseData.opinion_id}`,
-      courtlistener_id: `opinion_${caseData.opinion_id}`,
+      outcome: caseData.cluster_obj?.disposition || null,
+      summary: `CourtListener opinion ${caseData.id}`,
+      courtlistener_id: `opinion_${caseData.id}`,
       filing_date: decisionDate,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),

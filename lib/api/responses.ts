@@ -143,7 +143,7 @@ export function error(
   const response: ApiErrorResponse = {
     error: message,
     ...(code && { code }),
-    ...(details && { details }),
+    ...(details !== undefined && { details }),
   }
 
   return NextResponse.json(response, { status })
@@ -169,7 +169,7 @@ export function validationError(
     error: message,
     code: 'VALIDATION_ERROR',
     ...(fields && { fields }),
-    ...(details && { details }),
+    ...(details !== undefined && { details }),
   }
 
   return NextResponse.json(response, { status: 400 })
@@ -393,7 +393,7 @@ export async function parseJsonBody<T = unknown>(
     }
   }
 
-  return body
+  return body as T
 }
 
 /**

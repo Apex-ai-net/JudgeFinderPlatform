@@ -41,7 +41,7 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps): JSX.E
   useEffect(() => {
     let isMounted = true
 
-    async function load(): JSX.Element {
+    async function load(): Promise<void> {
       try {
         setLoading(true)
         setError(null)
@@ -113,7 +113,7 @@ export function AttorneySlots({ judgeId, judgeName }: AttorneySlotsProps): JSX.E
     }
   }, [judgeId])
 
-  async function claimSlot(slotId: string): JSX.Element {
+  async function claimSlot(slotId: string): Promise<void> {
     try {
       setClaiming(slotId)
       setError(null)

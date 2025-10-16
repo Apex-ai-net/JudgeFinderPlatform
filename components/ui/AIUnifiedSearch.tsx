@@ -28,7 +28,7 @@ interface AIUnifiedSearchProps {
 }
 
 // Debounce hook
-function useDebounce(value: string, delay: number): JSX.Element {
+function useDebounce(value: string, delay: number): string {
   const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {
@@ -101,7 +101,8 @@ const AIUnifiedSearchComponent: React.FC<AIUnifiedSearchProps> = ({
   // Fetch real search results from API
   useEffect(() => {
     const fetchSearchResults = async () => {
-      if (!debouncedQuery.trim() || debouncedQuery.trim().length < 2) {
+      const trimmedQuery = debouncedQuery.trim()
+      if (!trimmedQuery || trimmedQuery.length < 2) {
         setSearchResults([])
         return
       }

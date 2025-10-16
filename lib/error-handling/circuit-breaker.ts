@@ -37,12 +37,7 @@ export class CircuitBreaker {
   private readonly config: CircuitBreakerConfig
 
   constructor(config: CircuitBreakerConfig) {
-    this.config = {
-      failureThreshold: 5,
-      successThreshold: 2,
-      timeout: 60000, // 1 minute default
-      ...config,
-    }
+    this.config = config
   }
 
   async execute<T>(operation: () => Promise<T>): Promise<T> {

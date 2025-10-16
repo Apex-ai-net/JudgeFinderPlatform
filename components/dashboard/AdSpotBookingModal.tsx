@@ -32,7 +32,7 @@ export default function AdSpotBookingModal({
 
   const monthlyPrice = getMonthlyPrice()
 
-  async function handleBooking(): JSX.Element {
+  async function handleBooking(): Promise<void> {
     try {
       setLoading(true)
       setError('')

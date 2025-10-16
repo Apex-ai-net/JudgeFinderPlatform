@@ -29,16 +29,19 @@ function formatDataFreshness(updatedAt: string): string {
 
 function buildEducationSummary(judge: Judge): string | null {
   const courtlistenerData = judge.courtlistener_data
-  if (courtlistenerData?.educations?.length) {
-    const summary = courtlistenerData.educations
-      .map((edu: any) => {
-        const school = edu.school?.name || edu.school_name || ''
-        const degree = edu.degree || ''
-        return [school, degree].filter(Boolean).join(' — ')
-      })
-      .filter(Boolean)[0]
+  if (courtlistenerData && typeof courtlistenerData === 'object') {
+    const educations = (courtlistenerData as any).educations
+    if (Array.isArray(educations) && educations.length > 0) {
+      const summary = educations
+        .map((edu: any) => {
+          const school = edu?.school?.name || edu?.school_name || ''
+          const degree = edu?.degree || ''
+          return [school, degree].filter(Boolean).join(' — ')
+        })
+        .filter(Boolean)[0]
 
-    if (summary) return summary
+      if (summary) return summary
+    }
   }
 
   return judge.education
@@ -52,16 +55,19 @@ export function JudgeProfile({ judge }: JudgeProfileProps): JSX.Element {
 
   if (judge.appointed_date) {
     appointmentDate = new Date(judge.appointed_date)
-  } else if (courtlistenerData?.positions?.length) {
-    const judicialPositions = courtlistenerData.positions
-      .filter(
-        (pos: any) =>
-          pos.position_type && ['jud', 'c-jud', 'jus', 'c-jus'].includes(pos.position_type)
-      )
-      .sort((a: any, b: any) => (a.date_start || '').localeCompare(b.date_start || ''))
+  } else if (courtlistenerData && typeof courtlistenerData === 'object') {
+    const positions = (courtlistenerData as any).positions
+    if (Array.isArray(positions) && positions.length > 0) {
+      const judicialPositions = positions
+        .filter(
+          (pos: any) =>
+            pos?.position_type && ['jud', 'c-jud', 'jus', 'c-jus'].includes(pos.position_type)
+        )
+        .sort((a: any, b: any) => (a?.date_start || '').localeCompare(b?.date_start || ''))
 
-    if (judicialPositions.length > 0 && judicialPositions[0].date_start) {
-      appointmentDate = new Date(judicialPositions[0].date_start)
+      if (judicialPositions.length > 0 && judicialPositions[0]?.date_start) {
+        appointmentDate = new Date(judicialPositions[0].date_start)
+      }
     }
   }
 

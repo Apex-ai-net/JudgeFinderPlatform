@@ -469,7 +469,7 @@ interface MetadataProps {
   params: SlugParamsPromise
 }
 
-export async function generateMetadata({ params }: MetadataProps): JSX.Element {
+export async function generateMetadata({ params }: MetadataProps): Promise<any> {
   const resolvedParams = await params
   const slug = resolvedParams.slug ?? params.slug
 

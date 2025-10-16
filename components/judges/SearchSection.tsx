@@ -7,7 +7,7 @@ import { Search, MapPin, Building, Filter, Users, Scale, Clock, ChevronRight } f
 import type { SearchResult } from '@/types/search'
 
 // Debounce hook for performance optimization
-function useDebounce(value: string, delay: number): JSX.Element {
+function useDebounce(value: string, delay: number): string {
   const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {
@@ -75,7 +75,8 @@ export function SearchSection(): JSX.Element {
 
   // Effect for debounced search
   useEffect(() => {
-    if (debouncedSearchQuery.trim() && debouncedSearchQuery.trim().length >= 2) {
+    const trimmedQuery = debouncedSearchQuery.trim()
+    if (trimmedQuery && trimmedQuery.length >= 2) {
       fetchSearchResults(debouncedSearchQuery)
     } else {
       setSearchResults([])

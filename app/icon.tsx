@@ -7,7 +7,7 @@ export const size = {
 }
 export const contentType = 'image/png'
 
-export default function Icon(): JSX.Element {
+export default function Icon() {
   return new ImageResponse(
     (
       <div

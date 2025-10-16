@@ -37,7 +37,7 @@ export function RelatedJudges({
   const preferredCourtSlug = courtSlug || resolveCourtSlug({ name: courtName }) || 'unknown-court'
 
   useEffect(() => {
-    async function fetchRelatedJudges(): JSX.Element {
+    async function fetchRelatedJudges(): Promise<void> {
       try {
         const response = await fetch(
           `/api/judges/related?judgeId=${currentJudgeId}&court=${encodeURIComponent(courtName)}&jurisdiction=${encodeURIComponent(jurisdiction)}&limit=6`
@@ -79,7 +79,7 @@ export function RelatedJudges({
   }
 
   if (relatedJudges.length === 0) {
-    return null
+    return null as any
   }
 
   return (

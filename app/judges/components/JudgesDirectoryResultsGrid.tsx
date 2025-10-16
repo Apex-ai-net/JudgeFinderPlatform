@@ -21,7 +21,7 @@ interface JudgesDirectoryResultsGridProps {
 
 export const JudgesDirectoryResultsGrid = observer(function JudgesDirectoryResultsGrid({
   viewModel,
-}: JudgesDirectoryResultsGridProps): JSX.Element {
+}: JudgesDirectoryResultsGridProps): JSX.Element | null {
   const router = useRouter()
   const searchParams = useSearchParams()
   const judges = viewModel.state.judges
@@ -77,13 +77,22 @@ export const JudgesDirectoryResultsGrid = observer(function JudgesDirectoryResul
               rowHeight={CARD_HEIGHT + GRID_ROW_GAP}
               width={width}
               itemData={itemData}
-              itemKey={({ columnIndex, rowIndex, data }) => {
+              itemKey={({
+                columnIndex,
+                rowIndex,
+                data,
+              }: {
+                columnIndex: number
+                rowIndex: number
+                data?: unknown
+              }) => {
                 const index = rowIndex * gridColumnCount + columnIndex
-                const judge = data.judges[index]
+                const typedData = data as { judges: typeof judges; recentYears: number }
+                const judge = typedData.judges[index]
                 return judge?.id || `empty-${rowIndex}-${columnIndex}`
               }}
             >
-              {({ columnIndex, rowIndex, style }: GridChildComponentProps) => {
+              {({ columnIndex, rowIndex, style, data }: GridChildComponentProps) => {
                 const index = rowIndex * gridColumnCount + columnIndex
                 const judge = itemData.judges[index]
 

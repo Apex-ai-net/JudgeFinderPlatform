@@ -129,7 +129,11 @@ export class JudgeErrorBoundary extends React.Component<
 /**
  * Hook-based error boundary for functional components
  */
-export function useJudgeErrorHandler(): JSX.Element {
+export interface JudgeErrorHandler {
+  handleError: (error: Error, errorInfo?: any) => void
+}
+
+export function useJudgeErrorHandler(): JudgeErrorHandler {
   const handleError = React.useCallback((error: Error, errorInfo?: any) => {
     console.error('Judge profile error:', error, errorInfo)
 

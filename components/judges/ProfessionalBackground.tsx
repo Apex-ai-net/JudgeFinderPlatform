@@ -8,11 +8,11 @@ interface ProfessionalBackgroundProps {
 }
 
 export function ProfessionalBackground({ judge }: ProfessionalBackgroundProps): JSX.Element {
-  const courtlistenerData = judge.courtlistener_data
+  const courtlistenerData = judge.courtlistener_data as Record<string, any> | null | undefined
 
   // Calculate years of service
-  let appointmentDate = null
-  let yearsOfService = null
+  let appointmentDate: Date | null = null
+  let yearsOfService: number | null = null
 
   if (judge.appointed_date) {
     appointmentDate = new Date(judge.appointed_date)
@@ -25,7 +25,7 @@ export function ProfessionalBackground({ judge }: ProfessionalBackgroundProps): 
       )
       .sort((a: any, b: any) => (a.date_start || '').localeCompare(b.date_start || ''))
 
-    if (judicialPositions.length > 0 && judicialPositions[0].date_start) {
+    if (judicialPositions.length > 0 && judicialPositions[0]?.date_start) {
       appointmentDate = new Date(judicialPositions[0].date_start)
       yearsOfService = new Date().getFullYear() - appointmentDate.getFullYear()
     }
@@ -61,7 +61,7 @@ export function ProfessionalBackground({ judge }: ProfessionalBackgroundProps): 
   let bio = judge.bio
 
   if (!bio && courtlistenerData) {
-    const bioParts = []
+    const bioParts: string[] = []
 
     if (appointmentDate && judge.court_name) {
       bioParts.push(

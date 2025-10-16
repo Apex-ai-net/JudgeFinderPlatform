@@ -340,7 +340,7 @@ export function CourtsSearch({
     let isMounted = true
     let abortController: AbortController | null = null
 
-    async function searchCourts(): JSX.Element {
+    async function searchCourts(): Promise<void> {
       try {
         if (page === 1) {
           setLoading(true)

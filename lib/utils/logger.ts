@@ -15,9 +15,9 @@ class Logger {
   private isServer = typeof window === 'undefined'
 
   private createLogEntry(
-    level: LogLevel, 
-    message: string, 
-    context?: Record<string, any>, 
+    level: LogLevel,
+    message: string,
+    context?: Record<string, any>,
     error?: Error
   ): LogEntry {
     const entry: LogEntry = {
@@ -25,7 +25,7 @@ class Logger {
       message,
       timestamp: new Date().toISOString(),
       context,
-      error
+      error,
     }
 
     // Add browser context if available
@@ -40,9 +40,9 @@ class Logger {
   private formatMessage(entry: LogEntry): string {
     const { level, message, timestamp, context } = entry
     const prefix = `[${timestamp}] ${level.toUpperCase()}`
-    
+
     let formatted = `${prefix}: ${message}`
-    
+
     if (context && Object.keys(context).length > 0) {
       formatted += ` | Context: ${JSON.stringify(context)}`
     }
@@ -59,7 +59,7 @@ class Logger {
 
   private consoleLog(entry: LogEntry) {
     const message = this.formatMessage(entry)
-    
+
     switch (entry.level) {
       case 'debug':
         console.debug(message, entry.context)
@@ -80,14 +80,14 @@ class Logger {
 
   debug(message: string, context?: Record<string, any>) {
     if (!this.isDevelopment) return
-    
+
     const entry = this.createLogEntry('debug', message, context)
     this.consoleLog(entry)
   }
 
   info(message: string, context?: Record<string, any>) {
     const entry = this.createLogEntry('info', message, context)
-    
+
     if (this.isDevelopment) {
       this.consoleLog(entry)
     } else {
@@ -97,7 +97,7 @@ class Logger {
 
   warn(message: string, context?: Record<string, any>, error?: Error) {
     const entry = this.createLogEntry('warn', message, context, error)
-    
+
     if (this.isDevelopment) {
       this.consoleLog(entry)
     } else {
@@ -107,10 +107,10 @@ class Logger {
 
   error(message: string, context?: Record<string, any>, error?: Error) {
     const entry = this.createLogEntry('error', message, context, error)
-    
+
     // Always log errors, both in dev and production
     this.consoleLog(entry)
-    
+
     if (!this.isDevelopment) {
       this.sendToLoggingService(entry)
     }
@@ -122,21 +122,27 @@ class Logger {
       type: 'api_request',
       method,
       path,
-      ...context
+      ...context,
     })
   }
 
   // Special method for API response logging
-  apiResponse(method: string, path: string, status: number, duration?: number, context?: Record<string, any>) {
+  apiResponse(
+    method: string,
+    path: string,
+    status: number,
+    duration?: number,
+    context?: Record<string, any>
+  ) {
     const level = status >= 400 ? 'error' : status >= 300 ? 'warn' : 'info'
-    
+
     this[level](`API ${method} ${path} - ${status}`, {
       type: 'api_response',
       method,
       path,
       status,
       duration,
-      ...context
+      ...context,
     })
   }
 
@@ -146,19 +152,19 @@ class Logger {
       type: 'database',
       operation,
       table,
-      ...context
+      ...context,
     })
   }
 
   // Special method for performance monitoring
   performance(operation: string, duration: number, context?: Record<string, any>) {
     const level = duration > 5000 ? 'warn' : duration > 2000 ? 'info' : 'debug'
-    
+
     this[level](`Performance: ${operation} took ${duration}ms`, {
       type: 'performance',
       operation,
       duration,
-      ...context
+      ...context,
     })
   }
 }
@@ -166,7 +172,7 @@ class Logger {
 export const logger = new Logger()
 
 // Convenience exports for backward compatibility
-export const log = logger.info.bind(logger)
+export const log = logger
 export const logError = logger.error.bind(logger)
 export const logWarn = logger.warn.bind(logger)
 export const logDebug = logger.debug.bind(logger)

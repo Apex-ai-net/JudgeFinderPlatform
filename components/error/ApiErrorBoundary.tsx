@@ -226,7 +226,15 @@ export class ApiErrorBoundary extends Component<Props, State> {
 /**
  * Hook for handling API errors in functional components
  */
-export function useApiErrorHandler(): JSX.Element {
+export interface ApiErrorHandler {
+  error: Error | null
+  isRetrying: boolean
+  handleError: (error: Error) => void
+  retry: (retryFn: () => Promise<void>) => Promise<void>
+  clearError: () => void
+}
+
+export function useApiErrorHandler(): ApiErrorHandler {
   const [error, setError] = React.useState<Error | null>(null)
   const [isRetrying, setIsRetrying] = React.useState(false)
 

@@ -431,7 +431,7 @@ async function generateAnalyticsFromMaterializedViews(
             .from('mv_judge_outcome_distributions')
             .select('*')
             .eq('judge_id', judgeId)
-            .then((r: any) => r.data || []),
+            .then((r: any) => (r.data && Array.isArray(r.data) ? r.data : [])),
       },
       {
         name: 'case_types',
@@ -454,7 +454,12 @@ async function generateAnalyticsFromMaterializedViews(
         throw new Error('Required statistics not available from materialized views')
       }
 
-      return convertMaterializedViewToAnalytics(judge, stats, outcomes, caseTypes)
+      return convertMaterializedViewToAnalytics(
+        judge,
+        stats,
+        Array.isArray(outcomes) ? outcomes : [],
+        Array.isArray(caseTypes) ? caseTypes : []
+      )
     }
   )
 
@@ -495,24 +500,8 @@ function convertMaterializedViewToAnalytics(
   return {
     ...baseAnalytics,
     confidence_civil: confidence,
-    settlement_rate_civil: (stats.settlement_rate_percent || 0) / 100,
-    plaintiff_win_rate: (stats.plaintiff_win_rate_percent || 0) / 100,
-    case_volume_score: Math.min(100, (stats.cases_last_year || 0) * 2),
-    recent_activity_level: stats.is_recently_active ? 'High' : 'Low',
-    specialization_areas: caseTypes
-      .filter((ct) => ct.case_type_percentage >= 25)
-      .slice(0, 3)
-      .map((ct) => ct.case_type),
-    years_on_bench: stats.latest_decision_date
-      ? new Date().getFullYear() - new Date(stats.earliest_decision_date).getFullYear()
-      : 0,
+    settlement_encouragement_rate: (stats.settlement_rate_percent || 0) / 100,
     total_cases_analyzed: totalCases,
-    data_quality: {
-      has_recent_cases: stats.is_recently_active || false,
-      case_count: totalCases,
-      date_range_years: window.endYear - window.startYear,
-      confidence_level: confidence,
-    },
   }
 }
 

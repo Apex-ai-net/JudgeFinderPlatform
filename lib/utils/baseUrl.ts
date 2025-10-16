@@ -26,10 +26,11 @@ export function getBaseUrl(): string {
   // Normalize: trim whitespace and trailing slash
   url = url.trim().replace(/\/$/, '')
 
-  // Enforce https scheme if missing or using http (only in production)
+  // Enforce https scheme if missing or using http
+  // Note: Development already returned early above, so this only runs in production/test
   try {
     const parsed = new URL(url.startsWith('http') ? url : `https://${url}`)
-    if (parsed.protocol !== 'https:' && process.env.NODE_ENV !== 'development') {
+    if (parsed.protocol !== 'https:') {
       parsed.protocol = 'https:'
     }
     return `${parsed.protocol}//${parsed.host}`

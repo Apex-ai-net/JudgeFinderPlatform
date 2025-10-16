@@ -103,7 +103,7 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
   }
 
   useEffect(() => {
-    async function fetchUserStats(): JSX.Element {
+    async function fetchUserStats(): Promise<void> {
       if (!user) {
         setLoading(false)
         return

@@ -18,7 +18,7 @@ export function SEOMonitoring({
   jurisdiction,
   slug,
   aeoVisible,
-}: SEOMonitoringProps): JSX.Element {
+}: SEOMonitoringProps): null {
   useEffect(() => {
     // Initialize SEO monitoring when component mounts
     initializeSEOMonitoring(judgeName)
