@@ -104,10 +104,13 @@ async function getInitialJudges(page: number = 1): Promise<any> {
 export default async function JudgesPage({
   searchParams,
 }: {
-  searchParams: { page?: string }
+  searchParams: Promise<{ page?: string }>
 }): Promise<JSX.Element> {
+  // Await searchParams (required in Next.js 15+)
+  const params = await searchParams
+
   // Read page from URL query parameter
-  const pageParam = searchParams.page ? parseInt(searchParams.page, 10) : 1
+  const pageParam = params.page ? parseInt(params.page, 10) : 1
 
   // Validate page number (must be positive integer)
   const validPage = Number.isFinite(pageParam) && pageParam >= 1 ? pageParam : 1
