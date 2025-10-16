@@ -1,6 +1,7 @@
 # Judge Analytics Request Flow - Complete Trace
 
 ## Overview
+
 This document traces the complete request flow for loading judge analytics, from URL navigation to rendered content, identifying all data fetching, transformation, and serialization points.
 
 ---
@@ -62,12 +63,14 @@ Server Component: app/judges/[slug]/page.tsx
 **File:** `/app/api/judges/by-slug/route.ts`
 
 ### Configuration
+
 ```typescript
 export const dynamic = 'force-dynamic'
 export const revalidate = 120
 ```
 
 ### Flow
+
 ```
 GET /api/judges/by-slug?slug={slug}
     ↓
@@ -105,6 +108,7 @@ GET /api/judges/by-slug?slug={slug}
 ```
 
 ### Data Structure
+
 ```typescript
 interface JudgeLookupResult {
   judge: Judge | null
@@ -120,7 +124,7 @@ interface Judge {
   court_name: string | null
   court_slug?: string | null
   jurisdiction: string
-  appointed_date: string | null  // ⚠️ Date serialization point
+  appointed_date: string | null // ⚠️ Date serialization point
   position_type?: string | null
   education: string | null
   profile_image_url?: string | null
@@ -130,8 +134,8 @@ interface Judge {
   average_decision_time: number | null
   courtlistener_id?: string | null
   courtlistener_data?: Record<string, unknown> | null
-  created_at: string  // ⚠️ Date serialization point
-  updated_at: string  // ⚠️ Date serialization point
+  created_at: string // ⚠️ Date serialization point
+  updated_at: string // ⚠️ Date serialization point
 }
 ```
 
@@ -142,6 +146,7 @@ interface Judge {
 **File:** `/components/judges/AnalyticsSlidersShell.tsx` → `/components/judges/AnalyticsSliders.tsx`
 
 ### Loading Pattern
+
 ```
 Server Component renders AnalyticsSlidersShell
     ↓
@@ -157,6 +162,7 @@ Fetch analytics data
 ```
 
 ### Analytics Fetch Flow
+
 ```typescript
 // In AnalyticsSliders.tsx useEffect
 fetch(`/api/judges/${judgeId}/analytics${params}`)
@@ -180,19 +186,22 @@ Response handling
 **File:** `/app/api/judges/[id]/analytics/route.ts`
 
 ### Configuration
+
 ```typescript
-export const runtime = 'nodejs'  // NOT edge runtime
+export const runtime = 'nodejs' // NOT edge runtime
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 ```
 
 ### Environment Variables
+
 ```typescript
 LOOKBACK_YEARS = process.env.JUDGE_ANALYTICS_LOOKBACK_YEARS ?? '5'
 CASE_FETCH_LIMIT = process.env.JUDGE_ANALYTICS_CASE_LIMIT ?? '1000'
 ```
 
 ### Complete Flow
+
 ```
 GET /api/judges/[id]/analytics
     ↓
@@ -251,6 +260,7 @@ GET /api/judges/[id]/analytics
 ```
 
 ### Data Structure
+
 ```typescript
 interface CaseAnalytics {
   // Metric values (all numbers 0-100)
@@ -299,8 +309,8 @@ interface CaseAnalytics {
   notable_patterns: string[]
   data_limitations: string[]
   ai_model: string
-  generated_at: string  // ⚠️ Date serialization point
-  last_updated: string  // ⚠️ Date serialization point
+  generated_at: string // ⚠️ Date serialization point
+  last_updated: string // ⚠️ Date serialization point
 }
 ```
 
@@ -309,7 +319,9 @@ interface CaseAnalytics {
 ## Critical Serialization Points
 
 ### 1. Judge Data Dates
+
 **Location:** `/app/api/judges/by-slug/route.ts`
+
 ```typescript
 // Dates come from Supabase as ISO strings
 judge.appointed_date: string | null  // e.g., "2015-06-15"
@@ -321,7 +333,9 @@ judge.updated_at: string             // e.g., "2024-10-10T14:22:00.000Z"
 **Status:** ✅ Safe - no Date objects
 
 ### 2. Analytics Dates
+
 **Location:** `/app/api/judges/[id]/analytics/route.ts`
+
 ```typescript
 analytics.generated_at: string  // new Date().toISOString()
 analytics.last_updated: string  // new Date().toISOString()
@@ -331,12 +345,12 @@ analytics.last_updated: string  // new Date().toISOString()
 **Status:** ✅ Safe - no Date objects
 
 ### 3. Structured Data Generation
+
 **Location:** `/app/judges/[slug]/page.tsx` (lines 256-266)
+
 ```typescript
 try {
-  structuredDataJson = JSON.stringify(
-    generateJudgeStructuredData(judge, canonicalSlug, baseUrl)
-  )
+  structuredDataJson = JSON.stringify(generateJudgeStructuredData(judge, canonicalSlug, baseUrl))
 } catch (error) {
   console.error('Failed to generate structured data JSON for judge', {
     slug: canonicalSlug,
@@ -350,12 +364,16 @@ try {
 **Status:** ⚠️ Requires investigation
 
 ### 4. Client-Side Date Parsing
+
 **Location:** `/components/judges/AnalyticsSliders.tsx` (lines 318-330, 333-352)
+
 ```typescript
 const formatDateTime = (value?: string | null) => {
   if (!value) return 'Not available'
   try {
-    return new Date(value).toLocaleString('en-US', { /* ... */ })
+    return new Date(value).toLocaleString('en-US', {
+      /* ... */
+    })
   } catch {
     return 'Not available'
   }
@@ -378,25 +396,29 @@ const formatRelativeTime = (value?: string | null) => {
 ### Development vs Production
 
 #### Base URL Resolution
+
 **File:** `/lib/utils/baseUrl.ts`
 
 **Development (server-side):**
+
 ```typescript
 return `http://localhost:${process.env.PORT || 3005}`
 ```
 
 **Production (server-side):**
+
 ```typescript
 // Uses environment variables
 process.env.NEXT_PUBLIC_SITE_URL ||
-process.env.NEXT_PUBLIC_APP_URL ||
-process.env.NEXT_PUBLIC_BASE_URL ||
-process.env.URL ||                    // Netlify primary URL
-process.env.DEPLOY_PRIME_URL ||       // Netlify deploy preview
-'https://judgefinder.io'
+  process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  process.env.URL || // Netlify primary URL
+  process.env.DEPLOY_PRIME_URL || // Netlify deploy preview
+  'https://judgefinder.io'
 ```
 
 **Client-side (all environments):**
+
 ```typescript
 if (typeof window !== 'undefined') {
   return window.location.origin
@@ -404,19 +426,17 @@ if (typeof window !== 'undefined') {
 ```
 
 #### API Calls in Server Components
+
 **File:** `/app/judges/[slug]/page.tsx` (line 43)
 
 ```typescript
 const baseUrl = getBaseUrl()
-const response = await fetch(
-  `${baseUrl}/api/judges/by-slug?slug=${encodeURIComponent(slug)}`,
-  {
-    next: { revalidate: 3600 },
-    headers: {
-      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=1800',
-    },
-  }
-)
+const response = await fetch(`${baseUrl}/api/judges/by-slug?slug=${encodeURIComponent(slug)}`, {
+  next: { revalidate: 3600 },
+  headers: {
+    'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=1800',
+  },
+})
 ```
 
 **Development:** Calls `http://localhost:3005/api/judges/by-slug`
@@ -429,47 +449,62 @@ const response = await fetch(
 ## Caching Layers
 
 ### Layer 1: Next.js Fetch Cache
+
 **Location:** Server Components
+
 ```typescript
 fetch(url, { next: { revalidate: 3600 } })
 ```
+
 - Caches at Next.js build/request level
 - 1-hour revalidation
 - ⚠️ Build-time cache may be stale in production
 
 ### Layer 2: Redis Cache
+
 **Location:** `/app/api/judges/[id]/analytics/route.ts`
+
 ```typescript
 redisGetJSON('judge:analytics:{judgeId}')
 redisSetJSON(key, data, 60 * 60 * 24 * 90) // 90 days
 ```
+
 - Edge cache for analytics
 - Indefinite serving (90-day Redis TTL)
 
 ### Layer 3: Database Cache
+
 **Location:** `judge_analytics_cache` table
+
 ```typescript
 SELECT analytics, created_at
 FROM judge_analytics_cache
 WHERE judge_id = $1
 ```
+
 - Permanent cache until manually refreshed
 - Fallback to `judges.case_analytics` column
 
 ### Layer 4: HTTP Response Cache
+
 **Location:** API response headers
+
 ```typescript
 'Cache-Control': 'public, s-maxage=3600, max-age=1800, stale-while-revalidate=1800'
 ```
+
 - CDN/browser caching
 - 1-hour CDN cache
 - 30-minute browser cache
 
 ### Layer 5: In-Memory Cache
+
 **Location:** `/lib/cache/simple-cache.ts`
+
 ```typescript
 cache.set('judge_lookup:{slug}', result, 1800) // 30 minutes
 ```
+
 - Process-local cache
 - Resets on serverless function cold starts
 
@@ -478,10 +513,12 @@ cache.set('judge_lookup:{slug}', result, 1800) // 30 minutes
 ## Potential Production Issues
 
 ### 1. Self-Referential Fetch During Build
+
 **Issue:** Server component calls its own API route during SSR/SSG build
 **Location:** `/app/judges/[slug]/page.tsx` line 43
 
 **Build-time behavior:**
+
 ```
 Next.js build process
     ↓
@@ -501,10 +538,12 @@ Falls back to getJudgeFallback()
 **Mitigation:** Fallback to direct database query works, but slower
 
 ### 2. Date Serialization in Structured Data ⚠️ CRITICAL BUG FOUND
+
 **Issue:** `generateJudgeStructuredData()` creates Date objects that cannot be serialized
 **Location:** Multiple locations in `/lib/seo/structured-data.ts`
 
 **Problem Areas:**
+
 ```typescript
 // Line 435 - Review Schema
 datePublished: new Date().toISOString().split('T')[0]  // ❌ WRONG - uses Date()
@@ -520,23 +559,32 @@ dateModified: new Date().toISOString()  // ❌ WRONG - uses Date()
 When `JSON.stringify()` is called on the structured data, any Date objects cause serialization to fail or produce unexpected results.
 
 **Fix Required:**
+
 ```typescript
 // BEFORE (lines 435, 698)
 datePublished: new Date().toISOString().split('T')[0]
 dateModified: new Date().toISOString()
 
 // AFTER
-datePublished: new Date().toISOString().split('T')[0]  // This is actually OK - returns string
-dateModified: new Date().toISOString()  // This is actually OK - returns string
+datePublished: new Date().toISOString().split('T')[0] // This is actually OK - returns string
+dateModified: new Date().toISOString() // This is actually OK - returns string
 
 // The REAL problem is line 617:
 // BEFORE
-new Date(judge.appointed_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+new Date(judge.appointed_date).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+})
 
 // AFTER
-judge.appointed_date ?
-  new Date(judge.appointed_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) :
-  `Information about Judge ${judgeName}'s appointment date is available through official court records.`
+judge.appointed_date
+  ? new Date(judge.appointed_date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  : `Information about Judge ${judgeName}'s appointment date is available through official court records.`
 ```
 
 **Wait - Further Analysis:**
@@ -547,20 +595,23 @@ Actually, `new Date().toISOString()` returns a string, not a Date object. The is
 **Status:** ⚠️ Requires defensive null checks and error handling
 
 ### 3. Stale Build-time Cache
+
 **Issue:** `export const revalidate = 0` but fetch has `revalidate: 3600`
 **Location:** `/app/judges/[slug]/page.tsx`
 
 **Conflict:**
+
 ```typescript
-export const revalidate = 0  // Force dynamic, no static generation
+export const revalidate = 0 // Force dynamic, no static generation
 
 // But then:
-fetch(url, { next: { revalidate: 3600 } })  // Cache for 1 hour
+fetch(url, { next: { revalidate: 3600 } }) // Cache for 1 hour
 ```
 
 **Effect:** Page is dynamic, but data is cached for 1 hour
 
 ### 4. Redis Indefinite Cache
+
 **Issue:** Analytics never regenerate once cached
 **Location:** `/app/api/judges/[id]/analytics/route.ts` line 56
 
@@ -574,10 +625,12 @@ if (cachedRedis) {
 **Effect:** Stale analytics may be served indefinitely unless manually cleared
 
 ### 5. CORS Same-Origin Fetches
+
 **Issue:** Server-side fetch may fail CORS check during build
 **Location:** Middleware and Next.js config
 
 **Middleware Fix (line 152):**
+
 ```typescript
 if (origin && origin === requestUrl.origin) {
   response.headers.set('Access-Control-Allow-Origin', origin)
@@ -681,16 +734,19 @@ Component Re-render with Analytics Data
 ## Files Reference
 
 ### Core Route Files
+
 - `/app/judges/[slug]/page.tsx` - Main judge profile page
 - `/app/api/judges/by-slug/route.ts` - Judge lookup API
 - `/app/api/judges/[id]/analytics/route.ts` - Analytics API
 
 ### Component Files
+
 - `/components/judges/AnalyticsSlidersShell.tsx` - Server wrapper
 - `/components/judges/AnalyticsSliders.tsx` - Client analytics component
 - `/components/judges/JudgeProfile.tsx` - Static profile component
 
 ### Library Files
+
 - `/lib/utils/baseUrl.ts` - Base URL resolution
 - `/lib/analytics/cache.ts` - Analytics caching logic
 - `/lib/analytics/types.ts` - Type definitions
@@ -698,6 +754,7 @@ Component Re-render with Analytics Data
 - `/lib/cache/simple-cache.ts` - In-memory cache
 
 ### Configuration Files
+
 - `/middleware.ts` - Edge middleware
 - `/next.config.js` - Next.js configuration
 - `/types/index.ts` - Global type definitions
@@ -732,14 +789,17 @@ Component Re-render with Analytics Data
 Based on the complete flow analysis, here are the key breakage points:
 
 #### 1. Self-Referential API Calls During Build (HIGH SEVERITY)
+
 **Location:** `/app/judges/[slug]/page.tsx:43`
 
 The server component makes a fetch call to its own API endpoint during SSR:
+
 ```typescript
 const response = await fetch(`${baseUrl}/api/judges/by-slug?slug=${slug}`, ...)
 ```
 
 **Problem:** During Netlify build time:
+
 - The production URL may not be live yet
 - Self-referential fetches may fail with network errors
 - Falls back to `getJudgeFallback()` which works but is slower
@@ -747,6 +807,7 @@ const response = await fetch(`${baseUrl}/api/judges/by-slug?slug=${slug}`, ...)
 **Impact:** Slower initial page loads, potential build failures
 
 #### 2. Invalid Date Handling in Structured Data (MEDIUM SEVERITY)
+
 **Location:** `/lib/seo/structured-data.ts:617`
 
 ```typescript
@@ -754,6 +815,7 @@ new Date(judge.appointed_date).toLocaleDateString(...)
 ```
 
 **Problem:** If `appointed_date` is null or invalid:
+
 - Creates "Invalid Date"
 - Causes serialization warnings
 - Produces malformed JSON-LD
@@ -761,6 +823,7 @@ new Date(judge.appointed_date).toLocaleDateString(...)
 **Impact:** SEO degradation, schema.org validation failures
 
 #### 3. Indefinite Redis Cache (DESIGN ISSUE)
+
 **Location:** `/app/api/judges/[id]/analytics/route.ts:56`
 
 ```typescript
@@ -771,6 +834,7 @@ if (cachedRedis) {
 ```
 
 **Problem:**
+
 - Analytics cached indefinitely in Redis (90-day TTL but served forever)
 - No freshness checks
 - Manual intervention required to update
@@ -778,16 +842,18 @@ if (cachedRedis) {
 **Impact:** Stale analytics data served to users
 
 #### 4. Cache Strategy Mismatch (MEDIUM SEVERITY)
+
 **Location:** `/app/judges/[slug]/page.tsx`
 
 ```typescript
-export const revalidate = 0  // Force dynamic
+export const revalidate = 0 // Force dynamic
 
 // But then:
-fetch(url, { next: { revalidate: 3600 } })  // Cache for 1 hour
+fetch(url, { next: { revalidate: 3600 } }) // Cache for 1 hour
 ```
 
 **Problem:**
+
 - Page marked as dynamic but data is cached
 - Confusing cache behavior
 - May serve stale data despite `revalidate: 0`
@@ -795,19 +861,22 @@ fetch(url, { next: { revalidate: 3600 } })  // Cache for 1 hour
 **Impact:** Inconsistent data freshness
 
 #### 5. Environment Variable Dependencies (LOW-MEDIUM SEVERITY)
+
 **Location:** `/lib/utils/baseUrl.ts`
 
 Multiple environment variables checked in production:
+
 ```typescript
 process.env.NEXT_PUBLIC_SITE_URL ||
-process.env.NEXT_PUBLIC_APP_URL ||
-process.env.NEXT_PUBLIC_BASE_URL ||
-process.env.URL ||
-process.env.DEPLOY_PRIME_URL ||
-'https://judgefinder.io'
+  process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  process.env.URL ||
+  process.env.DEPLOY_PRIME_URL ||
+  'https://judgefinder.io'
 ```
 
 **Problem:**
+
 - If Netlify environment variables are not set correctly, wrong base URL is used
 - API calls may go to wrong domain
 - CORS issues if domains don't match
@@ -821,6 +890,7 @@ process.env.DEPLOY_PRIME_URL ||
 When analytics fail to load in production:
 
 ### Step 1: Check Network Tab
+
 - [ ] Verify `/api/judges/by-slug` returns 200 with judge data
 - [ ] Verify `/api/judges/{id}/analytics` returns 200 with analytics data
 - [ ] Check for CORS errors (should see Access-Control-Allow-Origin header)
@@ -828,12 +898,14 @@ When analytics fail to load in production:
 - [ ] Check if responses are cached (look for Cache-Control headers)
 
 ### Step 2: Check Console Errors
+
 - [ ] Look for JSON parsing errors
 - [ ] Look for "Invalid Date" in structured data
 - [ ] Check for React hydration mismatches
 - [ ] Verify no "Failed to fetch" errors
 
 ### Step 3: Check Environment Variables
+
 ```bash
 # On Netlify, verify these are set:
 NEXT_PUBLIC_SITE_URL=https://judgefinder.io
@@ -841,16 +913,19 @@ NEXT_PUBLIC_APP_URL=https://judgefinder.io
 ```
 
 ### Step 4: Check Cache Status
+
 - [ ] Verify Redis is accessible (check Upstash dashboard)
 - [ ] Check if analytics are cached (look at `data_source` in response)
 - [ ] Clear Redis cache if needed: `redis-cli KEYS "judge:analytics:*" | xargs redis-cli DEL`
 
 ### Step 5: Check Build Logs
+
 - [ ] Review Netlify build logs for fetch errors
 - [ ] Check for TypeScript errors (builds ignore them but may indicate issues)
 - [ ] Verify no warnings about JSON serialization
 
 ### Step 6: Test Fallback Paths
+
 - [ ] Disable Redis temporarily to test database cache
 - [ ] Test with judge that has no cached analytics
 - [ ] Verify analytics generation works for cache miss
@@ -860,6 +935,7 @@ NEXT_PUBLIC_APP_URL=https://judgefinder.io
 ## Quick Fixes for Production Issues
 
 ### Fix 1: Disable Self-Referential API Call During Build
+
 Add to `/app/judges/[slug]/page.tsx`:
 
 ```typescript
@@ -875,29 +951,31 @@ async function getJudge(slug: string): Promise<Judge | null> {
 ```
 
 ### Fix 2: Add Safe Date Formatting in Structured Data
+
 Update `/lib/seo/structured-data.ts:617`:
 
 ```typescript
 // BEFORE
-text: judge.appointed_date ?
-  `Judge ${judgeName} was appointed on ${new Date(judge.appointed_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.` :
-  `Information about Judge ${judgeName}'s appointment date is available through official court records.`
+text: judge.appointed_date
+  ? `Judge ${judgeName} was appointed on ${new Date(judge.appointed_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.`
+  : `Information about Judge ${judgeName}'s appointment date is available through official court records.`
 
 // AFTER
-text: judge.appointed_date ?
-  (() => {
-    try {
-      const date = new Date(judge.appointed_date)
-      if (isNaN(date.getTime())) throw new Error('Invalid date')
-      return `Judge ${judgeName} was appointed on ${date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.`
-    } catch {
-      return `Information about Judge ${judgeName}'s appointment date is available through official court records.`
-    }
-  })() :
-  `Information about Judge ${judgeName}'s appointment date is available through official court records.`
+text: judge.appointed_date
+  ? (() => {
+      try {
+        const date = new Date(judge.appointed_date)
+        if (isNaN(date.getTime())) throw new Error('Invalid date')
+        return `Judge ${judgeName} was appointed on ${date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.`
+      } catch {
+        return `Information about Judge ${judgeName}'s appointment date is available through official court records.`
+      }
+    })()
+  : `Information about Judge ${judgeName}'s appointment date is available through official court records.`
 ```
 
 ### Fix 3: Add Freshness Check to Redis Cache
+
 Update `/app/api/judges/[id]/analytics/route.ts:52`:
 
 ```typescript
@@ -922,15 +1000,17 @@ if (cachedRedis) {
 ```
 
 ### Fix 4: Align Cache Strategy
+
 Choose one approach in `/app/judges/[slug]/page.tsx`:
 
 **Option A: Fully Dynamic (Recommended)**
+
 ```typescript
 export const revalidate = 0
 
 // Remove fetch cache
 const response = await fetch(`${baseUrl}/api/judges/by-slug?slug=${slug}`, {
-  cache: 'no-store',  // No cache
+  cache: 'no-store', // No cache
   headers: {
     'Cache-Control': 'no-cache',
   },
@@ -938,11 +1018,12 @@ const response = await fetch(`${baseUrl}/api/judges/by-slug?slug=${slug}`, {
 ```
 
 **Option B: ISR with Consistent Caching**
+
 ```typescript
-export const revalidate = 3600  // Match fetch cache
+export const revalidate = 3600 // Match fetch cache
 
 const response = await fetch(`${baseUrl}/api/judges/by-slug?slug=${slug}`, {
-  next: { revalidate: 3600 },  // Match page revalidate
+  next: { revalidate: 3600 }, // Match page revalidate
   headers: {
     'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=1800',
   },
@@ -954,6 +1035,7 @@ const response = await fetch(`${baseUrl}/api/judges/by-slug?slug=${slug}`, {
 ## Architecture Recommendations
 
 ### Short Term (1-2 weeks)
+
 1. Add comprehensive error handling to all Date operations in structured data
 2. Implement cache freshness checks in analytics API
 3. Add build-time detection for API calls
@@ -961,6 +1043,7 @@ const response = await fetch(`${baseUrl}/api/judges/by-slug?slug=${slug}`, {
 5. Add extensive logging for production debugging
 
 ### Medium Term (1-2 months)
+
 1. Move to direct database queries for server components (eliminate self-referential fetches)
 2. Implement SWR or React Query for client-side analytics
 3. Add background job for cache warming
@@ -968,6 +1051,7 @@ const response = await fetch(`${baseUrl}/api/judges/by-slug?slug=${slug}`, {
 5. Add comprehensive integration tests for full request flow
 
 ### Long Term (3-6 months)
+
 1. Migrate to edge functions for judge lookup (reduce latency)
 2. Implement proper CDN caching strategy with Netlify
 3. Add real-time analytics updates via WebSockets
@@ -976,9 +1060,9 @@ const response = await fetch(`${baseUrl}/api/judges/by-slug?slug=${slug}`, {
 
 ---
 
-*Document generated: 2025-10-10*
-*Analysis based on codebase snapshot at commit: e29620b*
-*Total files analyzed: 15*
-*Critical issues found: 5*
-*API endpoints traced: 2*
-*Component flow depth: 4 levels*
+_Document generated: 2025-10-10_
+_Analysis based on codebase snapshot at commit: e29620b_
+_Total files analyzed: 15_
+_Critical issues found: 5_
+_API endpoints traced: 2_
+_Component flow depth: 4 levels_

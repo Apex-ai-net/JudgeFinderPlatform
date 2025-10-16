@@ -1,16 +1,19 @@
 # Analytics Composite Indexes - Summary
 
 ## Problem
+
 Analytics queries for judges with 5000+ cases are 100-300ms slower due to missing composite indexes.
 
 ## Solution
+
 Created migration `20251010_002_analytics_composite_indexes.sql` with three optimized composite indexes:
 
 1. **idx_cases_judge_outcome_date** - Outcome aggregation (8-12x faster)
-2. **idx_cases_judge_type_outcome** - Case type patterns (6-9x faster)  
+2. **idx_cases_judge_type_outcome** - Case type patterns (6-9x faster)
 3. **idx_cases_bias_analysis** - Recent bias analysis with 2-year partial index (10-15x faster)
 
 ## Performance Impact
+
 - **Before**: 300-500ms average analytics query time
 - **After**: 50-100ms average analytics query time
 - **Improvement**: 75-90% faster queries
@@ -19,11 +22,13 @@ Created migration `20251010_002_analytics_composite_indexes.sql` with three opti
 ## Files Created
 
 ### 1. Migration File
+
 **Location**: `/Users/tannerosterkamp/JudgeFinder/JudgeFinderPlatform/supabase/migrations/20251010_002_analytics_composite_indexes.sql`
 
 **Size**: 16KB (377 lines)
 
 **Contents**:
+
 - 3 composite index definitions with CONCURRENTLY (no table locking)
 - Comprehensive comments explaining each index purpose
 - Performance validation queries
@@ -32,17 +37,20 @@ Created migration `20251010_002_analytics_composite_indexes.sql` with three opti
 - Maintenance guidelines
 
 **Key Features**:
+
 - All indexes use `WHERE` clauses to filter NULLs (25-35% size reduction)
 - Partial index for 2-year window (85% smaller than full index)
 - Auto-maintains rolling 2-year window with zero maintenance
 - Optimized column order for query patterns
 
 ### 2. Deployment Guide
+
 **Location**: `/Users/tannerosterkamp/JudgeFinder/JudgeFinderPlatform/supabase/migrations/ANALYTICS_INDEX_GUIDE.md`
 
 **Size**: 12KB
 
 **Contents**:
+
 - Deployment instructions (3 methods)
 - Verification steps with SQL queries
 - Performance monitoring queries
@@ -55,12 +63,14 @@ Created migration `20251010_002_analytics_composite_indexes.sql` with three opti
 ## Deployment
 
 ### Quick Start
+
 ```bash
 cd /Users/tannerosterkamp/JudgeFinder/JudgeFinderPlatform
 supabase db push
 ```
 
 ### Verification
+
 ```sql
 SELECT indexname, pg_size_pretty(pg_relation_size(indexrelid)) AS size
 FROM pg_stat_user_indexes
@@ -77,19 +87,22 @@ Expected: 3 rows with sizes 18-22MB, 16-20MB, 3-5MB
 ## Technical Details
 
 ### Index 1: idx_cases_judge_outcome_date
+
 ```sql
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_cases_judge_outcome_date 
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_cases_judge_outcome_date
   ON cases(judge_id, outcome, decision_date DESC)
   WHERE outcome IS NOT NULL AND decision_date IS NOT NULL;
 ```
 
-**Used By**: 
+**Used By**:
+
 - `/api/judges/[id]/bias-analysis/route.ts` (lines 47-53)
 - `lib/analytics/bias-calculations.ts` (analyzeOutcomes)
 
 **Query Pattern**: Outcome aggregation for bias analysis
 
 ### Index 2: idx_cases_judge_type_outcome
+
 ```sql
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_cases_judge_type_outcome
   ON cases(judge_id, case_type, outcome)
@@ -97,19 +110,22 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_cases_judge_type_outcome
 ```
 
 **Used By**:
+
 - `lib/analytics/bias-calculations.ts` (analyzeCaseTypePatterns)
 
 **Query Pattern**: Case type pattern detection for bias indicators
 
 ### Index 3: idx_cases_bias_analysis (Partial)
+
 ```sql
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_cases_bias_analysis
   ON cases(judge_id, decision_date DESC, case_type, outcome)
-  WHERE decision_date IS NOT NULL 
+  WHERE decision_date IS NOT NULL
     AND decision_date >= (CURRENT_DATE - INTERVAL '2 years');
 ```
 
 **Used By**:
+
 - `/api/judges/[id]/bias-analysis/route.ts` (primary endpoint)
 - 90% of all bias analysis queries
 
@@ -118,10 +134,11 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_cases_bias_analysis
 ## Performance Benchmarks
 
 ### Query 1: Bias Analysis Outcome Aggregation
+
 ```sql
-SELECT outcome, COUNT(*) 
-FROM cases 
-WHERE judge_id = ? AND outcome IS NOT NULL 
+SELECT outcome, COUNT(*)
+FROM cases
+WHERE judge_id = ? AND outcome IS NOT NULL
 GROUP BY outcome;
 ```
 
@@ -130,6 +147,7 @@ GROUP BY outcome;
 - **Improvement**: 75-90% faster
 
 ### Query 2: Case Type Pattern Detection
+
 ```sql
 SELECT case_type, outcome, COUNT(*)
 FROM cases
@@ -142,6 +160,7 @@ GROUP BY case_type, outcome;
 - **Improvement**: 80-88% faster
 
 ### Query 3: Recent Bias Analysis (2-year window)
+
 ```sql
 SELECT case_type, outcome, decision_date
 FROM cases
@@ -177,6 +196,7 @@ LIMIT 500;
 ### Query Patterns Optimized
 
 All indexes are optimized for these exact query patterns:
+
 - Judge ID equality filter (all queries start with `WHERE judge_id = ?`)
 - Outcome/case type grouping for aggregations
 - Decision date ordering with DESC (newest first)
@@ -186,8 +206,9 @@ All indexes are optimized for these exact query patterns:
 ## Monitoring
 
 ### After Deployment (Wait 10 minutes for queries to run)
+
 ```sql
-SELECT 
+SELECT
     indexname,
     idx_scan as scans,
     pg_size_pretty(pg_relation_size(indexrelid)) as size
@@ -200,12 +221,13 @@ ORDER BY idx_scan DESC;
 **Expected**: New indexes show `idx_scan > 0`
 
 ### Monthly Health Check
+
 ```sql
 SELECT
     indexname,
     pg_size_pretty(pg_relation_size(indexrelid)) as size,
     idx_scan as scans,
-    CASE 
+    CASE
         WHEN idx_scan = 0 THEN 'UNUSED'
         WHEN idx_scan < 100 THEN 'LOW USAGE'
         ELSE 'HEALTHY'
@@ -247,11 +269,13 @@ ANALYZE cases;
 ## Cost/Benefit Analysis
 
 ### Costs
+
 - Storage: +37-47MB (~$0.006/month)
 - Write overhead: +5-10ms per INSERT/UPDATE to cases table
 - One-time migration: 4-10 minutes
 
 ### Benefits
+
 - Query speed: 75-90% faster (300-500ms → 50-100ms)
 - User experience: Faster page loads
 - Database load: 87-90% fewer buffer reads
@@ -263,6 +287,7 @@ ANALYZE cases;
 ## Next Steps
 
 1. **Deploy Migration**
+
    ```bash
    cd /Users/tannerosterkamp/JudgeFinder/JudgeFinderPlatform
    supabase db push
@@ -288,15 +313,16 @@ ANALYZE cases;
 - **Migration File**: `supabase/migrations/20251010_002_analytics_composite_indexes.sql`
 - **Deployment Guide**: `supabase/migrations/ANALYTICS_INDEX_GUIDE.md`
 - **Analytics Code**: `lib/analytics/bias-calculations.ts`
-- **API Endpoints**: 
+- **API Endpoints**:
   - `app/api/judges/[id]/bias-analysis/route.ts`
   - `app/api/judges/[id]/analytics/route.ts`
 
 ## Context Used
 
 Information from CLAUDE.md:
+
 - Judicial Data Processing architecture
-- Bias pattern analysis implementation  
+- Bias pattern analysis implementation
 - Analytics query patterns
 - Performance requirements
 

@@ -83,7 +83,7 @@ async function main() {
       )
       console.log('\n2. Command line with database password:')
       console.log(`   DATABASE_URL="..." npx tsx scripts/apply-migrations-direct.ts`)
-      console.log('\nSee MIGRATION_INSTRUCTIONS.md for detailed steps.')
+      console.log('\nSee docs/migrations/MIGRATION_INSTRUCTIONS.md for detailed steps.')
       process.exit(1)
     }
   }

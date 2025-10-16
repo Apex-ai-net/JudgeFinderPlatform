@@ -51,55 +51,64 @@ Created three production-ready SQL migration files to optimize JudgeFinder Platf
 
 ### API Endpoint Performance
 
-| Endpoint | Before | After | Improvement |
-|----------|--------|-------|-------------|
-| `/api/judges/list` | 500ms | 80ms | 84% faster |
-| `/api/judges/search` | 284ms | 18ms | 94% faster |
-| `/api/judges/by-slug` | 300ms | <5ms | 98% faster |
+| Endpoint              | Before | After | Improvement |
+| --------------------- | ------ | ----- | ----------- |
+| `/api/judges/list`    | 500ms  | 80ms  | 84% faster  |
+| `/api/judges/search`  | 284ms  | 18ms  | 94% faster  |
+| `/api/judges/by-slug` | 300ms  | <5ms  | 98% faster  |
 
 ### Database Metrics
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Query Count (list 20 judges) | 21 queries | 2 queries | 90% reduction |
-| Sequential Scans | Frequent | Rare | Index-optimized |
-| Search Method | ILIKE (slow) | Full-text (fast) | 94% faster |
-| Slug Lookups | O(n) scan | O(1) hash | Near instant |
+| Metric                       | Before       | After            | Improvement     |
+| ---------------------------- | ------------ | ---------------- | --------------- |
+| Query Count (list 20 judges) | 21 queries   | 2 queries        | 90% reduction   |
+| Sequential Scans             | Frequent     | Rare             | Index-optimized |
+| Search Method                | ILIKE (slow) | Full-text (fast) | 94% faster      |
+| Slug Lookups                 | O(n) scan    | O(1) hash        | Near instant    |
 
 ---
 
 ## Critical Fixes Implemented
 
 ### 1. Eliminated N+1 Query Pattern
+
 **Problem:** `/api/judges/list` made 1 query for judge list + N queries for decision counts
+
 - For 20 judges: 21 total database queries
 - Each decision query: ~25ms
 - Total time: 500ms+
 
 **Solution:** Materialized view with pre-aggregated counts
+
 - Single batch query replaces N individual queries
 - Response time: 80ms
 - 84% performance improvement
 
 ### 2. Optimized Search Queries
+
 **Problem:** `ILIKE '%query%'` cannot use indexes
+
 - Full table scan on every search
 - No relevance ranking
 - No typo tolerance
 
 **Solution:** PostgreSQL full-text search with GIN indexes
+
 - Index-only scans (10-30ms)
 - Relevance ranking
 - Fuzzy matching for typos
 - Result highlighting
 
 ### 3. Added Strategic Indexes
+
 **Problem:** Missing indexes on hot query paths
+
 - Sequential scans on cases table (judge_id, decision_date)
 - Slug lookups require name matching
 - CourtListener ID lookups slow
 
 **Solution:** 9 targeted indexes
+
 - Composite indexes for common query patterns
 - Partial indexes for recent data (5-year window)
 - Unique indexes for external IDs
@@ -111,6 +120,7 @@ Created three production-ready SQL migration files to optimize JudgeFinder Platf
 ### Migration 1: Critical Performance Indexes
 
 **Creates:**
+
 - `idx_cases_judge_decision_date` - Judge decision history queries
 - `idx_judge_analytics_cache_freshness` - Cache invalidation checks
 - `idx_cases_recent_decisions` - Recent decisions filtering (5-year partial index)
@@ -122,6 +132,7 @@ Created three production-ready SQL migration files to optimize JudgeFinder Platf
 - `idx_cases_courtlistener_id` - Case sync (UNIQUE)
 
 **Performance Impact:**
+
 - Eliminates sequential table scans
 - Enables index-only scans
 - Prevents duplicate records during sync
@@ -131,6 +142,7 @@ Created three production-ready SQL migration files to optimize JudgeFinder Platf
 ### Migration 2: Decision Counts Materialized View
 
 **Creates:**
+
 - Materialized view: `judge_recent_decision_counts`
   - Pre-aggregated counts by judge and year
   - Last 3 years of data
@@ -146,6 +158,7 @@ Created three production-ready SQL migration files to optimize JudgeFinder Platf
   - `idx_decision_counts_year` - Year-based filtering
 
 **Cron Job Required:**
+
 ```sql
 SELECT cron.schedule(
     'refresh-decision-counts',
@@ -159,6 +172,7 @@ SELECT cron.schedule(
 ### Migration 3: Full-Text Search Optimization
 
 **Creates:**
+
 - Extensions:
   - `pg_trgm` - Fuzzy matching and similarity search
   - `unaccent` - International name support
@@ -205,8 +219,8 @@ psql -f 20250930_003_full_text_search.sql
 
 ```sql
 -- Verify indexes created
-SELECT COUNT(*) FROM pg_indexes 
-WHERE indexname LIKE 'idx_cases_judge%' 
+SELECT COUNT(*) FROM pg_indexes
+WHERE indexname LIKE 'idx_cases_judge%'
    OR indexname LIKE 'idx_judges_slug%';
 
 -- Verify materialized view populated
@@ -221,18 +235,21 @@ SELECT * FROM search_judges_ranked('smith', NULL, 10);
 ## Post-Migration Actions
 
 ### Required
+
 1. Execute all 3 migrations in order
 2. Verify indexes created (validation queries in MIGRATION_EXECUTION_GUIDE.md)
 3. Schedule daily cron job for materialized view refresh
 4. Test API endpoints for performance improvement
 
 ### Recommended
+
 1. Update API code to use new helper functions (see guide)
 2. Monitor index usage after 1 week
 3. Update query patterns to leverage full-text search
 4. Set up performance monitoring dashboard
 
 ### Optional
+
 1. Benchmark specific slow queries before/after
 2. Profile database CPU and memory usage
 3. Document baseline metrics for comparison
@@ -245,6 +262,7 @@ SELECT * FROM search_judges_ranked('smith', NULL, 10);
 ### `/app/api/judges/list/route.ts`
 
 Replace N+1 pattern:
+
 ```typescript
 // Before (slow)
 const summaries = await fetchDecisionSummaries(supabase, judgeIds, years)
@@ -252,13 +270,14 @@ const summaries = await fetchDecisionSummaries(supabase, judgeIds, years)
 // After (fast)
 const { data } = await supabase.rpc('get_batch_decision_summaries', {
   judge_ids: judgeIds,
-  years_back: years
+  years_back: years,
 })
 ```
 
 ### `/app/api/judges/search/route.ts`
 
 Replace ILIKE with full-text:
+
 ```typescript
 // Before (slow)
 .or(`name.ilike.%${query}%,court_name.ilike.%${query}%`)
@@ -275,9 +294,11 @@ const { data } = await supabase.rpc('search_judges_ranked', {
 ## Monitoring & Maintenance
 
 ### Daily (Automated)
+
 - Materialized view refresh via cron
 
 ### Weekly (Manual)
+
 ```sql
 ANALYZE judges;
 ANALYZE cases;
@@ -285,6 +306,7 @@ ANALYZE courts;
 ```
 
 ### Monthly (Monitoring)
+
 ```sql
 -- Check index usage
 SELECT * FROM pg_stat_user_indexes
@@ -292,7 +314,7 @@ WHERE schemaname = 'public'
 ORDER BY idx_scan DESC;
 
 -- Verify cache hit ratio (should be >95%)
-SELECT 
+SELECT
   sum(heap_blks_hit) / (sum(heap_blks_hit) + sum(heap_blks_read)) as ratio
 FROM pg_statio_user_tables;
 ```
@@ -304,6 +326,7 @@ FROM pg_statio_user_tables;
 All migrations are safe and include rollback scripts in MIGRATION_EXECUTION_GUIDE.md.
 
 **Quick Rollback:**
+
 ```sql
 -- Rollback Migration 3
 DROP FUNCTION IF EXISTS search_judges_ranked CASCADE;
@@ -324,18 +347,21 @@ DROP INDEX IF EXISTS idx_judges_slug_unique;
 ## Success Metrics
 
 ### Immediate (After Migration)
+
 - All 3 migrations execute without errors
 - All indexes visible in pg_indexes
 - Materialized view contains data
 - Search functions return results
 
 ### Short-term (1 week)
+
 - API response times reduced 60-90%
 - Database CPU usage reduced
 - Cache hit ratio >95%
 - Zero increase in error rates
 
 ### Long-term (1 month)
+
 - Sustained performance improvements
 - Increased concurrent user capacity
 - Reduced infrastructure costs
@@ -346,6 +372,7 @@ DROP INDEX IF EXISTS idx_judges_slug_unique;
 ## Technical Details
 
 ### Technologies Used
+
 - PostgreSQL 14+
 - Supabase
 - pg_trgm extension (fuzzy matching)
@@ -355,6 +382,7 @@ DROP INDEX IF EXISTS idx_judges_slug_unique;
 - B-tree indexes (exact lookups)
 
 ### Index Types
+
 - **B-tree:** Standard indexes for exact matches and ranges
 - **GIN:** Generalized Inverted Index for full-text and array operations
 - **Unique:** Enforces uniqueness constraints
@@ -362,6 +390,7 @@ DROP INDEX IF EXISTS idx_judges_slug_unique;
 - **Composite:** Multi-column indexes for complex queries
 
 ### Query Optimization Techniques
+
 1. **Index Selection:** Strategic indexes on hot query paths
 2. **Partial Indexes:** Reduce index size by 85% (5-year window)
 3. **Materialized Views:** Pre-compute expensive aggregations
@@ -374,6 +403,7 @@ DROP INDEX IF EXISTS idx_judges_slug_unique;
 ## Files Reference
 
 All migration files located at:
+
 ```
 /Users/tannerosterkamp/JudgeFinderPlatform-1/supabase/migrations/
 
@@ -384,6 +414,7 @@ MIGRATION_EXECUTION_GUIDE.md
 ```
 
 Documentation:
+
 ```
 /Users/tannerosterkamp/JudgeFinderPlatform-1/
 
@@ -407,6 +438,7 @@ DATABASE_PERFORMANCE_OPTIMIZATION_SUMMARY.md (this file)
 ## Support
 
 For questions or issues:
+
 - Review extensive comments in migration SQL files
 - Consult MIGRATION_EXECUTION_GUIDE.md
 - Check validation queries for debugging

@@ -47,6 +47,7 @@ describe('myFunction', () => {
 ```
 
 Run it:
+
 ```bash
 npm run test:unit tests/unit/my-feature/my-function.test.ts
 ```
@@ -98,6 +99,7 @@ test('user can complete the flow', async ({ page }) => {
 ```
 
 Run it:
+
 ```bash
 npm run test:e2e tests/e2e/my-feature/my-flow.spec.ts
 ```
@@ -141,6 +143,7 @@ const user = mockUsers.admin
 ## Debugging Tests
 
 ### Vitest (Unit/Integration)
+
 ```bash
 # Use console.log in tests
 console.log('Debug value:', myVariable)
@@ -150,6 +153,7 @@ npm run test:watch -- my-test.test.ts
 ```
 
 ### Playwright (E2E)
+
 ```bash
 # UI mode - best for debugging
 npm run test:e2e:ui
@@ -164,11 +168,13 @@ await page.pause()  // Opens inspector
 ## Coverage Requirements
 
 Tests must maintain minimum coverage:
+
 - Lines: 60%
 - Functions: 60%
 - Branches: 50%
 
 Check coverage:
+
 ```bash
 npm run test:coverage
 ```
@@ -176,6 +182,7 @@ npm run test:coverage
 ## CI/CD
 
 Tests run automatically on:
+
 - Pull requests
 - Pushes to main/develop
 
@@ -202,12 +209,12 @@ View results in GitHub Actions.
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Run all tests | `npm test` |
-| Watch mode | `npm run test:watch` |
-| E2E with UI | `npm run test:e2e:ui` |
-| Coverage | `npm run test:coverage` |
+| Task          | Command                       |
+| ------------- | ----------------------------- |
+| Run all tests | `npm test`                    |
+| Watch mode    | `npm run test:watch`          |
+| E2E with UI   | `npm run test:e2e:ui`         |
+| Coverage      | `npm run test:coverage`       |
 | Specific test | `npm test -- path/to/test.ts` |
 
 Happy Testing! 🎉

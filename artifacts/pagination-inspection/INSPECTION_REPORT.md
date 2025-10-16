@@ -1,8 +1,8 @@
 # Pagination Inspection Report
 
 **URL:** https://judgefinder.io/judges
-**Timestamp:** 2025-10-15T04:41:20.299Z
-**Success Rate:** 1/5 (20.0%)
+**Timestamp:** 2025-10-15T23:45:45.585Z
+**Success Rate:** 0/5 (0.0%)
 
 ---
 
@@ -10,7 +10,7 @@
 
 ⚠️ **ISSUES DETECTED**
 
-0 error(s) found. 4 pagination test(s) failed.
+0 error(s) found. 5 pagination test(s) failed.
 
 ---
 
@@ -18,12 +18,12 @@
 
 | Element              | Status | Details         |
 | -------------------- | ------ | --------------- |
-| Pagination Container | ✅     | Found: true     |
-| Next Button          | ✅     | Disabled: false |
-| Previous Button      | ✅     | Disabled: true  |
-| Page Number Buttons  | ✅     | Count: 5        |
-| Current Page         | ✅     | Page 1          |
-| Event Listeners      | ✅     | Attached: true  |
+| Pagination Container | ❌     | Found: false    |
+| Next Button          | ❌     | Disabled: false |
+| Previous Button      | ❌     | Disabled: false |
+| Page Number Buttons  | ❌     | Count: 0        |
+| Current Page         | ❌     | Page null       |
+| Event Listeners      | ❌     | Attached: false |
 
 ---
 
@@ -33,51 +33,49 @@
 
 - **Status:** ❌ FAILED
 - **Expected Page:** 2
-- **Actual Page:** 1
-- **API Call Made:** Yes
-- **Duration:** 2088ms
-
-**API Call:** `https://judgefinder.io/api/judges/list?page=2&limit=24&include_decisions=true&jurisdiction=CA`
+- **Actual Page:** null
+- **API Call Made:** No
+- **Duration:** 7ms
 
 **Errors:**
 
-- Expected page 2, got page 1 (URL: 2)
+- Next button not found
 
 ### Test 2: Jump to Page 4 (2→4)
 
 - **Status:** ❌ FAILED
 - **Expected Page:** 4
-- **Actual Page:** 1
-- **API Call Made:** Yes
-- **Duration:** 2057ms
-
-**API Call:** `https://judgefinder.io/api/judges/list?page=4&limit=24&include_decisions=true&jurisdiction=CA`
+- **Actual Page:** null
+- **API Call Made:** No
+- **Duration:** 6ms
 
 **Errors:**
 
-- Expected page 4, got page 1 (URL: 4)
+- Page 4 button not found
 
 ### Test 3: Previous Button (4→3)
 
 - **Status:** ❌ FAILED
 - **Expected Page:** 3
-- **Actual Page:** 1
+- **Actual Page:** null
 - **API Call Made:** No
-- **Duration:** 2018ms
+- **Duration:** 6ms
 
 **Errors:**
 
-- Expected page 3, got page 1 (URL: 4)
+- Previous button not found
 
 ### Test 4: Return to Page 1 (3→1)
 
-- **Status:** ✅ PASSED
+- **Status:** ❌ FAILED
 - **Expected Page:** 1
-- **Actual Page:** 1
-- **API Call Made:** Yes
-- **Duration:** 2045ms
+- **Actual Page:** null
+- **API Call Made:** No
+- **Duration:** 2ms
 
-**API Call:** `https://judgefinder.io/api/judges/list?page=1&limit=24&include_decisions=true&jurisdiction=CA`
+**Errors:**
+
+- Page 1 button not found
 
 ### Test 5: Direct URL Navigation (?page=5)
 
@@ -85,7 +83,7 @@
 - **Expected Page:** 5
 - **Actual Page:** 1
 - **API Call Made:** Yes
-- **Duration:** 3747ms
+- **Duration:** 11997ms
 
 **API Call:** `https://judgefinder.io/api/judges/list?page=1&limit=24&include_decisions=true&jurisdiction=CA`
 
@@ -100,49 +98,22 @@
 ### API Calls
 
 1. **GET 200** - `https://judgefinder.io/api/judges/list?page=1&limit=24&include_decisions=true&jurisdiction=CA`
-2. **GET 200** - `https://judgefinder.io/api/judges/list?page=1&limit=24&include_decisions=true&jurisdiction=CA`
    - Judges: 24
    - Page: 1
    - Total: 1903
-3. **GET 200** - `https://judgefinder.io/api/judges/list?page=2&limit=24&include_decisions=true&jurisdiction=CA`
-   - Judges: 24
-   - Page: 1
-   - Total: 1903
-4. **GET 200** - `https://judgefinder.io/api/judges/list?page=1&limit=24&include_decisions=true&jurisdiction=CA`
-   - Judges: 24
-   - Page: 1
-   - Total: 1903
-5. **GET 200** - `https://judgefinder.io/api/judges/list?page=4&limit=24&include_decisions=true&jurisdiction=CA`
-   - Judges: 24
-   - Page: 1
-   - Total: 1903
-6. **GET 200** - `https://judgefinder.io/api/judges/list?page=1&limit=24&include_decisions=true&jurisdiction=CA`
-   - Judges: 24
-   - Page: 1
-   - Total: 1903
-7. **GET 200** - `https://judgefinder.io/api/judges/list?page=1&limit=24&include_decisions=true&jurisdiction=CA`
-   - Judges: 24
-   - Page: 1
-   - Total: 1903
-8. **GET 200** - `https://judgefinder.io/api/judges/list?page=1&limit=24&include_decisions=true&jurisdiction=CA`
-   - Judges: 24
-   - Page: 1
-   - Total: 1903
-9. **GET 200** - `https://judgefinder.io/api/judges/list?page=1&limit=24&include_decisions=true&jurisdiction=CA`
-   - Judges: 24
-   - Page: 1
-   - Total: 1903
+2. **GET 0** - `https://judgefinder.io/api/judges/list?page=1&limit=24&include_decisions=true&jurisdiction=CA`
+3. **GET 0** - `https://judgefinder.io/api/judges/list?page=1&limit=24&include_decisions=true&jurisdiction=CA`
 
 ---
 
 ## Screenshots
 
-- **initial:** `screenshot-initial-1760503286682.png`
-- **page-2:** `screenshot-page-2-1760503288988.png`
-- **page-4:** `screenshot-page-4-1760503291226.png`
-- **page-3:** `screenshot-page-3-1760503293419.png`
-- **page-1-return:** `screenshot-page-1-return-1760503295647.png`
-- **page-5-direct:** `screenshot-page-5-direct-1760503299566.png`
+- **initial:** `screenshot-initial-1760571951533.png`
+- **page-2:** `screenshot-page-2-1760571951640.png`
+- **page-4:** `screenshot-page-4-1760571951719.png`
+- **page-3:** `screenshot-page-3-1760571951794.png`
+- **page-1-return:** `screenshot-page-1-return-1760571951867.png`
+- **page-5-direct:** `screenshot-page-5-direct-1760571963936.png`
 
 ---
 
@@ -150,7 +121,7 @@
 
 ### Pagination Test Failures
 
-4 pagination test(s) failed.
+5 pagination test(s) failed.
 
 **Possible Causes:**
 
@@ -167,5 +138,5 @@
 
 ---
 
-**Generated:** 2025-10-15T04:41:39.890Z
+**Generated:** 2025-10-15T23:46:04.368Z
 **Tool:** Puppeteer Pagination Inspector

@@ -519,5 +519,5 @@
 
 ---
 
-*Diagram generated: 2025-10-10*
-*Based on codebase analysis at commit: e29620b*
+_Diagram generated: 2025-10-10_
+_Based on codebase analysis at commit: e29620b_

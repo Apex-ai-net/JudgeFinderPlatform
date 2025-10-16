@@ -1,17 +1,21 @@
 # Sync Script Data Quality Fixes
 
 ## Overview
+
 Fixed three critical data quality issues in JudgeFinder's sync scripts based on CourtListener integration analysis.
 
 ## Fix 1: Decision Sync - Update Logic (decision-sync.ts)
 
 ### Problem
+
 When a case already exists, only opinion text was updated. Case metadata (status, disposition, precedential_status) never got refreshed from CourtListener.
 
 ### Solution
+
 **File**: `/Users/tannerosterkamp/JudgeFinderPlatform-1/lib/sync/decision-sync.ts`
 
 **Changes**:
+
 1. Added new method `updateExistingCaseIfNewer()` that:
    - Fetches existing case data
    - Compares `date_created` timestamps to determine if remote data is newer
@@ -30,12 +34,15 @@ When a case already exists, only opinion text was updated. Case metadata (status
 ## Fix 2: Judge Sync - Retirement Detection (judge-sync.ts)
 
 ### Problem
+
 No check for judge retirements or termination dates. Judges who had retired were still marked as active.
 
 ### Solution
+
 **File**: `/Users/tannerosterkamp/JudgeFinderPlatform-1/lib/sync/judge-sync.ts`
 
 **Changes**:
+
 1. Added `judgesRetired` tracking to all result interfaces:
    - `JudgeSyncResult` interface
    - `BatchSyncStats` interface
@@ -61,12 +68,15 @@ No check for judge retirements or termination dates. Judges who had retired were
 ## Fix 3: Assignment Updater - Create Assignments (automated-assignment-updater.js)
 
 ### Problem
+
 When new positions were detected, script only logged suggestions but never actually created court assignments.
 
 ### Solution
+
 **File**: `/Users/tannerosterkamp/JudgeFinderPlatform-1/scripts/automated-assignment-updater.js`
 
 **Changes**:
+
 1. Added `assignmentsCreated` counter to class constructor and reset logic
 
 2. Added new method `createCourtAssignment()` that:
@@ -123,11 +133,13 @@ node scripts/automated-assignment-updater.js run
 ## Impact
 
 ### Before Fixes
+
 - Stale case metadata (precedential status, case names never updated)
 - Retired judges incorrectly shown as active
 - Missing court assignments (orphaned records)
 
 ### After Fixes
+
 - Fresh case metadata synchronized from CourtListener
 - Accurate judge retirement status tracking
 - Complete court assignment coverage
@@ -154,17 +166,20 @@ node scripts/automated-assignment-updater.js run
 ## Technical Notes
 
 ### Decision Sync
+
 - Uses `date_created` as proxy for data freshness (CourtListener doesn't always provide `date_modified`)
 - Only updates if remote timestamp is newer to avoid unnecessary writes
 - Maintains backward compatibility with existing sync flow
 
 ### Judge Sync
+
 - Checks for empty `date_termination` to identify active positions
 - Only marks as retired if ALL positions are terminated
 - Preserves existing status values other than 'active'
 - Safe to run multiple times (idempotent)
 
 ### Assignment Updater
+
 - Uses fuzzy court name matching (`ILIKE %name%`)
 - Checks for duplicates before creating
 - Gracefully handles missing courts

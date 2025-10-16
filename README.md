@@ -36,6 +36,10 @@ analysis and automated data ingestion from official sources.
 - Getting Started: `docs/getting-started/SETUP.md`, `docs/getting-started/ENVIRONMENT.md`
 - Architecture: `docs/architecture/ARCHITECTURE.md`
 - AI Agents: `docs/ai/AI_AGENTS.md`
+- AI Search: `docs/ai/search/AI_SEARCH_SUMMARY.md`, `docs/ai/search/AI_SEARCH_INTEGRATION_REPORT.md`
+- Deployments: `docs/deployment/DEPLOYMENT_SUMMARY.md`, `docs/deployment/netlify/NETLIFY_QUICK_START.md`
+- Recovery: `docs/ops/recovery/EXECUTE_RECOVERY_NOW.md`, `docs/ops/recovery/RECOVERY_SUMMARY.md`
+- Migrations: `docs/migrations/MIGRATION_INSTRUCTIONS.md`
 - Data & Automation: `docs/operations/SYNC_AND_CRON.md`, `docs/operations/OPERATIONS.md`
 - API & Database: `docs/api/API_REFERENCE.md`, `docs/data/DATABASE.md`
 - Security: `docs/security/SECURITY.md`

@@ -246,6 +246,6 @@ None identified. All changes are backwards compatible.
 - [ ] Monitoring configured
 - [ ] Ready to deploy
 
-**Deployment approved by**: ******\_******
-**Date**: ******\_******
-**Time**: ******\_******
+**Deployment approved by**: **\*\***\_**\*\***
+**Date**: **\*\***\_**\*\***
+**Time**: **\*\***\_**\*\***

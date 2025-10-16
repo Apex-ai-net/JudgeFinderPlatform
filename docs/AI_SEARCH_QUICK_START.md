@@ -455,4 +455,4 @@ test('search API integrates AI insights', async () => {
 
 ---
 
-**Need Help?** Check the full [AI Search Integration Report](../AI_SEARCH_INTEGRATION_REPORT.md) for detailed implementation details.
+**Need Help?** Check the full [AI Search Integration Report](./ai/search/AI_SEARCH_INTEGRATION_REPORT.md) for detailed implementation details.

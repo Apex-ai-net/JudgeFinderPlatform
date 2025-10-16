@@ -1,7 +1,7 @@
 # ✅ JudgeFinder.io Recovery Checklist
 
-**Date Started**: ******\_\_\_******  
-**Completed By**: ******\_\_\_******
+**Date Started**: **\*\***\_\_\_**\*\***  
+**Completed By**: **\*\***\_\_\_**\*\***
 
 ---
 
@@ -18,7 +18,7 @@
 
 ## 🔴 STEP 1: Fix Database (10 min)
 
-**Time Started**: ******\_\_\_******
+**Time Started**: **\*\***\_\_\_**\*\***
 
 - [ ] Opened Supabase Dashboard SQL Editor
 - [ ] Copied migration file: `20251001_002_fix_search_function_return_type.sql`
@@ -28,14 +28,14 @@
 - [ ] Verified with test query: `SELECT * FROM search_judges_ranked('smith', NULL, 5, 0.3);`
 - [ ] Test query returned judge records (not error)
 
-**Time Completed**: ******\_\_\_******  
+**Time Completed**: **\*\***\_\_\_**\*\***  
 ✅ **Step 1 Status**: [ ] COMPLETED
 
 ---
 
 ## 🔴 STEP 2: Configure Environment Variables (20 min)
 
-**Time Started**: ******\_\_\_******
+**Time Started**: **\*\***\_\_\_**\*\***
 
 ### 2.1 Login to Netlify
 
@@ -49,10 +49,10 @@
 #### Supabase Credentials
 
 - [ ] Opened Supabase API Settings
-- [ ] Copied **Project URL**: ************\_************
+- [ ] Copied **Project URL**: ****\*\*\*\*****\_****\*\*\*\*****
 - [ ] Copied **anon public key**: (starts with eyJh...)
 - [ ] Copied **service_role key**: (starts with eyJh...)
-- [ ] Copied **JWT Secret**: ************\_************
+- [ ] Copied **JWT Secret**: ****\*\*\*\*****\_****\*\*\*\*****
 
 #### Clerk Credentials
 
@@ -63,14 +63,14 @@
 #### Upstash Credentials
 
 - [ ] Opened Upstash Console
-- [ ] Copied **REST URL**: ************\_************
-- [ ] Copied **REST Token**: ************\_************
+- [ ] Copied **REST URL**: ****\*\*\*\*****\_****\*\*\*\*****
+- [ ] Copied **REST Token**: ****\*\*\*\*****\_****\*\*\*\*****
 
 #### Generated Security Keys
 
-- [ ] Generated **SYNC_API_KEY**: ************\_************
-- [ ] Generated **CRON_SECRET**: ************\_************
-- [ ] Generated **ENCRYPTION_KEY**: ************\_************
+- [ ] Generated **SYNC_API_KEY**: ****\*\*\*\*****\_****\*\*\*\*****
+- [ ] Generated **CRON_SECRET**: ****\*\*\*\*****\_****\*\*\*\*****
+- [ ] Generated **ENCRYPTION_KEY**: ****\*\*\*\*****\_****\*\*\*\*****
 
 ### 2.3 Set All Variables
 
@@ -92,14 +92,14 @@
 - [ ] Ran: `netlify env:list`
 - [ ] All 12 critical variables shown
 
-**Time Completed**: ******\_\_\_******  
+**Time Completed**: **\*\***\_\_\_**\*\***  
 ✅ **Step 2 Status**: [ ] COMPLETED
 
 ---
 
 ## 🔴 STEP 3: Rebuild & Deploy (5 min)
 
-**Time Started**: ******\_\_\_******
+**Time Started**: **\*\***\_\_\_**\*\***
 
 - [ ] Opened Netlify Dashboard Deploys page
 - [ ] Clicked "Trigger deploy"
@@ -109,14 +109,14 @@
 - [ ] Build completed with "Published" status
 - [ ] Waited 1-2 minutes for CDN propagation
 
-**Time Completed**: ******\_\_\_******  
+**Time Completed**: **\*\***\_\_\_**\*\***  
 ✅ **Step 3 Status**: [ ] COMPLETED
 
 ---
 
 ## ✅ STEP 4: Verify Recovery (15 min)
 
-**Time Started**: ******\_\_\_******
+**Time Started**: **\*\***\_\_\_**\*\***
 
 ### 4.1 Automated Testing
 
@@ -125,11 +125,11 @@
 
 ### 4.2 API Endpoint Tests
 
-- [ ] Health Check: ****\_\_**** (200 = OK)
-- [ ] Judge List: ****\_\_**** (200 = OK)
-- [ ] Search: ****\_\_**** (200 = OK)
-- [ ] Courts: ****\_\_**** (200 = OK)
-- [ ] Homepage: ****\_\_**** (200 = OK)
+- [ ] Health Check: \***\*\_\_\*\*** (200 = OK)
+- [ ] Judge List: \***\*\_\_\*\*** (200 = OK)
+- [ ] Search: \***\*\_\_\*\*** (200 = OK)
+- [ ] Courts: \***\*\_\_\*\*** (200 = OK)
+- [ ] Homepage: \***\*\_\_\*\*** (200 = OK)
 
 ### 4.3 Manual Browser Testing
 
@@ -141,21 +141,21 @@
 - [ ] Profile page loaded with data
 - [ ] No console errors (F12 → Console tab)
 
-**Time Completed**: ******\_\_\_******  
+**Time Completed**: **\*\***\_\_\_**\*\***  
 ✅ **Step 4 Status**: [ ] COMPLETED
 
 ---
 
 ## 📊 STEP 5: Analytics Cache (Optional, 30 min)
 
-**Time Started**: ******\_\_\_******
+**Time Started**: **\*\***\_\_\_**\*\***
 
 - [ ] Ran: `npm run analytics:generate`
 - [ ] Process started successfully
 - [ ] Completed without errors (takes ~13-14 minutes)
 - [ ] Tested profile load time (should be <1 second)
 
-**Time Completed**: ******\_\_\_******  
+**Time Completed**: **\*\***\_\_\_**\*\***  
 ✅ **Step 5 Status**: [ ] COMPLETED / [ ] SKIPPED
 
 ---
@@ -173,13 +173,13 @@
 
 ## ⏱️ Time Tracking
 
-| Step            | Estimated  | Actual     |
-| --------------- | ---------- | ---------- |
-| 1. Database Fix | 10 min     | **\_**     |
-| 2. Env Vars     | 20 min     | **\_**     |
-| 3. Rebuild      | 5 min      | **\_**     |
-| 4. Verify       | 15 min     | **\_**     |
-| **Total**       | **50 min** | ****\_**** |
+| Step            | Estimated  | Actual         |
+| --------------- | ---------- | -------------- |
+| 1. Database Fix | 10 min     | **\_**         |
+| 2. Env Vars     | 20 min     | **\_**         |
+| 3. Rebuild      | 5 min      | **\_**         |
+| 4. Verify       | 15 min     | **\_**         |
+| **Total**       | **50 min** | \***\*\_\*\*** |
 
 ---
 
@@ -221,9 +221,9 @@
 
 **Site Status**: [ ] FULLY OPERATIONAL / [ ] PARTIALLY WORKING / [ ] STILL DOWN
 
-**Completed By**: ********\_********
+**Completed By**: **\*\*\*\***\_**\*\*\*\***
 
-**Date/Time**: ********\_********
+**Date/Time**: **\*\*\*\***\_**\*\*\*\***
 
 **Next Actions**:
 
