@@ -1,8 +1,19 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Check, Zap, Shield, TrendingUp, ChevronRight, Info } from 'lucide-react'
+import {
+  X,
+  Check,
+  Zap,
+  Shield,
+  TrendingUp,
+  ChevronRight,
+  Info,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useUser } from '@clerk/nextjs'
 
 interface AdPurchaseModalProps {
   onClose: () => void
@@ -13,8 +24,11 @@ type PricingPlan = 'federal_monthly' | 'federal_annual' | 'state_monthly' | 'sta
 
 export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProps): JSX.Element {
   const router = useRouter()
+  const { user } = useUser()
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null)
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const federalMonthlyPrice = 500
   const stateMonthlyPrice = 200
@@ -26,17 +40,53 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
   const federalAnnualSavings = federalMonthlyPrice * 2
   const stateAnnualSavings = stateMonthlyPrice * 2
 
-  const handleProceedToSelection = () => {
+  const handleProceedToCheckout = async () => {
     if (!selectedPlan) return
 
-    // Navigate to ad spots explorer with pricing context
-    const params = new URLSearchParams({
-      plan: selectedPlan,
-      preselected: 'true',
-    })
+    setError(null)
+    setIsProcessing(true)
 
-    router.push(`/dashboard/advertiser/ad-spots?${params}`)
-    onClose()
+    try {
+      // Verify user is authenticated
+      if (!user || !user.primaryEmailAddress) {
+        throw new Error('Please sign in to continue')
+      }
+
+      // Determine billing cycle from selected plan
+      const cycle = selectedPlan.includes('annual') ? 'annual' : 'monthly'
+
+      // Call checkout API to create Stripe session
+      const response = await fetch('/api/checkout/adspace', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          organization_name: user.fullName || user.username || 'JudgeFinder User',
+          email: user.primaryEmailAddress.emailAddress,
+          billing_cycle: cycle,
+          notes: `Plan: ${selectedPlan}`,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create checkout session')
+      }
+
+      const { session_url } = await response.json()
+
+      if (!session_url) {
+        throw new Error('No checkout URL received from server')
+      }
+
+      // Redirect to Stripe Checkout
+      window.location.href = session_url
+    } catch (err) {
+      console.error('Checkout error:', err)
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred')
+      setIsProcessing(false)
+    }
   }
 
   return (
@@ -309,21 +359,44 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
             </div>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-medium text-destructive">Error</h3>
+                  <p className="mt-1 text-sm text-destructive/90">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 px-6 py-3 border border-border rounded-lg hover:bg-muted font-medium text-foreground transition-colors"
+              disabled={isProcessing}
+              className="flex-1 px-6 py-3 border border-border rounded-lg hover:bg-muted font-medium text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
-              onClick={handleProceedToSelection}
-              disabled={!selectedPlan}
+              onClick={handleProceedToCheckout}
+              disabled={!selectedPlan || isProcessing}
               className="flex-1 px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2 transition-colors"
             >
-              Select Judges to Advertise On
-              <ChevronRight className="h-4 w-4" />
+              {isProcessing ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <span>Proceed to Checkout</span>
+                  <ChevronRight className="h-4 w-4" />
+                </>
+              )}
             </button>
           </div>
         </div>

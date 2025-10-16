@@ -119,6 +119,9 @@ async function handleWebhookEvent(
   event: Stripe.Event
 ): Promise<{ status: 'success' | 'error'; message?: string }> {
   switch (event.type) {
+    case 'checkout.session.completed':
+      return await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session)
+
     case 'customer.subscription.created':
       return await handleSubscriptionCreated(event.data.object as Stripe.Subscription)
 
@@ -140,6 +143,54 @@ async function handleWebhookEvent(
         event_id: event.id,
       })
       return { status: 'success', message: 'Event type not handled' }
+  }
+}
+
+/**
+ * Handle checkout.session.completed event
+ * This is triggered when a user successfully completes payment
+ */
+async function handleCheckoutCompleted(
+  session: Stripe.Checkout.Session
+): Promise<{ status: 'success' | 'error'; message?: string }> {
+  try {
+    const supabase = await createServiceRoleClient()
+
+    logger.info('Checkout session completed', {
+      session_id: session.id,
+      customer_id: session.customer,
+      subscription_id: session.subscription,
+      mode: session.mode,
+    })
+
+    // For subscription mode, the subscription will be created via subscription.created event
+    // Here we just log the checkout completion for monitoring
+    if (session.mode === 'subscription') {
+      logger.info('Subscription checkout completed', {
+        session_id: session.id,
+        subscription_id: session.subscription,
+        metadata: session.metadata,
+      })
+
+      // The actual subscription record will be created by subscription.created handler
+      // But we can update Clerk user metadata if needed
+      const clerkUserId = session.metadata?.clerk_user_id
+      if (clerkUserId) {
+        logger.info('Checkout linked to Clerk user', {
+          clerk_user_id: clerkUserId,
+          subscription_id: session.subscription,
+        })
+      }
+    }
+
+    return { status: 'success' }
+  } catch (error) {
+    logger.error(
+      'Failed to process checkout.session.completed',
+      { session_id: session.id },
+      error instanceof Error ? error : undefined
+    )
+    return { status: 'error', message: error instanceof Error ? error.message : 'Unknown error' }
   }
 }
 
