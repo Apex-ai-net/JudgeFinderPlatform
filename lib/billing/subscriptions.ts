@@ -22,66 +22,76 @@ export interface SubscriptionData {
  * Get all active subscriptions for a Stripe customer
  */
 export async function getUserSubscriptions(stripeCustomerId: string): Promise<SubscriptionData[]> {
-  const stripe = getStripeClient()
+  try {
+    const stripe = getStripeClient()
 
-  const subscriptions = await stripe.subscriptions.list({
-    customer: stripeCustomerId,
-    status: 'all',
-    expand: ['data.items.data.price.product'],
-    limit: 100,
-  })
-
-  return subscriptions.data.map((sub) => {
-    const items = sub.items.data.map((item) => {
-      const product = item.price.product as Stripe.Product
-      return {
-        id: item.id,
-        productName: product.name,
-        productDescription: product.description,
-        amount: (item.price.unit_amount || 0) / 100,
-        currency: item.price.currency,
-        interval: item.price.recurring?.interval || null,
-      }
+    const subscriptions = await stripe.subscriptions.list({
+      customer: stripeCustomerId,
+      status: 'all',
+      expand: ['data.items.data.price.product'],
+      limit: 100,
     })
 
-    return {
-      id: sub.id,
-      status: sub.status,
-      currentPeriodEnd: new Date(sub.current_period_end * 1000),
-      cancelAtPeriodEnd: sub.cancel_at_period_end,
-      items,
-      created: new Date(sub.created * 1000),
-      canceledAt: sub.canceled_at ? new Date(sub.canceled_at * 1000) : null,
-    }
-  })
+    return subscriptions.data.map((sub) => {
+      const items = sub.items.data.map((item) => {
+        const product = item.price.product as Stripe.Product
+        return {
+          id: item.id,
+          productName: product.name,
+          productDescription: product.description,
+          amount: (item.price.unit_amount || 0) / 100,
+          currency: item.price.currency,
+          interval: item.price.recurring?.interval || null,
+        }
+      })
+
+      return {
+        id: sub.id,
+        status: sub.status,
+        currentPeriodEnd: new Date(sub.current_period_end * 1000),
+        cancelAtPeriodEnd: sub.cancel_at_period_end,
+        items,
+        created: new Date(sub.created * 1000),
+        canceledAt: sub.canceled_at ? new Date(sub.canceled_at * 1000) : null,
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching user subscriptions:', error)
+    throw error
+  }
 }
 
 /**
  * Get payment methods for a Stripe customer
  */
 export async function getPaymentMethods(stripeCustomerId: string) {
-  const stripe = getStripeClient()
+  try {
+    const stripe = getStripeClient()
 
-  const paymentMethods = await stripe.paymentMethods.list({
-    customer: stripeCustomerId,
-    type: 'card',
-  })
+    const paymentMethods = await stripe.paymentMethods.list({
+      customer: stripeCustomerId,
+      type: 'card',
+    })
 
-  const customer = (await stripe.customers.retrieve(stripeCustomerId)) as Stripe.Customer
-  const defaultPaymentMethodId =
-    typeof customer.invoice_settings?.default_payment_method === 'string'
-      ? customer.invoice_settings.default_payment_method
-      : customer.invoice_settings?.default_payment_method?.id
+    const customer = (await stripe.customers.retrieve(stripeCustomerId)) as Stripe.Customer
+    const defaultPaymentMethodId =
+      typeof customer.invoice_settings?.default_payment_method === 'string'
+        ? customer.invoice_settings.default_payment_method
+        : customer.invoice_settings?.default_payment_method?.id
 
-  return paymentMethods.data.map((pm) => ({
-    id: pm.id,
-    brand: pm.card?.brand || 'card',
-    last4: pm.card?.last4 || '****',
-    expMonth: pm.card?.exp_month || 0,
-    expYear: pm.card?.exp_year || 0,
-    isDefault: pm.id === defaultPaymentMethodId,
-    isExpiringSoon: isExpiringSoon(pm.card?.exp_month || 0, pm.card?.exp_year || 0),
-  }))
+    return paymentMethods.data.map((pm) => ({
+      id: pm.id,
+      brand: pm.card?.brand || 'card',
+      last4: pm.card?.last4 || '****',
+      expMonth: pm.card?.exp_month || 0,
+      expYear: pm.card?.exp_year || 0,
+      isDefault: pm.id === defaultPaymentMethodId,
+      isExpiringSoon: isExpiringSoon(pm.card?.exp_month || 0, pm.card?.exp_year || 0),
+    }))
+  } catch (error) {
+    console.error('Error fetching payment methods:', error)
+    throw error
+  }
 }
 
 /**

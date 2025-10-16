@@ -129,6 +129,12 @@ export default function LegalProfessionalDashboard({
                   🔍 Search Judges
                 </Link>
                 <Link
+                  href="/dashboard/bookmarks"
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all hover:border-gray-400"
+                >
+                  📑 My Bookmarks
+                </Link>
+                <Link
                   href="/compare"
                   className="block w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all hover:border-gray-400"
                 >
@@ -139,6 +145,12 @@ export default function LegalProfessionalDashboard({
                   className="block w-full px-4 py-3 border border-blue-300 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition-all"
                 >
                   📊 View Analytics
+                </Link>
+                <Link
+                  href="/dashboard/billing"
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all hover:border-gray-400"
+                >
+                  💳 Billing & Purchases
                 </Link>
                 <Link
                   href="/settings"

@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 import { getUserSubscriptions, getPaymentMethods } from '@/lib/billing/subscriptions'
 import { logger } from '@/lib/utils/logger'
+import { isStripeConfigured } from '@/lib/stripe/client'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +20,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if Stripe is configured
+    if (!isStripeConfigured()) {
+      logger.warn('Stripe not configured - returning empty billing data')
+      return NextResponse.json({
+        subscriptions: [],
+        paymentMethods: [],
+      })
     }
 
     // Get user's Stripe customer ID
