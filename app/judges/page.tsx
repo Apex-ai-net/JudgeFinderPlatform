@@ -85,14 +85,15 @@ function JudgesLoading(): JSX.Element {
 
 async function getInitialJudges(page: number = 1): Promise<any> {
   try {
+    // Server-side: Use baseUrl for absolute URL (works in preview/production)
+    // This ensures SSR works in all Netlify environments (preview, branch, production)
     const baseUrl = getBaseUrl()
-    // Removed cache-busting _t parameter - 'no-store' is sufficient
-    const response = await fetch(
-      `${baseUrl}/api/judges/list?limit=24&page=${page}&jurisdiction=CA&include_decisions=true`,
-      {
-        cache: 'no-store',
-      }
-    )
+    const apiUrl = `${baseUrl}/api/judges/list?limit=24&page=${page}&jurisdiction=CA&include_decisions=true`
+
+    const response = await fetch(apiUrl, {
+      cache: 'no-store',
+    })
+
     if (!response.ok) return null
     const data = await response.json()
     return data
