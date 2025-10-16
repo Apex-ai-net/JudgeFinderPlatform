@@ -137,6 +137,14 @@
     Content-Type = "text/plain; charset=utf-8"
     Cache-Control = "public, max-age=86400, s-maxage=86400"
 
+# Dynamic routes - no HTML caching to prevent serving stale page data
+# These routes use SSR and must fetch fresh data based on URL parameters
+[[headers]]
+  for = "/judges"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate, s-maxage=0"
+    X-Robots-Tag = "index, follow"
+
 # ============================================
 # Serverless Functions Configuration
 # ============================================
