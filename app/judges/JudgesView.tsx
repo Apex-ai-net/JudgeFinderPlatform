@@ -63,6 +63,20 @@ export const JudgesView = observer(function JudgesView({ initialData }: JudgesVi
   const router = useRouter()
   const viewModel = useJudgesDirectoryViewModel({ initialData })
 
+  // Sync URL page parameter with store state (client-side navigation)
+  useEffect(() => {
+    const pageParam = searchParams.get('page')
+    const targetPage = pageParam ? parseInt(pageParam, 10) : 1
+    const validPage = Number.isFinite(targetPage) && targetPage >= 1 ? targetPage : 1
+
+    // Only update if different from current page to avoid unnecessary fetches
+    if (validPage !== viewModel.state.currentPage) {
+      viewModel.setPage(validPage)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get('page')])
+
+  // Sync search query with store state
   useEffect(() => {
     const searchQuery = searchParams.get('search') || searchParams.get('q') || ''
 

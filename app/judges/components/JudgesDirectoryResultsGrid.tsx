@@ -41,8 +41,7 @@ export const JudgesDirectoryResultsGrid = observer(function JudgesDirectoryResul
   }
 
   const handlePageChange = (page: number): void => {
-    // Prefetch/update view state immediately for better UX
-    viewModel.setPage(page)
+    // Update URL - the useEffect in JudgesView will sync store state
     const params = new URLSearchParams(searchParams.toString())
     if (page === 1) {
       params.delete('page')
