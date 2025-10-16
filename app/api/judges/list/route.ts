@@ -220,7 +220,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       response.headers.set('CDN-Cache-Control', 'public, s-maxage=3600')
     }
 
+    // CRITICAL: Ensure Netlify CDN includes query parameters in cache key
+    // Without this, all paginated requests return cached page 1 data
     response.headers.set('Vary', 'Accept-Encoding')
+    response.headers.set('Netlify-Vary', 'query')
+    // Alternative: Disable CDN caching entirely for this endpoint to force proper behavior
+    response.headers.set('Netlify-CDN-Cache-Control', 'no-cache')
 
     const duration = Date.now() - startTime
     logger.apiResponse('GET', '/api/judges/list', 200, duration, {

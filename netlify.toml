@@ -145,6 +145,16 @@
     Cache-Control = "public, max-age=0, must-revalidate, s-maxage=0"
     X-Robots-Tag = "index, follow"
 
+# API routes with query parameters - ensure proper cache key variation
+# Critical for pagination: CDN must include query params in cache key
+[[headers]]
+  for = "/api/judges/list"
+  [headers.values]
+    # Netlify-specific: Include query parameters in CDN cache key
+    # This ensures /api/judges/list?page=1 and ?page=2 are cached separately
+    Netlify-Vary = "query"
+    X-Robots-Tag = "noindex, nofollow"
+
 # ============================================
 # Serverless Functions Configuration
 # ============================================

@@ -186,7 +186,13 @@ export function getSecurityHeaders(config: SecurityConfig): Record<string, strin
  * Cache control headers for different resource types
  */
 export function getCacheHeaders(pathname: string): Record<string, string> {
-  // API routes - no cache
+  // Skip cache headers for API routes that manage their own caching strategy
+  // These routes have sophisticated caching with Redis + CDN and must control their own headers
+  if (pathname.startsWith('/api/judges/list')) {
+    return {} // Let the route handler control caching
+  }
+
+  // API routes - no cache by default
   if (pathname.startsWith('/api/')) {
     return {
       'Cache-Control': 'no-cache, no-store, must-revalidate',
