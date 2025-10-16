@@ -115,6 +115,14 @@ export default async function JudgesPage({
   // Validate page number (must be positive integer)
   const validPage = Number.isFinite(pageParam) && pageParam >= 1 ? pageParam : 1
 
+  // Debug logging
+  console.log('[SSR Pagination Debug]', {
+    rawParams: params,
+    pageParam,
+    validPage,
+    willFetch: `/api/judges/list?page=${validPage}`,
+  })
+
   // Fetch data for the requested page
   const initialData = await getInitialJudges(validPage)
 
