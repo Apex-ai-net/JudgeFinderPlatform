@@ -34,7 +34,12 @@ export function useJudgesDirectoryViewModel(
   const viewModel = viewModelRef.current
 
   useEffect(() => {
-    void viewModel.loadInitial()
+    // CRITICAL FIX: Only load initial data if SSR didn't provide it
+    // When initialData exists, the store is already initialized with correct page data
+    // Calling loadInitial() would overwrite it with page 1, breaking pagination
+    if (!options.initialData) {
+      void viewModel.loadInitial()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

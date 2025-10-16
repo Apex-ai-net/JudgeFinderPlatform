@@ -36,8 +36,16 @@ export class JudgesDirectoryStore {
     makeAutoObservable(this, {}, { autoBind: true })
 
     if (options.initialState) {
+      console.log('[JudgesDirectoryStore] Initializing with SSR data:', {
+        page: options.initialState.page,
+        judgeCount: options.initialState.judges.length,
+        firstJudge: options.initialState.judges[0]?.name,
+        totalPages: Math.ceil(options.initialState.total_count / options.initialState.per_page),
+      })
       this.applyResponse(options.initialState)
       this.state.initialized = true
+    } else {
+      console.log('[JudgesDirectoryStore] Initialized without SSR data (client-side only)')
     }
   }
 
@@ -66,9 +74,23 @@ export class JudgesDirectoryStore {
   }
 
   setPage(page: number) {
+    console.log('[JudgesDirectoryStore] setPage() called:', {
+      requestedPage: page,
+      currentPage: this.state.currentPage,
+      totalPages: this.state.totalPages,
+    })
+
     // Allow fetch when totalPages is unknown (0) to compute server-side
-    if (page < 1) return
-    if (this.state.totalPages > 0 && page > this.state.totalPages) return
+    if (page < 1) {
+      console.log('[JudgesDirectoryStore] Invalid page number (< 1)')
+      return
+    }
+    if (this.state.totalPages > 0 && page > this.state.totalPages) {
+      console.log('[JudgesDirectoryStore] Page exceeds total pages')
+      return
+    }
+
+    console.log('[JudgesDirectoryStore] Fetching page:', page)
     void this.fetchPage({ page, replace: true })
   }
 
@@ -77,7 +99,18 @@ export class JudgesDirectoryStore {
   }
 
   async loadInitial() {
-    if (this.state.judges.length > 0) return
+    console.log('[JudgesDirectoryStore] loadInitial() called:', {
+      hasJudges: this.state.judges.length > 0,
+      initialized: this.state.initialized,
+      currentPage: this.state.currentPage,
+    })
+
+    if (this.state.judges.length > 0) {
+      console.log('[JudgesDirectoryStore] Skipping loadInitial - data already exists')
+      return
+    }
+
+    console.log('[JudgesDirectoryStore] Fetching page 1 (no initial data)')
     await this.fetchPage({ page: 1, replace: true })
   }
 
@@ -98,6 +131,14 @@ export class JudgesDirectoryStore {
   }
 
   private applyResponse(response: JudgeDirectoryFetchResult['response']) {
+    console.log('[JudgesDirectoryStore] applyResponse() called:', {
+      page: response.page,
+      judgeCount: response.judges.length,
+      firstJudge: response.judges[0]?.name,
+      totalCount: response.total_count,
+      totalPages: Math.ceil(response.total_count / response.per_page),
+    })
+
     this.state.judges = response.judges
     this.state.total_count = response.total_count
     this.state.page = response.page

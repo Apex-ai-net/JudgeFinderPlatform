@@ -7,8 +7,8 @@ import { ScrollIndicator } from '@/components/ui/ScrollIndicator'
 import { getBaseUrl } from '@/lib/utils/baseUrl'
 
 export const dynamic = 'force-dynamic'
-
-export const revalidate = 300
+export const revalidate = 0
+export const fetchCache = 'force-no-store'
 
 const BASE_URL = getBaseUrl()
 
@@ -86,11 +86,11 @@ function JudgesLoading(): JSX.Element {
 async function getInitialJudges(page: number = 1): Promise<any> {
   try {
     const baseUrl = getBaseUrl()
+    // Removed cache-busting _t parameter - 'no-store' is sufficient
     const response = await fetch(
       `${baseUrl}/api/judges/list?limit=24&page=${page}&jurisdiction=CA&include_decisions=true`,
       {
-        cache: 'force-cache',
-        next: { revalidate: 600 },
+        cache: 'no-store',
       }
     )
     if (!response.ok) return null
