@@ -1,4 +1,5 @@
 import { createServiceRoleClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
 
 export type UserRole = 'legal_professional' | 'advertiser' | 'admin' | 'unknown'
 
