@@ -68,14 +68,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       queryBuilder = queryBuilder.eq('jurisdiction', jurisdiction)
     }
 
-    // Filter by county if provided - check if county name appears in address or name
-    // Use simple ilike filter to match county name patterns
+    // Filter by county if provided - use the county column for exact matching
     if (county && county !== '') {
-      // Match "County Name County" or "County Name, CA" patterns in address or name
-      // Using simple approach that works with Supabase
-      queryBuilder = queryBuilder.or(
-        `address.ilike.%${county} County%,address.ilike.%${county}, CA%,name.ilike.%${county} County%,name.ilike.%County of ${county}%`
-      )
+      queryBuilder = queryBuilder.eq('county', county)
     }
 
     const { data, error, count } = await queryBuilder
