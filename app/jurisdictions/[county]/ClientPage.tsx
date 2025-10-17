@@ -36,6 +36,11 @@ export default function CountyCourtsPage(): JSX.Element {
           jurisdiction: jurisdictionInfo.jurisdictionValue,
         })
 
+        // Add county filter if available
+        if (jurisdictionInfo.countyName) {
+          params.append('county', jurisdictionInfo.countyName)
+        }
+
         if (searchQuery.trim()) params.append('q', searchQuery)
 
         const response = await fetch(`/api/courts?${params}`)

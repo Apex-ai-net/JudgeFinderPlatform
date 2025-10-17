@@ -41,6 +41,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const requestedJurisdiction = searchParams.get('jurisdiction') || 'CA'
     const jurisdiction = requestedJurisdiction === 'ALL' ? 'CA' : requestedJurisdiction
     const courtLevel = searchParams.get('court_level') || undefined
+    const county = searchParams.get('county') || undefined
 
     const supabase = await createServerClient()
     const from = (page - 1) * limit
@@ -65,6 +66,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (jurisdiction && jurisdiction !== '') {
       queryBuilder = queryBuilder.eq('jurisdiction', jurisdiction)
+    }
+
+    // Filter by county if provided - check if county name appears in address or name
+    if (county && county !== '') {
+      queryBuilder = queryBuilder.or(`address.ilike.%${county}%,name.ilike.%${county}%`)
     }
 
     const { data, error, count } = await queryBuilder
