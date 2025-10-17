@@ -103,9 +103,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       has_more: hasMore,
     }
 
-    // Set cache headers for better performance
+    // Set cache headers - disable caching to ensure county parameter works correctly
+    // TODO: Re-enable caching with proper Vary headers once Netlify cache key includes all query params
     const response = NextResponse.json({ ...result, rate_limit_remaining: remaining })
-    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=60')
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
 
     return response
   } catch (error) {
