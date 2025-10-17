@@ -43,7 +43,7 @@ export async function getUserRole(userId: string, clerkUserId: string): Promise<
     // Log errors but don't crash - table might not exist yet
     if (advertiserError && advertiserError.code !== 'PGRST116') {
       // PGRST116 = relation does not exist, which is fine during initial setup
-      console.warn('Error checking advertiser profile:', advertiserError)
+      logger.warn('Error checking advertiser profile', { error: advertiserError })
     }
 
     if (advertiserProfile) {
@@ -64,7 +64,7 @@ export async function getUserRole(userId: string, clerkUserId: string): Promise<
       isAdmin: false,
     }
   } catch (error) {
-    console.error('Error detecting user role:', error)
+    logger.error('Error detecting user role', { error })
     // Default to legal professional on error
     return {
       role: 'legal_professional',
@@ -131,9 +131,9 @@ export async function getDashboardDataByRole(
         .limit(30)
 
       // Log errors but provide default empty data
-      if (campaignsError) console.warn('Error fetching campaigns:', campaignsError)
-      if (bookingsError) console.warn('Error fetching bookings:', bookingsError)
-      if (metricsError) console.warn('Error fetching metrics:', metricsError)
+      if (campaignsError) logger.warn('Error fetching campaigns', { error: campaignsError })
+      if (bookingsError) logger.warn('Error fetching bookings', { error: bookingsError })
+      if (metricsError) logger.warn('Error fetching metrics', { error: metricsError })
 
       return {
         campaigns: campaigns || [],
@@ -157,8 +157,9 @@ export async function getDashboardDataByRole(
       .limit(5)
 
     // Log errors but provide default empty data
-    if (bookmarksError) console.warn('Error fetching bookmarks:', bookmarksError)
-    if (savedSearchesError) console.warn('Error fetching saved searches:', savedSearchesError)
+    if (bookmarksError) logger.warn('Error fetching bookmarks', { error: bookmarksError })
+    if (savedSearchesError)
+      logger.warn('Error fetching saved searches', { error: savedSearchesError })
 
     return {
       bookmarks: bookmarks || [],

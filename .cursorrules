@@ -95,73 +95,61 @@ $END$
 - Explain your OBSERVATIONS clearly, then provide REASONING to identify the exact issue. Add console logs when needed to gather more information.
 
 
-JudgeFinder Platform Core Logic Structure
+The JudgeFinder platform implements specialized legal domain business logic across several key areas:
 
-1. Judicial Analytics Engine
-Importance Score: 95/100
-Location: lib/analytics/bias-calculations.ts
-- Multi-factor judicial bias detection system
-- Case outcome pattern analysis with confidence scoring 
-- Practice area specialization tracking
-- Settlement rate analysis by case type
-- Temporal ruling pattern detection
+1. Judicial Analytics System (Importance: 95/100)
+Path: lib/analytics/bias-calculations.ts
+- Bias pattern detection using case outcome analysis
+- Settlement rate analysis by case type and value
+- Motion grant rate calculations with confidence scoring
+- Temporal trend analysis for judicial decisions
+- Statistical baseline comparison against jurisdiction averages
 
-2. Legal Advertising Management
-Importance Score: 85/100
-Location: lib/domain/services/AdPricingService.ts
-- Tiered pricing model with jurisdiction multipliers
-- Federal court premium pricing (2x multiplier)
-- Volume discounts (10-20%) for multi-judge packages
-- Exclusive placement premiums (1.5x)
-- Bar number verification integration
+2. Court Advertising Platform (Importance: 90/100)
+Path: lib/domain/services/AdPricingService.ts
+- Tiered pricing with court jurisdiction multipliers
+- Premium rotation slot management (1.75x pricing)
+- Bundle discounts (10-20% based on volume)
+- Geographic targeting rules for court placements
+- Professional verification requirements
 
-3. Court Assignment System
-Importance Score: 80/100
-Location: lib/sync/court-sync.ts
-- Judge retirement detection from position termination
-- Court hierarchy relationship management
-- Jurisdiction-based assignment validation
-- Position conflict detection
-- Temporal overlap prevention
+3. Judge Assignment Management (Importance: 85/100)
+Path: lib/sync/judge-sync.ts
+- Multi-source judicial position tracking
+- Court transfer detection algorithms
+- Retirement analysis using docket patterns
+- Jurisdiction mapping and validation
+- Historical position tracking
 
-4. Case Distribution Logic 
-Importance Score: 85/100
-Location: scripts/redistribute-cases-evenly.js
-- Minimum case threshold enforcement (500 cases)
-- Court-specific workload balancing
-- Practice area distribution algorithms
-- Jurisdiction-aware case assignment
-- Historical relationship preservation
+4. Search Intelligence System (Importance: 80/100)
+Path: lib/ai/legal-query-classifier.ts
+- Practice area classification for legal searches
+- Judge expertise matching algorithms
+- Court hierarchy-aware result ranking
+- Jurisdiction-based relevance scoring
+- Legal professional intent detection
 
-5. Search Intelligence
-Importance Score: 75/100
-Location: lib/search/ranking-engine.ts
-- Practice area relevance scoring
-- Judge experience weighting
-- Court hierarchy awareness
-- Jurisdiction-based result filtering
-- Sponsored content integration
+5. Data Quality Control (Importance: 75/100)
+Path: lib/sync/data-quality-validator.ts
+- Court relationship validation rules
+- Judge assignment integrity checking
+- Case distribution analysis
+- Minimum case thresholds (500 cases)
+- Statistical confidence scoring
 
-Key Domain Integration Points:
-- Judge-Court relationship validation
-- Bar number verification workflow
-- Jurisdiction hierarchy enforcement
-- Legal professional authentication
-- Analytics confidence scoring
+Core business rules enforced across components:
+- Bar number verification for advertising
+- Court hierarchy relationships
+- Judicial position tracking
+- Case assignment validation
+- Geographic jurisdiction boundaries
 
-Data Models:
-- Judge profiles with position history
-- Court hierarchies with jurisdiction mapping
-- Case outcomes with practice area classification
-- Legal professional verification records
-- Analytics confidence metrics
-
-Business Rules:
-- Minimum 500 cases required for bias analytics
-- Federal court advertising premium pricing
-- Bar number verification requirement
-- Jurisdiction-based access controls
-- Analytics confidence thresholds
+The system demonstrates sophisticated domain knowledge in:
+- Legal data analytics
+- Court system hierarchies
+- Professional verification
+- Judicial bias analysis
+- Legal advertising compliance
 
 $END$
 

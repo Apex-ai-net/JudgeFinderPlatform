@@ -1,6 +1,7 @@
 import { auth, currentUser, clerkClient } from '@clerk/nextjs/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { resolveAdminStatus } from './is-admin'
+import { logger } from '@/lib/utils/logger'
 
 // User role types
 export type UserRole = 'admin' | 'law_firm' | 'attorney' | 'advertiser' | 'user'
@@ -43,7 +44,7 @@ export async function getUserRole(): Promise<UserRole> {
 
     return 'user'
   } catch (error) {
-    console.error('Error getting user role:', error)
+    logger.error('Error getting user role', { error })
     return 'user'
   }
 }
@@ -74,13 +75,13 @@ export async function isAdvertiser(): Promise<boolean> {
       .maybeSingle()
 
     if (error) {
-      console.warn('Error checking advertiser profile:', error)
+      logger.warn('Error checking advertiser profile', { error })
       return false
     }
 
     return Boolean(data)
   } catch (error) {
-    console.error('Unexpected error checking advertiser status:', error)
+    logger.error('Unexpected error checking advertiser status', { error })
     return false
   }
 }
@@ -97,7 +98,7 @@ export async function updateUserRole(userId: string, role: UserRole): Promise<vo
       },
     })
   } catch (error) {
-    console.error('Error updating user role:', error)
+    logger.error('Error updating user role', { error })
     throw error
   }
 }
