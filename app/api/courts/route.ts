@@ -69,11 +69,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // Filter by county if provided - check if county name appears in address or name
-    // Use more precise matching to avoid partial matches (e.g., "Orange" matching "Oceangate")
+    // Use word boundary matching to avoid partial matches (e.g., "Orange" matching "Oceangate")
     if (county && county !== '') {
-      queryBuilder = queryBuilder.or(
-        `address.ilike.%${county} County%,address.ilike.%${county}, CA%,name.ilike.%${county} County%`
-      )
+      // Match patterns like "Los Angeles County", "Los Angeles, CA", or county name at word boundaries
+      const countyPattern = `%(${county} County|${county}, CA|${county} Superior|County of ${county})%`
+      queryBuilder = queryBuilder.or(`address.ilike.${countyPattern},name.ilike.${countyPattern}`)
     }
 
     const { data, error, count } = await queryBuilder
