@@ -71,12 +71,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Filter by county if provided - check if county name appears in address or name
     // Use multiple OR conditions to avoid partial matches (e.g., "Orange" matching "Oceangate")
     if (county && county !== '') {
-      // Build multiple patterns and combine them
+      // Use Supabase wildcard syntax: * instead of %
       const patterns = [
-        `address.ilike.%${county} County%`,
-        `address.ilike.%${county}, CA%`,
-        `name.ilike.%${county} County%`,
-        `name.ilike.%County of ${county}%`,
+        `address.ilike.*${county} County*`,
+        `address.ilike.*${county}, CA*`,
+        `name.ilike.*${county} County*`,
+        `name.ilike.*County of ${county}*`,
       ]
       queryBuilder = queryBuilder.or(patterns.join(','))
     }
