@@ -52,7 +52,8 @@ export const jurisdictionMap: Record<string, JurisdictionMetadata> = {
   },
   federal: {
     displayName: 'Federal',
-    jurisdictionValue: 'F',
+    jurisdictionValue: 'CA',
+    courtType: 'federal',
     description: 'Federal courts handling federal matters across California districts.',
   },
   texas: {

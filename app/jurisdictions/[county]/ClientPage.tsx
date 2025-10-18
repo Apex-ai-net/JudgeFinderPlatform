@@ -36,6 +36,11 @@ export default function CountyCourtsPage(): JSX.Element {
           jurisdiction: jurisdictionInfo.jurisdictionValue,
         })
 
+        // Add court type filter for federal courts
+        if (jurisdictionInfo.courtType) {
+          params.append('type', jurisdictionInfo.courtType)
+        }
+
         // Add county filter if available
         if (jurisdictionInfo.countyName) {
           params.append('county', jurisdictionInfo.countyName)

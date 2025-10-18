@@ -22,5 +22,6 @@ export interface JurisdictionMetadata {
   displayName: string
   jurisdictionValue: string
   countyName?: string
+  courtType?: string
   description: string
 }
