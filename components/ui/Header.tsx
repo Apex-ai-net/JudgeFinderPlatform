@@ -3,10 +3,9 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { Menu, X, Search } from 'lucide-react'
+import { Menu, X, Search, LayoutDashboard } from 'lucide-react'
 import { SafeSignInButton, SafeUserButton, useSafeUser } from '@/lib/auth/safe-clerk-components'
 import NavLogo from './NavLogo'
-import { ThemeToggle } from './ThemeToggle'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
@@ -100,7 +99,18 @@ export function Header(): JSX.Element {
             <Search className="h-4 w-4" />
             Search
           </Link>
-          <ThemeToggle />
+          {isSignedIn && (
+            <Link
+              href="/dashboard"
+              className={cn(
+                buttonVariants({ variant: 'ghost', size: 'sm' }),
+                'gap-2 text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </Link>
+          )}
           {isSignedIn ? (
             <SafeUserButton
               signOutRedirectUrl="/"
