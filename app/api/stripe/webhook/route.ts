@@ -59,38 +59,52 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         // CRITICAL: Verify clerk_user_id is present
         if (!clerk_user_id) {
-          logger.error('Missing clerk_user_id in webhook metadata - cannot link to user', {
+          logger.error('Missing clerk_user_id in webhook metadata - blocking order creation', {
             session_id: session.id,
             organization_name,
+            customer_email,
           })
-          // Continue processing but flag the issue
+          // Return 400 to prevent orphaned orders
+          return NextResponse.json(
+            {
+              error: 'Missing user identification - order cannot be created',
+              session_id: session.id,
+            },
+            { status: 400 }
+          )
         }
 
         // Create order record in database
         const supabase = await createServerClient()
 
+        // Build insert payload, conditionally including optional fields
+        const insertPayload: Record<string, any> = {
+          stripe_session_id: session.id,
+          stripe_payment_intent: session.payment_intent as string,
+          organization_name,
+          customer_email,
+          ad_type,
+          notes,
+          status: 'paid',
+          amount_total: session.amount_total,
+          currency: session.currency,
+          payment_status: session.payment_status,
+          client_ip,
+          metadata: {
+            created_at,
+            checkout_completed_at: new Date().toISOString(),
+            stripe_customer: session.customer,
+            ...(clerk_user_id ? { clerk_user_id } : {}),
+          },
+        }
+
+        if (clerk_user_id) {
+          insertPayload.created_by = clerk_user_id
+        }
+
         const { data: order, error: orderError } = await supabase
           .from('ad_orders')
-          .insert({
-            stripe_session_id: session.id,
-            stripe_payment_intent: session.payment_intent as string,
-            created_by: clerk_user_id || null, // NEW: Link to Clerk user
-            organization_name,
-            customer_email,
-            ad_type,
-            notes,
-            status: 'paid',
-            amount_total: session.amount_total,
-            currency: session.currency,
-            payment_status: session.payment_status,
-            client_ip,
-            metadata: {
-              created_at,
-              checkout_completed_at: new Date().toISOString(),
-              stripe_customer: session.customer,
-              clerk_user_id, // NEW: Also store in JSONB metadata
-            },
-          })
+          .insert(insertPayload)
           .select()
           .single()
 

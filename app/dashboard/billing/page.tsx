@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { CheckCircle2, AlertCircle, Package } from 'lucide-react'
 import ManageBillingButton from '@/components/billing/ManageBillingButton'
 import BillingDataClient from '@/components/billing/BillingDataClient'
+import PaymentHistoryFilter from '@/components/billing/PaymentHistoryFilter'
 
 export const metadata: Metadata = {
   title: 'Billing & Purchases | JudgeFinder Dashboard',
@@ -106,75 +107,90 @@ export default async function BillingDashboard({
           <BillingDataClient />
         </div>
 
-        {/* Orders List */}
+        {/* Orders List with Filtering */}
         {typedOrders.length > 0 ? (
-          <div className="space-y-4">
-            {typedOrders.map((order) => (
-              <div
-                key={order.id}
-                className="bg-card rounded-lg border border-border shadow-sm p-6 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Package className="h-5 w-5 text-muted-foreground" />
-                      <h3 className="font-semibold text-foreground">{order.organization_name}</h3>
-                    </div>
+          <PaymentHistoryFilter orders={typedOrders}>
+            {(filteredOrders) => (
+              <div className="space-y-4">
+                {filteredOrders.length === 0 ? (
+                  <div className="text-center py-12 bg-card rounded-lg border border-border">
+                    <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-muted-foreground">
+                      No orders match your filters. Try adjusting your search criteria.
+                    </p>
+                  </div>
+                ) : (
+                  filteredOrders.map((order) => (
+                    <div
+                      key={order.id}
+                      className="bg-card rounded-lg border border-border shadow-sm p-6 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Package className="h-5 w-5 text-muted-foreground" />
+                            <h3 className="font-semibold text-foreground">
+                              {order.organization_name}
+                            </h3>
+                          </div>
 
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>
-                        <span className="font-medium">Type:</span>{' '}
-                        {order.metadata?.tier || order.ad_type || 'Universal Access'}
-                      </p>
-                      {order.metadata?.billing_cycle && (
-                        <p>
-                          <span className="font-medium">Billing:</span>{' '}
-                          {order.metadata.billing_cycle === 'annual'
-                            ? 'Annual ($5,000/year)'
-                            : 'Monthly ($500/month)'}
+                          <div className="space-y-1 text-sm text-muted-foreground">
+                            <p>
+                              <span className="font-medium">Type:</span>{' '}
+                              {order.metadata?.tier || order.ad_type || 'Universal Access'}
+                            </p>
+                            {order.metadata?.billing_cycle && (
+                              <p>
+                                <span className="font-medium">Billing:</span>{' '}
+                                {order.metadata.billing_cycle === 'annual'
+                                  ? 'Annual ($5,000/year)'
+                                  : 'Monthly ($500/month)'}
+                              </p>
+                            )}
+                            <p>
+                              <span className="font-medium">Email:</span> {order.customer_email}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(order.created_at).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <div className="mb-2">
+                            <p className="text-2xl font-bold text-foreground">
+                              ${(order.amount_total / 100).toFixed(2)}
+                            </p>
+                            <p className="text-xs text-muted-foreground uppercase">
+                              {order.currency || 'USD'}
+                            </p>
+                          </div>
+
+                          <div className="inline-flex items-center gap-1.5 rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 text-xs font-medium text-green-700 dark:text-green-400">
+                            <CheckCircle2 className="h-3 w-3" />
+                            {order.status === 'paid' ? 'Paid' : order.status}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Session ID (for support) */}
+                      <div className="mt-4 pt-4 border-t border-border">
+                        <p className="text-xs text-muted-foreground font-mono">
+                          Order ID: {order.stripe_session_id}
                         </p>
-                      )}
-                      <p>
-                        <span className="font-medium">Email:</span> {order.customer_email}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(order.created_at).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </p>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="text-right">
-                    <div className="mb-2">
-                      <p className="text-2xl font-bold text-foreground">
-                        ${(order.amount_total / 100).toFixed(2)}
-                      </p>
-                      <p className="text-xs text-muted-foreground uppercase">
-                        {order.currency || 'USD'}
-                      </p>
-                    </div>
-
-                    <div className="inline-flex items-center gap-1.5 rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 text-xs font-medium text-green-700 dark:text-green-400">
-                      <CheckCircle2 className="h-3 w-3" />
-                      {order.status === 'paid' ? 'Paid' : order.status}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Session ID (for support) */}
-                <div className="mt-4 pt-4 border-t border-border">
-                  <p className="text-xs text-muted-foreground font-mono">
-                    Order ID: {order.stripe_session_id}
-                  </p>
-                </div>
+                  ))
+                )}
               </div>
-            ))}
-          </div>
+            )}
+          </PaymentHistoryFilter>
         ) : (
           <div className="text-center py-12">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">

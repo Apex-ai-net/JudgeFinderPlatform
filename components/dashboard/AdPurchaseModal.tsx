@@ -11,6 +11,9 @@ import {
   Info,
   Loader2,
   AlertCircle,
+  ShieldCheck,
+  Lock,
+  CreditCard,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
@@ -71,7 +74,9 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create checkout session')
+        const errorMsg = errorData.error || 'Failed to create checkout session'
+        const helpMsg = errorData.help ? `\n\n${errorData.help}` : ''
+        throw new Error(`${errorMsg}${helpMsg}`)
       }
 
       const { session_url } = await response.json()
@@ -357,6 +362,28 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Stripe Trust Indicators */}
+          <div className="bg-muted rounded-lg p-6 mb-6">
+            <div className="flex items-center justify-center gap-8 mb-4">
+              <div className="flex items-center gap-2 text-sm text-foreground">
+                <CreditCard className="h-5 w-5 text-primary" />
+                <span className="font-medium">Stripe Checkout</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-foreground">
+                <ShieldCheck className="h-5 w-5 text-success" />
+                <span>Bank-Level Security</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-foreground">
+                <Lock className="h-5 w-5 text-success" />
+                <span>256-bit SSL</span>
+              </div>
+            </div>
+            <p className="text-xs text-center text-muted-foreground">
+              Your payment is processed securely through Stripe. We never see or store your card
+              details. All transactions are encrypted and PCI-DSS compliant.
+            </p>
           </div>
 
           {/* Error Message */}

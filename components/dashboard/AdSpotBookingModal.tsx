@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Calendar, CreditCard, AlertCircle, Check } from 'lucide-react'
+import { X, Calendar, CreditCard, AlertCircle, Check, ShieldCheck, Lock } from 'lucide-react'
 import type { AdSpotWithDetails } from '@/types/advertising'
 
 interface AdSpotBookingModalProps {
@@ -159,6 +159,24 @@ export default function AdSpotBookingModal({
                   • Automatic monthly renewal
                   <br />• Secure payment via Stripe
                 </div>
+              </div>
+
+              {/* Stripe Trust Indicator */}
+              <div className="mt-4 pt-4 border-t border-border/50">
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <ShieldCheck className="h-4 w-4 text-success" />
+                    <span>Powered by Stripe</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Lock className="h-4 w-4 text-success" />
+                    <span>PCI-DSS Compliant</span>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Your payment information is encrypted and secure. We never store your card
+                  details.
+                </p>
               </div>
             </div>
 
