@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { UserButton, SignInButton, SignOutButton, useUser } from '@clerk/nextjs'
 
 // Type definitions for Clerk user
 interface SafeUser {
@@ -20,52 +21,16 @@ const DEFAULT_USER_STATE: SafeUser = {
 // Check if we're in a browser environment
 const isBrowser = () => typeof window !== 'undefined'
 
-// Check if Clerk has a valid key (not dummy)
-const hasValidClerkKey = () => {
-  const pubKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || ''
-  return (
-    pubKey.startsWith('pk_') &&
-    !pubKey.includes('YOUR') &&
-    !pubKey.includes('CONFIGURE') &&
-    !pubKey.includes('dummy')
-  )
-}
-
-// Dynamically loaded Clerk components
-let ClerkComponents: any = null
-
-const loadClerkComponents = async () => {
-  if (ClerkComponents) return ClerkComponents
-
-  try {
-    if (hasValidClerkKey()) {
-      ClerkComponents = await import('@clerk/nextjs')
-      return ClerkComponents
-    }
-  } catch (error) {
-    console.warn('Failed to load Clerk components:', error)
-  }
-  return null
-}
-
 // Safe UserButton component
 export function SafeUserButton(props: any): JSX.Element {
   const [mounted, setMounted] = useState(false)
-  const [UserButtonComponent, setUserButtonComponent] = useState<any>(null)
 
   useEffect(() => {
     setMounted(true)
-    if (hasValidClerkKey()) {
-      loadClerkComponents().then((components) => {
-        if (components) {
-          setUserButtonComponent(() => components.UserButton)
-        }
-      })
-    }
   }, [])
 
   // During SSR or before mount, show placeholder
-  if (!mounted || !UserButtonComponent) {
+  if (!mounted) {
     return (
       <Link
         href="/profile"
@@ -76,8 +41,8 @@ export function SafeUserButton(props: any): JSX.Element {
     )
   }
 
-  // Use Clerk's UserButton when loaded
-  return <UserButtonComponent {...props} />
+  // Use Clerk's UserButton when mounted
+  return <UserButton {...props} />
 }
 
 // Safe SignInButton component
@@ -89,39 +54,31 @@ interface SafeSignInButtonProps {
 }
 
 export function SafeSignInButton({
-  mode,
+  mode = 'modal',
   children,
   fallbackRedirectUrl = '/dashboard',
   forceRedirectUrl,
 }: SafeSignInButtonProps) {
   const [mounted, setMounted] = useState(false)
-  const [SignInButtonComponent, setSignInButtonComponent] = useState<any>(null)
 
   useEffect(() => {
     setMounted(true)
-    if (hasValidClerkKey()) {
-      loadClerkComponents().then((components) => {
-        if (components) {
-          setSignInButtonComponent(() => components.SignInButton)
-        }
-      })
-    }
   }, [])
 
-  // During SSR or before mount, show fallback
-  if (!mounted || !SignInButtonComponent) {
+  // During SSR or before mount, show fallback link
+  if (!mounted) {
     return <Link href="/sign-in">{children}</Link>
   }
 
-  // Use Clerk's SignInButton when loaded
+  // Use Clerk's SignInButton when mounted
   return (
-    <SignInButtonComponent
+    <SignInButton
       mode={mode}
       fallbackRedirectUrl={fallbackRedirectUrl}
       forceRedirectUrl={forceRedirectUrl}
     >
       {children}
-    </SignInButtonComponent>
+    </SignInButton>
   )
 }
 
@@ -138,21 +95,13 @@ export function SafeSignOutButton({
   ...rest
 }: SafeSignOutButtonProps) {
   const [mounted, setMounted] = useState(false)
-  const [SignOutButtonComponent, setSignOutButtonComponent] = useState<any>(null)
 
   useEffect(() => {
     setMounted(true)
-    if (hasValidClerkKey()) {
-      loadClerkComponents().then((components) => {
-        if (components) {
-          setSignOutButtonComponent(() => components.SignOutButton)
-        }
-      })
-    }
   }, [])
 
   // During SSR or before mount, show fallback
-  if (!mounted || !SignOutButtonComponent) {
+  if (!mounted) {
     return (
       <button
         className="w-full text-left"
@@ -165,44 +114,36 @@ export function SafeSignOutButton({
     )
   }
 
-  // Use Clerk's SignOutButton when loaded
+  // Use Clerk's SignOutButton when mounted
+  // Note: SignOutButton uses redirectUrl prop, not signOutRedirectUrl
   return (
-    <SignOutButtonComponent signOutRedirectUrl={signOutRedirectUrl} {...rest}>
+    <SignOutButton redirectUrl={signOutRedirectUrl} {...rest}>
       {children}
-    </SignOutButtonComponent>
+    </SignOutButton>
   )
 }
 
 // Safe useUser hook - Returns mock data during SSR, real data on client
 export function useSafeUser(): SafeUser {
-  // Always call hooks at top level (fix React hooks violation)
   const [mounted, setMounted] = useState(false)
-  const [userState, setUserState] = useState<SafeUser>(DEFAULT_USER_STATE)
+
+  // Always call useUser hook (React rules require hooks to be called unconditionally)
+  // but wrap the actual Clerk provider in a try-catch for safety
+  let clerkUser: SafeUser = DEFAULT_USER_STATE
+  try {
+    const clerk = useUser()
+    clerkUser = {
+      isSignedIn: clerk.isSignedIn || false,
+      user: clerk.user || null,
+      isLoaded: clerk.isLoaded || false,
+    }
+  } catch (error) {
+    // Clerk not available (SSR or not wrapped in ClerkProvider)
+    // Return default state
+  }
 
   useEffect(() => {
-    // Only run effect in browser
-    if (!isBrowser()) return
-
     setMounted(true)
-
-    if (hasValidClerkKey()) {
-      loadClerkComponents().then((components) => {
-        if (components && components.useUser) {
-          try {
-            // We can't call hooks conditionally, so we'll need to access Clerk's state differently
-            // For now, just mark as loaded with no user when Clerk is not available
-            setUserState({ ...DEFAULT_USER_STATE, isLoaded: true })
-          } catch (error) {
-            console.warn('Error accessing Clerk user state:', error)
-            setUserState({ ...DEFAULT_USER_STATE, isLoaded: true })
-          }
-        } else {
-          setUserState({ ...DEFAULT_USER_STATE, isLoaded: true })
-        }
-      })
-    } else {
-      setUserState({ ...DEFAULT_USER_STATE, isLoaded: true })
-    }
   }, [])
 
   // During SSR or before mount, return default state
@@ -210,5 +151,5 @@ export function useSafeUser(): SafeUser {
     return DEFAULT_USER_STATE
   }
 
-  return userState
+  return clerkUser
 }
