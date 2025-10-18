@@ -2,6 +2,8 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { focusRing } from '@/lib/design-system/focus-states'
+import { cn } from '@/lib/utils'
 
 interface NavLogoProps {
   className?: string
@@ -10,16 +12,16 @@ interface NavLogoProps {
 }
 
 const NavLogo: React.FC<NavLogoProps> = ({
-  className = "",
+  className = '',
   variant = 'default',
-  showText = true
+  showText = true,
 }) => {
   const brandBlue = '#2B9FE3'
   const brandBlueDark = '#2389C9'
   const white = '#FFFFFF'
 
   return (
-    <Link href="/" className={className}>
+    <Link href="/" className={cn('rounded-lg', focusRing, className)} aria-label="JudgeFinder home">
       <div className="flex items-center gap-2.5 group">
         {/* Courthouse Logo Icon */}
         <div className="w-10 h-10 flex items-center justify-center">
@@ -30,24 +32,89 @@ const NavLogo: React.FC<NavLogoProps> = ({
           >
             <g transform="translate(80, 60)">
               {/* Base */}
-              <rect x="-80" y="50" width="160" height="8" fill={variant === 'dark' ? white : 'currentColor'} className="text-foreground"/>
-              <rect x="-75" y="58" width="150" height="4" fill={variant === 'dark' ? white : 'currentColor'} className="text-foreground"/>
+              <rect
+                x="-80"
+                y="50"
+                width="160"
+                height="8"
+                fill={variant === 'dark' ? white : 'currentColor'}
+                className="text-foreground"
+              />
+              <rect
+                x="-75"
+                y="58"
+                width="150"
+                height="4"
+                fill={variant === 'dark' ? white : 'currentColor'}
+                className="text-foreground"
+              />
 
               {/* Columns */}
-              <rect x="-65" y="-10" width="12" height="60" fill={variant === 'dark' ? white : 'currentColor'} className="text-foreground"/>
-              <rect x="-35" y="-10" width="12" height="60" fill={variant === 'dark' ? white : 'currentColor'} className="text-foreground"/>
-              <rect x="23" y="-10" width="12" height="60" fill={variant === 'dark' ? white : 'currentColor'} className="text-foreground"/>
-              <rect x="53" y="-10" width="12" height="60" fill={variant === 'dark' ? white : 'currentColor'} className="text-foreground"/>
+              <rect
+                x="-65"
+                y="-10"
+                width="12"
+                height="60"
+                fill={variant === 'dark' ? white : 'currentColor'}
+                className="text-foreground"
+              />
+              <rect
+                x="-35"
+                y="-10"
+                width="12"
+                height="60"
+                fill={variant === 'dark' ? white : 'currentColor'}
+                className="text-foreground"
+              />
+              <rect
+                x="23"
+                y="-10"
+                width="12"
+                height="60"
+                fill={variant === 'dark' ? white : 'currentColor'}
+                className="text-foreground"
+              />
+              <rect
+                x="53"
+                y="-10"
+                width="12"
+                height="60"
+                fill={variant === 'dark' ? white : 'currentColor'}
+                className="text-foreground"
+              />
 
               {/* Door (Brand Blue) */}
-              <rect x="-15" y="0" width="30" height="50" fill={brandBlue} className="transition-colors duration-200 group-hover:fill-[#2389C9]"/>
+              <rect
+                x="-15"
+                y="0"
+                width="30"
+                height="50"
+                fill={brandBlue}
+                className="transition-colors duration-200 group-hover:fill-[#2389C9]"
+              />
 
               {/* Entablature */}
-              <rect x="-75" y="-18" width="150" height="8" fill={variant === 'dark' ? white : 'currentColor'} className="text-foreground"/>
+              <rect
+                x="-75"
+                y="-18"
+                width="150"
+                height="8"
+                fill={variant === 'dark' ? white : 'currentColor'}
+                className="text-foreground"
+              />
 
               {/* Pediment */}
-              <path d="M 0,-50 L 85,-18 L -85,-18 Z" fill={variant === 'dark' ? white : 'currentColor'} className="text-foreground"/>
-              <path d="M 0,-45 L 75,-18 L -75,-18 Z" fill={variant === 'dark' ? white : 'currentColor'} fillOpacity="0.3" className="text-foreground"/>
+              <path
+                d="M 0,-50 L 85,-18 L -85,-18 Z"
+                fill={variant === 'dark' ? white : 'currentColor'}
+                className="text-foreground"
+              />
+              <path
+                d="M 0,-45 L 75,-18 L -75,-18 Z"
+                fill={variant === 'dark' ? white : 'currentColor'}
+                fillOpacity="0.3"
+                className="text-foreground"
+              />
             </g>
           </svg>
         </div>
@@ -55,17 +122,21 @@ const NavLogo: React.FC<NavLogoProps> = ({
         {/* Logo Text */}
         {showText && (
           <div className="flex items-baseline">
-            <span className={`text-xl font-semibold transition-colors duration-200 ${
-              variant === 'dark'
-                ? 'text-white'
-                : variant === 'monochrome'
-                ? 'text-enterprise-slate-black'
-                : 'text-enterprise-slate-black dark:text-white'
-            }`}>
+            <span
+              className={`text-xl font-semibold transition-colors duration-200 ${
+                variant === 'dark'
+                  ? 'text-white'
+                  : variant === 'monochrome'
+                    ? 'text-enterprise-slate-black'
+                    : 'text-enterprise-slate-black dark:text-white'
+              }`}
+            >
               JudgeFinder
             </span>
-            <span className={`text-xl font-normal transition-colors duration-200`}
-              style={{ color: brandBlue }}>
+            <span
+              className={`text-xl font-normal transition-colors duration-200`}
+              style={{ color: brandBlue }}
+            >
               .io
             </span>
           </div>

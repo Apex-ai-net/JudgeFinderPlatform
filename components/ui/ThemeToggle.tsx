@@ -3,6 +3,8 @@
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
+import { focusRing } from '@/lib/design-system/focus-states'
+import { cn } from '@/lib/utils'
 
 export function ThemeToggle(): JSX.Element {
   const { theme, setTheme } = useTheme()
@@ -12,13 +14,14 @@ export function ThemeToggle(): JSX.Element {
     setMounted(true)
   }, [])
 
+  const buttonClasses = cn(
+    'p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors',
+    focusRing
+  )
+
   if (!mounted) {
     return (
-      <button
-        type="button"
-        className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-        aria-label="Toggle theme"
-      >
+      <button type="button" className={buttonClasses} aria-label="Toggle theme" disabled>
         <Sun className="h-5 w-5" />
       </button>
     )
@@ -28,7 +31,7 @@ export function ThemeToggle(): JSX.Element {
     <button
       type="button"
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+      className={buttonClasses}
       title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
       aria-pressed={theme === 'dark'}

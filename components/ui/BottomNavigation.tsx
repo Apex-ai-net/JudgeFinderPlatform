@@ -7,36 +7,37 @@ import { Home, Search, BarChart3, Bookmark, User } from 'lucide-react'
 import { useSafeUser } from '@/lib/auth/safe-clerk-components'
 import { cn } from '@/lib/utils'
 import { tap, transitions } from '@/lib/animations/presets'
+import { focusRingInset } from '@/lib/design-system/focus-states'
 
 const BottomNavigation = () => {
   const pathname = usePathname()
   const { isSignedIn } = useSafeUser()
-  
+
   const navItems = [
-    { 
-      name: 'Home', 
-      href: '/', 
-      icon: Home
+    {
+      name: 'Home',
+      href: '/',
+      icon: Home,
     },
-    { 
-      name: 'Search', 
-      href: '/search', 
-      icon: Search
+    {
+      name: 'Search',
+      href: '/search',
+      icon: Search,
     },
-    { 
-      name: 'Insights', 
-      href: '/judges', 
-      icon: BarChart3
+    {
+      name: 'Insights',
+      href: '/judges',
+      icon: BarChart3,
     },
-    { 
-      name: 'Saved', 
-      href: isSignedIn ? '/dashboard' : '/sign-in', 
-      icon: Bookmark
+    {
+      name: 'Saved',
+      href: isSignedIn ? '/dashboard' : '/sign-in',
+      icon: Bookmark,
     },
-    { 
-      name: 'Account', 
-      href: isSignedIn ? '/profile' : '/sign-in', 
-      icon: User
+    {
+      name: 'Account',
+      href: isSignedIn ? '/profile' : '/sign-in',
+      icon: User,
     },
   ]
 
@@ -58,14 +59,16 @@ const BottomNavigation = () => {
               key={item.name}
               href={item.href}
               aria-label={item.name}
-              className="flex flex-1 items-center justify-center touch-manipulation"
+              aria-current={active ? 'page' : undefined}
+              className={cn(
+                'flex flex-1 items-center justify-center touch-manipulation rounded-2xl',
+                focusRingInset
+              )}
             >
               <motion.div
                 className={cn(
                   'relative flex min-w-[72px] flex-col items-center gap-1.5 rounded-2xl px-3 py-3 transition-colors duration-200',
-                  active
-                    ? 'bg-primary/15 text-primary'
-                    : 'text-muted-foreground active:bg-accent'
+                  active ? 'bg-primary/15 text-primary' : 'text-muted-foreground active:bg-accent'
                 )}
                 variants={tap}
                 whileTap="whileTap"
@@ -95,8 +98,8 @@ const BottomNavigation = () => {
 
                 <span
                   className={cn(
-                    "text-[11px] font-semibold tracking-tight",
-                    active ? "text-primary" : "text-muted-foreground"
+                    'text-[11px] font-semibold tracking-tight',
+                    active ? 'text-primary' : 'text-muted-foreground'
                   )}
                 >
                   {item.name}

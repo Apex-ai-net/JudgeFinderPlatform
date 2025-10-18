@@ -66,30 +66,7 @@ module.exports = {
         success: 'hsl(var(--success))',
         warning: 'hsl(var(--warning))',
         error: 'hsl(var(--error))',
-        // Professional Legal Brand Colors (Human-Centric)
-        legal: {
-          navy: '#1e3a8a',        // Deep blue - trust, authority
-          'navy-dark': '#1e293b', // Darker navy
-          green: '#065f46',       // Justice green
-          'green-light': '#047857',
-          gold: '#d97706',        // Accent gold - importance
-          'gold-light': '#f59e0b',
-          gray: '#78716c',        // Warm professional gray
-          'gray-light': '#a8a29e',
-          cream: '#fafaf9',       // Warm background
-          slate: '#475569',       // Text gray
-        },
-        // Legacy enterprise colors (keeping for compatibility)
-        enterprise: {
-          primary: '#1e3a8a',     // Now using legal navy
-          deep: '#1e293b',
-          'slate-black': '#0f172a',
-          'slate-800': '#1e293b',
-          accent: '#065f46',      // Now using legal green
-          light: '#047857',
-          'light-accent': '#93c5fd',
-          'light-pale': '#dbeafe',
-        },
+        info: 'hsl(var(--info))',
       },
       borderRadius: {
         lg: 'var(--radius)',
