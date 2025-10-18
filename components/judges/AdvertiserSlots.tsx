@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useState, useCallback, useMemo } from 'react'
-import { ExternalLink, Briefcase, Phone, Mail, Shield, RotateCw } from 'lucide-react'
+import { ExternalLink, Briefcase, Phone, Mail, Shield, RotateCw, Lock } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useInView } from 'react-intersection-observer'
+import { useSafeUser } from '@/lib/auth/safe-clerk-components'
 
 interface AdvertiserSlotsProps {
   judgeId: string
@@ -59,6 +60,8 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps): J
   const [slots, setSlots] = useState<AdSlot[]>([])
   const [maxRotations, setMaxRotations] = useState<number>(DEFAULT_MAX_ROTATIONS)
   const [loading, setLoading] = useState(true)
+  const [isAdvertiser, setIsAdvertiser] = useState(false)
+  const { isSignedIn, user, isLoaded } = useSafeUser()
 
   const fetchAdSlots = useCallback(async () => {
     try {
@@ -115,6 +118,29 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps): J
   useEffect(() => {
     fetchAdSlots()
   }, [fetchAdSlots])
+
+  // Check if user is an advertiser
+  useEffect(() => {
+    async function checkAdvertiserStatus() {
+      if (!isLoaded || !isSignedIn || !user?.id) {
+        setIsAdvertiser(false)
+        return
+      }
+
+      try {
+        const response = await fetch('/api/user/role')
+        if (response.ok) {
+          const data = await response.json()
+          setIsAdvertiser(data.isAdvertiser === true)
+        }
+      } catch (error) {
+        console.error('Error checking advertiser status:', error)
+        setIsAdvertiser(false)
+      }
+    }
+
+    checkAdvertiserStatus()
+  }, [isLoaded, isSignedIn, user?.id])
 
   const soldOut = useMemo(() => {
     if (!slots.length) return false
@@ -339,13 +365,29 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps): J
             <p className="hidden md:block text-xs text-muted-foreground/70">
               High-intent visibility for attorneys appearing before Judge {judgeName}.
             </p>
-            <Link
-              href={`/dashboard/advertiser/ad-spots?preselected=true&entityType=judge&entityId=${encodeURIComponent(judgeId)}&position=${encodeURIComponent(String(slot.position))}`}
-              className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-2 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/45 hover:text-foreground"
-            >
-              <span className="hidden md:inline">Book this rotation</span>
-              <span className="md:hidden">Book</span>
-            </Link>
+            {isAdvertiser ? (
+              <Link
+                href={`/dashboard/advertiser/ad-spots?preselected=true&entityType=judge&entityId=${encodeURIComponent(judgeId)}&position=${encodeURIComponent(String(slot.position))}`}
+                className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-2 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/45 hover:text-foreground"
+              >
+                <span className="hidden md:inline">Book this rotation</span>
+                <span className="md:hidden">Book</span>
+              </Link>
+            ) : (
+              <div className="flex flex-col items-center gap-2 w-full">
+                <div className="inline-flex items-center gap-1.5 text-[10px] md:text-xs text-muted-foreground/70">
+                  <Lock className="h-3 w-3" aria-hidden />
+                  <span className="font-medium">For Verified Attorneys Only</span>
+                </div>
+                <Link
+                  href="/dashboard/advertiser/onboarding"
+                  className="inline-flex items-center gap-2 rounded-full border border-primary/45 bg-interactive/15 px-2 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-semibold text-primary transition-colors hover:bg-[rgba(110,168,254,0.25)]"
+                >
+                  <span className="hidden md:inline">Become an advertiser</span>
+                  <span className="md:hidden">Sign up</span>
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </article>
@@ -354,23 +396,26 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps): J
 
   return (
     <div className="space-y-5" id="attorney-slots" aria-label="Verified legal sponsors">
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-foreground">Verified Legal Sponsors</h3>
-          <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground/70">
-            <RotateCw className="h-3 w-3" aria-hidden />
-            {maxRotations === 1
-              ? 'One verified sponsor per judge page.'
-              : `One sponsor slot, up to ${maxRotations} rotating attorneys.`}
-          </p>
+      <div className="flex flex-col gap-3 md:gap-2">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Verified Legal Sponsors</h3>
+            <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground/70">
+              <RotateCw className="h-3 w-3" aria-hidden />
+              {maxRotations === 1
+                ? 'One verified sponsor per judge page.'
+                : `One sponsor slot, up to ${maxRotations} rotating attorneys.`}
+            </p>
+          </div>
+          <Link
+            href="/docs/ads-policy"
+            className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-surface-elevated px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-semibold text-primary transition-colors hover:border-primary/45 hover:bg-interactive/10"
+          >
+            <Shield className="h-3.5 w-3.5" aria-hidden />
+            <span className="hidden md:inline">Why we show ads • Ad policy</span>
+            <span className="md:hidden">Ad policy</span>
+          </Link>
         </div>
-        <Link
-          href="/docs/ads-policy"
-          className="inline-flex items-center gap-2 text-xs font-medium text-primary transition-colors hover:text-foreground"
-        >
-          Understand our ad policy
-          <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-        </Link>
       </div>
 
       <p className="text-xs text-muted-foreground/70">

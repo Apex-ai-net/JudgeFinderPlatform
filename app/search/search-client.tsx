@@ -6,6 +6,7 @@ import { Search, Filter, Scale, Building, MapPin, Users, ChevronLeft, Loader2 } 
 import Link from 'next/link'
 import type { SearchResponse, SearchResult } from '@/types/search'
 import { SponsoredTile } from '@/components/search/SponsoredTile'
+import { InfoTooltip } from '@/components/ui/InfoTooltip'
 
 function SearchResults(): JSX.Element {
   const searchParams = useSearchParams()
@@ -196,7 +197,14 @@ function SearchResults(): JSX.Element {
           {/* Filters Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Filter Results</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Filter Results</h3>
+                <InfoTooltip
+                  content="Filter your search results by category to find exactly what you're looking for. Each filter shows the number of matching results."
+                  label="Learn about search filters"
+                  position="left"
+                />
+              </div>
 
               <div className="space-y-2">
                 <button
@@ -206,6 +214,7 @@ function SearchResults(): JSX.Element {
                       ? 'bg-blue-600/20 text-blue-400 font-medium border border-blue-500/30'
                       : 'text-gray-300 hover:bg-gray-700/50'
                   }`}
+                  title="Search across judges, courts, and jurisdictions"
                 >
                   All Results
                   {searchData && (
@@ -222,16 +231,19 @@ function SearchResults(): JSX.Element {
                       ? 'bg-blue-600/20 text-blue-400 font-medium border border-blue-500/30'
                       : 'text-gray-300 hover:bg-gray-700/50'
                   }`}
+                  title="Individual judicial profiles with analytics and case history"
                 >
-                  <div className="flex items-center">
-                    <Scale className="h-4 w-4 mr-2 text-blue-400" />
-                    Judges
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Scale className="h-4 w-4 mr-2 text-blue-400" />
+                      Judges
+                    </div>
+                    {searchData && (
+                      <span className="text-sm text-gray-400">
+                        {searchData.counts_by_type.judges}
+                      </span>
+                    )}
                   </div>
-                  {searchData && (
-                    <span className="float-right text-sm text-gray-400">
-                      {searchData.counts_by_type.judges}
-                    </span>
-                  )}
                 </button>
 
                 <button
@@ -241,16 +253,19 @@ function SearchResults(): JSX.Element {
                       ? 'bg-blue-600/20 text-blue-400 font-medium border border-blue-500/30'
                       : 'text-gray-300 hover:bg-gray-700/50'
                   }`}
+                  title="Court buildings, contact information, and jurisdiction details"
                 >
-                  <div className="flex items-center">
-                    <Building className="h-4 w-4 mr-2 text-green-400" />
-                    Courts
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Building className="h-4 w-4 mr-2 text-green-400" />
+                      Courts
+                    </div>
+                    {searchData && (
+                      <span className="text-sm text-gray-400">
+                        {searchData.counts_by_type.courts}
+                      </span>
+                    )}
                   </div>
-                  {searchData && (
-                    <span className="float-right text-sm text-gray-400">
-                      {searchData.counts_by_type.courts}
-                    </span>
-                  )}
                 </button>
 
                 <button
@@ -260,16 +275,19 @@ function SearchResults(): JSX.Element {
                       ? 'bg-blue-600/20 text-blue-400 font-medium border border-blue-500/30'
                       : 'text-gray-300 hover:bg-gray-700/50'
                   }`}
+                  title="County and federal district jurisdictions"
                 >
-                  <div className="flex items-center">
-                    <MapPin className="h-4 w-4 mr-2 text-purple-400" />
-                    Jurisdictions
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-2 text-purple-400" />
+                      Jurisdictions
+                    </div>
+                    {searchData && (
+                      <span className="text-sm text-gray-400">
+                        {searchData.counts_by_type.jurisdictions}
+                      </span>
+                    )}
                   </div>
-                  {searchData && (
-                    <span className="float-right text-sm text-gray-400">
-                      {searchData.counts_by_type.jurisdictions}
-                    </span>
-                  )}
                 </button>
               </div>
             </div>

@@ -8,6 +8,8 @@ import { BookmarkButton } from './BookmarkButton'
 import { JudgeFilters } from './JudgeFilters'
 import { JudgeHeader } from './JudgeHeader'
 import { AnimatedCard, AnimatedNumber } from '@/components/micro-interactions'
+import { DataUnavailableNote } from '@/components/ui/DataUnavailableNote'
+import { MetricTooltip } from '@/components/ui/MetricTooltip'
 import type { Judge } from '@/types'
 import { useJudgeFilters } from '@/hooks/useJudgeFilters'
 
@@ -95,30 +97,34 @@ export function JudgeProfile({ judge }: JudgeProfileProps): JSX.Element {
   const metricTiles = [
     {
       label: 'Total rulings parsed',
-      value: judge.total_cases > 0 ? judge.total_cases.toLocaleString() : '—',
+      value: judge.total_cases > 0 ? judge.total_cases.toLocaleString() : null,
       numericValue: judge.total_cases > 0 ? judge.total_cases : null,
       helper: 'Across all available case types',
       dataType: 'record' as const,
       icon: Scale,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10',
+      tooltipMetric: 'total-cases' as const,
+      missingDataReason: judge.total_cases > 0 ? null : ('no-data' as const),
     },
     {
       label: 'Reversal rate',
-      value: judge.reversal_rate > 0 ? `${(judge.reversal_rate * 100).toFixed(1)}%` : '—',
+      value: judge.reversal_rate > 0 ? `${(judge.reversal_rate * 100).toFixed(1)}%` : null,
       numericValue: judge.reversal_rate > 0 ? judge.reversal_rate * 100 : null,
       helper: 'Share of reviewed decisions reversed on appeal',
       dataType: 'record' as const,
       icon: TrendingUp,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10',
+      tooltipMetric: 'reversal-rate' as const,
+      missingDataReason: judge.reversal_rate > 0 ? null : ('pending-enrichment' as const),
     },
     {
       label: 'Average days to decision',
       value:
         judge.average_decision_time !== null && judge.average_decision_time > 0
           ? `${judge.average_decision_time}`
-          : '—',
+          : null,
       numericValue:
         judge.average_decision_time !== null && judge.average_decision_time > 0
           ? judge.average_decision_time
@@ -128,16 +134,23 @@ export function JudgeProfile({ judge }: JudgeProfileProps): JSX.Element {
       icon: Clock,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
+      tooltipMetric: 'decision-time' as const,
+      missingDataReason:
+        judge.average_decision_time !== null && judge.average_decision_time > 0
+          ? null
+          : ('insufficient-cases' as const),
     },
     {
       label: 'Education highlight',
-      value: educationSummary || 'Pending data enrichment',
+      value: educationSummary || null,
       numericValue: null,
       helper: 'Sourced from CourtListener public records',
       dataType: 'record' as const,
       icon: Award,
       color: 'text-amber-500',
       bgColor: 'bg-amber-500/10',
+      tooltipMetric: 'education' as const,
+      missingDataReason: educationSummary ? null : ('pending-enrichment' as const),
     },
   ]
 
@@ -202,8 +215,11 @@ export function JudgeProfile({ judge }: JudgeProfileProps): JSX.Element {
               >
                 {/* Icon badge */}
                 <div className="flex items-center justify-between mb-3">
-                  <div className="text-xs uppercase tracking-[0.24em] text-[color:hsl(var(--text-3))]">
-                    {tile.label}
+                  <div className="flex items-center gap-1.5">
+                    <div className="text-xs uppercase tracking-[0.24em] text-[color:hsl(var(--text-3))]">
+                      {tile.label}
+                    </div>
+                    <MetricTooltip metric={tile.tooltipMetric} />
                   </div>
                   <motion.div
                     className={`p-2 rounded-lg ${tile.bgColor}`}
@@ -214,17 +230,27 @@ export function JudgeProfile({ judge }: JudgeProfileProps): JSX.Element {
                   </motion.div>
                 </div>
 
-                {/* Value with animation */}
-                <div className={valueClass}>
-                  {tile.numericValue !== null ? (
-                    <AnimatedNumber
-                      value={tile.numericValue}
-                      decimals={tile.numericValue > 100 ? 0 : 1}
+                {/* Value with animation or missing data note */}
+                {tile.value !== null ? (
+                  <div className={valueClass}>
+                    {tile.numericValue !== null ? (
+                      <AnimatedNumber
+                        value={tile.numericValue}
+                        decimals={tile.numericValue > 100 ? 0 : 1}
+                      />
+                    ) : (
+                      tile.value
+                    )}
+                  </div>
+                ) : (
+                  <div className="mt-3">
+                    <DataUnavailableNote
+                      fieldName={tile.label}
+                      reason={tile.missingDataReason!}
+                      inline
                     />
-                  ) : (
-                    tile.value
-                  )}
-                </div>
+                  </div>
+                )}
 
                 {/* Progress bar */}
                 <div className="mt-3 h-[38px] w-full rounded-full bg-[rgba(124,135,152,0.14)] overflow-hidden">
