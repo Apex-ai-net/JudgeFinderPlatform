@@ -1,9 +1,9 @@
 /**
  * Data Quality Validation System for JudgeFinder Platform
- * 
+ *
  * Performs comprehensive validation checks on judicial data after sync operations
  * Detects: orphaned records, duplicates, stale data, missing fields, relationship inconsistencies
- * 
+ *
  * @module data-quality-validator
  */
 
@@ -11,7 +11,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { logger } from '@/lib/utils/logger'
 import { SupabaseServiceRoleFactory } from '@/lib/supabase/service-role'
 
-export type ValidationIssueType = 
+export type ValidationIssueType =
   | 'orphaned_record'
   | 'duplicate_identifier'
   | 'stale_data'
@@ -77,15 +77,15 @@ export interface ValidationStats {
  * Runs comprehensive validation checks and generates actionable reports
  */
 export class DataQualityValidator {
-  private readonly supabase: SupabaseClient
-  private readonly validationId: string
-  private startTime: Date
-  private issues: ValidationIssue[] = []
+  protected readonly supabase: SupabaseClient
+  protected readonly validationId: string
+  protected startTime: Date
+  protected issues: ValidationIssue[] = []
 
   // Thresholds for stale data (in days)
-  private readonly STALE_JUDGE_THRESHOLD = 180  // 6 months
-  private readonly STALE_CASE_THRESHOLD = 730   // 2 years
-  private readonly STALE_COURT_THRESHOLD = 365  // 1 year
+  private readonly STALE_JUDGE_THRESHOLD = 180 // 6 months
+  private readonly STALE_CASE_THRESHOLD = 730 // 2 years
+  private readonly STALE_COURT_THRESHOLD = 365 // 1 year
 
   constructor(supabase?: SupabaseClient) {
     this.supabase = supabase ?? this.createSupabaseServiceRoleClient()
@@ -104,7 +104,7 @@ export class DataQualityValidator {
 
     return new SupabaseServiceRoleFactory({
       url: supabaseUrl,
-      serviceRoleKey
+      serviceRoleKey,
     }).create()
   }
 
@@ -133,7 +133,7 @@ export class DataQualityValidator {
 
       const report = await this.generateReport()
       await this.saveValidationReport(report)
-      
+
       return report
     } catch (error) {
       logger.error('Validation failed', { error, validationId: this.validationId })
@@ -154,7 +154,7 @@ export class DataQualityValidator {
     } catch {
       orphanedResult = { data: null, error: null }
     }
-    
+
     if (orphanedResult.data && orphanedResult.data.length > 0) {
       orphanedResult.data.forEach((record: any) => {
         this.issues.push({
@@ -162,10 +162,11 @@ export class DataQualityValidator {
           severity: 'high',
           entity: 'case',
           entityId: record.id,
-          message: 'Case "' + record.case_name + '" references non-existent judge_id: ' + record.judge_id,
+          message:
+            'Case "' + record.case_name + '" references non-existent judge_id: ' + record.judge_id,
           suggestedAction: 'Set judge_id to NULL or find correct judge via courtlistener_id',
           autoFixable: true,
-          metadata: { caseName: record.case_name, judgeId: record.judge_id }
+          metadata: { caseName: record.case_name, judgeId: record.judge_id },
         })
       })
     }
@@ -187,7 +188,7 @@ export class DataQualityValidator {
         message: nullJudges.length.toString() + ' cases have no assigned judge',
         suggestedAction: 'Review cases and assign judges based on court and case metadata',
         autoFixable: false,
-        metadata: { count: nullJudges.length }
+        metadata: { count: nullJudges.length },
       })
     }
   }
@@ -212,10 +213,14 @@ export class DataQualityValidator {
           severity: 'critical',
           entity: 'assignment',
           entityId: record.id,
-          message: 'Assignment references non-existent ' + record.invalid_ref_type + ': ' + record.invalid_ref_id,
+          message:
+            'Assignment references non-existent ' +
+            record.invalid_ref_type +
+            ': ' +
+            record.invalid_ref_id,
           suggestedAction: 'Delete assignment or fix reference',
           autoFixable: true,
-          metadata: record
+          metadata: record,
         })
       })
     }
@@ -235,15 +240,12 @@ export class DataQualityValidator {
     if (!data || data.length === 0) return
 
     // Verify case_id references exist
-    const caseIds = [...new Set(data.map(o => o.case_id))]
-    const { data: validCases } = await this.supabase
-      .from('cases')
-      .select('id')
-      .in('id', caseIds)
+    const caseIds = [...new Set(data.map((o) => o.case_id))]
+    const { data: validCases } = await this.supabase.from('cases').select('id').in('id', caseIds)
 
-    const validCaseIds = new Set(validCases?.map(c => c.id) ?? [])
+    const validCaseIds = new Set(validCases?.map((c) => c.id) ?? [])
 
-    data.forEach(opinion => {
+    data.forEach((opinion) => {
       if (!validCaseIds.has(opinion.case_id)) {
         this.issues.push({
           type: 'orphaned_record',
@@ -253,7 +255,7 @@ export class DataQualityValidator {
           message: 'Opinion references non-existent case_id: ' + opinion.case_id,
           suggestedAction: 'Delete opinion or restore case',
           autoFixable: false,
-          metadata: { opinionId: opinion.id, caseId: opinion.case_id }
+          metadata: { opinionId: opinion.id, caseId: opinion.case_id },
         })
       }
     })
@@ -267,7 +269,9 @@ export class DataQualityValidator {
 
     let judgeResult
     try {
-      judgeResult = await this.supabase.rpc('find_duplicate_courtlistener_ids', { entity_type: 'judge' })
+      judgeResult = await this.supabase.rpc('find_duplicate_courtlistener_ids', {
+        entity_type: 'judge',
+      })
     } catch {
       judgeResult = { data: null }
     }
@@ -279,17 +283,20 @@ export class DataQualityValidator {
           severity: 'critical',
           entity: 'judge',
           entityId: 'multiple',
-          message: record.count.toString() + ' judges share courtlistener_id: ' + record.courtlistener_id,
+          message:
+            record.count.toString() + ' judges share courtlistener_id: ' + record.courtlistener_id,
           suggestedAction: 'Merge duplicate records or invalidate incorrect ones',
           autoFixable: false,
-          metadata: { courtlistenerId: record.courtlistener_id, count: record.count }
+          metadata: { courtlistenerId: record.courtlistener_id, count: record.count },
         })
       })
     }
 
     let courtResult
     try {
-      courtResult = await this.supabase.rpc('find_duplicate_courtlistener_ids', { entity_type: 'court' })
+      courtResult = await this.supabase.rpc('find_duplicate_courtlistener_ids', {
+        entity_type: 'court',
+      })
     } catch {
       courtResult = { data: null }
     }
@@ -301,10 +308,11 @@ export class DataQualityValidator {
           severity: 'critical',
           entity: 'court',
           entityId: 'multiple',
-          message: record.count.toString() + ' courts share courtlistener_id: ' + record.courtlistener_id,
+          message:
+            record.count.toString() + ' courts share courtlistener_id: ' + record.courtlistener_id,
           suggestedAction: 'Merge duplicate records or invalidate incorrect ones',
           autoFixable: false,
-          metadata: { courtlistenerId: record.courtlistener_id, count: record.count }
+          metadata: { courtlistenerId: record.courtlistener_id, count: record.count },
         })
       })
     }
@@ -325,7 +333,7 @@ export class DataQualityValidator {
 
     if (allCases && allCases.length > 0) {
       const docketCounts = new Map<string, number>()
-      allCases.forEach(c => {
+      allCases.forEach((c) => {
         const count = docketCounts.get(c.docket_number) || 0
         docketCounts.set(c.docket_number, count + 1)
       })
@@ -340,7 +348,7 @@ export class DataQualityValidator {
             message: count.toString() + ' cases share docket_number: ' + docketNumber,
             suggestedAction: 'Review and merge duplicate case records',
             autoFixable: false,
-            metadata: { docketNumber, count }
+            metadata: { docketNumber, count },
           })
         }
       })
@@ -356,7 +364,9 @@ export class DataQualityValidator {
     // Stale judges
     let judgeResult
     try {
-      judgeResult = await this.supabase.rpc('find_stale_judges', { days_threshold: this.STALE_JUDGE_THRESHOLD })
+      judgeResult = await this.supabase.rpc('find_stale_judges', {
+        days_threshold: this.STALE_JUDGE_THRESHOLD,
+      })
     } catch {
       judgeResult = { data: null }
     }
@@ -371,11 +381,11 @@ export class DataQualityValidator {
           message: 'Judge "' + judge.name + '" not synced in ' + judge.days_since_sync + ' days',
           suggestedAction: 'Queue judge for resync from CourtListener',
           autoFixable: true,
-          metadata: { 
-            judgeName: judge.name, 
+          metadata: {
+            judgeName: judge.name,
             daysSinceSync: judge.days_since_sync,
-            courtlistenerId: judge.courtlistener_id 
-          }
+            courtlistenerId: judge.courtlistener_id,
+          },
         })
       })
     }
@@ -383,7 +393,7 @@ export class DataQualityValidator {
     // Stale courts
     const staleDate = new Date()
     staleDate.setDate(staleDate.getDate() - this.STALE_COURT_THRESHOLD)
-    
+
     const { data: staleCourts } = await this.supabase
       .from('courts')
       .select('id, name, updated_at')
@@ -398,10 +408,11 @@ export class DataQualityValidator {
         severity: 'low',
         entity: 'court',
         entityId: 'bulk',
-        message: staleCourts.length.toString() + ' courts not updated in over ' + monthsCount + ' months',
+        message:
+          staleCourts.length.toString() + ' courts not updated in over ' + monthsCount + ' months',
         suggestedAction: 'Queue courts for resync',
         autoFixable: true,
-        metadata: { count: staleCourts.length }
+        metadata: { count: staleCourts.length },
       })
     }
   }
@@ -428,7 +439,7 @@ export class DataQualityValidator {
         message: noName.length.toString() + ' judges missing name field',
         suggestedAction: 'Delete invalid records or fetch missing data',
         autoFixable: false,
-        metadata: { count: noName.length }
+        metadata: { count: noName.length },
       })
     }
 
@@ -448,7 +459,7 @@ export class DataQualityValidator {
         message: noCaseName.length.toString() + ' cases missing case_name',
         suggestedAction: 'Fetch missing case names from CourtListener',
         autoFixable: true,
-        metadata: { count: noCaseName.length }
+        metadata: { count: noCaseName.length },
       })
     }
 
@@ -468,7 +479,7 @@ export class DataQualityValidator {
         message: noCourtName.length.toString() + ' courts missing name',
         suggestedAction: 'Delete invalid records or fetch missing data',
         autoFixable: false,
-        metadata: { count: noCourtName.length }
+        metadata: { count: noCourtName.length },
       })
     }
   }
@@ -496,7 +507,7 @@ export class DataQualityValidator {
         message: noJurisdiction.length.toString() + ' judges missing jurisdiction',
         suggestedAction: 'Infer jurisdiction from court assignments',
         autoFixable: true,
-        metadata: { count: noJurisdiction.length }
+        metadata: { count: noJurisdiction.length },
       })
     }
 
@@ -516,7 +527,7 @@ export class DataQualityValidator {
         message: noDate.length.toString() + ' cases missing decision_date',
         suggestedAction: 'Fetch missing dates from source',
         autoFixable: true,
-        metadata: { count: noDate.length }
+        metadata: { count: noDate.length },
       })
     }
   }
@@ -544,7 +555,7 @@ export class DataQualityValidator {
           message: record.message,
           suggestedAction: record.suggested_action,
           autoFixable: record.auto_fixable || false,
-          metadata: record.metadata
+          metadata: record.metadata,
         })
       })
     }
@@ -572,14 +583,18 @@ export class DataQualityValidator {
             severity: diff > 20 ? 'high' : 'medium',
             entity: 'judge',
             entityId: judge.judge_id,
-            message: 'Judge case count mismatch: stored=' + judge.stored_count + ', actual=' + judge.actual_count,
+            message:
+              'Judge case count mismatch: stored=' +
+              judge.stored_count +
+              ', actual=' +
+              judge.actual_count,
             suggestedAction: 'Recalculate total_cases from cases table',
             autoFixable: true,
-            metadata: { 
+            metadata: {
               judgeName: judge.judge_name,
-              storedCount: judge.stored_count, 
-              actualCount: judge.actual_count 
-            }
+              storedCount: judge.stored_count,
+              actualCount: judge.actual_count,
+            },
           })
         }
       })
@@ -603,13 +618,13 @@ export class DataQualityValidator {
       switch (issue.type) {
         case 'orphaned_record':
           return await this.fixOrphanedRecord(issue)
-        
+
         case 'stale_data':
           return await this.fixStaleRecord(issue)
-        
+
         case 'data_integrity':
           return await this.fixDataIntegrity(issue)
-        
+
         default:
           return {
             success: false,
@@ -687,16 +702,14 @@ export class DataQualityValidator {
       }
     }
 
-    const { error } = await this.supabase
-      .from('sync_queue')
-      .insert({
-        entity_type: entityType,
-        entity_id: entityId,
-        operation: 'update',
-        priority: 7,
-        status: 'pending',
-        payload: { reason: 'stale_data_validation' }
-      })
+    const { error } = await this.supabase.from('sync_queue').insert({
+      entity_type: entityType,
+      entity_id: entityId,
+      operation: 'update',
+      priority: 7,
+      status: 'pending',
+      payload: { reason: 'stale_data_validation' },
+    })
 
     return {
       success: !error,
@@ -714,7 +727,9 @@ export class DataQualityValidator {
     if (issue.entity === 'judge' && issue.message.includes('case count')) {
       let result
       try {
-        result = await this.supabase.rpc('recalculate_judge_case_count', { judge_id: issue.entityId })
+        result = await this.supabase.rpc('recalculate_judge_case_count', {
+          judge_id: issue.entityId,
+        })
       } catch {
         result = { data: null, error: { message: 'Function not available' } }
       }
@@ -723,7 +738,9 @@ export class DataQualityValidator {
         success: !result.error,
         issueId: issue.entityId,
         action: 'recalculate',
-        message: result.error ? 'Failed: ' + result.error.message : 'Updated case count to ' + result.data,
+        message: result.error
+          ? 'Failed: ' + result.error.message
+          : 'Updated case count to ' + result.data,
         error: result.error?.message,
       }
     }
@@ -766,19 +783,32 @@ export class DataQualityValidator {
     let mediumPriorityIssues = 0
     let lowPriorityIssues = 0
 
-    this.issues.forEach(issue => {
+    this.issues.forEach((issue) => {
       issuesByType[issue.type]++
       issuesByEntity[issue.entity]++
 
       switch (issue.severity) {
-        case 'critical': criticalIssues++; break
-        case 'high': highPriorityIssues++; break
-        case 'medium': mediumPriorityIssues++; break
-        case 'low': lowPriorityIssues++; break
+        case 'critical':
+          criticalIssues++
+          break
+        case 'high':
+          highPriorityIssues++
+          break
+        case 'medium':
+          mediumPriorityIssues++
+          break
+        case 'low':
+          lowPriorityIssues++
+          break
       }
     })
 
-    const summary = this.generateSummary(criticalIssues, highPriorityIssues, mediumPriorityIssues, lowPriorityIssues)
+    const summary = this.generateSummary(
+      criticalIssues,
+      highPriorityIssues,
+      mediumPriorityIssues,
+      lowPriorityIssues
+    )
     const recommendations = this.generateRecommendations()
 
     return {
@@ -804,16 +834,26 @@ export class DataQualityValidator {
    */
   private generateSummary(critical: number, high: number, medium: number, low: number): string {
     if (critical > 0) {
-      return 'CRITICAL: Found ' + critical + ' critical issues requiring immediate attention. Database integrity may be compromised.'
+      return (
+        'CRITICAL: Found ' +
+        critical +
+        ' critical issues requiring immediate attention. Database integrity may be compromised.'
+      )
     }
     if (high > 0) {
       return 'HIGH PRIORITY: Found ' + high + ' high-priority issues that should be addressed soon.'
     }
     if (medium > 0) {
-      return 'MODERATE: Found ' + medium + ' medium-priority issues. Consider addressing during maintenance.'
+      return (
+        'MODERATE: Found ' +
+        medium +
+        ' medium-priority issues. Consider addressing during maintenance.'
+      )
     }
     if (low > 0) {
-      return 'LOW PRIORITY: Found ' + low + ' low-priority issues. Can be addressed as time permits.'
+      return (
+        'LOW PRIORITY: Found ' + low + ' low-priority issues. Can be addressed as time permits.'
+      )
     }
     return 'HEALTHY: No data quality issues detected. Database is in good condition.'
   }
@@ -824,14 +864,16 @@ export class DataQualityValidator {
   private generateRecommendations(): string[] {
     const recs: string[] = []
 
-    const criticalCount = this.issues.filter(i => i.severity === 'critical').length
-    const orphanedCount = this.issues.filter(i => i.type === 'orphaned_record').length
-    const duplicateCount = this.issues.filter(i => i.type === 'duplicate_identifier').length
-    const staleCount = this.issues.filter(i => i.type === 'stale_data').length
-    const autoFixableCount = this.issues.filter(i => i.autoFixable).length
+    const criticalCount = this.issues.filter((i) => i.severity === 'critical').length
+    const orphanedCount = this.issues.filter((i) => i.type === 'orphaned_record').length
+    const duplicateCount = this.issues.filter((i) => i.type === 'duplicate_identifier').length
+    const staleCount = this.issues.filter((i) => i.type === 'stale_data').length
+    const autoFixableCount = this.issues.filter((i) => i.autoFixable).length
 
     if (criticalCount > 0) {
-      recs.push('Address ' + criticalCount + ' critical issues immediately to restore data integrity')
+      recs.push(
+        'Address ' + criticalCount + ' critical issues immediately to restore data integrity'
+      )
     }
 
     if (orphanedCount > 0) {
@@ -863,28 +905,26 @@ export class DataQualityValidator {
    */
   private async saveValidationReport(report: ValidationReport): Promise<void> {
     try {
-      await this.supabase
-        .from('sync_validation_results')
-        .insert({
-          validation_id: report.validationId,
-          started_at: report.startTime.toISOString(),
-          completed_at: report.endTime.toISOString(),
-          duration_ms: report.duration,
-          total_issues: report.totalIssues,
-          critical_issues: report.criticalIssues,
-          high_priority_issues: report.highPriorityIssues,
-          medium_priority_issues: report.mediumPriorityIssues,
-          low_priority_issues: report.lowPriorityIssues,
-          issues_by_type: report.issuesByType,
-          issues_by_entity: report.issuesByEntity,
-          summary: report.summary,
-          recommendations: report.recommendations,
-          issues: report.issues,
-        })
+      await this.supabase.from('sync_validation_results').insert({
+        validation_id: report.validationId,
+        started_at: report.startTime.toISOString(),
+        completed_at: report.endTime.toISOString(),
+        duration_ms: report.duration,
+        total_issues: report.totalIssues,
+        critical_issues: report.criticalIssues,
+        high_priority_issues: report.highPriorityIssues,
+        medium_priority_issues: report.mediumPriorityIssues,
+        low_priority_issues: report.lowPriorityIssues,
+        issues_by_type: report.issuesByType,
+        issues_by_entity: report.issuesByEntity,
+        summary: report.summary,
+        recommendations: report.recommendations,
+        issues: report.issues,
+      })
 
-      logger.info('Validation report saved', { 
+      logger.info('Validation report saved', {
         validationId: report.validationId,
-        totalIssues: report.totalIssues 
+        totalIssues: report.totalIssues,
       })
     } catch (error) {
       logger.error('Failed to save validation report', { error })
@@ -914,7 +954,7 @@ export class DataQualityValidator {
     // Calculate health score (0-100)
     let healthScore = 100
     if (lastValidation) {
-      healthScore = Math.max(0, 100 - (lastValidation.total_issues * 2))
+      healthScore = Math.max(0, 100 - lastValidation.total_issues * 2)
     }
 
     return {
@@ -936,7 +976,7 @@ export class DataQualityValidator {
    */
   async generateTextReport(report: ValidationReport): Promise<string> {
     const lines: string[] = []
-    
+
     lines.push('═══════════════════════════════════════════════════════════════')
     lines.push('        DATA QUALITY VALIDATION REPORT')
     lines.push('═══════════════════════════════════════════════════════════════')
@@ -956,24 +996,24 @@ export class DataQualityValidator {
     lines.push('  Medium:     ' + report.mediumPriorityIssues)
     lines.push('  Low:        ' + report.lowPriorityIssues)
     lines.push('')
-    
+
     if (report.recommendations.length > 0) {
       lines.push('───────────────────────────────────────────────────────────────')
       lines.push('RECOMMENDATIONS')
       lines.push('───────────────────────────────────────────────────────────────')
       report.recommendations.forEach((rec, i) => {
-        lines.push((i + 1) + '. ' + rec)
+        lines.push(i + 1 + '. ' + rec)
       })
       lines.push('')
     }
 
     if (report.criticalIssues > 0) {
-      const critical = report.issues.filter(i => i.severity === 'critical')
+      const critical = report.issues.filter((i) => i.severity === 'critical')
       lines.push('───────────────────────────────────────────────────────────────')
       lines.push('CRITICAL ISSUES')
       lines.push('───────────────────────────────────────────────────────────────')
       critical.forEach((issue, i) => {
-        lines.push((i + 1) + '. [' + issue.entity.toUpperCase() + '] ' + issue.message)
+        lines.push(i + 1 + '. [' + issue.entity.toUpperCase() + '] ' + issue.message)
         lines.push('   Action: ' + issue.suggestedAction)
         lines.push('   Auto-fixable: ' + (issue.autoFixable ? 'Yes' : 'No'))
         lines.push('')
@@ -981,7 +1021,7 @@ export class DataQualityValidator {
     }
 
     lines.push('═══════════════════════════════════════════════════════════════')
-    
+
     return lines.join('\n')
   }
 }
@@ -991,14 +1031,14 @@ export class DataQualityValidator {
  */
 export async function runQuickValidation(supabase?: SupabaseClient): Promise<ValidationReport> {
   const validator = new DataQualityValidator(supabase)
-  
+
   // Run only critical checks
   await Promise.all([
     validator['findOrphanedCases'](),
     validator['findDuplicateCourtListenerIds'](),
     validator['findInvalidRecords'](),
   ])
-  
+
   return validator.generateReport()
 }
 
@@ -1010,13 +1050,11 @@ export async function autoFixIssues(
   supabase?: SupabaseClient
 ): Promise<FixResult[]> {
   const validator = new DataQualityValidator(supabase)
-  const fixableIssues = report.issues.filter(i => i.autoFixable)
-  
+  const fixableIssues = report.issues.filter((i) => i.autoFixable)
+
   logger.info('Auto-fixing issues', { count: fixableIssues.length })
-  
-  const results = await Promise.all(
-    fixableIssues.map(issue => validator.fixIssue(issue))
-  )
-  
+
+  const results = await Promise.all(fixableIssues.map((issue) => validator.fixIssue(issue)))
+
   return results
 }
