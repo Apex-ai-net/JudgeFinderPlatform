@@ -38,15 +38,16 @@ export const metadata: Metadata = {
 function JudgesLoading(): JSX.Element {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
-      {/* Enhanced Hero Section with Animations */}
+      {/* Enhanced Hero Section with Animations - Matching New Design */}
       <section className="relative min-h-[60vh] flex items-center justify-center">
-        {/* Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-enterprise-primary/10 via-enterprise-deep/10 to-background" />
+        {/* Animated Background Pattern */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background" />
+        <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px]" />
 
         <div className="relative z-10 text-center px-4 max-w-7xl mx-auto w-full">
           <div>
             <h1 className="mb-6 text-5xl md:text-7xl font-bold tracking-tight">
-              <span className="bg-gradient-to-r from-enterprise-primary to-enterprise-deep bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
                 California Judges
               </span>
               <br />
