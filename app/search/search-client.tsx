@@ -28,31 +28,26 @@ function SearchResults(): JSX.Element {
 
   // Fetch search results
   const fetchSearchResults = useCallback(async () => {
-    if (!query.trim()) {
-      setSearchData({
-        results: [],
-        total_count: 0,
-        results_by_type: { judges: [], courts: [], jurisdictions: [], sponsored: [] },
-        counts_by_type: { judges: 0, courts: 0, jurisdictions: 0, sponsored: 0 },
-        query: '',
-        took_ms: 0,
-      })
-      setLoading(false)
-      return
-    }
-
+    // FIXED: Always fetch from API, even with empty query to get popular judges
     setLoading(true)
     try {
       // Use the unified /api/search endpoint for all searches
       const url = `/api/search?q=${encodeURIComponent(query)}&type=${activeFilter}&limit=200`
-      console.log('Fetching search results from:', url)
+      console.log('[Search] Fetching from:', url)
       const response = await fetch(url)
+
       if (response.ok) {
         const data: SearchResponse = await response.json()
-        console.log('Search response:', data)
+        console.log('[Search] Results:', {
+          total: data.total_count,
+          judges: data.counts_by_type?.judges || 0,
+          courts: data.counts_by_type?.courts || 0,
+          jurisdictions: data.counts_by_type?.jurisdictions || 0,
+        })
         setSearchData(data)
       } else {
-        console.error('Search request failed:', response.status, response.statusText)
+        const errorText = await response.text()
+        console.error('[Search] Failed:', response.status, response.statusText, errorText)
         // Set empty results on error
         setSearchData({
           results: [],
@@ -64,7 +59,7 @@ function SearchResults(): JSX.Element {
         })
       }
     } catch (error) {
-      console.error('Search error:', error)
+      console.error('[Search] Error:', error)
       // Set empty results on error
       setSearchData({
         results: [],
@@ -291,11 +286,21 @@ function SearchResults(): JSX.Element {
               <div className="text-center py-12">
                 <Search className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-white mb-2">No results found</h3>
-                <p className="text-gray-300">
+                <p className="text-gray-300 mb-4">
                   {query
                     ? `No results found for "${query}"${activeFilter !== 'all' ? ` in ${activeFilter}s` : ''}`
-                    : 'Enter a search term to get started'}
+                    : 'Loading popular judges and jurisdictions...'}
                 </p>
+                {query && (
+                  <div className="mt-6 text-sm text-gray-400">
+                    <p>Try searching for:</p>
+                    <ul className="mt-2 space-y-1">
+                      <li>• A judge's name (e.g., "Smith" or "John Doe")</li>
+                      <li>• A court name (e.g., "Superior Court" or "Los Angeles")</li>
+                      <li>• A jurisdiction (e.g., "California" or "Federal")</li>
+                    </ul>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="space-y-4">
