@@ -135,16 +135,34 @@ export default function LegalProfessionalDashboard({
                   📑 My Bookmarks
                 </Link>
                 <Link
-                  href="/compare"
+                  href="/dashboard/searches"
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all hover:border-gray-400"
+                >
+                  💾 Saved Searches
+                </Link>
+                <Link
+                  href="/dashboard/compare"
                   className="block w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all hover:border-gray-400"
                 >
                   ⚖️ Compare Judges
                 </Link>
                 <Link
+                  href="/dashboard/activity"
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all hover:border-gray-400"
+                >
+                  📊 Activity History
+                </Link>
+                <Link
+                  href="/dashboard/practice-areas"
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all hover:border-gray-400"
+                >
+                  ⚖️ Practice Areas
+                </Link>
+                <Link
                   href="/analytics"
                   className="block w-full px-4 py-3 border border-blue-300 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition-all"
                 >
-                  📊 View Analytics
+                  📈 Platform Analytics
                 </Link>
                 <Link
                   href="/dashboard/billing"

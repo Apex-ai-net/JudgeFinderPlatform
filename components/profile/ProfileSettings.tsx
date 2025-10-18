@@ -11,16 +11,12 @@ import {
   DownloadIcon,
   TrashIcon,
 } from 'lucide-react'
-import { useSafeUser } from '@/lib/auth/safe-clerk-components'
 
 interface ProfileSettingsProps {
   user: User | null
 }
 
-export function ProfileSettings({ user: serverUser }: ProfileSettingsProps): JSX.Element {
-  const { user: clientUser, isLoaded } = useSafeUser()
-  const user = clientUser || serverUser
-
+export function ProfileSettings({ user }: ProfileSettingsProps): JSX.Element {
   const [notifications, setNotifications] = useState({
     emailUpdates: true,
     judgeAlerts: false,
@@ -35,7 +31,7 @@ export function ProfileSettings({ user: serverUser }: ProfileSettingsProps): JSX
     emailFrequency: 'weekly',
   })
 
-  if (!isLoaded || !user) {
+  if (!user) {
     return <div className="text-white">Loading...</div>
   }
 
