@@ -1,14 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { ChevronRight, Sparkles } from 'lucide-react'
-import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { Sparkles } from 'lucide-react'
 import { CourtsSearch } from './CourtsSearch'
 import { CountiesTab } from './CountiesTab'
 import { CitiesTab } from './CitiesTab'
-import { TypewriterText } from '@/components/ui/TypewriterText'
-import { ScrollIndicator } from '@/components/ui/ScrollIndicator'
+import { CourtsDirectoryHeader } from './CourtsDirectoryHeader'
 
 interface Court {
   id: string
@@ -30,73 +28,12 @@ export function CourtsPageClient({
   initialCourts: Court[]
   initialJurisdiction?: string
 }): JSX.Element {
-  const { scrollYProgress } = useScroll()
-  const y = useTransform(scrollYProgress, [0, 1], [0, -50])
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.3])
-
   const [activeTab, setActiveTab] = useState<'courts' | 'counties' | 'cities'>('courts')
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
-      <section className="relative min-h-[60vh] flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-enterprise-primary/10 via-enterprise-deep/10 to-background" />
-
-        <motion.div
-          className="relative z-10 text-center px-4 max-w-7xl mx-auto w-full"
-          style={{ y, opacity }}
-        >
-          <motion.div
-            className="mb-6 flex items-center justify-center gap-2 text-sm"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Link href="/" className="text-muted-foreground hover:text-primary transition-colors">
-              Home
-            </Link>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            <span className="text-foreground font-medium">Courts</span>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h1 className="mb-6 text-5xl md:text-7xl font-bold tracking-tight">
-              <span className="bg-gradient-to-r from-enterprise-primary to-enterprise-deep bg-clip-text text-transparent">
-                Courts
-              </span>
-              <br />
-              <span className="text-foreground">
-                <TypewriterText text="Directory" />
-              </span>
-            </h1>
-          </motion.div>
-
-          <motion.p
-            className="mx-auto mb-12 max-w-2xl text-lg md:text-xl text-muted-foreground"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-          >
-            Browse courts across jurisdictions. Search by type, jurisdiction, and location to find
-            court information and assigned judges.
-          </motion.p>
-
-          <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.6 }}
-          >
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">Comprehensive court database</span>
-          </motion.div>
-        </motion.div>
-
-        <ScrollIndicator />
-      </section>
+      {/* Hero Section */}
+      <CourtsDirectoryHeader />
 
       <motion.section
         className="px-4 py-16"
