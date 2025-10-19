@@ -147,8 +147,9 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
           {/* Pricing Cards */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             {/* Federal Judge Card */}
-            <div
-              className={`relative rounded-xl border-2 p-6 cursor-pointer transition-all ${
+            <button
+              type="button"
+              className={`w-full text-left relative rounded-xl border-2 p-6 transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                 selectedPlan === 'federal_monthly' || selectedPlan === 'federal_annual'
                   ? 'border-blue-500 bg-primary/5'
                   : 'border-border hover:border-border'
@@ -156,6 +157,8 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
               onClick={() =>
                 setSelectedPlan(billingCycle === 'monthly' ? 'federal_monthly' : 'federal_annual')
               }
+              aria-pressed={selectedPlan === 'federal_monthly' || selectedPlan === 'federal_annual'}
+              aria-label={`Select Federal Judge Profiles plan, $${billingCycle === 'monthly' ? federalMonthlyPrice : federalAnnualPrice} per ${billingCycle === 'monthly' ? 'month' : 'year'}`}
             >
               {/* Premium Badge */}
               <div className="absolute -top-3 left-6">
@@ -166,7 +169,7 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
 
               <div className="mt-2">
                 <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-primary" />
+                  <Shield className="h-5 w-5 text-primary" aria-hidden="true" />
                   Federal Judge Profiles
                 </h3>
 
@@ -197,29 +200,44 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
 
                 <ul className="mt-6 space-y-3">
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check
+                      className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5"
+                      aria-hidden="true"
+                    />
                     <span className="text-foreground">
                       Premium placement on federal judge profiles
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check
+                      className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5"
+                      aria-hidden="true"
+                    />
                     <span className="text-foreground">
                       Higher visibility for complex federal cases
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check
+                      className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5"
+                      aria-hidden="true"
+                    />
                     <span className="text-foreground">
                       Reach attorneys handling federal litigation
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check
+                      className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5"
+                      aria-hidden="true"
+                    />
                     <span className="text-foreground">Advanced analytics and reporting</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check
+                      className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5"
+                      aria-hidden="true"
+                    />
                     <span className="text-foreground">Priority customer support</span>
                   </li>
                 </ul>
@@ -228,16 +246,17 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
                 {(selectedPlan === 'federal_monthly' || selectedPlan === 'federal_annual') && (
                   <div className="absolute top-4 right-4">
                     <div className="w-6 h-6 bg-primary/50 rounded-full flex items-center justify-center">
-                      <Check className="h-4 w-4 text-white" />
+                      <Check className="h-4 w-4 text-white" aria-hidden="true" />
                     </div>
                   </div>
                 )}
               </div>
-            </div>
+            </button>
 
             {/* State Judge Card */}
-            <div
-              className={`relative rounded-xl border-2 p-6 cursor-pointer transition-all ${
+            <button
+              type="button"
+              className={`w-full text-left relative rounded-xl border-2 p-6 transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                 selectedPlan === 'state_monthly' || selectedPlan === 'state_annual'
                   ? 'border-green-500 bg-green-50'
                   : 'border-border hover:border-border'
@@ -245,6 +264,8 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
               onClick={() =>
                 setSelectedPlan(billingCycle === 'monthly' ? 'state_monthly' : 'state_annual')
               }
+              aria-pressed={selectedPlan === 'state_monthly' || selectedPlan === 'state_annual'}
+              aria-label={`Select State Judge Profiles plan, $${billingCycle === 'monthly' ? stateMonthlyPrice : stateAnnualPrice} per ${billingCycle === 'monthly' ? 'month' : 'year'}`}
             >
               {/* Popular Badge */}
               <div className="absolute -top-3 left-6">
@@ -255,7 +276,7 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
 
               <div className="mt-2">
                 <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
+                  <TrendingUp className="h-5 w-5 text-green-600" aria-hidden="true" />
                   State Judge Profiles
                 </h3>
 
@@ -286,25 +307,40 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
 
                 <ul className="mt-6 space-y-3">
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check
+                      className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5"
+                      aria-hidden="true"
+                    />
                     <span className="text-foreground">
                       Prominent placement on state judge profiles
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check
+                      className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5"
+                      aria-hidden="true"
+                    />
                     <span className="text-foreground">Target local attorneys and litigants</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check
+                      className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5"
+                      aria-hidden="true"
+                    />
                     <span className="text-foreground">High volume of state court searches</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check
+                      className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5"
+                      aria-hidden="true"
+                    />
                     <span className="text-foreground">Detailed performance metrics</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check
+                      className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5"
+                      aria-hidden="true"
+                    />
                     <span className="text-foreground">Email support included</span>
                   </li>
                 </ul>
@@ -313,12 +349,12 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
                 {(selectedPlan === 'state_monthly' || selectedPlan === 'state_annual') && (
                   <div className="absolute top-4 right-4">
                     <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                      <Check className="h-4 w-4 text-white" />
+                      <Check className="h-4 w-4 text-white" aria-hidden="true" />
                     </div>
                   </div>
                 )}
               </div>
-            </div>
+            </button>
           </div>
 
           {/* Benefits Section */}

@@ -38,24 +38,40 @@ export function BookingForm({ spot, bookingOptions, onChange }: BookingFormProps
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-foreground mb-1">Start Date</label>
+        <label
+          htmlFor="booking-start-date"
+          className="block text-sm font-medium text-foreground mb-1"
+        >
+          Start Date
+        </label>
         <input
+          id="booking-start-date"
           type="date"
-          className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           value={bookingOptions.startDate}
           min={new Date().toISOString().split('T')[0]}
           onChange={(event) => onChange({ ...bookingOptions, startDate: event.target.value })}
+          required
+          aria-required="true"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-foreground mb-1">Duration</label>
+        <label
+          htmlFor="booking-duration"
+          className="block text-sm font-medium text-foreground mb-1"
+        >
+          Duration
+        </label>
         <select
-          className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
+          id="booking-duration"
+          className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           value={bookingOptions.durationMonths}
           onChange={(event) =>
             onChange({ ...bookingOptions, durationMonths: Number(event.target.value) })
           }
+          required
+          aria-required="true"
         >
           <option value={1}>Monthly</option>
           <option value={12}>Annual (10×)</option>
@@ -64,34 +80,48 @@ export function BookingForm({ spot, bookingOptions, onChange }: BookingFormProps
 
       <div className="flex items-start justify-between rounded-lg border border-border bg-muted p-4">
         <div>
-          <p className="text-sm font-medium text-foreground">Exclusive Rotation</p>
+          <p id="exclusive-rotation-description" className="text-sm font-medium text-foreground">
+            Exclusive Rotation
+          </p>
           <p className="text-xs text-muted-foreground mt-1">
             Reserve both rotations for your firm (1.75× monthly rate). Useful when sellout is high
             and intent is critical.
           </p>
         </div>
-        <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground">
+        <label
+          htmlFor="booking-exclusive"
+          className="inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground"
+        >
           <input
+            id="booking-exclusive"
             type="checkbox"
-            className="h-4 w-4 rounded border-border text-primary focus:ring-blue-500"
+            className="h-4 w-4 rounded border-border text-primary focus:ring-blue-500 focus:ring-2 focus:outline-none"
             checked={bookingOptions.exclusive}
             onChange={(event) => onChange({ ...bookingOptions, exclusive: event.target.checked })}
+            aria-describedby="exclusive-rotation-description"
           />
           Exclusive
         </label>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-foreground mb-1">County Bundle Size</label>
-        <p className="text-xs text-muted-foreground mb-2">
+        <label
+          htmlFor="booking-bundle-size"
+          className="block text-sm font-medium text-foreground mb-1"
+        >
+          County Bundle Size
+        </label>
+        <p id="bundle-size-description" className="text-xs text-muted-foreground mb-2">
           Automatic –10% for 5+ judges, –15% for 10+. You can adjust later before checkout.
         </p>
         <select
-          className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
+          id="booking-bundle-size"
+          className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           value={bookingOptions.bundleSize}
           onChange={(event) =>
             onChange({ ...bookingOptions, bundleSize: Number(event.target.value) })
           }
+          aria-describedby="bundle-size-description"
         >
           <option value={1}>Single judge</option>
           <option value={5}>5-judge county bundle</option>
