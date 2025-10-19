@@ -1,6 +1,7 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { ProfileSettings } from '@/components/profile/ProfileSettings'
+import { ensureCurrentAppUser } from '@/lib/auth/user-mapping'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,6 +27,21 @@ export default async function SettingsPage(): Promise<JSX.Element> {
         userId: user.id,
         hasEmailAddresses: Boolean(user.emailAddresses),
         emailCount: user.emailAddresses?.length || 0,
+      })
+    }
+
+    // Ensure Clerk↔Supabase mapping exists
+    // Wrapped in try-catch to prevent Supabase failures from crashing the page
+    try {
+      await ensureCurrentAppUser()
+    } catch (mappingError) {
+      // Log the error but don't crash the page
+      // The settings page should work even if Supabase mapping fails
+      console.error('Settings page: Failed to ensure user mapping (non-fatal):', {
+        userId: user.id,
+        error: mappingError instanceof Error ? mappingError.message : 'Unknown error',
+        hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+        hasServiceRoleKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
       })
     }
 
