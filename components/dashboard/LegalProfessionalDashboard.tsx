@@ -6,6 +6,7 @@ import { DashboardJudgeAnalytics } from '@/lib/analytics/judge-dashboard-analyti
 import JudgeAnalyticsWidget from './JudgeAnalyticsWidget'
 import { AnimatedMetricCard } from './AnimatedMetricCard'
 import { ActivityTimeline } from './ActivityTimeline'
+import { PersonalizedGreeting } from './PersonalizedGreeting'
 import {
   Bookmark,
   Search,
@@ -18,6 +19,7 @@ import {
   CreditCard,
   Settings,
   GitCompare,
+  ArrowRight,
 } from 'lucide-react'
 
 interface LegalProfessionalDashboardProps {
@@ -38,26 +40,11 @@ export default function LegalProfessionalDashboard({
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-foreground tracking-tight">Dashboard</h1>
-              <p className="mt-2 text-lg text-muted-foreground">
-                Welcome back,{' '}
-                <span className="font-medium text-foreground">
-                  {user?.full_name || user?.email || 'User'}
-                </span>
-              </p>
-            </div>
-            <div className="hidden sm:block text-right">
-              <p className="text-sm font-medium text-muted-foreground">Legal Professional</p>
-              <p className="text-xs text-muted-foreground/60 tracking-wide">
-                Judicial Research Platform
-              </p>
-            </div>
-          </div>
-        </div>
+        {/* Personalized Greeting */}
+        <PersonalizedGreeting
+          userName={user?.full_name || user?.email?.split('@')[0]}
+          roleInfo={roleInfo}
+        />
 
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -195,11 +182,11 @@ export default function LegalProfessionalDashboard({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Link
             href="/analytics"
-            className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl border border-green-200 dark:border-green-800 reshade-hover group p-6"
+            className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl border border-green-200 dark:border-green-800 reshade-hover group p-6 transition-all hover:border-green-400 dark:hover:border-green-600 hover:shadow-lg"
           >
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="font-semibold text-green-900 dark:text-green-100">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex-1">
+                <h3 className="font-semibold text-green-900 dark:text-green-100 group-hover:text-green-700 dark:group-hover:text-green-200 transition-colors">
                   Judge Analytics
                 </h3>
                 <p className="text-sm text-green-700 dark:text-green-300 mt-2">
@@ -210,15 +197,21 @@ export default function LegalProfessionalDashboard({
                 <BarChart3 className="w-5 h-5 text-green-700 dark:text-green-300" />
               </div>
             </div>
+            <div className="flex items-center gap-2 text-xs font-medium text-green-700 dark:text-green-300 group-hover:gap-3 transition-all">
+              <span>Explore now</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
           </Link>
 
           <Link
             href="/dashboard/practice-areas"
-            className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800 reshade-hover group p-6"
+            className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800 reshade-hover group p-6 transition-all hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-lg"
           >
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="font-semibold text-blue-900 dark:text-blue-100">Practice Areas</h3>
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex-1">
+                <h3 className="font-semibold text-blue-900 dark:text-blue-100 group-hover:text-blue-700 dark:group-hover:text-blue-200 transition-colors">
+                  Practice Areas
+                </h3>
                 <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
                   Filter judges and courts by your practice area specialization
                 </p>
@@ -227,15 +220,19 @@ export default function LegalProfessionalDashboard({
                 <Scale className="w-5 h-5 text-blue-700 dark:text-blue-300" />
               </div>
             </div>
+            <div className="flex items-center gap-2 text-xs font-medium text-blue-700 dark:text-blue-300 group-hover:gap-3 transition-all">
+              <span>View areas</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
           </Link>
 
           <Link
             href="/judges"
-            className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-xl border border-purple-200 dark:border-purple-800 reshade-hover group p-6"
+            className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-xl border border-purple-200 dark:border-purple-800 reshade-hover group p-6 transition-all hover:border-purple-400 dark:hover:border-purple-600 hover:shadow-lg"
           >
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="font-semibold text-purple-900 dark:text-purple-100">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex-1">
+                <h3 className="font-semibold text-purple-900 dark:text-purple-100 group-hover:text-purple-700 dark:group-hover:text-purple-200 transition-colors">
                   Case Insights
                 </h3>
                 <p className="text-sm text-purple-700 dark:text-purple-300 mt-2">
@@ -245,6 +242,10 @@ export default function LegalProfessionalDashboard({
               <div className="w-10 h-10 bg-purple-200/50 dark:bg-purple-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                 <FileText className="w-5 h-5 text-purple-700 dark:text-purple-300" />
               </div>
+            </div>
+            <div className="flex items-center gap-2 text-xs font-medium text-purple-700 dark:text-purple-300 group-hover:gap-3 transition-all">
+              <span>View insights</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>
           </Link>
         </div>

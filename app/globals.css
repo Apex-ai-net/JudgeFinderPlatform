@@ -231,7 +231,9 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
-    transition: top 0.3s ease, opacity 0.3s ease;
+    transition:
+      top 0.3s ease,
+      opacity 0.3s ease;
     opacity: 0;
   }
 
@@ -245,48 +247,62 @@
   .safe-area-pt {
     padding-top: env(safe-area-inset-top);
   }
-  
+
   .safe-area-pb {
     padding-bottom: env(safe-area-inset-bottom);
   }
-  
+
   .safe-area-pl {
     padding-left: env(safe-area-inset-left);
   }
-  
+
   .safe-area-pr {
     padding-right: env(safe-area-inset-right);
   }
 
   /* Enhanced shadow system for visual depth */
   .shadow-card {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06);
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.12),
+      0 1px 2px rgba(0, 0, 0, 0.06);
   }
 
   .shadow-card-hover {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+    box-shadow:
+      0 4px 6px rgba(0, 0, 0, 0.1),
+      0 2px 4px rgba(0, 0, 0, 0.06);
   }
 
   .shadow-elevated {
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.1),
+      0 4px 8px rgba(0, 0, 0, 0.06);
   }
 
   .shadow-modal {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
 
   /* Dark mode shadow adjustments */
   @media (prefers-color-scheme: dark) {
     .shadow-card {
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+      box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.4),
+        0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
     .shadow-card-hover {
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+      box-shadow:
+        0 4px 6px rgba(0, 0, 0, 0.3),
+        0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     .shadow-elevated {
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2);
+      box-shadow:
+        0 8px 16px rgba(0, 0, 0, 0.3),
+        0 4px 8px rgba(0, 0, 0, 0.2);
     }
   }
 
@@ -310,12 +326,7 @@
 
   /* Loading animations */
   .animate-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent,
-      hsl(var(--primary) / 0.1),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.1), transparent);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }
@@ -358,22 +369,24 @@
   }
 
   /* Performance-optimized reshade effects for older computers */
-  
+
   /* GPU-accelerated depth effect */
   .reshade-depth {
     transform: translateZ(0);
     will-change: transform;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 
-                0 1px 2px rgba(0, 0, 0, 0.24);
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.12),
+      0 1px 2px rgba(0, 0, 0, 0.24);
     transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
-  
+
   .reshade-depth:hover {
     transform: translateY(-2px) translateZ(0);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.16),
-                0 2px 4px rgba(0, 0, 0, 0.23);
+    box-shadow:
+      0 4px 6px rgba(0, 0, 0, 0.16),
+      0 2px 4px rgba(0, 0, 0, 0.23);
   }
-  
+
   /* Subtle glass effect - performance friendly */
   .reshade-glass {
     @apply bg-card/95 backdrop-blur border border-border;
@@ -385,40 +398,42 @@
       @apply bg-card/98;
     }
   }
-  
+
   /* Soft elevation layers */
   .reshade-layer-1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
     contain: layout;
   }
-  
+
   .reshade-layer-2 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
     contain: layout;
   }
-  
+
   .reshade-layer-3 {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     contain: layout;
   }
-  
+
   /* Performance-optimized hover states */
   .reshade-hover {
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
     transform: translateZ(0);
   }
-  
+
   .reshade-hover:hover {
     opacity: 0.95;
     transform: scale(1.02) translateZ(0);
   }
-  
+
   /* Subtle ambient occlusion effect */
   .reshade-ambient {
     position: relative;
     overflow: hidden;
   }
-  
+
   .reshade-ambient::before {
     content: '';
     position: absolute;
@@ -426,15 +441,11 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(
-      180deg,
-      transparent 0%,
-      rgba(0, 0, 0, 0.02) 100%
-    );
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.02) 100%);
     pointer-events: none;
     contain: strict;
   }
-  
+
   /* Reduced motion for accessibility and performance */
   @media (prefers-reduced-motion: reduce) {
     .reshade-depth,
@@ -442,48 +453,84 @@
     .card-hover {
       transition: none;
     }
-    
+
     .reshade-depth:hover,
     .reshade-hover:hover {
       transform: none;
     }
-    
+
     .animate-shimmer {
       animation: none;
       background: rgba(255, 255, 255, 0.05);
     }
   }
-  
+
   /* Enterprise-focused card styles */
   .enterprise-card {
     @apply bg-card rounded-lg p-6 border border-border;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05),
-                0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.05),
+      0 1px 2px rgba(0, 0, 0, 0.1);
     contain: layout style;
     transform: translateZ(0);
   }
 
   .enterprise-card:hover {
     @apply shadow-lg;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08),
-                0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.08),
+      0 4px 12px rgba(0, 0, 0, 0.05);
   }
-  
+
   /* Optimized text shadows for depth */
   .text-depth {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
-  
+
   /* CSS containment for better performance */
   .contain-content {
     contain: content;
   }
-  
+
   .contain-layout {
     contain: layout;
   }
-  
+
   .contain-strict {
     contain: strict;
+  }
+
+  /* Wave animation for greeting emoji */
+  @keyframes wave {
+    0% {
+      transform: rotate(0deg);
+    }
+    10% {
+      transform: rotate(14deg);
+    }
+    20% {
+      transform: rotate(-8deg);
+    }
+    30% {
+      transform: rotate(14deg);
+    }
+    40% {
+      transform: rotate(-4deg);
+    }
+    50% {
+      transform: rotate(10deg);
+    }
+    60% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+
+  .animate-wave {
+    animation: wave 2.5s ease-in-out infinite;
+    animation-delay: 1s;
+    display: inline-block;
   }
 }
