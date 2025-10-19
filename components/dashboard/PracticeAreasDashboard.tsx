@@ -153,6 +153,7 @@ export default function PracticeAreasDashboard({
           {/* Save Message */}
           {saveMessage && (
             <div
+              id="save-message"
               role={saveMessage.type === 'error' ? 'alert' : 'status'}
               aria-live="polite"
               className={`mb-6 p-4 rounded-lg ${
@@ -187,6 +188,7 @@ export default function PracticeAreasDashboard({
                   onClick={handleSave}
                   disabled={isSaving}
                   aria-busy={isSaving}
+                  aria-describedby={saveMessage ? 'save-message' : undefined}
                   className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                   {isSaving ? 'Saving...' : 'Save Changes'}

@@ -243,8 +243,11 @@ export default function AdSpotsExplorer({
           </div>
 
           {loading ? (
-            <div className="p-12 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="p-12 text-center" role="status" aria-busy="true" aria-live="polite">
+              <div
+                className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"
+                aria-hidden="true"
+              ></div>
               <p className="mt-4 text-muted-foreground">Loading available spots...</p>
             </div>
           ) : filteredSpots.length === 0 ? (

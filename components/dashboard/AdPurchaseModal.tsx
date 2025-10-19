@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
 
 interface AdPurchaseModalProps {
   onClose: () => void
@@ -32,6 +33,9 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Focus trap for modal accessibility
+  const modalRef = useFocusTrap<HTMLDivElement>(true, onClose)
 
   const federalMonthlyPrice = 500
   const stateMonthlyPrice = 200
@@ -96,20 +100,30 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+      <div
+        ref={modalRef}
+        className="bg-white rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
         {/* Header */}
         <div className="border-b border-border px-8 py-6 flex items-center justify-between sticky top-0 bg-white z-10">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">Advertise on Judge Profiles</h2>
+            <h2 id="modal-title" className="text-2xl font-bold text-foreground">
+              Advertise on Judge Profiles
+            </h2>
             <p className="text-muted-foreground mt-1">
               Reach attorneys and litigants researching judges in your jurisdiction
             </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="text-muted-foreground hover:text-muted-foreground transition-colors"
+            aria-label="Close advertising modal"
+            className="text-muted-foreground hover:text-muted-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
           >
-            <X className="h-6 w-6" />
+            <X className="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
 
