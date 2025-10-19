@@ -1,86 +1,103 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-
-import { getJudgeAdSpots, getMaxJudgeRotations } from '@/lib/ads/service'
-import { logger } from '@/lib/utils/logger'
+import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-const paramsSchema = z.object({
-  id: z.string().uuid('Invalid judge ID format')
-})
+interface RouteParams {
+  params: Promise<{ id: string }>
+}
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const start = Date.now()
-  const resolvedParams = await params
-  const validation = paramsSchema.safeParse(resolvedParams)
-
-  if (!validation.success) {
-    const message = validation.error.errors[0]?.message ?? 'Invalid request parameters'
-    logger.apiResponse('GET', `/api/judges/${resolvedParams?.id ?? 'unknown'}/advertising-slots`, 400, Date.now() - start, {
-      error: message
-    })
-
-    return NextResponse.json({ error: message }, { status: 400 })
-  }
-
-  const judgeId = validation.data.id
-  logger.apiRequest('GET', `/api/judges/${judgeId}/advertising-slots`)
-
+/**
+ * GET /api/judges/[id]/advertising-slots
+ *
+ * Returns advertising slots for a specific judge, including:
+ * - Active bookings with advertiser information
+ * - Available slots
+ */
+export async function GET(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
   try {
-    const spots = await getJudgeAdSpots(judgeId)
+    const { id } = await params
 
-    const serialized = spots.map((spot) => ({
-      id: spot.id,
-      position: spot.position,
-      status: spot.status,
-      base_price_monthly: spot.base_price_monthly,
-      pricing_tier: spot.pricing_tier,
-      court_level: spot.court_level,
-      impressions_total: spot.impressions_total,
-      clicks_total: spot.clicks_total,
-      max_rotations: getMaxJudgeRotations(),
-      advertiser: spot.advertiser
+    if (!id) {
+      return NextResponse.json({ error: 'Judge ID is required' }, { status: 400 })
+    }
+
+    const supabase = await createClient()
+
+    // Fetch active bookings for this judge
+    const { data: bookings, error: bookingsError } = await supabase
+      .from('ad_spot_bookings')
+      .select(
+        `
+        *,
+        advertiser:advertiser_profiles(
+          id,
+          firm_name,
+          description,
+          website,
+          phone,
+          email,
+          logo_url,
+          specializations,
+          bar_number
+        )
+      `
+      )
+      .eq('judge_id', id)
+      .in('status', ['active', 'trialing'])
+      .order('position')
+
+    if (bookingsError) {
+      console.error('Error fetching ad bookings:', bookingsError)
+      return NextResponse.json({ error: 'Failed to fetch advertising slots' }, { status: 500 })
+    }
+
+    // Define max rotations (2 slots per judge)
+    const MAX_ROTATIONS = 2
+
+    // Transform bookings into slot format
+    const activeSlots = (bookings || []).map((booking) => ({
+      id: booking.id,
+      position: booking.position,
+      status: 'booked',
+      base_price_monthly: booking.monthly_price,
+      pricing_tier: booking.court_level,
+      advertiser: booking.advertiser
         ? {
-            id: spot.advertiser.id,
-            firm_name: spot.advertiser.firm_name,
-            description: spot.advertiser.description,
-            website: spot.advertiser.website,
-            phone: spot.advertiser.contact_phone,
-            email: spot.advertiser.contact_email,
-            logo_url: spot.advertiser.logo_url,
-            specializations: spot.advertiser.specializations,
-            badge: spot.advertiser.verification_status === 'verified' ? 'Verified' : undefined,
-            bar_number: spot.advertiser.bar_number
+            id: booking.advertiser.id,
+            firm_name: booking.advertiser.firm_name,
+            description: booking.advertiser.description || '',
+            website: booking.advertiser.website,
+            phone: booking.advertiser.phone,
+            email: booking.advertiser.email,
+            logo_url: booking.advertiser.logo_url,
+            specializations: booking.advertiser.specializations || [],
+            bar_number: booking.advertiser.bar_number,
+            badge: 'verified',
           }
-        : null
+        : null,
     }))
 
-    const response = NextResponse.json({
-      slots: serialized,
-      count: serialized.length,
-      max_rotations: getMaxJudgeRotations()
+    // Create available slots for positions not booked
+    const bookedPositions = new Set(activeSlots.map((slot) => slot.position))
+    const availableSlots = Array.from({ length: MAX_ROTATIONS }, (_, i) => i + 1)
+      .filter((position) => !bookedPositions.has(position))
+      .map((position) => ({
+        id: `available-${position}`,
+        position,
+        status: 'available',
+        advertiser: null,
+      }))
+
+    // Combine and sort by position
+    const allSlots = [...activeSlots, ...availableSlots].sort((a, b) => a.position - b.position)
+
+    return NextResponse.json({
+      slots: allSlots,
+      max_rotations: MAX_ROTATIONS,
     })
-
-    response.headers.set('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=300')
-    response.headers.set('Vary', 'Accept-Encoding')
-
-    logger.apiResponse('GET', `/api/judges/${judgeId}/advertising-slots`, 200, Date.now() - start, {
-      count: serialized.length
-    })
-
-    return response
   } catch (error) {
-    logger.apiResponse('GET', `/api/judges/${judgeId}/advertising-slots`, 500, Date.now() - start, {
-      error: error instanceof Error ? error.message : 'unknown'
-    })
-
-    return NextResponse.json(
-      { error: 'Failed to load advertising slots' },
-      { status: 500 }
-    )
+    console.error('Error in advertising-slots API:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
