@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { UserRoleInfo } from '@/lib/auth/user-roles'
 import { DashboardJudgeAnalytics } from '@/lib/analytics/judge-dashboard-analytics'
 import JudgeAnalyticsWidget from './JudgeAnalyticsWidget'
+import { AnimatedMetricCard } from './AnimatedMetricCard'
+import { ActivityTimeline } from './ActivityTimeline'
 import {
   Bookmark,
   Search,
@@ -15,7 +17,6 @@ import {
   Activity,
   CreditCard,
   Settings,
-  Eye,
   GitCompare,
 } from 'lucide-react'
 
@@ -60,63 +61,31 @@ export default function LegalProfessionalDashboard({
 
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          {/* Bookmarked Judges */}
-          <div className="bg-card rounded-xl border border-border reshade-depth group p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Bookmarked Judges
-                </p>
-                <p className="text-3xl font-bold text-foreground mt-2 tabular-nums">
-                  {stats.bookmarksCount}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-950/30 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110">
-                <Bookmark className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-3">
-              Judges you&apos;re actively tracking
-            </p>
-          </div>
-
-          {/* Saved Searches */}
-          <div className="bg-card rounded-xl border border-border reshade-depth group p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Saved Searches
-                </p>
-                <p className="text-3xl font-bold text-foreground mt-2 tabular-nums">
-                  {stats.savedSearchesCount}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-950/30 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110">
-                <Search className="w-6 h-6 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-3">Saved judicial research queries</p>
-          </div>
-
-          {/* Recent Activities */}
-          <div className="bg-card rounded-xl border border-border reshade-depth group p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Recent Activities
-                </p>
-                <p className="text-3xl font-bold text-foreground mt-2 tabular-nums">
-                  {stats.recentActivity.length}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-950/30 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110">
-                <Clock className="w-4 h-6 text-purple-600 dark:text-purple-400" />
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-3">Latest searches and views</p>
-          </div>
-
-          {/* Quick Stats Placeholder */}
+          <AnimatedMetricCard
+            title="Bookmarked Judges"
+            value={stats.bookmarksCount}
+            description="Judges you're actively tracking"
+            icon={Bookmark}
+            iconColor="text-blue-600 dark:text-blue-400"
+            iconBgColor="bg-blue-100 dark:bg-blue-950/30"
+            trend={stats.bookmarksCount > 0 ? { value: 12, isPositive: true } : undefined}
+          />
+          <AnimatedMetricCard
+            title="Saved Searches"
+            value={stats.savedSearchesCount}
+            description="Saved judicial research queries"
+            icon={Search}
+            iconColor="text-green-600 dark:text-green-400"
+            iconBgColor="bg-green-100 dark:bg-green-950/30"
+          />
+          <AnimatedMetricCard
+            title="Recent Activities"
+            value={stats.recentActivity.length}
+            description="Latest searches and views"
+            icon={Clock}
+            iconColor="text-purple-600 dark:text-purple-400"
+            iconBgColor="bg-purple-100 dark:bg-purple-950/30"
+          />
           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl border border-blue-200 dark:border-blue-800 reshade-depth group p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -212,66 +181,7 @@ export default function LegalProfessionalDashboard({
           <div className="lg:col-span-2">
             <div className="bg-card rounded-xl border border-border reshade-layer-1 p-6">
               <h2 className="text-lg font-semibold text-foreground mb-4">Recent Activity</h2>
-              {stats.recentActivity.length > 0 ? (
-                <div className="space-y-4">
-                  {stats.recentActivity.map((activity: any) => (
-                    <div
-                      key={activity.id}
-                      className="flex items-start space-x-3 pb-4 border-b border-border last:border-0 last:pb-0"
-                    >
-                      <div className="flex-shrink-0">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-950/30 dark:to-blue-900/20 rounded-full flex items-center justify-center">
-                          {activity.activity_type === 'search' && (
-                            <Search className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                          )}
-                          {activity.activity_type === 'bookmark' && (
-                            <Bookmark className="w-5 h-5 text-green-600 dark:text-green-400" />
-                          )}
-                          {activity.activity_type === 'view' && (
-                            <Eye className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                          )}
-                          {activity.activity_type === 'compare' && (
-                            <GitCompare className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground">
-                          {activity.activity_type === 'search' && 'Searched for judges'}
-                          {activity.activity_type === 'view' && 'Viewed judge profile'}
-                          {activity.activity_type === 'bookmark' && 'Bookmarked a judge'}
-                          {activity.activity_type === 'compare' && 'Compared judges'}
-                        </p>
-                        {activity.search_query && (
-                          <p className="text-sm text-muted-foreground mt-1 truncate">
-                            <span className="font-medium">Query:</span> {activity.search_query}
-                          </p>
-                        )}
-                        <p className="text-xs text-muted-foreground/60 mt-2">
-                          {new Date(activity.created_at).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <svg
-                    className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                  </svg>
-                  <p className="text-sm text-muted-foreground">No recent activity to display</p>
-                </div>
-              )}
+              <ActivityTimeline activities={stats.recentActivity} />
             </div>
           </div>
         </div>
