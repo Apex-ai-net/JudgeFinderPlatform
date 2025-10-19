@@ -259,13 +259,15 @@ export default function AdSpotsExplorer({
                 const priceInfo = getPriceRangeLabel(spot)
 
                 return (
-                  <div
+                  <button
                     key={spot.id}
-                    className="p-6 hover:bg-muted transition-colors cursor-pointer"
+                    type="button"
+                    className="w-full text-left p-6 hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
                     onClick={() => {
                       setSelectedSpot(spot)
                       setShowBookingModal(true)
                     }}
+                    aria-label={`Book advertising spot for ${spot.entity_name}, ${priceInfo.price} per month`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -326,9 +328,12 @@ export default function AdSpotsExplorer({
                         </div>
                       </div>
 
-                      <ChevronRight className="h-5 w-5 text-muted-foreground mt-2" />
+                      <ChevronRight
+                        className="h-5 w-5 text-muted-foreground mt-2"
+                        aria-hidden="true"
+                      />
                     </div>
-                  </div>
+                  </button>
                 )
               })}
             </div>
