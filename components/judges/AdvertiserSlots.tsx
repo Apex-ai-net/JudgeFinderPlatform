@@ -10,6 +10,8 @@ import { useSafeUser } from '@/lib/auth/safe-clerk-components'
 interface AdvertiserSlotsProps {
   judgeId: string
   judgeName: string
+  courtName: string
+  courtLevel: 'federal' | 'state'
 }
 
 interface AdSlot {
@@ -56,7 +58,12 @@ function isBooked(slot: AdSlot): boolean {
   return status === 'booked' || status === 'reserved' || status === 'active'
 }
 
-export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps): JSX.Element {
+export function AdvertiserSlots({
+  judgeId,
+  judgeName,
+  courtName,
+  courtLevel,
+}: AdvertiserSlotsProps): JSX.Element {
   const [slots, setSlots] = useState<AdSlot[]>([])
   const [maxRotations, setMaxRotations] = useState<number>(DEFAULT_MAX_ROTATIONS)
   const [loading, setLoading] = useState(true)
@@ -146,6 +153,15 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps): J
     if (!slots.length) return false
     return slots.every((slot) => isBooked(slot) || Boolean(slot.advertiser))
   }, [slots])
+
+  // Calculate pricing based on court level
+  const pricing = useMemo(() => {
+    const monthly = courtLevel === 'federal' ? 500 : 200
+    const annual = courtLevel === 'federal' ? 5000 : 2000
+    const savings = monthly * 12 - annual
+
+    return { monthly, annual, savings }
+  }, [courtLevel])
 
   function getDemoSlots(rotations: number): AdSlot[] {
     return Array.from({ length: rotations }, (_, index) => ({
@@ -365,13 +381,30 @@ export function AdvertiserSlots({ judgeId, judgeName }: AdvertiserSlotsProps): J
             <p className="hidden md:block text-xs text-muted-foreground/70">
               High-intent visibility for attorneys appearing before Judge {judgeName}.
             </p>
+
+            {/* Pricing Display */}
+            <div className="hidden md:flex flex-col gap-1 items-center">
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-foreground">${pricing.monthly}</span>
+                <span className="text-sm text-muted-foreground">/month</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                or ${pricing.annual}/year (save ${pricing.savings})
+              </p>
+            </div>
+
+            {/* Mobile Pricing */}
+            <div className="md:hidden text-xs font-semibold text-foreground">
+              ${pricing.monthly}/mo
+            </div>
+
             {isAdvertiser ? (
               <Link
-                href={`/dashboard/advertiser/ad-spots?preselected=true&entityType=judge&entityId=${encodeURIComponent(judgeId)}&position=${encodeURIComponent(String(slot.position))}`}
-                className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-2 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/45 hover:text-foreground"
+                href={`/ads/checkout/judge?id=${encodeURIComponent(judgeId)}&name=${encodeURIComponent(judgeName)}&court=${encodeURIComponent(courtName)}&level=${courtLevel}&position=${slot.position}`}
+                className="inline-flex items-center gap-2 rounded-full border border-primary/45 bg-interactive/15 px-3 py-2 md:px-4 md:py-2 text-[10px] md:text-sm font-semibold text-primary transition-colors hover:bg-[rgba(110,168,254,0.25)]"
               >
-                <span className="hidden md:inline">Book this rotation</span>
-                <span className="md:hidden">Book</span>
+                <span className="hidden md:inline">Book This Spot - ${pricing.monthly}/month</span>
+                <span className="md:hidden">Book - ${pricing.monthly}/mo</span>
               </Link>
             ) : (
               <div className="flex flex-col items-center gap-2 w-full">

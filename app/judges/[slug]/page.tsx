@@ -375,7 +375,17 @@ export default async function JudgePage({ params }: JudgePageProps): Promise<JSX
 
             {/* Legal Professionals Section */}
             <div id="advertiser-slots">
-              <AdvertiserSlots judgeId={judge.id} judgeName={safeName} />
+              <AdvertiserSlots
+                judgeId={judge.id}
+                judgeName={safeName}
+                courtName={safeCourtName}
+                courtLevel={
+                  judge.court_name?.toLowerCase().includes('federal') ||
+                  judge.court_name?.toLowerCase().includes('district court')
+                    ? 'federal'
+                    : 'state'
+                }
+              />
             </div>
 
             <div className="rounded-xl border border-border bg-card p-5 shadow-sm">

@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation'
 import { isStripeEnabled } from '@/lib/ads/stripe'
 import { getAdvertiserProfileForUser, listAvailableAdSpots } from '@/lib/ads/service'
 import { SkipLink } from '@/components/ui/SkipLink'
+import { createClient } from '@/lib/supabase/server'
+import Link from 'next/link'
+import { Calendar, DollarSign, MapPin, User } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,6 +23,20 @@ export default async function AdvertiserDashboardPage(): Promise<JSX.Element> {
   const stripeReady = isStripeEnabled()
   const environment = process.env.NODE_ENV || 'development'
   const sampleSpots = await listAvailableAdSpots(3)
+
+  // Fetch active ad campaigns for this advertiser
+  const supabase = await createClient()
+  const { data: activeBookings } = await supabase
+    .from('ad_spot_bookings')
+    .select(
+      `
+      *,
+      judge:judges(id, name, slug, court_name, jurisdiction)
+    `
+    )
+    .eq('advertiser_id', advertiserProfile.id)
+    .in('status', ['active', 'trialing', 'past_due'])
+    .order('created_at', { ascending: false })
 
   return (
     <>
@@ -73,6 +90,105 @@ export default async function AdvertiserDashboardPage(): Promise<JSX.Element> {
             </p>
           )}
         </section>
+
+        {/* Active Campaigns Section */}
+        {activeBookings && activeBookings.length > 0 && (
+          <section
+            aria-labelledby="active-campaigns-heading"
+            className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+          >
+            <h2 id="active-campaigns-heading" className="text-lg font-semibold text-gray-900 mb-4">
+              Your Active Ad Campaigns
+            </h2>
+            <div className="space-y-4">
+              {activeBookings.map((booking) => (
+                <div
+                  key={booking.id}
+                  className="rounded-lg border border-gray-200 bg-gray-50 p-4 hover:border-primary/50 transition-colors"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <Link
+                        href={`/judges/${booking.judge.slug}`}
+                        className="text-base font-semibold text-gray-900 hover:text-primary"
+                      >
+                        Judge {booking.judge.name}
+                      </Link>
+                      <p className="text-sm text-gray-600 mt-1">{booking.judge.court_name}</p>
+                    </div>
+                    <div
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        booking.status === 'active'
+                          ? 'bg-green-100 text-green-800'
+                          : booking.status === 'past_due'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-blue-100 text-blue-800'
+                      }`}
+                    >
+                      {booking.status === 'active'
+                        ? 'Active'
+                        : booking.status === 'past_due'
+                          ? 'Payment Due'
+                          : 'Trial'}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <MapPin className="h-4 w-4 text-gray-400" aria-hidden />
+                      <span>Slot #{booking.position}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <DollarSign className="h-4 w-4 text-gray-400" aria-hidden />
+                      <span>${booking.monthly_price}/mo</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Calendar className="h-4 w-4 text-gray-400" aria-hidden />
+                      <span>
+                        {booking.billing_interval === 'annual' ? 'Annual' : 'Monthly'} billing
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <User className="h-4 w-4 text-gray-400" aria-hidden />
+                      <span className="capitalize">{booking.court_level} court</span>
+                    </div>
+                  </div>
+
+                  {booking.current_period_end && (
+                    <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500">
+                      {booking.cancel_at_period_end ? (
+                        <p>
+                          <span className="font-medium text-amber-700">
+                            Canceling at period end
+                          </span>{' '}
+                          - Active until {new Date(booking.current_period_end).toLocaleDateString()}
+                        </p>
+                      ) : (
+                        <p>
+                          Next billing date:{' '}
+                          {new Date(booking.current_period_end).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-gray-200 text-sm text-gray-600">
+              <p>
+                To manage your subscriptions, visit your{' '}
+                <Link
+                  href="/dashboard/billing"
+                  className="text-primary hover:underline font-medium"
+                >
+                  billing dashboard
+                </Link>
+                .
+              </p>
+            </div>
+          </section>
+        )}
 
         <section
           aria-labelledby="preview-placements-heading"

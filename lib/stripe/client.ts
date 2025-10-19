@@ -58,27 +58,56 @@ export function verifyWebhookSignature(payload: string | Buffer, signature: stri
 }
 
 /**
- * Create a checkout session for universal access purchase
+ * Create a checkout session for universal access purchase or judge-specific ads
  * @param params - Session parameters
  * @returns Stripe checkout session
  */
 export async function createCheckoutSession(params: {
   priceId?: string
   customer_email?: string
-  customer?: string // NEW: Use existing Stripe customer ID
+  customer?: string // Use existing Stripe customer ID
   success_url: string
   cancel_url: string
+  billing_cycle?: 'monthly' | 'annual'
   metadata?: Record<string, string>
+  // Judge-specific ad parameters
+  judge_id?: string
+  judge_name?: string
+  court_name?: string
+  court_level?: 'federal' | 'state'
 }): Promise<Stripe.Checkout.Session> {
   if (!stripe) {
     throw new Error('Stripe not configured')
   }
 
-  // priceId must be provided by the caller (STRIPE_PRICE_MONTHLY or STRIPE_PRICE_YEARLY)
-  const priceId = params.priceId
+  let priceId = params.priceId
+  let lineItemDescription: string | undefined
+
+  // For judge-profile ads, dynamically get or create the product/price
+  if (params.metadata?.ad_type === 'judge-profile' && params.judge_id && params.court_level) {
+    const { getOrCreateJudgeAdProduct } = await import('./judge-products')
+
+    const position = params.metadata.ad_position ? parseInt(params.metadata.ad_position) : 1
+    const productInfo = await getOrCreateJudgeAdProduct({
+      judgeId: params.judge_id,
+      judgeName: params.judge_name || 'Unknown Judge',
+      courtName: params.court_name || '',
+      courtLevel: params.court_level,
+      position: position === 1 || position === 2 ? position : 1,
+    })
+
+    // Select monthly or annual price based on billing cycle
+    priceId =
+      params.billing_cycle === 'annual' ? productInfo.annualPriceId : productInfo.monthlyPriceId
+
+    // Create descriptive line item text
+    lineItemDescription = `Ad Spot for Judge ${params.judge_name} - ${params.court_name} (Rotation Slot ${position})`
+  }
 
   if (!priceId) {
-    throw new Error('No Stripe price ID provided. Caller must specify priceId parameter.')
+    throw new Error(
+      'No Stripe price ID provided. Caller must specify priceId parameter or provide judge ad details.'
+    )
   }
 
   return await stripe.checkout.sessions.create({
@@ -88,6 +117,9 @@ export async function createCheckoutSession(params: {
       {
         price: priceId,
         quantity: 1,
+        ...(lineItemDescription && {
+          description: lineItemDescription,
+        }),
       },
     ],
     // Use customer ID if provided, otherwise fall back to customer_email
@@ -99,6 +131,9 @@ export async function createCheckoutSession(params: {
     metadata: params.metadata || {},
     allow_promotion_codes: true,
     billing_address_collection: 'required',
+    subscription_data: {
+      metadata: params.metadata || {},
+    },
   })
 }
 

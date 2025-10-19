@@ -19,6 +19,11 @@ export const dynamic = 'force-dynamic'
  *   billing_cycle: string ('monthly' | 'annual')
  *   ad_type?: string (deprecated - kept for backward compatibility)
  *   notes?: string
+ *   judge_id?: string (NEW: Required for judge-profile ads)
+ *   judge_name?: string (NEW: Judge's full name for display)
+ *   court_name?: string (NEW: Court name for context)
+ *   court_level?: 'federal' | 'state' (NEW: Determines pricing)
+ *   ad_position?: 1 | 2 (NEW: Which rotation slot)
  * }
  *
  * Response:
@@ -90,7 +95,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Parse and validate request
     const body = await request.json()
-    const { organization_name, email, ad_type, notes } = body
+    const {
+      organization_name,
+      email,
+      ad_type,
+      notes,
+      judge_id,
+      judge_name,
+      court_name,
+      court_level,
+      ad_position,
+      billing_cycle,
+    } = body
 
     if (!organization_name || !email || !ad_type) {
       return NextResponse.json(
@@ -99,6 +115,36 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         },
         { status: 400 }
       )
+    }
+
+    // Validate judge-specific fields for judge-profile ads
+    if (ad_type === 'judge-profile') {
+      if (!judge_id || !judge_name || !court_level) {
+        return NextResponse.json(
+          {
+            error: 'For judge-profile ads, judge_id, judge_name, and court_level are required',
+          },
+          { status: 400 }
+        )
+      }
+
+      if (court_level !== 'federal' && court_level !== 'state') {
+        return NextResponse.json(
+          {
+            error: 'court_level must be either "federal" or "state"',
+          },
+          { status: 400 }
+        )
+      }
+
+      if (ad_position && ad_position !== 1 && ad_position !== 2) {
+        return NextResponse.json(
+          {
+            error: 'ad_position must be either 1 or 2',
+          },
+          { status: 400 }
+        )
+      }
     }
 
     // Validate email format
@@ -161,12 +207,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       ...(stripeCustomerId ? { customer: stripeCustomerId } : { customer_email: email }),
       success_url: `${baseUrl}/ads/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/ads/buy?canceled=true`,
+      billing_cycle: billing_cycle || 'monthly',
+      // Pass judge-specific parameters for product/price creation
+      ...(ad_type === 'judge-profile' && {
+        judge_id,
+        judge_name,
+        court_name,
+        court_level,
+      }),
       metadata: {
         organization_name,
         ad_type,
         notes: notes || '',
         client_ip: clientIp,
         created_at: new Date().toISOString(),
+        // Judge-specific metadata for ad subscriptions
+        ...(ad_type === 'judge-profile' && {
+          judge_id: judge_id!,
+          judge_name: judge_name!,
+          court_name: court_name || '',
+          court_level: court_level!,
+          ad_position: ad_position?.toString() || '1',
+        }),
       },
     } as any)
 
@@ -175,6 +237,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       organization_name,
       email,
       ad_type,
+      ...(ad_type === 'judge-profile' && {
+        judge_id,
+        judge_name,
+        court_level,
+        ad_position,
+      }),
     })
 
     return NextResponse.json({
