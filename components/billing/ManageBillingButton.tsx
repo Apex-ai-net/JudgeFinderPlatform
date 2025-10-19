@@ -35,17 +35,17 @@ export default function ManageBillingButton() {
     <button
       onClick={handleManageBilling}
       disabled={isLoading}
-      className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {isLoading ? (
         <>
           <Loader2 className="h-5 w-5 animate-spin" />
-          Opening...
+          <span className="text-white">Opening...</span>
         </>
       ) : (
         <>
           <CreditCard className="h-5 w-5" />
-          Manage Subscriptions & Payment Methods
+          <span className="text-white">Manage Subscriptions & Payment Methods</span>
         </>
       )}
     </button>
