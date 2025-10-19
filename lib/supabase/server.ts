@@ -111,3 +111,8 @@ export async function createServiceRoleClient(): Promise<SupabaseClient> {
   const serviceRoleClient = new SupabaseServiceRoleClient(supabaseUrl, serviceRoleKey)
   return serviceRoleClient.getClient()
 }
+
+/**
+ * Alias for createServerClient for backwards compatibility
+ */
+export const createClient = createServerClient
