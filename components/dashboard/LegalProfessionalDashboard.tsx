@@ -99,66 +99,120 @@ export default function LegalProfessionalDashboard({
               <div className="space-y-2">
                 <Link
                   href="/judges"
-                  className="group flex items-center gap-3 w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50"
+                  className="group flex items-center justify-between w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50 hover:scale-[1.02] hover:shadow-md"
+                  style={{ animationDelay: '0ms' }}
                 >
-                  <Search className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  <span>Search Judges</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-950/30 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <span>Search Judges</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform opacity-0 group-hover:opacity-100" />
                 </Link>
                 <Link
                   href="/dashboard/bookmarks"
-                  className="group flex items-center gap-3 w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50"
+                  className="group flex items-center justify-between w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50 hover:scale-[1.02] hover:shadow-md"
+                  style={{ animationDelay: '50ms' }}
                 >
-                  <Bookmark className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  <span>My Bookmarks</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-green-100 dark:bg-green-950/30 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Bookmark className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    </div>
+                    <span>My Bookmarks</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform opacity-0 group-hover:opacity-100" />
                 </Link>
                 <Link
                   href="/dashboard/searches"
-                  className="group flex items-center gap-3 w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50"
+                  className="group flex items-center justify-between w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50 hover:scale-[1.02] hover:shadow-md"
+                  style={{ animationDelay: '100ms' }}
                 >
-                  <FileText className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  <span>Saved Searches</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-purple-100 dark:bg-purple-950/30 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <span>Saved Searches</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform opacity-0 group-hover:opacity-100" />
                 </Link>
                 <Link
                   href="/dashboard/compare"
-                  className="group flex items-center gap-3 w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50"
+                  className="group flex items-center justify-between w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50 hover:scale-[1.02] hover:shadow-md"
+                  style={{ animationDelay: '150ms' }}
                 >
-                  <GitCompare className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  <span>Compare Judges</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-orange-100 dark:bg-orange-950/30 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <GitCompare className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                    </div>
+                    <span>Compare Judges</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform opacity-0 group-hover:opacity-100" />
                 </Link>
                 <Link
                   href="/dashboard/activity"
-                  className="group flex items-center gap-3 w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50"
+                  className="group flex items-center justify-between w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50 hover:scale-[1.02] hover:shadow-md"
+                  style={{ animationDelay: '200ms' }}
                 >
-                  <Activity className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  <span>Activity History</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-cyan-100 dark:bg-cyan-950/30 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Activity className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                    </div>
+                    <span>Activity History</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform opacity-0 group-hover:opacity-100" />
                 </Link>
                 <Link
                   href="/dashboard/practice-areas"
-                  className="group flex items-center gap-3 w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50"
+                  className="group flex items-center justify-between w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50 hover:scale-[1.02] hover:shadow-md"
+                  style={{ animationDelay: '250ms' }}
                 >
-                  <Scale className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  <span>Practice Areas</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-950/30 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Scale className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <span>Practice Areas</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform opacity-0 group-hover:opacity-100" />
                 </Link>
                 <Link
                   href="/analytics"
-                  className="group flex items-center gap-3 w-full px-4 py-3 border border-blue-300 dark:border-blue-800 rounded-lg text-sm font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-all"
+                  className="group flex items-center justify-between w-full px-4 py-3 border border-blue-300 dark:border-blue-800 rounded-lg text-sm font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-all hover:scale-[1.02] hover:shadow-lg hover:border-blue-400 dark:hover:border-blue-600"
+                  style={{ animationDelay: '300ms' }}
                 >
-                  <BarChart3 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                  <span>Platform Analytics</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-200 dark:bg-blue-900/40 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <BarChart3 className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                    </div>
+                    <span className="font-semibold">Platform Analytics</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   href="/dashboard/billing"
-                  className="group flex items-center gap-3 w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50"
+                  className="group flex items-center justify-between w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50 hover:scale-[1.02] hover:shadow-md"
+                  style={{ animationDelay: '350ms' }}
                 >
-                  <CreditCard className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  <span>Billing & Purchases</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-950/30 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <CreditCard className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <span>Billing & Purchases</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform opacity-0 group-hover:opacity-100" />
                 </Link>
                 <Link
                   href="/settings"
-                  className="group flex items-center gap-3 w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50"
+                  className="group flex items-center justify-between w-full px-4 py-3 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted transition-all hover:border-primary/50 hover:scale-[1.02] hover:shadow-md"
+                  style={{ animationDelay: '400ms' }}
                 >
-                  <Settings className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  <span>Settings</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gray-100 dark:bg-gray-800/50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Settings className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    </div>
+                    <span>Settings</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform opacity-0 group-hover:opacity-100" />
                 </Link>
               </div>
             </div>
