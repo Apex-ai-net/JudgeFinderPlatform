@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { X, Calendar, CreditCard, AlertCircle, Check, ShieldCheck, Lock } from 'lucide-react'
 import type { AdSpotWithDetails } from '@/types/advertising'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
 
 interface AdSpotBookingModalProps {
   spot: AdSpotWithDetails
@@ -21,6 +22,9 @@ export default function AdSpotBookingModal({
   const [campaignId, setCampaignId] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Accessibility: Focus trap for modal
+  const modalRef = useFocusTrap<HTMLDivElement>(true, onClose)
 
   // Dynamic pricing based on court level
   const getMonthlyPrice = () => {
@@ -71,13 +75,28 @@ export default function AdSpotBookingModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="booking-modal-title"
+    >
+      <div
+        ref={modalRef}
+        className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        tabIndex={-1}
+      >
         {/* Header */}
         <div className="border-b border-border px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-foreground">Book Ad Spot</h2>
-          <button onClick={onClose} className="text-muted-foreground hover:text-muted-foreground">
-            <X className="h-5 w-5" />
+          <h2 id="booking-modal-title" className="text-xl font-semibold text-foreground">
+            Book Ad Spot
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg p-1"
+            aria-label="Close booking modal"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -116,30 +135,45 @@ export default function AdSpotBookingModal({
             {/* Booking Form */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Start Date</label>
+                <label
+                  htmlFor="booking-start-date"
+                  className="block text-sm font-medium text-foreground mb-1"
+                >
+                  Start Date
+                </label>
                 <input
+                  id="booking-start-date"
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   required
+                  aria-required="true"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">
+                <label
+                  htmlFor="booking-campaign"
+                  className="block text-sm font-medium text-foreground mb-1"
+                >
                   Campaign (Optional)
                 </label>
                 <select
+                  id="booking-campaign"
                   value={campaignId}
                   onChange={(e) => setCampaignId(e.target.value)}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  aria-describedby="campaign-help"
                 >
                   <option value="">No campaign selected</option>
                   <option value="campaign-1">Summer 2025 Campaign</option>
                   <option value="campaign-2">Q1 2025 Outreach</option>
                 </select>
+                <p id="campaign-help" className="text-xs text-muted-foreground mt-1">
+                  Associate this booking with an existing campaign for tracking
+                </p>
               </div>
             </div>
 
@@ -181,8 +215,15 @@ export default function AdSpotBookingModal({
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
-                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2"
+              >
+                <AlertCircle
+                  className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5"
+                  aria-hidden="true"
+                />
                 <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
@@ -191,23 +232,32 @@ export default function AdSpotBookingModal({
             <div className="flex gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-2 border border-border rounded-lg hover:bg-muted"
+                className="flex-1 px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                type="button"
               >
                 Cancel
               </button>
               <button
                 onClick={handleBooking}
                 disabled={!startDate || loading}
-                className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                type="button"
+                aria-label={loading ? 'Processing booking' : 'Continue to Stripe Checkout'}
               >
                 {loading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <div
+                      className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"
+                      role="status"
+                      aria-label="Loading"
+                    >
+                      <span className="sr-only">Processing...</span>
+                    </div>
                     Processing...
                   </>
                 ) : (
                   <>
-                    <CreditCard className="h-4 w-4" />
+                    <CreditCard className="h-4 w-4" aria-hidden="true" />
                     Continue to Stripe Checkout
                   </>
                 )}
