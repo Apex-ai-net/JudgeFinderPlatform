@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
     const { userId } = await auth()
@@ -28,11 +28,12 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const supabase = await createClient()
 
     // Check if user is a member
     const { data: isMember } = await supabase.rpc('is_organization_member', {
-      org_id: params.id,
+      org_id: id,
       clerk_user_id: userId,
     })
 
@@ -44,7 +45,7 @@ export async function GET(
     const { data: org, error: orgError } = await supabase
       .from('organizations')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .is('deleted_at', null)
       .single()
 
@@ -57,13 +58,13 @@ export async function GET(
 
     // Get user's role in this organization
     const { data: userRole } = await supabase.rpc('get_organization_role', {
-      org_id: params.id,
+      org_id: id,
       clerk_user_id: userId,
     })
 
     // Get member count
     const { data: memberCount } = await supabase.rpc('get_organization_member_count', {
-      org_id: params.id,
+      org_id: id,
     })
 
     return NextResponse.json({
@@ -105,7 +106,7 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
     const { userId } = await auth()
@@ -114,13 +115,14 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const body: UpdateOrganizationRequest = await request.json()
 
     const supabase = await createClient()
 
     // Check if user can manage organization
     const { data: canManage } = await supabase.rpc('can_manage_organization', {
-      org_id: params.id,
+      org_id: id,
       clerk_user_id: userId,
     })
 
@@ -146,7 +148,7 @@ export async function PATCH(
       const { data: currentOrg } = await supabase
         .from('organizations')
         .select('settings')
-        .eq('id', params.id)
+        .eq('id', id)
         .single()
 
       if (currentOrg) {
@@ -161,7 +163,7 @@ export async function PATCH(
     const { data: org, error: updateError } = await supabase
       .from('organizations')
       .update(updateData)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -172,7 +174,7 @@ export async function PATCH(
 
     // Log activity
     await supabase.rpc('log_organization_activity', {
-      org_id: params.id,
+      org_id: id,
       clerk_user_id: userId,
       evt_type: 'organization.updated',
       evt_category: 'settings',
@@ -207,7 +209,7 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
     const { userId } = await auth()
@@ -216,11 +218,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const supabase = await createClient()
 
     // Check if user is the owner
     const { data: isOwner } = await supabase.rpc('has_organization_role', {
-      org_id: params.id,
+      org_id: id,
       clerk_user_id: userId,
       required_role: 'owner',
     })
@@ -236,7 +239,7 @@ export async function DELETE(
     const { data: org } = await supabase
       .from('organizations')
       .select('stripe_subscription_id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     // Cancel Stripe subscription if exists
@@ -262,7 +265,7 @@ export async function DELETE(
         status: 'inactive',
         updated_at: new Date().toISOString(),
       })
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (deleteError) {
       console.error('Failed to delete organization:', deleteError)
@@ -271,7 +274,7 @@ export async function DELETE(
 
     // Log activity
     await supabase.rpc('log_organization_activity', {
-      org_id: params.id,
+      org_id: id,
       clerk_user_id: userId,
       evt_type: 'organization.deleted',
       evt_category: 'settings',

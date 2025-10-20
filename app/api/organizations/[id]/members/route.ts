@@ -26,9 +26,10 @@ export const dynamic = 'force-dynamic'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const { id } = await params
     const { userId } = await auth()
 
     if (!userId) {
@@ -39,7 +40,7 @@ export async function GET(
 
     // Check if user is a member
     const { data: isMember } = await supabase.rpc('is_organization_member', {
-      org_id: params.id,
+      org_id: id,
       clerk_user_id: userId,
     })
 
@@ -60,7 +61,7 @@ export async function GET(
         invited_by,
         user:app_users!inner(clerk_user_id, email, full_name)
       `)
-      .eq('organization_id', params.id)
+      .eq('organization_id', id)
       .order('joined_at', { ascending: false })
 
     if (error) {
@@ -97,9 +98,10 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const { id } = await params
     const { userId } = await auth()
 
     if (!userId) {
@@ -128,7 +130,7 @@ export async function POST(
 
     // Check if user can manage organization
     const { data: canManage } = await supabase.rpc('can_manage_organization', {
-      org_id: params.id,
+      org_id: id,
       clerk_user_id: userId,
     })
 
@@ -138,7 +140,7 @@ export async function POST(
 
     // Check member limit
     const { data: atLimit } = await supabase.rpc('is_at_member_limit', {
-      org_id: params.id,
+      org_id: id,
     })
 
     if (atLimit) {
@@ -152,7 +154,7 @@ export async function POST(
     const { data: existingMember } = await supabase
       .from('organization_members')
       .select('id')
-      .eq('organization_id', params.id)
+      .eq('organization_id', id)
       .eq('user_id', body.user_id)
       .single()
 
@@ -177,7 +179,7 @@ export async function POST(
     const { data: member, error: memberError } = await supabase
       .from('organization_members')
       .insert({
-        organization_id: params.id,
+        organization_id: id,
         user_id: body.user_id,
         role: body.role,
         permissions,
@@ -194,7 +196,7 @@ export async function POST(
 
     // Log activity
     await supabase.rpc('log_organization_activity', {
-      org_id: params.id,
+      org_id: id,
       clerk_user_id: userId,
       evt_type: 'member.added',
       evt_category: 'members',
@@ -236,9 +238,10 @@ export async function POST(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const { id } = await params
     const { userId } = await auth()
 
     if (!userId) {
@@ -262,7 +265,7 @@ export async function PATCH(
 
     // Check if user can manage organization
     const { data: canManage } = await supabase.rpc('can_manage_organization', {
-      org_id: params.id,
+      org_id: id,
       clerk_user_id: userId,
     })
 
@@ -275,7 +278,7 @@ export async function PATCH(
       .from('organization_members')
       .select('*')
       .eq('id', memberId)
-      .eq('organization_id', params.id)
+      .eq('organization_id', id)
       .single()
 
     if (!currentMember) {
@@ -330,7 +333,7 @@ export async function PATCH(
 
     // Log activity
     await supabase.rpc('log_organization_activity', {
-      org_id: params.id,
+      org_id: id,
       clerk_user_id: userId,
       evt_type: 'member.updated',
       evt_category: 'members',
@@ -371,9 +374,10 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const { id } = await params
     const { userId } = await auth()
 
     if (!userId) {
@@ -397,7 +401,7 @@ export async function DELETE(
       .from('organization_members')
       .select('*')
       .eq('id', memberId)
-      .eq('organization_id', params.id)
+      .eq('organization_id', id)
       .single()
 
     if (!member) {
@@ -420,7 +424,7 @@ export async function DELETE(
 
     if (!isSelf) {
       const { data: canManage } = await supabase.rpc('can_manage_organization', {
-        org_id: params.id,
+        org_id: id,
         clerk_user_id: userId,
       })
 
@@ -442,7 +446,7 @@ export async function DELETE(
 
     // Log activity
     await supabase.rpc('log_organization_activity', {
-      org_id: params.id,
+      org_id: id,
       clerk_user_id: userId,
       evt_type: isSelf ? 'member.left' : 'member.removed',
       evt_category: 'members',
