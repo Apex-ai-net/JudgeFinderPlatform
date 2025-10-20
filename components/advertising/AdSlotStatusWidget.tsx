@@ -86,7 +86,7 @@ export default function AdSlotStatusWidget(): JSX.Element {
   }
 
   if (!stats) {
-    return null
+    return <div className="hidden" />
   }
 
   const federalStatus = getAvailabilityStatus(stats.federal.percentage)
