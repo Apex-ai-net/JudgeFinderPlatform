@@ -173,7 +173,7 @@ export default function ForAttorneysPage(): JSX.Element {
         <div className="p-6 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
           <h3 className="text-xl font-semibold text-foreground mb-3">Ready to upgrade?</h3>
           <p className="text-muted-foreground mb-4">
-            Get unlimited access to all premium features including exports, advanced analytics, and
+            Get full access to all premium features including exports, advanced analytics, and
             priority support.
           </p>
           <Link

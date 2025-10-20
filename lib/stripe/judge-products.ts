@@ -7,8 +7,8 @@ import { createClient } from '@/lib/supabase/server'
  *
  * Creates and manages Stripe Products for individual judge ad spots
  * Each judge gets unique products with court-level based pricing:
- * - Federal courts: $500/month or $5,000/year
- * - State courts: $200/month or $2,000/year
+ * - Federal judges: $500/month or $5,000/year
+ * - State judges: $500/month or $5,000/year
  */
 
 export interface JudgeAdProductParams {
@@ -31,11 +31,11 @@ export interface JudgeAdPriceInfo {
 const PRICING = {
   federal: {
     monthly: 50000, // $500.00 in cents
-    annual: 500000, // $5,000.00 in cents (10 months free)
+    annual: 500000, // $5,000.00 in cents (2 months free)
   },
   state: {
-    monthly: 20000, // $200.00 in cents
-    annual: 200000, // $2,000.00 in cents (10 months free)
+    monthly: 50000, // $500.00 in cents
+    annual: 500000, // $5,000.00 in cents (2 months free)
   },
 } as const
 
@@ -97,7 +97,7 @@ export async function getOrCreateJudgeAdProduct(
     },
   })
 
-  // Create annual price (10 months for the price of 12)
+  // Create annual price (2 months free - 10 months at monthly rate)
   const annualPrice = await stripe.prices.create({
     product: product.id,
     unit_amount: PRICING[params.courtLevel].annual,

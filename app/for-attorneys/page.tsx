@@ -31,8 +31,8 @@ const sections = [
       'Bar-verified placements with professional credibility indicators',
       'Rotation slots ensure equal visibility among advertisers',
       'Track performance with detailed impressions, clicks, and CTR analytics',
-      'Federal judge profiles ($500/month) for complex litigation matters',
-      'State judge profiles ($200/month) for high-volume local targeting',
+      'Federal judge profiles ($500/month per judge) for complex litigation matters',
+      'State judge profiles ($500/month per judge) for high-volume local targeting',
       'Instant placement within 24 hours of bar verification',
       'Annual billing saves 2 months (16.67% discount)',
     ],
@@ -155,7 +155,7 @@ const comparisonTable = [
   {
     feature: 'Pricing',
     research: 'Premium subscription ($X/month)',
-    advertising: 'Ad placement ($200-$500/month per judge)',
+    advertising: 'Ad placement ($500/month per judge, $1,000/month per court)',
   },
   {
     feature: 'Benefits',
@@ -279,7 +279,7 @@ export default function ForAttorneysPage(): JSX.Element {
               Upgrade to Premium Research
             </h3>
             <p className="text-muted-foreground mb-4">
-              Get unlimited access to all premium features including exports, advanced analytics,
+              Get full access to all premium features including exports, advanced analytics,
               and priority support.
             </p>
             <Link
