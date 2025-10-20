@@ -13,7 +13,7 @@ import { JudgesPagination } from './JudgesPagination'
 
 const GRID_COLUMN_GAP = 24
 const GRID_ROW_GAP = 24
-const CARD_HEIGHT = 320
+const CARD_HEIGHT = 380
 
 interface JudgesDirectoryResultsGridProps {
   viewModel: JudgesDirectoryViewModel

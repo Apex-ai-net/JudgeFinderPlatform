@@ -135,7 +135,7 @@ export function JudgesDirectoryGridCard({
 
             {/* Name */}
             <h3
-              className={`text-lg font-bold text-foreground mb-2 line-clamp-3 min-h-[3.5rem] group-hover:text-primary transition-colors ${onCompareToggle ? 'pr-10' : ''}`}
+              className={`text-lg font-bold text-foreground mb-2 line-clamp-3 min-h-[2rem] group-hover:text-primary transition-colors ${onCompareToggle ? 'pr-10' : ''}`}
             >
               {judge.name}
             </h3>
@@ -143,13 +143,13 @@ export function JudgesDirectoryGridCard({
             {/* Court */}
             <div className="flex items-start gap-2 mb-4">
               <Scale className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
-              <span className="text-sm text-muted-foreground line-clamp-2">
+              <span className="text-sm text-muted-foreground line-clamp-3">
                 {judge.court_name || 'Court not specified'}
               </span>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-border">
+            <div className="grid grid-cols-2 gap-3 mt-auto pt-3 border-t border-border">
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <FileText className="h-3 w-3" />
