@@ -106,7 +106,7 @@ This migration:
 ### 2. Verify Stripe Webhook Configuration
 
 1. Login to [Stripe Dashboard](https://dashboard.stripe.com/webhooks)
-2. Verify endpoint exists: `https://judgefinder.io/api/webhooks/stripe`
+2. Verify endpoint exists: `https://judgefinder.io/api/stripe/webhook`
 3. Verify event subscribed: `checkout.session.completed`
 4. Verify signing secret matches `STRIPE_WEBHOOK_SECRET` in Netlify
 
@@ -348,7 +348,7 @@ npm run type-check
 netlify functions:log api-stripe-webhook
 
 # Test Stripe webhook locally
-stripe listen --forward-to localhost:3000/api/webhooks/stripe
+stripe listen --forward-to localhost:3000/api/stripe/webhook
 ```
 
 ---

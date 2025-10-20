@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyWebhookSignature } from '@/lib/stripe/client'
-import { createServerClient } from '@/lib/supabase/server'
+import { verifyWebhookSignature, getStripeClient } from '@/lib/stripe/client'
+import { createServiceRoleClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/utils/logger'
+import { sendReceiptEmail, sendDunningEmail } from '@/lib/email/mailer'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,13 +53,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         // Extract metadata
         const metadata = session.metadata || {}
-        const { organization_name, ad_type, notes, client_ip, created_at, clerk_user_id } = metadata
+        const { organization_name, ad_type, notes, client_ip, created_at, clerk_user_id, type } = metadata
+
+        // Skip non-ad purchases (e.g., donations)
+        if (type === 'donation') {
+          logger.info('Skipping order creation for donation checkout session', {
+            session_id: session.id,
+          })
+          break
+        }
 
         // Extract customer email from session
         const customer_email = session.customer_details?.email || session.customer_email
 
-        // CRITICAL: Verify clerk_user_id is present
-        if (!clerk_user_id) {
+        // Verify clerk_user_id (strict in production, lenient in dev/test)
+        const isProduction = process.env.NODE_ENV === 'production'
+        if (!clerk_user_id && isProduction) {
           logger.error('Missing clerk_user_id in webhook metadata - blocking order creation', {
             session_id: session.id,
             organization_name,
@@ -74,8 +84,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           )
         }
 
-        // Create order record in database
-        const supabase = await createServerClient()
+        // Create order record in database (service role bypasses RLS)
+        const supabase = await createServiceRoleClient()
 
         // Build insert payload, conditionally including optional fields
         const insertPayload: Record<string, any> = {
@@ -96,10 +106,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             stripe_customer: session.customer,
             ...(clerk_user_id ? { clerk_user_id } : {}),
           },
-        }
-
-        if (clerk_user_id) {
-          insertPayload.created_by = clerk_user_id
         }
 
         const { data: order, error: orderError } = await supabase
@@ -124,9 +130,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             ad_type,
             amount: session.amount_total,
           })
-
-          // Optional: Send confirmation email, update ad slots, etc.
-          // await sendOrderConfirmationEmail(order)
+          // Send receipt email (best-effort)
+          if (customer_email) {
+            await sendReceiptEmail({
+              to: customer_email,
+              amountCents: session.amount_total || 0,
+              currency: session.currency || 'usd',
+              orderId: order.id,
+              sessionId: session.id,
+            })
+          }
         }
 
         break
@@ -137,6 +150,45 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         logger.info('Checkout session expired', {
           session_id: session.id,
         })
+        break
+      }
+
+      case 'invoice.payment_succeeded': {
+        const invoice = event.data.object
+        const to = invoice.customer_email
+        if (to) {
+          await sendReceiptEmail({
+            to,
+            amountCents: invoice.amount_paid || 0,
+            currency: invoice.currency || 'usd',
+            sessionId: invoice.id,
+          })
+        }
+        break
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object
+        // Try to get a contact email
+        let to = invoice.customer_email as string | undefined
+        if (!to) {
+          try {
+            const stripe = getStripeClient()
+            const customer = await stripe.customers.retrieve(invoice.customer as string)
+            if (!('deleted' in customer)) {
+              to = customer.email || undefined
+            }
+          } catch (_) {}
+        }
+        if (to) {
+          await sendDunningEmail({
+            to,
+            amountCents: invoice.amount_due || 0,
+            invoiceUrl: invoice.hosted_invoice_url,
+            attemptCount: invoice.attempt_count || 0,
+            nextAttemptAt: invoice.next_payment_attempt || null,
+          })
+        }
         break
       }
 

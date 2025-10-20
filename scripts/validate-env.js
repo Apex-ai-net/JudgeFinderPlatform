@@ -184,6 +184,17 @@ function validateEnvironment() {
   printResults(paymentsResults)
   allResults.push(paymentsResults)
 
+  // Conditional requirements: universal purchase requires price IDs
+  const universalEnabledRaw = process.env.UNIVERSAL_PURCHASE_ENABLED || process.env.NEXT_PUBLIC_UNIVERSAL_PURCHASE_ENABLED
+  const universalEnabled = /^(1|true|yes)$/i.test(String(universalEnabledRaw || 'false'))
+  if (universalEnabled) {
+    const universalRequired = ['STRIPE_PRICE_MONTHLY', 'STRIPE_PRICE_YEARLY']
+    const universalResults = validateCategory('Universal Purchase (Conditional)', universalRequired, true)
+    printResults(universalResults)
+    allResults.push(universalResults)
+    if (universalResults.missing.length > 0) hasErrors = true
+  }
+
   const apisResults = validateCategory('External APIs', REQUIRED_VARS.apis, false)
   printResults(apisResults)
   allResults.push(apisResults)

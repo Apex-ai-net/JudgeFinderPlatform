@@ -20,6 +20,7 @@ function JudgeCheckoutContent() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [promoCode, setPromoCode] = useState('')
 
   // Calculate pricing
   const pricing = {
@@ -61,6 +62,7 @@ function JudgeCheckoutContent() {
           court_level: courtLevel,
           ad_position: parseInt(position),
           notes: `Booking for Judge ${judgeName} - Rotation Slot ${position}`,
+          promo_code: promoCode || undefined,
         }),
       })
 
@@ -239,7 +241,7 @@ function JudgeCheckoutContent() {
               </div>
 
               {/* Summary */}
-              <div className="border-t border-border pt-4 mb-6">
+            <div className="border-t border-border pt-4 mb-6">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-muted-foreground">Ad Spot</span>
                   <span className="text-sm font-medium text-foreground">Rotation #{position}</span>
@@ -279,6 +281,26 @@ function JudgeCheckoutContent() {
                   </>
                 )}
               </button>
+
+              {/* Promo Code */}
+              <div className="mt-4">
+                <label htmlFor="promo_code" className="block text-sm font-medium text-foreground mb-2">
+                  Promo Code (Optional)
+                </label>
+                <input
+                  id="promo_code"
+                  type="text"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value)}
+                  placeholder="Enter code (e.g., ONECENT)"
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  autoComplete="off"
+                  disabled={loading}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  If valid, the discount applies automatically at checkout.
+                </p>
+              </div>
 
               {error && (
                 <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 flex items-start gap-2">

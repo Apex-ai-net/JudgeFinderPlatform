@@ -182,7 +182,7 @@ All environment variables confirmed in production:
 
 **Webhook Handler Created**:
 
-- `app/api/webhooks/stripe/route.ts` (369 lines)
+- `app/api/stripe/webhook/route.ts`
 - Handles subscription lifecycle events
 - Comprehensive error handling
 - Non-failing database operations
@@ -190,7 +190,7 @@ All environment variables confirmed in production:
 **Test Suite Created**:
 
 - `tests/integration/stripe-flow.test.ts` - End-to-end checkout testing
-- `tests/unit/api/webhooks/stripe/route.test.ts` - Webhook handler unit tests
+- `tests/unit/api/stripe-webhook.test.ts` - Webhook handler unit tests
 - `tests/unit/stripe/client.test.ts` - Stripe client unit tests
 - `tests/helpers/stripe.ts` - Reusable test utilities
 
@@ -292,7 +292,7 @@ All required environment variables set across all contexts:
 
 1. Navigate to [Stripe Dashboard > Webhooks](https://dashboard.stripe.com/webhooks)
 2. Click "Add endpoint"
-3. Set endpoint URL: `https://judgefinder.io/api/webhooks/stripe`
+3. Set endpoint URL: `https://judgefinder.io/api/stripe/webhook`
 4. Select events to listen for:
    - `customer.subscription.created`
    - `customer.subscription.updated`

@@ -73,7 +73,7 @@ if (!userId) {
 **Expected (per docs)**: `ad_orders` table for purchases
 **Actual**: `subscriptions` table (subscription lifecycle only)
 
-**Webhook Handler** (`app/api/webhooks/stripe/route.ts:122-143`):
+**Webhook Handler** (`app/api/stripe/webhook/route.ts`):
 
 ```typescript
 switch (event.type) {
@@ -212,7 +212,7 @@ const handleProceedToCheckout = async () => {
 
 ### 2. 🔴 CRITICAL: Add Webhook Handler for Purchases
 
-**File**: `app/api/webhooks/stripe/route.ts`
+**File**: `app/api/stripe/webhook/route.ts`
 **Action**: Handle `checkout.session.completed` event
 
 ```typescript

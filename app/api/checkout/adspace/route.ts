@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth, currentUser, clerkClient } from '@clerk/nextjs/server'
-import { createCheckoutSession, isStripeConfigured, getStripeClient } from '@/lib/stripe/client'
+import { createCheckoutSession, getStripeClient } from '@/lib/stripe/client'
 import { logger } from '@/lib/utils/logger'
 
 export const dynamic = 'force-dynamic'
@@ -63,13 +63,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       stripeCustomerId = user.privateMetadata?.stripe_customer_id as string | undefined
     }
 
-    // Check Stripe configuration
-    if (!isStripeConfigured()) {
-      logger.error('Stripe not configured - cannot create checkout session')
+    // Check Stripe configuration (flexible by flow)
+    const hasSecret = !!process.env.STRIPE_SECRET_KEY
+    const hasWebhook = !!process.env.STRIPE_WEBHOOK_SECRET
+    if (!hasSecret || !hasWebhook) {
+      logger.error('Stripe not configured - missing secret or webhook secret', {
+        hasSecret,
+        hasWebhook,
+      })
       return NextResponse.json(
-        {
-          error: 'Payment system not configured. Please contact support.',
-        },
+        { error: 'Payment system not configured. Please contact support.' },
         { status: 503 }
       )
     }
@@ -106,19 +109,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       court_level,
       ad_position,
       billing_cycle,
+      promo_code,
     } = body
 
-    if (!organization_name || !email || !ad_type) {
+    // Default ad_type for universal access if not provided
+    const effectiveAdType: 'judge-profile' | 'court-listing' | 'featured-spot' =
+      ad_type || 'featured-spot'
+
+    if (!organization_name || !email) {
       return NextResponse.json(
         {
-          error: 'Missing required fields: organization_name, email, ad_type',
+          error: 'Missing required fields: organization_name, email',
         },
         { status: 400 }
       )
     }
 
     // Validate judge-specific fields for judge-profile ads
-    if (ad_type === 'judge-profile') {
+    if (effectiveAdType === 'judge-profile') {
       if (!judge_id || !judge_name || !court_level) {
         return NextResponse.json(
           {
@@ -160,7 +168,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Validate ad type
     const validAdTypes = ['judge-profile', 'court-listing', 'featured-spot'] as const
-    if (!validAdTypes.includes(ad_type)) {
+    if (!validAdTypes.includes(effectiveAdType)) {
       return NextResponse.json(
         {
           error: `Invalid ad_type. Must be one of: ${validAdTypes.join(', ')}`,
@@ -202,14 +210,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || 'https://judgefinder.io'
 
+    // Determine universal price when not judge-specific
+    let priceId: string | undefined
+    const cycle = (billing_cycle || 'monthly') as 'monthly' | 'annual'
+    if (effectiveAdType !== 'judge-profile') {
+      const priceMonthly = process.env.STRIPE_PRICE_MONTHLY
+      const priceYearly = process.env.STRIPE_PRICE_YEARLY
+      if (!priceMonthly || !priceYearly) {
+        logger.error('Universal price IDs missing', {
+          hasMonthly: !!priceMonthly,
+          hasYearly: !!priceYearly,
+        })
+        return NextResponse.json(
+          { error: 'Payment pricing not configured. Please contact support.' },
+          { status: 503 }
+        )
+      }
+      priceId = cycle === 'annual' ? priceYearly : priceMonthly
+    }
+
     // Create Stripe Checkout session with linked customer
     const session = await createCheckoutSession({
       ...(stripeCustomerId ? { customer: stripeCustomerId } : { customer_email: email }),
+      ...(priceId ? { priceId } : {}),
+      ...(promo_code ? { promotionCode: String(promo_code) } : {}),
       success_url: `${baseUrl}/ads/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/ads/buy?canceled=true`,
-      billing_cycle: billing_cycle || 'monthly',
+      billing_cycle: cycle,
       // Pass judge-specific parameters for product/price creation
-      ...(ad_type === 'judge-profile' && {
+      ...(effectiveAdType === 'judge-profile' && {
         judge_id,
         judge_name,
         court_name,
@@ -217,12 +246,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }),
       metadata: {
         organization_name,
-        ad_type,
+        ad_type: effectiveAdType,
         notes: notes || '',
         client_ip: clientIp,
         created_at: new Date().toISOString(),
+        ...(userId ? { clerk_user_id: userId } : {}),
         // Judge-specific metadata for ad subscriptions
-        ...(ad_type === 'judge-profile' && {
+        ...(effectiveAdType === 'judge-profile' && {
           judge_id: judge_id!,
           judge_name: judge_name!,
           court_name: court_name || '',
@@ -236,8 +266,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       session_id: session.id,
       organization_name,
       email,
-      ad_type,
-      ...(ad_type === 'judge-profile' && {
+      ad_type: effectiveAdType,
+      ...(effectiveAdType === 'judge-profile' && {
         judge_id,
         judge_name,
         court_level,

@@ -76,7 +76,7 @@ curl -X POST https://judgefinder.io/api/checkout/adspace \
 **Prerequisites:**
 
 - [ ] Supabase migration applied (`20251015_002_auth_gated_ad_orders.sql`)
-- [ ] Stripe webhook configured (point to `/api/webhooks/stripe`)
+- [ ] Stripe webhook configured (point to `/api/stripe/webhook`)
 - [ ] Test mode Stripe card: `4242 4242 4242 4242`
 
 **Steps:**
@@ -168,7 +168,7 @@ SELECT COUNT(*) FROM ad_orders;
 ```
 1. Login to Stripe Dashboard
 2. Navigate to Developers → Webhooks
-3. Verify endpoint exists: https://judgefinder.io/api/webhooks/stripe
+3. Verify endpoint exists: https://judgefinder.io/api/stripe/webhook
 4. Verify event subscribed: checkout.session.completed
 5. Verify signing secret matches STRIPE_WEBHOOK_SECRET
 ```
@@ -285,7 +285,7 @@ stripe trigger checkout.session.completed \
 
 2. **Verify Stripe Webhook Endpoint**
    - Stripe Dashboard → Webhooks
-   - Endpoint: `https://judgefinder.io/api/webhooks/stripe`
+   - Endpoint: `https://judgefinder.io/api/stripe/webhook`
    - Event: `checkout.session.completed`
 
 3. **Run Manual Test Suite** (above checklist)

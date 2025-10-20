@@ -137,7 +137,7 @@ STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET
 1. Go to [Stripe Dashboard](https://dashboard.stripe.com)
 2. Developers → API Keys
 3. Use LIVE mode keys for production
-4. Configure webhooks endpoint: `https://judgefinder.io/api/webhooks/stripe`
+4. Configure webhooks endpoint: `https://judgefinder.io/api/stripe/webhook`
 
 #### AI Services
 

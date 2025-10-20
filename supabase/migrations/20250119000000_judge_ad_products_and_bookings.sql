@@ -71,10 +71,10 @@ CREATE TABLE IF NOT EXISTS ad_spot_bookings (
   updated_at timestamptz NOT NULL DEFAULT now(),
 
   -- Metadata for tracking
-  metadata jsonb DEFAULT '{}'::jsonb,
+  metadata jsonb DEFAULT '{}'::jsonb
 
-  -- Prevent double-booking: only one active booking per judge per position
-  CONSTRAINT unique_active_booking UNIQUE(judge_id, position) WHERE (status IN ('active', 'trialing', 'past_due'))
+  -- Note: Double-booking prevention is enforced via partial unique index below
+  -- See: idx_ad_bookings_unique_active
 );
 
 -- Indexes for performance
@@ -82,7 +82,11 @@ CREATE INDEX idx_ad_bookings_judge ON ad_spot_bookings(judge_id);
 CREATE INDEX idx_ad_bookings_advertiser ON ad_spot_bookings(advertiser_id);
 CREATE INDEX idx_ad_bookings_stripe_sub ON ad_spot_bookings(stripe_subscription_id);
 CREATE INDEX idx_ad_bookings_status ON ad_spot_bookings(status);
-CREATE INDEX idx_ad_bookings_active ON ad_spot_bookings(judge_id, position) WHERE status IN ('active', 'trialing');
+
+-- Partial unique index to prevent double-booking (only one active booking per judge per position)
+CREATE UNIQUE INDEX idx_ad_bookings_unique_active
+  ON ad_spot_bookings(judge_id, position)
+  WHERE status IN ('active', 'trialing', 'past_due');
 
 -- Row Level Security
 ALTER TABLE ad_spot_bookings ENABLE ROW LEVEL SECURITY;

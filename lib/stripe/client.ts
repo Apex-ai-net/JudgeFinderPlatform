@@ -75,6 +75,7 @@ export async function createCheckoutSession(params: {
   judge_name?: string
   court_name?: string
   court_level?: 'federal' | 'state'
+  promotionCode?: string // Optional: code like "ONECENT" or promo_ ID
 }): Promise<Stripe.Checkout.Session> {
   if (!stripe) {
     throw new Error('Stripe not configured')
@@ -110,6 +111,27 @@ export async function createCheckoutSession(params: {
     )
   }
 
+  // Resolve optional promotion code
+  let discounts: Stripe.Checkout.SessionCreateParams.Discount[] | undefined
+  if (params.promotionCode) {
+    try {
+      const supplied = params.promotionCode.trim()
+      let promoId: string | null = null
+      if (supplied.startsWith('promo_')) {
+        promoId = supplied
+      } else {
+        const list = await stripe.promotionCodes.list({ code: supplied, active: true, limit: 1 })
+        promoId = list.data[0]?.id || null
+      }
+      if (promoId) {
+        discounts = [{ promotion_code: promoId }]
+      }
+    } catch (e) {
+      // Non-fatal: fall back to allow_promotion_codes UI entry
+      // console.warn('Failed to resolve promotion code', e)
+    }
+  }
+
   return await stripe.checkout.sessions.create({
     mode: 'subscription',
     payment_method_types: ['card'],
@@ -130,6 +152,7 @@ export async function createCheckoutSession(params: {
     cancel_url: params.cancel_url,
     metadata: params.metadata || {},
     allow_promotion_codes: true,
+    ...(discounts ? { discounts } : {}),
     billing_address_collection: 'required',
     subscription_data: {
       metadata: params.metadata || {},

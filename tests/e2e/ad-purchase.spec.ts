@@ -223,7 +223,7 @@ test.describe('Ad Purchase Flow', () => {
  */
 test.describe('Stripe Webhook Processing', () => {
   test('webhook endpoint requires valid signature', async ({ request }) => {
-    const response = await request.post('/api/webhooks/stripe', {
+    const response = await request.post('/api/stripe/webhook', {
       headers: {
         'content-type': 'application/json',
         // Missing stripe-signature header

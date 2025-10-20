@@ -29,6 +29,7 @@ export function PurchaseAdForm({ searchParams }: PurchaseAdFormProps) {
     email: '',
     billing_cycle: 'monthly' as 'monthly' | 'annual',
     notes: '',
+    promo_code: '',
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -139,6 +140,25 @@ export function PurchaseAdForm({ searchParams }: PurchaseAdFormProps) {
             placeholder="Your Law Firm or Company"
             disabled={isSubmitting}
           />
+        </div>
+
+        {/* Promo Code */}
+        <div>
+          <label htmlFor="promo_code" className="block text-sm font-medium text-foreground mb-2">
+            Promo Code (Optional)
+          </label>
+          <input
+            type="text"
+            id="promo_code"
+            name="promo_code"
+            value={formData.promo_code}
+            onChange={(e) => setFormData({ ...formData, promo_code: e.target.value })}
+            className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            placeholder="Enter code (e.g., ONECENT)"
+            disabled={isSubmitting}
+            autoComplete="off"
+          />
+          <p className="mt-1 text-xs text-muted-foreground">Promotion codes apply automatically when valid.</p>
         </div>
 
         {/* Email */}

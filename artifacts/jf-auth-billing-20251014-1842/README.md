@@ -71,7 +71,7 @@ This directory contains all artifacts generated during the implementation of aut
    - Verify all 6 required vars in Netlify (see DEPLOYMENT_COMPLETE.md)
 
 2. **Stripe Webhook:**
-   - Configure endpoint: `https://judgefinder.io/api/webhooks/stripe`
+   - Configure endpoint: `https://judgefinder.io/api/stripe/webhook`
    - Event: `checkout.session.completed`
 
 ---

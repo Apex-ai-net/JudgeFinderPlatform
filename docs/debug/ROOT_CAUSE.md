@@ -112,7 +112,7 @@ const handleProceedToCheckout = async () => {
 
 ---
 
-### 2. `app/api/webhooks/stripe/route.ts`
+### 2. `app/api/stripe/webhook/route.ts`
 
 **Changes**:
 
@@ -235,7 +235,7 @@ curl https://judgefinder.io/api/admin/stripe-status
 
 ```bash
 # Use Stripe CLI
-stripe listen --forward-to localhost:3000/api/webhooks/stripe
+stripe listen --forward-to localhost:3000/api/stripe/webhook
 stripe trigger checkout.session.completed
 
 # Check logs for:
