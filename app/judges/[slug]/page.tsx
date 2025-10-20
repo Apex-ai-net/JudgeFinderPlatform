@@ -24,6 +24,7 @@ import { JudgeDetailTOC } from '@/components/judges/JudgeDetailTOC'
 import { JudgeStructuredData } from '@/components/seo/JudgeStructuredData'
 import KeyFacts from '@/components/judges/KeyFacts'
 import AnalyticsDisclaimer from '@/components/judges/AnalyticsDisclaimer'
+import AdvertisingCTA from '@/components/advertising/AdvertisingCTA'
 
 export const dynamic = 'force-dynamic'
 
@@ -387,6 +388,18 @@ export default async function JudgePage({ params }: JudgePageProps): Promise<JSX
                 }
               />
             </div>
+
+            {/* Advertising CTA for attorneys */}
+            <AdvertisingCTA
+              judgeName={safeName}
+              courtLevel={
+                judge.court_name?.toLowerCase().includes('federal') ||
+                judge.court_name?.toLowerCase().includes('district court')
+                  ? 'federal'
+                  : 'state'
+              }
+              variant="inline"
+            />
 
             <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
               <h3 className="text-sm font-semibold text-foreground mb-2">Keep research free</h3>

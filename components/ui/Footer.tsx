@@ -31,6 +31,15 @@ export function Footer(): JSX.Element {
       ],
     },
     {
+      title: 'For Attorneys',
+      icon: TrendingUp,
+      links: [
+        { href: '/for-attorneys', label: 'Attorney Resources' },
+        { href: '/advertise', label: 'Advertise Your Firm' },
+        { href: '/pricing', label: 'Premium Subscription' },
+      ],
+    },
+    {
       title: 'Top Counties',
       icon: MapPin,
       links: [
@@ -40,21 +49,13 @@ export function Footer(): JSX.Element {
       ],
     },
     {
-      title: 'Resources',
-      icon: TrendingUp,
-      links: [
-        { href: '/about', label: 'About Us' },
-        { href: '/analytics', label: 'Analytics' },
-        { href: '/sitemap.xml', label: 'Sitemap' },
-      ],
-    },
-    {
       title: 'Legal',
       icon: FileText,
       links: [
         { href: '/privacy', label: 'Privacy Policy' },
         { href: '/terms', label: 'Terms of Service' },
         { href: '/contact', label: 'Contact' },
+        { href: '/docs/ads-policy', label: 'Advertising Policy' },
       ],
     },
   ]

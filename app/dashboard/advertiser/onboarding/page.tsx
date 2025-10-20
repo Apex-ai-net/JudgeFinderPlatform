@@ -2,13 +2,25 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Building, User, Shield, ArrowRight, Check, TrendingUp } from 'lucide-react'
+import {
+  Building,
+  User,
+  Shield,
+  ArrowRight,
+  Check,
+  TrendingUp,
+  ExternalLink,
+  AlertCircle,
+  CheckCircle,
+  Info,
+} from 'lucide-react'
 
 export default function AdvertiserOnboardingPage(): JSX.Element {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [barNumberValid, setBarNumberValid] = useState<boolean | null>(null)
 
   const [formData, setFormData] = useState({
     firm_name: '',
@@ -46,6 +58,28 @@ export default function AdvertiserOnboardingPage(): JSX.Element {
     'Tax Law',
     'Civil Litigation',
   ]
+
+  // Validate bar number format
+  function validateBarNumber(barNum: string): boolean {
+    // Basic validation: alphanumeric, 4-12 characters
+    const cleaned = barNum.trim().replace(/[\s-]/g, '')
+    if (cleaned.length < 4 || cleaned.length > 12) {
+      return false
+    }
+    return /^[A-Za-z0-9]+$/.test(cleaned)
+  }
+
+  function handleBarNumberChange(value: string): void {
+    setFormData({ ...formData, bar_number: value })
+
+    // Real-time validation
+    if (value.trim().length > 0) {
+      const isValid = validateBarNumber(value)
+      setBarNumberValid(isValid)
+    } else {
+      setBarNumberValid(null)
+    }
+  }
 
   async function handleSubmit(): Promise<void> {
     try {
@@ -210,19 +244,65 @@ export default function AdvertiserOnboardingPage(): JSX.Element {
                 <h2 className="text-2xl font-semibold text-gray-900">Professional Verification</h2>
               </div>
 
+              {/* Bar Verification Info */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm">
+                    <p className="font-medium text-blue-900 mb-1">Why do we verify bar numbers?</p>
+                    <p className="text-blue-800">
+                      All advertisers must be verified through the California State Bar to ensure
+                      ethical compliance with California Rules of Professional Conduct. Your bar
+                      status link will be displayed on your advertisement for transparency.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Bar Number *
                   </label>
-                  <input
-                    type="text"
-                    value={formData.bar_number}
-                    onChange={(e) => setFormData({ ...formData, bar_number: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="123456"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={formData.bar_number}
+                      onChange={(e) => handleBarNumberChange(e.target.value)}
+                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 pr-10 ${
+                        barNumberValid === true
+                          ? 'border-green-500 focus:ring-green-500'
+                          : barNumberValid === false
+                            ? 'border-red-500 focus:ring-red-500'
+                            : 'border-gray-300 focus:ring-blue-500'
+                      }`}
+                      placeholder="123456"
+                      required
+                    />
+                    {barNumberValid === true && (
+                      <CheckCircle className="absolute right-3 top-3 h-5 w-5 text-green-500" />
+                    )}
+                    {barNumberValid === false && (
+                      <AlertCircle className="absolute right-3 top-3 h-5 w-5 text-red-500" />
+                    )}
+                  </div>
+                  {barNumberValid === false && (
+                    <p className="mt-1 text-xs text-red-600">
+                      Invalid format. Must be 4-12 alphanumeric characters.
+                    </p>
+                  )}
+                  {barNumberValid === true && (
+                    <p className="mt-1 text-xs text-green-600">Valid format</p>
+                  )}
+                  <a
+                    href="https://apps.calbar.ca.gov/attorney/LicenseeSearch/QuickSearch"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 text-xs text-blue-600 hover:underline flex items-center gap-1"
+                  >
+                    Look up your bar number
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
                 </div>
 
                 <div>
@@ -239,6 +319,40 @@ export default function AdvertiserOnboardingPage(): JSX.Element {
                     <option value="TX">Texas</option>
                     <option value="FL">Florida</option>
                   </select>
+                </div>
+              </div>
+
+              {/* Verification Timeline */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-blue-600" />
+                  What happens next
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-start gap-2">
+                    <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-semibold text-blue-600">1</span>
+                    </div>
+                    <span className="text-gray-700">
+                      Submit your onboarding information (3 minutes)
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-semibold text-blue-600">2</span>
+                    </div>
+                    <span className="text-gray-700">
+                      Bar verification (typically 24-48 hours)
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-semibold text-blue-600">3</span>
+                    </div>
+                    <span className="text-gray-700">
+                      Your ads go live within 24 hours of verification
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -295,7 +409,7 @@ export default function AdvertiserOnboardingPage(): JSX.Element {
                 </button>
                 <button
                   onClick={() => setStep(3)}
-                  disabled={!formData.bar_number}
+                  disabled={!formData.bar_number || barNumberValid === false}
                   className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   Next
