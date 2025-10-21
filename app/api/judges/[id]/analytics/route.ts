@@ -43,10 +43,13 @@ const MATERIALIZED_VIEW_FRESHNESS_HOURS = 24
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Resolve params once at the top
+    const resolvedParams = await params
+    const judgeKey = resolvedParams.id
+
     // Rate limit per IP per judge analytics
     const rl = buildRateLimiter({ tokens: 20, window: '1 m', prefix: 'api:judge-analytics' })
     const ip = getClientIp(request)
-    const judgeKey = (await params).id
     const { success, remaining } = await rl.limit(`${ip}:${judgeKey}`)
     if (!success) {
       return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
@@ -68,7 +71,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       })
     }
 
-    const resolvedParams = await params
     const supabase = await createServiceRoleClient()
 
     // Get judge data - only fields needed for analytics generation
