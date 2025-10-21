@@ -1,323 +1,222 @@
-# Database Migration Instructions - Practice Areas
+# ✅ COMPLETED - Database Migration Instructions
 
-**Migration:** `20251017_add_practice_areas_to_app_users.sql`
-**Date:** October 17, 2025
-**Purpose:** Add `practice_areas` JSONB column to support Practice Areas dashboard feature
+## Migration: claim_next_sync_job RPC Function
+
+**Status:** ✅ COMPLETED on 2025-10-20 via Supabase Dashboard
+**Applied by:** Tanner Osterkamp
+**Method:** Option 2 (Supabase SQL Editor)
+
+This migration fixes the HIGH severity race condition in the queue manager by creating an atomic job claiming function.
+
+---
+
+## Option 1: Run via API Endpoint (Easiest)
+
+1. **Deploy the code** (already pushed to GitHub)
+   ```bash
+   # Code is already deployed via Netlify auto-deploy
+   ```
+
+2. **Call the migration endpoint** (must be logged in as admin)
+   ```bash
+   curl -X POST https://judgefinder.io/api/admin/run-migration \
+     -H "Cookie: your-session-cookie"
+   ```
+
+   Or visit in browser (while logged in as admin):
+   ```
+   https://judgefinder.io/api/admin/run-migration
+   ```
+
+3. **Verify success** - You should see:
+   ```json
+   {
+     "success": true,
+     "message": "Migration completed successfully"
+   }
+   ```
+
+4. **Delete the migration endpoint**
+   ```bash
+   rm app/api/admin/run-migration/route.ts
+   git add app/api/admin/run-migration/route.ts
+   git commit -m "chore: remove one-time migration endpoint"
+   git push
+   ```
+
+---
+
+## Option 2: Run via Supabase Dashboard (Recommended if Option 1 fails)
+
+1. **Go to Supabase Dashboard**
+   - Visit: https://supabase.com/dashboard/project/YOUR_PROJECT_ID/sql/new
+
+2. **Copy and paste this SQL:**
+
+```sql
+-- Migration: Add atomic claim_next_sync_job RPC function
+-- Purpose: Fix race condition in queue manager by using PostgreSQL row-level locking
+-- Security: Prevents multiple workers from claiming the same job
+
+-- Create RPC function to atomically claim next pending job
+CREATE OR REPLACE FUNCTION claim_next_sync_job(current_time timestamptz)
+RETURNS TABLE (
+  id text,
+  type text,
+  status text,
+  options jsonb,
+  priority integer,
+  scheduled_for timestamptz,
+  started_at timestamptz,
+  completed_at timestamptz,
+  result jsonb,
+  error_message text,
+  retry_count integer,
+  max_retries integer,
+  created_at timestamptz,
+  updated_at timestamptz
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  claimed_job RECORD;
+BEGIN
+  -- Atomically find and claim the next pending job
+  -- FOR UPDATE SKIP LOCKED prevents race conditions:
+  -- - FOR UPDATE locks the row for update
+  -- - SKIP LOCKED skips rows locked by other transactions
+  -- This ensures only one worker claims each job
+
+  UPDATE sync_queue
+  SET
+    status = 'running',
+    started_at = NOW(),
+    updated_at = NOW()
+  WHERE sync_queue.id = (
+    SELECT sync_queue.id
+    FROM sync_queue
+    WHERE sync_queue.status = 'pending'
+      AND sync_queue.scheduled_for <= current_time
+    ORDER BY sync_queue.priority DESC, sync_queue.created_at ASC
+    LIMIT 1
+    FOR UPDATE SKIP LOCKED
+  )
+  RETURNING * INTO claimed_job;
+
+  -- Return the claimed job or NULL if no jobs available
+  IF claimed_job.id IS NOT NULL THEN
+    RETURN QUERY SELECT
+      claimed_job.id,
+      claimed_job.type,
+      claimed_job.status,
+      claimed_job.options,
+      claimed_job.priority,
+      claimed_job.scheduled_for,
+      claimed_job.started_at,
+      claimed_job.completed_at,
+      claimed_job.result,
+      claimed_job.error_message,
+      claimed_job.retry_count,
+      claimed_job.max_retries,
+      claimed_job.created_at,
+      claimed_job.updated_at;
+  END IF;
+END;
+$$;
+
+-- Grant execute permission to all roles
+GRANT EXECUTE ON FUNCTION claim_next_sync_job(timestamptz) TO service_role;
+GRANT EXECUTE ON FUNCTION claim_next_sync_job(timestamptz) TO anon;
+GRANT EXECUTE ON FUNCTION claim_next_sync_job(timestamptz) TO authenticated;
+
+-- Add comment explaining the function
+COMMENT ON FUNCTION claim_next_sync_job IS 'Atomically claims the next pending sync job using row-level locking to prevent race conditions. Uses FOR UPDATE SKIP LOCKED to ensure only one worker processes each job.';
+```
+
+3. **Click "Run"**
+
+4. **Verify success** - You should see:
+   ```
+   Success. No rows returned
+   ```
+
+---
+
+## Option 3: Install Supabase CLI (For future migrations)
+
+```bash
+# Install Supabase CLI
+brew install supabase/tap/supabase
+
+# Login
+supabase login
+
+# Link to your project
+supabase link --project-ref YOUR_PROJECT_REF
+
+# Run all pending migrations
+supabase db push
+```
+
+---
+
+## ✅ Verification Results
+
+**Migration verified successfully on 2025-10-20:**
+
+### Supabase SQL Editor Test Results:
+
+```sql
+-- ✅ Function exists
+SELECT routine_name, routine_type
+FROM information_schema.routines
+WHERE routine_name = 'claim_next_sync_job';
+-- Result: claim_next_sync_job | FUNCTION
+
+-- ✅ Function works (claimed a job from backlog)
+SELECT * FROM claim_next_sync_job(NOW());
+-- Result: Successfully claimed job and changed status from 'pending' to 'running'
+```
+
+### Application Status:
+
+✅ The queue manager ([queue-manager.ts](lib/sync/queue-manager.ts)) will NO LONGER show this warning:
+```
+[SECURITY] claim_next_sync_job RPC not found - using unsafe fallback
+```
+
+The atomic RPC function is now the primary method for claiming jobs in production.
 
 ---
 
 ## What This Migration Does
 
-1. ✅ Adds `practice_areas` JSONB column to `app_users` table
-2. ✅ Sets default value to empty array `[]`
-3. ✅ Adds GIN index for efficient JSONB queries
-4. ✅ Includes verification checks
-5. ✅ Safe to run multiple times (idempotent)
+1. **Creates PostgreSQL Function**: `claim_next_sync_job(timestamptz)`
+   - Atomically finds next pending job
+   - Locks it using `FOR UPDATE SKIP LOCKED`
+   - Updates status to 'running'
+   - Returns the claimed job
+
+2. **Security Features**:
+   - Only one worker can claim each job (atomic operation)
+   - No race window between SELECT and UPDATE
+   - `SKIP LOCKED` prevents workers from waiting on locked rows
+   - `SECURITY DEFINER` ensures proper execution context
+
+3. **Permissions**:
+   - Grants execute to service_role (queue manager)
+   - Grants execute to authenticated (admin testing)
+   - Grants execute to anon (for public API if needed)
 
 ---
 
-## Option 1: Run via Supabase Dashboard (Recommended)
-
-### Steps:
-
-1. **Open Supabase SQL Editor**
-   - Go to: https://supabase.com/dashboard/project/lgmqmpmaqkuwybqpofwc/sql
-   - Or: Project → SQL Editor → New Query
-
-2. **Copy Migration SQL**
-   - Open: `supabase/migrations/20251017_add_practice_areas_to_app_users.sql`
-   - Copy entire contents
-
-3. **Paste and Execute**
-   - Paste SQL into Supabase SQL Editor
-   - Click "Run" or press `Ctrl/Cmd + Enter`
-
-4. **Verify Success**
-   - You should see: `✓ SUCCESS: practice_areas column and index created successfully`
-   - Check the "Results" tab for confirmation
-
----
-
-## Option 2: Run via Supabase CLI
-
-### Prerequisites:
-
-```bash
-# Install Supabase CLI if not already installed
-npm install -g supabase
-
-# Login to Supabase
-supabase login
-```
-
-### Steps:
-
-```bash
-# Navigate to project directory
-cd /Users/tannerosterkamp/JudgeFinder/JudgeFinderPlatform
-
-# Link to your Supabase project (if not already linked)
-supabase link --project-ref lgmqmpmaqkuwybqpofwc
-
-# Run the migration
-supabase db push
-
-# Alternative: Run specific migration file
-psql "$DATABASE_URL" -f supabase/migrations/20251017_add_practice_areas_to_app_users.sql
-```
-
----
-
-## Option 3: Run via psql (Direct Database Connection)
-
-### Steps:
-
-1. **Get Database Connection String**
-   - Go to: Project Settings → Database → Connection String
-   - Copy the connection string (starts with `postgresql://`)
-
-2. **Run Migration**
-   ```bash
-   # Replace with your actual connection string
-   psql "postgresql://postgres:[YOUR-PASSWORD]@db.lgmqmpmaqkuwybqpofwc.supabase.co:5432/postgres" \
-     -f supabase/migrations/20251017_add_practice_areas_to_app_users.sql
-   ```
-
----
-
-## Verification Queries
-
-After running the migration, verify it worked:
-
-### 1. Check Column Exists
-
-```sql
-SELECT
-  column_name,
-  data_type,
-  column_default,
-  is_nullable
-FROM information_schema.columns
-WHERE table_schema = 'public'
-  AND table_name = 'app_users'
-  AND column_name = 'practice_areas';
-```
-
-**Expected Result:**
-
-```
-column_name     | data_type | column_default | is_nullable
-----------------+-----------+----------------+-------------
-practice_areas  | jsonb     | '[]'::jsonb    | NO
-```
-
-### 2. Check Index Exists
-
-```sql
-SELECT
-  indexname,
-  indexdef
-FROM pg_indexes
-WHERE schemaname = 'public'
-  AND tablename = 'app_users'
-  AND indexname = 'idx_app_users_practice_areas';
-```
-
-**Expected Result:**
-
-```
-indexname                       | indexdef
---------------------------------+--------------------------------------------------
-idx_app_users_practice_areas    | CREATE INDEX ... USING gin (practice_areas)
-```
-
-### 3. Test Insert
-
-```sql
--- Test inserting practice areas
-UPDATE app_users
-SET practice_areas = '["criminal", "civil"]'::jsonb
-WHERE id = (SELECT id FROM app_users LIMIT 1)
-RETURNING id, practice_areas;
-```
-
-### 4. Test Query
-
-```sql
--- Test JSONB containment query
-SELECT id, email, practice_areas
-FROM app_users
-WHERE practice_areas @> '["criminal"]'::jsonb
-LIMIT 5;
-```
-
----
-
-## Rollback Instructions
+## Rollback (If needed)
 
 If you need to rollback this migration:
 
 ```sql
--- Drop the index
-DROP INDEX IF EXISTS public.idx_app_users_practice_areas;
-
--- Drop the column
-ALTER TABLE public.app_users
-DROP COLUMN IF EXISTS practice_areas;
+DROP FUNCTION IF EXISTS claim_next_sync_job(timestamptz);
 ```
 
-⚠️ **Warning:** This will delete all practice area data!
-
----
-
-## Expected Database State After Migration
-
-### Table: `app_users`
-
-```sql
-Column Name       | Type      | Default     | Nullable
-------------------+-----------+-------------+----------
-id                | uuid      | ...         | NO
-clerk_user_id     | varchar   | -           | YES
-email             | varchar   | -           | YES
-full_name         | varchar   | -           | YES
-practice_areas    | jsonb     | '[]'::jsonb | NO  ← NEW
-metadata          | jsonb     | -           | YES
-created_at        | timestamp | now()       | YES
-updated_at        | timestamp | now()       | YES
-```
-
-### Indexes:
-
-- `idx_app_users_practice_areas` (GIN index on practice_areas)
-
----
-
-## Testing the Practice Areas Feature
-
-After migration, test the feature:
-
-1. **Visit Practice Areas Page**
-
-   ```
-   https://judgefinder.io/dashboard/practice-areas
-   ```
-
-2. **Select Practice Areas**
-   - Choose 2-3 practice areas
-   - Click "Save Changes"
-
-3. **Verify in Database**
-
-   ```sql
-   SELECT
-     id,
-     email,
-     practice_areas,
-     updated_at
-   FROM app_users
-   WHERE practice_areas != '[]'::jsonb
-   ORDER BY updated_at DESC
-   LIMIT 10;
-   ```
-
-4. **Test API Endpoint**
-
-   ```bash
-   # GET practice areas
-   curl -X GET https://judgefinder.io/api/user/practice-areas \
-     -H "Authorization: Bearer YOUR_TOKEN"
-
-   # POST practice areas
-   curl -X POST https://judgefinder.io/api/user/practice-areas \
-     -H "Content-Type: application/json" \
-     -H "Authorization: Bearer YOUR_TOKEN" \
-     -d '{"practice_areas": ["criminal", "civil", "family"]}'
-   ```
-
----
-
-## Troubleshooting
-
-### Issue: "column already exists"
-
-**Solution:** Migration is idempotent, it will skip if column exists. No action needed.
-
-### Issue: "permission denied"
-
-**Solution:**
-
-1. Make sure you're connected as the database owner
-2. Check your database connection credentials
-3. Verify you have ALTER TABLE permissions
-
-### Issue: Index creation fails
-
-**Solution:**
-
-```sql
--- Drop existing index if corrupt
-DROP INDEX IF EXISTS public.idx_app_users_practice_areas;
-
--- Recreate
-CREATE INDEX idx_app_users_practice_areas
-ON public.app_users USING GIN (practice_areas);
-```
-
-### Issue: Default value not working
-
-**Solution:**
-
-```sql
--- Update existing NULL values
-UPDATE app_users
-SET practice_areas = '[]'::jsonb
-WHERE practice_areas IS NULL;
-
--- Ensure NOT NULL constraint
-ALTER TABLE app_users
-ALTER COLUMN practice_areas SET NOT NULL;
-```
-
----
-
-## Related Files
-
-- **Migration File:** `supabase/migrations/20251017_add_practice_areas_to_app_users.sql`
-- **Page Component:** `app/dashboard/practice-areas/page.tsx`
-- **UI Component:** `components/dashboard/PracticeAreasDashboard.tsx`
-- **API Route:** `app/api/user/practice-areas/route.ts`
-
----
-
-## Support
-
-If you encounter issues:
-
-1. Check Supabase logs: Project → Logs → Postgres Logs
-2. Review migration file for syntax errors
-3. Verify database connection
-4. Check user permissions
-
----
-
-## Migration Checklist
-
-- [ ] Migration file created
-- [ ] Review SQL syntax
-- [ ] Backup database (recommended for production)
-- [ ] Run migration via preferred method
-- [ ] Verify column exists
-- [ ] Verify index exists
-- [ ] Test practice areas page
-- [ ] Test API endpoints
-- [ ] Monitor for errors
-- [ ] Document completion
-
----
-
-**Status:** Ready to Execute
-**Risk Level:** Low (idempotent, safe to retry)
-**Estimated Time:** < 1 minute
-
-_Migration created by Claude Code - Dashboard Implementation_
+Note: The application will fall back to the unsafe method with race condition.
