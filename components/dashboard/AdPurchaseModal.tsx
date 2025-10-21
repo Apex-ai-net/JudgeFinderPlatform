@@ -102,13 +102,13 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div
         ref={modalRef}
-        className="bg-white rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-card rounded-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
       >
         {/* Header */}
-        <div className="border-b border-border px-8 py-6 flex items-center justify-between sticky top-0 bg-white z-10">
+        <div className="border-b border-border px-8 py-6 flex items-center justify-between sticky top-0 bg-card z-10">
           <div>
             <h2 id="modal-title" className="text-2xl font-bold text-foreground">
               Advertise on Judge Profiles
@@ -136,7 +136,7 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
                 onClick={() => setBillingCycle('monthly')}
                 className={`px-6 py-2 rounded-md font-medium transition-all ${
                   billingCycle === 'monthly'
-                    ? 'bg-white text-foreground shadow-sm'
+                    ? 'bg-card text-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -146,7 +146,7 @@ export default function AdPurchaseModal({ onClose, userId }: AdPurchaseModalProp
                 onClick={() => setBillingCycle('annual')}
                 className={`px-6 py-2 rounded-md font-medium transition-all flex items-center gap-2 ${
                   billingCycle === 'annual'
-                    ? 'bg-white text-foreground shadow-sm'
+                    ? 'bg-card text-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >

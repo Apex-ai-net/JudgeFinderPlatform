@@ -61,7 +61,7 @@ export function JudgeCardSkeleton(): JSX.Element {
 
 export function CourtCardSkeleton(): JSX.Element {
   return (
-    <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
+    <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
@@ -94,7 +94,7 @@ export function CourtCardSkeleton(): JSX.Element {
 
 export function JudgeProfileSkeleton(): JSX.Element {
   return (
-    <div className="bg-white rounded-xl shadow-lg p-8 border border-border">
+    <div className="bg-card rounded-xl shadow-lg p-8 border border-border">
       <div className="flex items-start space-x-6">
         <Skeleton className="h-24 w-24 rounded-full" />
         <div className="flex-1 space-y-4">

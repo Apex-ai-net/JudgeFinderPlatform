@@ -61,8 +61,8 @@ export function AnimatedMetricCard({
               <span
                 className={`text-xs font-medium ${
                   trend.isPositive
-                    ? 'text-green-600 dark:text-green-400'
-                    : 'text-red-600 dark:text-red-400'
+                    ? 'text-success'
+                    : 'text-destructive'
                 }`}
               >
                 {trend.isPositive ? '↗' : '↘'} {Math.abs(trend.value)}%

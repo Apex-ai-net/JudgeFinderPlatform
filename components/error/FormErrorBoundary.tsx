@@ -61,14 +61,14 @@ export class FormErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 my-4">
+        <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-6 my-4">
           <div className="flex items-start">
             <div className="flex-shrink-0">
-              <AlertTriangle className="h-5 w-5 text-red-400" />
+              <AlertTriangle className="h-5 w-5 text-destructive" />
             </div>
             <div className="ml-3 flex-1">
-              <h3 className="text-sm font-medium text-red-800">Form Error Occurred</h3>
-              <div className="mt-2 text-sm text-red-700">
+              <h3 className="text-sm font-medium text-destructive">Form Error Occurred</h3>
+              <div className="mt-2 text-sm text-destructive">
                 <p>
                   {this.state.errorField
                     ? `Form validation error: ${this.state.errorField}`
@@ -78,7 +78,7 @@ export class FormErrorBoundary extends Component<Props, State> {
               <div className="mt-4">
                 <button
                   onClick={this.handleReset}
-                  className="bg-red-100 text-red-800 px-3 py-2 rounded-md text-sm hover:bg-red-200 transition-colors flex items-center"
+                  className="bg-destructive/10 text-destructive px-3 py-2 rounded-md text-sm hover:bg-destructive/20 transition-colors flex items-center"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Reset Form
@@ -89,13 +89,13 @@ export class FormErrorBoundary extends Component<Props, State> {
 
           {process.env.NODE_ENV === 'development' && this.state.error && (
             <details className="mt-4 text-left">
-              <summary className="cursor-pointer text-sm text-red-600 hover:text-red-800">
+              <summary className="cursor-pointer text-sm text-destructive hover:text-destructive/80">
                 Error Details (Development)
               </summary>
-              <div className="mt-2 p-3 bg-red-100 rounded text-xs font-mono overflow-auto max-h-32">
-                <div className="text-red-800 font-semibold">{this.state.error.message}</div>
+              <div className="mt-2 p-3 bg-destructive/10 rounded text-xs font-mono overflow-auto max-h-32">
+                <div className="text-destructive font-semibold">{this.state.error.message}</div>
                 {this.state.error.stack && (
-                  <pre className="mt-2 text-red-700 whitespace-pre-wrap">
+                  <pre className="mt-2 text-destructive/80 whitespace-pre-wrap">
                     {this.state.error.stack}
                   </pre>
                 )}
@@ -127,7 +127,7 @@ export function FormError({ error, field, className = '' }: FormErrorProps): JSX
   return (
     <div className={`mt-1 ${className}`}>
       {errors.map((err, index) => (
-        <div key={index} className="flex items-center text-sm text-red-600">
+        <div key={index} className="flex items-center text-sm text-destructive">
           <AlertCircle className="h-4 w-4 mr-1 flex-shrink-0" />
           <span>
             {field && `${field}: `}

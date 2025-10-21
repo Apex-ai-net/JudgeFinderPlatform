@@ -173,22 +173,22 @@ export function EnhancedJudgeSearch(): JSX.Element {
   }, [performSearch])
 
   const getExperienceColor = (years: number) => {
-    if (years >= 20) return 'text-purple-400'
+    if (years >= 20) return 'text-secondary'
     if (years >= 10) return 'text-primary'
-    if (years >= 5) return 'text-green-400'
-    return 'text-yellow-400'
+    if (years >= 5) return 'text-success'
+    return 'text-warning'
   }
 
   const getEfficiencyColor = (score: number) => {
-    if (score >= 15) return 'text-green-400'
-    if (score >= 5) return 'text-yellow-400'
-    return 'text-red-400'
+    if (score >= 15) return 'text-success'
+    if (score >= 5) return 'text-warning'
+    return 'text-destructive'
   }
 
   const getSettlementColor = (rate: number) => {
-    if (rate >= 0.6) return 'text-green-400'
-    if (rate >= 0.4) return 'text-yellow-400'
-    return 'text-red-400'
+    if (rate >= 0.6) return 'text-success'
+    if (rate >= 0.4) return 'text-warning'
+    return 'text-destructive'
   }
 
   const totalCountDisplay =
@@ -262,7 +262,7 @@ export function EnhancedJudgeSearch(): JSX.Element {
         />
 
         {errorMessage && (
-          <div className="max-w-4xl mx-auto mb-6 rounded-lg border border-red-500/30 bg-red-500/10 text-red-100 px-4 py-3 text-sm">
+          <div className="max-w-4xl mx-auto mb-6 rounded-lg border border-destructive/30 bg-destructive/10 text-destructive px-4 py-3 text-sm">
             {errorMessage}
           </div>
         )}
@@ -291,7 +291,7 @@ export function EnhancedJudgeSearch(): JSX.Element {
             {Array.from({ length: 6 }).map((_, idx) => (
               <div
                 key={idx}
-                className="animate-pulse rounded-lg border border-gray-800 bg-card/60 p-6"
+                className="animate-pulse rounded-lg border border-border bg-card/60 p-6"
               >
                 <div className="h-4 w-1/2 bg-card rounded mb-3" />
                 <div className="h-3 w-2/3 bg-card rounded mb-2" />

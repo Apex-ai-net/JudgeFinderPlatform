@@ -57,7 +57,7 @@ export function PersonalizedGreeting({ userName, roleInfo }: PersonalizedGreetin
             <span className="inline-block ml-2 animate-wave origin-bottom-right">👋</span>
           </h1>
           <div className="flex items-center gap-2 text-muted-foreground">
-            <Sparkles className="w-4 h-4 text-blue-500 dark:text-blue-400 animate-pulse" />
+            <Sparkles className="w-4 h-4 text-primary animate-pulse" />
             <p className="text-lg">{timeBasedMessage}</p>
           </div>
           <p className="text-sm text-muted-foreground/80 mt-1">

@@ -1,22 +1,22 @@
 /**
  * Ad Pricing Domain Service
  *
- * Encapsulates complex pricing calculations for advertising.
- * Implements tiered pricing, volume discounts, and court level multipliers.
+ * Simplified pricing model: Universal $500/month standard pricing for all judge ads.
  *
- * Business Rules:
- * - Federal court ads cost 2x state court ads
+ * Business Rules (Updated 2025-10-20):
+ * - Standard pricing: $500/month, $5,000/year (all judges, all courts)
+ * - Annual subscriptions get 2 months free (10 months pricing)
  * - Volume discounts: 10% for 3+ spots, 15% for 5+ spots, 20% for 10+ spots
- * - Annual subscriptions get 2 months free
- * - Exclusive placements cost 1.5x base price
- * - Premium judges (1000+ cases) cost 1.3x base price
+ * - No court level multipliers (removed federal 2x premium)
+ * - No premium judge multipliers (removed 1.3x premium)
+ * - Exclusive placements still available at 1.5x ($750/month)
  */
 
 import { Result, ValidationError } from '../Result'
 import { Money } from '../value-objects/Money'
 
 export type CourtLevel = 'federal' | 'state'
-export type PricingTier = 'basic' | 'standard' | 'premium' | 'enterprise'
+export type PricingTier = 'standard' // Simplified to single tier
 
 export interface PricingFactors {
   courtLevel: CourtLevel
@@ -47,27 +47,19 @@ export interface PricingBreakdown {
  * Calculates pricing for advertising spots with complex business rules.
  */
 export class AdPricingService {
-  // Base monthly prices by tier (in dollars)
-  private readonly BASE_PRICES: Record<PricingTier, number> = {
-    basic: 299,
-    standard: 499,
-    premium: 799,
-    enterprise: 1499,
-  }
+  // Universal standard pricing (in dollars)
+  private readonly BASE_PRICE = 500 // $500/month for all judges
 
-  // Court level multipliers
-  private readonly COURT_LEVEL_MULTIPLIERS: Record<CourtLevel, number> = {
-    federal: 2.0,
-    state: 1.0,
-  }
+  // Removed court level multipliers (was federal: 2.0, state: 1.0)
+  // Now all courts use same pricing
 
-  // Premium judge multiplier
-  private readonly PREMIUM_JUDGE_MULTIPLIER = 1.3
+  // Removed premium judge multiplier (was 1.3x)
+  // Now all judges use same pricing
 
-  // Exclusive placement multiplier
-  private readonly EXCLUSIVE_MULTIPLIER = 1.5
+  // Exclusive placement multiplier (optional premium)
+  private readonly EXCLUSIVE_MULTIPLIER = 1.5 // $750/month
 
-  // Volume discount thresholds
+  // Volume discount thresholds (unchanged)
   private readonly VOLUME_DISCOUNTS = [
     { threshold: 10, discount: 0.2 }, // 20% off for 10+ spots
     { threshold: 5, discount: 0.15 }, // 15% off for 5+ spots
@@ -87,24 +79,24 @@ export class AdPricingService {
       return validation
     }
 
-    // Get base price
-    const basePriceResult = Money.fromDollars(this.BASE_PRICES[factors.tier])
+    // Get base price (universal $500)
+    const basePriceResult = Money.fromDollars(this.BASE_PRICE)
     if (basePriceResult.isErr()) {
       return Result.err(basePriceResult.error())
     }
     const basePrice = basePriceResult.unwrap()
 
-    // Apply court level multiplier
-    const courtLevelMultiplier = this.COURT_LEVEL_MULTIPLIERS[factors.courtLevel]
+    // Court level multiplier removed (now 1.0 for all)
+    const courtLevelMultiplier = 1.0
 
-    // Apply premium judge multiplier
-    const premiumMultiplier = factors.isPremiumJudge ? this.PREMIUM_JUDGE_MULTIPLIER : 1.0
+    // Premium judge multiplier removed (now 1.0 for all)
+    const premiumMultiplier = 1.0
 
-    // Apply exclusive multiplier
+    // Apply exclusive multiplier (only variable pricing)
     const exclusiveMultiplier = factors.isExclusive ? this.EXCLUSIVE_MULTIPLIER : 1.0
 
     // Calculate subtotal with multipliers
-    const totalMultiplier = courtLevelMultiplier * premiumMultiplier * exclusiveMultiplier
+    const totalMultiplier = exclusiveMultiplier // Simplified: only exclusive matters
     const subtotalResult = basePrice
       .multiply(totalMultiplier)
       .flatMap((price) => price.multiply(factors.bundleSize))
@@ -265,34 +257,31 @@ export class AdPricingService {
   }
 
   /**
-   * Compares pricing across tiers
+   * Compares pricing across tiers (simplified - only standard tier exists)
+   * Kept for backwards compatibility
    */
   compareTiers(
     courtLevel: CourtLevel,
     durationMonths: number = 1
   ): Result<Record<PricingTier, PricingBreakdown>, ValidationError> {
-    const tiers: PricingTier[] = ['basic', 'standard', 'premium', 'enterprise']
-    const results: Partial<Record<PricingTier, PricingBreakdown>> = {}
-
-    for (const tier of tiers) {
-      const factors: PricingFactors = {
-        tier,
-        courtLevel,
-        isExclusive: false,
-        isPremiumJudge: false,
-        bundleSize: 1,
-        durationMonths,
-      }
-
-      const breakdown = this.calculatePricing(factors)
-      if (breakdown.isErr()) {
-        return breakdown
-      }
-
-      results[tier] = breakdown.unwrap()
+    const factors: PricingFactors = {
+      tier: 'standard',
+      courtLevel,
+      isExclusive: false,
+      isPremiumJudge: false,
+      bundleSize: 1,
+      durationMonths,
     }
 
-    return Result.ok(results as Record<PricingTier, PricingBreakdown>)
+    const breakdown = this.calculatePricing(factors)
+    if (breakdown.isErr()) {
+      return breakdown
+    }
+
+    // Return single standard tier (no more tiered pricing)
+    return Result.ok({
+      standard: breakdown.unwrap(),
+    } as Record<PricingTier, PricingBreakdown>)
   }
 
   /**
@@ -319,27 +308,10 @@ export class AdPricingService {
 
   /**
    * Gets recommended tier based on monthly budget
+   * Simplified: always returns 'standard' (single tier model)
    */
   recommendTier(monthlyBudget: number, courtLevel: CourtLevel): PricingTier {
-    const budgetResult = Money.fromDollars(monthlyBudget)
-    if (budgetResult.isErr()) {
-      return 'basic'
-    }
-
-    const budget = budgetResult.unwrap()
-    const multiplier = this.COURT_LEVEL_MULTIPLIERS[courtLevel]
-
-    // Adjust budget by court level
-    const effectiveBudget = budget.dollars / multiplier
-
-    if (effectiveBudget >= this.BASE_PRICES.enterprise) {
-      return 'enterprise'
-    } else if (effectiveBudget >= this.BASE_PRICES.premium) {
-      return 'premium'
-    } else if (effectiveBudget >= this.BASE_PRICES.standard) {
-      return 'standard'
-    } else {
-      return 'basic'
-    }
+    // Always return standard tier (universal $500 pricing)
+    return 'standard'
   }
 }

@@ -84,9 +84,9 @@ export class GlobalErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="min-h-screen bg-muted flex items-center justify-center px-4">
-          <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="max-w-md w-full bg-card rounded-lg shadow-lg p-6 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-destructive/10 rounded-full flex items-center justify-center">
+              <svg className="w-8 h-8 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
             </div>
@@ -102,14 +102,14 @@ export class GlobalErrorBoundary extends Component<Props, State> {
             <div className="space-y-3">
               <button
                 onClick={this.handleReset}
-                className="w-full bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
               >
                 Try Again
               </button>
               
               <button
                 onClick={() => window.location.reload()}
-                className="w-full bg-muted text-foreground px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+                className="w-full bg-muted text-foreground px-4 py-2 rounded-md hover:bg-muted/80 transition-colors"
               >
                 Refresh Page
               </button>
@@ -128,7 +128,7 @@ export class GlobalErrorBoundary extends Component<Props, State> {
                   Error Details (Development)
                 </summary>
                 <div className="mt-2 p-3 bg-muted rounded text-xs font-mono overflow-auto max-h-40">
-                  <div className="text-red-600 font-semibold">
+                  <div className="text-destructive font-semibold">
                     {this.state.error.message}
                   </div>
                   <pre className="mt-2 text-foreground whitespace-pre-wrap">

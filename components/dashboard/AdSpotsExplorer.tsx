@@ -102,14 +102,14 @@ export default function AdSpotsExplorer({
       if (spot.court_level === 'federal') {
         return { label: 'Federal', color: 'text-primary bg-primary/5', price: 500 }
       } else {
-        return { label: 'State', color: 'text-green-600 bg-green-50', price: 200 }
+        return { label: 'State', color: 'text-success bg-success/10', price: 200 }
       }
     }
     // Default pricing for courts
     const price = spot.base_price_monthly
-    if (price <= 300) return { label: 'Budget', color: 'text-green-600 bg-green-50', price }
+    if (price <= 300) return { label: 'Budget', color: 'text-success bg-success/10', price }
     if (price <= 500) return { label: 'Standard', color: 'text-primary bg-primary/5', price }
-    return { label: 'Premium', color: 'text-purple-600 bg-purple-50', price }
+    return { label: 'Premium', color: 'text-accent bg-accent/10', price }
   }
 
   // Get plan details for display
@@ -134,16 +134,16 @@ export default function AdSpotsExplorer({
       <div className="space-y-6">
         {/* Plan Context Banner */}
         {showPlanContext && planDetails && (
-          <div className="bg-primary/5 border border-blue-200 rounded-lg p-4">
+          <div className="bg-primary/5 border border-primary/30 rounded-lg p-4">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="font-semibold text-blue-900">
+                <h3 className="font-semibold text-foreground">
                   Selected Plan: {planDetails.type} Advertising
                 </h3>
-                <p className="text-sm text-blue-700 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   ${planDetails.price}/month • {planDetails.billing} billing
                   {planDetails.savings > 0 && (
-                    <span className="ml-2 text-green-600">(Save ${planDetails.savings}/year)</span>
+                    <span className="ml-2 text-success">(Save ${planDetails.savings}/year)</span>
                   )}
                 </p>
                 <p className="text-xs text-primary mt-2">

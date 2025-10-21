@@ -166,11 +166,42 @@
 
   # Function timeouts (max 26 seconds for standard functions)
   # Background functions can run up to 15 minutes
+  # NOTE: Routes with maxDuration > 26 should be background functions
   [functions.timeout]
     default = 10  # 10 seconds default
-    api = 26      # API endpoints can use full 26 seconds
+    api = 26      # Standard API endpoints (max for non-background)
 
-# Scheduled Functions
+# Long-running sync functions (background mode)
+# These routes have maxDuration = 300 (5 minutes) in code
+[functions."api/sync/courts/route"]
+  node_bundler = "esbuild"
+  [[functions."api/sync/courts/route".timeout]]
+    maxDuration = 300  # 5 minutes
+
+[functions."api/sync/judges/route"]
+  node_bundler = "esbuild"
+  [[functions."api/sync/judges/route".timeout]]
+    maxDuration = 300  # 5 minutes
+
+[functions."api/sync/queue/process/route"]
+  node_bundler = "esbuild"
+  [[functions."api/sync/queue/process/route".timeout]]
+    maxDuration = 300  # 5 minutes
+
+# Cron Jobs (scheduled background functions)
+[functions."api/cron/daily-sync/route"]
+  schedule = "0 2 * * *"  # Daily at 2:00 AM UTC
+  node_bundler = "esbuild"
+
+[functions."api/cron/weekly-sync/route"]
+  schedule = "0 3 * * 0"  # Weekly on Sunday at 3:00 AM UTC
+  node_bundler = "esbuild"
+
+[functions."api/cron/cleanup-checkouts/route"]
+  schedule = "0 4 * * *"  # Daily at 4:00 AM UTC (cleanup expired checkouts)
+  node_bundler = "esbuild"
+
+# Legacy scheduled function (kept for compatibility)
 [functions."submit-sitemap"]
   schedule = "@weekly"
 

@@ -63,8 +63,8 @@ function getCourtTypeInfo(court: Court): {
     if (level === 'federal' || level.includes('federal')) {
       return {
         icon: Flag,
-        color: 'text-blue-500',
-        bgColor: 'bg-blue-500/10',
+        color: 'text-primary',
+        bgColor: 'bg-primary/10',
         label: 'Federal',
       }
     }
@@ -77,8 +77,8 @@ function getCourtTypeInfo(court: Court): {
     ) {
       return {
         icon: Landmark,
-        color: 'text-purple-500',
-        bgColor: 'bg-purple-500/10',
+        color: 'text-secondary',
+        bgColor: 'bg-secondary/10',
         label: 'State',
       }
     }
@@ -126,8 +126,8 @@ function getCourtTypeInfo(court: Court): {
   // Default to County/Superior Court
   return {
     icon: Building2,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10',
+    color: 'text-success',
+    bgColor: 'bg-success/10',
     label: 'County',
   }
 }
@@ -542,8 +542,8 @@ export function CourtsSearch({
                 <CourtGroupAccordion
                   title="Federal Courts"
                   icon={Flag}
-                  iconColor="text-blue-500"
-                  iconBgColor="bg-blue-500/10"
+                  iconColor="text-primary"
+                  iconBgColor="bg-primary/10"
                   count={federal.length}
                   defaultOpen={true}
                 >
@@ -558,8 +558,8 @@ export function CourtsSearch({
                 <CourtGroupAccordion
                   title="State Courts"
                   icon={Landmark}
-                  iconColor="text-purple-500"
-                  iconBgColor="bg-purple-500/10"
+                  iconColor="text-secondary"
+                  iconBgColor="bg-secondary/10"
                   count={stateAppellate.length}
                   defaultOpen={true}
                 >
@@ -575,8 +575,8 @@ export function CourtsSearch({
                   key={county}
                   title={`${county} County`}
                   icon={Building2}
-                  iconColor="text-green-500"
-                  iconBgColor="bg-green-500/10"
+                  iconColor="text-success"
+                  iconBgColor="bg-success/10"
                   count={countyCourts.length}
                   defaultOpen={false}
                 >

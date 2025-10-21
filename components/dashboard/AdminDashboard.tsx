@@ -127,11 +127,11 @@ function formatDuration(ms: number): string {
 function formatSeverity(severity: string): { label: string; className: string } {
   switch (severity) {
     case 'high':
-      return { label: 'High', className: 'bg-red-50 text-red-600 border border-red-200' }
+      return { label: 'High', className: 'bg-destructive/10 text-destructive border border-destructive/30' }
     case 'medium':
-      return { label: 'Medium', className: 'bg-amber-50 text-amber-600 border border-amber-200' }
+      return { label: 'Medium', className: 'bg-warning/10 text-warning border border-warning/30' }
     default:
-      return { label: 'Low', className: 'bg-primary/5 text-primary border border-blue-200' }
+      return { label: 'Low', className: 'bg-primary/5 text-primary border border-primary/30' }
   }
 }
 
@@ -239,25 +239,25 @@ function healthPill(status: SyncStatusResponse['health']['status']): {
     case 'healthy':
       return {
         label: 'Healthy',
-        className: 'bg-green-50 text-green-700 border border-green-200',
+        className: 'bg-success/10 text-success border border-success/30',
         icon: CheckCircle2,
       }
     case 'warning':
       return {
         label: 'Warning',
-        className: 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+        className: 'bg-warning/10 text-warning border border-warning/30',
         icon: AlertTriangle,
       }
     case 'critical':
       return {
         label: 'Critical',
-        className: 'bg-red-50 text-red-700 border border-red-200',
+        className: 'bg-destructive/10 text-destructive border border-destructive/30',
         icon: AlertTriangle,
       }
     case 'caution':
       return {
         label: 'Caution',
-        className: 'bg-orange-50 text-orange-700 border border-orange-200',
+        className: 'bg-warning/10 text-warning border border-warning/30',
         icon: AlertTriangle,
       }
     default:
@@ -417,7 +417,7 @@ export default function AdminDashboard({
         </div>
         <button
           onClick={() => router.refresh()}
-          className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700"
+          className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
         >
           <RefreshCcw className="h-4 w-4 mr-2" />
           Try again
@@ -510,7 +510,7 @@ export default function AdminDashboard({
           </div>
           <button
             onClick={() => router.refresh()}
-            className="inline-flex items-center rounded-md border border-border bg-white px-3 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-muted"
+            className="inline-flex items-center rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-muted"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
@@ -522,8 +522,8 @@ export default function AdminDashboard({
         <div
           className={`rounded-md border px-4 py-3 text-sm ${
             feedback.type === 'success'
-              ? 'border-green-200 bg-green-50 text-green-700'
-              : 'border-red-200 bg-red-50 text-red-700'
+              ? 'border-success/30 bg-success/10 text-success'
+              : 'border-destructive/30 bg-destructive/10 text-destructive'
           }`}
         >
           {feedback.message}
@@ -531,7 +531,7 @@ export default function AdminDashboard({
       )}
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">System uptime</p>
@@ -539,36 +539,36 @@ export default function AdminDashboard({
                 {formatPercent(uptime, '—')}
               </p>
             </div>
-            <CheckCircle2 className="h-10 w-10 text-emerald-500" />
+            <CheckCircle2 className="h-10 w-10 text-success" />
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
             {formatNumber(status.performance?.daily?.total_runs)} jobs today ·{' '}
             {formatNumber(status.recent_logs?.length ?? 0)} recent runs tracked
           </p>
         </div>
-        <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Queue depth</p>
               <p className="mt-2 text-3xl font-semibold text-foreground">{formatNumber(backlog)}</p>
             </div>
-            <Server className="h-10 w-10 text-blue-500" />
+            <Server className="h-10 w-10 text-primary" />
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
             Pending {formatNumber(queueStats.pending)} · Running {formatNumber(queueStats.running)}
           </p>
         </div>
-        <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">CourtListener circuit</p>
               <p
                 className={`mt-2 text-2xl font-semibold ${
                   circuitSeverity.tone === 'critical'
-                    ? 'text-red-600'
+                    ? 'text-destructive'
                     : circuitSeverity.tone === 'warn'
-                      ? 'text-amber-600'
-                      : 'text-emerald-600'
+                      ? 'text-warning'
+                      : 'text-success'
                 }`}
               >
                 {circuitSeverity.label}
@@ -577,10 +577,10 @@ export default function AdminDashboard({
             <AlertTriangle
               className={`h-10 w-10 ${
                 circuitSeverity.tone === 'critical'
-                  ? 'text-red-500'
+                  ? 'text-destructive'
                   : circuitSeverity.tone === 'warn'
-                    ? 'text-amber-500'
-                    : 'text-emerald-500'
+                    ? 'text-warning'
+                    : 'text-success'
               }`}
             />
           </div>
@@ -588,13 +588,13 @@ export default function AdminDashboard({
             {circuitSeverity.message} · Failures {formatNumber(external.courtlistener_failures_24h)}
           </p>
         </div>
-        <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
+        <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Cache efficiency</p>
               <p className="mt-2 text-3xl font-semibold text-foreground">{cacheHitLabel}</p>
             </div>
-            <Clock className="h-10 w-10 text-teal-500" />
+            <Clock className="h-10 w-10 text-info" />
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
             Judges synced {judgeFreshnessRelative} · Decisions {decisionFreshnessRelative}
@@ -603,7 +603,7 @@ export default function AdminDashboard({
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <div className="rounded-lg border border-border bg-white shadow-sm">
+        <div className="rounded-lg border border-border bg-card shadow-sm">
           <div className="flex items-center justify-between border-b border-border px-6 py-4">
             <h2 className="text-sm font-semibold text-foreground">Queue status</h2>
             <Activity className="h-5 w-5 text-muted-foreground" />
@@ -670,7 +670,7 @@ export default function AdminDashboard({
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-white shadow-sm">
+        <div className="rounded-lg border border-border bg-card shadow-sm">
           <div className="flex items-center justify-between border-b border-border px-6 py-4">
             <h2 className="text-sm font-semibold text-foreground">Performance summary</h2>
             <BarChart3 className="h-5 w-5 text-muted-foreground" />
@@ -737,9 +737,9 @@ export default function AdminDashboard({
                     <span
                       className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
                         log.status === 'completed'
-                          ? 'bg-green-50 text-green-700'
+                          ? 'bg-success/10 text-success'
                           : log.status === 'failed'
-                            ? 'bg-red-50 text-red-700'
+                            ? 'bg-destructive/10 text-destructive'
                             : 'bg-muted text-foreground'
                       }`}
                     >
@@ -773,7 +773,7 @@ export default function AdminDashboard({
           </table>
         </div>
 
-        <div className="rounded-lg border border-border bg-white shadow-sm">
+        <div className="rounded-lg border border-border bg-card shadow-sm">
           <div className="flex items-center justify-between border-b border-border px-6 py-4">
             <h2 className="text-sm font-semibold text-foreground">Rate limit counters</h2>
             <Clock className="h-5 w-5 text-muted-foreground" />
@@ -815,7 +815,7 @@ export default function AdminDashboard({
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {overdueCount > 0 && (
-              <span className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-semibold text-red-700">
+              <span className="inline-flex items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive">
                 Over SLA
                 <span className="text-foreground">{overdueCount.toLocaleString()}</span>
               </span>
@@ -838,7 +838,7 @@ export default function AdminDashboard({
                 onClick={() => setIssueFilter(id)}
                 className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
                   issueFilter === id
-                    ? 'border-blue-400 bg-primary/5 text-blue-700'
+                    ? 'border-primary/40 bg-primary/5 text-primary'
                     : 'border-border bg-muted text-muted-foreground hover:border-border hover:text-foreground'
                 }`}
               >
@@ -909,9 +909,9 @@ export default function AdminDashboard({
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
                           slaInfo.tone === 'critical'
-                            ? 'bg-red-100 text-red-700'
+                            ? 'bg-destructive/10 text-destructive'
                             : slaInfo.tone === 'warn'
-                              ? 'bg-amber-100 text-amber-700'
+                              ? 'bg-warning/10 text-warning'
                               : 'bg-muted text-foreground'
                         }`}
                       >
@@ -939,7 +939,7 @@ export default function AdminDashboard({
                             onClick={() =>
                               handleIssueTransition(issue.id, 'researching', 'Acknowledged')
                             }
-                            className="rounded-full border border-blue-200 bg-primary/5 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60"
+                            className="rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/10 disabled:opacity-60"
                             disabled={issueTransitionPending || issuePendingId === issue.id}
                           >
                             {issuePendingId === issue.id && issueTransitionPending
@@ -951,7 +951,7 @@ export default function AdminDashboard({
                           <button
                             type="button"
                             onClick={() => handleIssueTransition(issue.id, 'resolved', 'Resolved')}
-                            className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-60"
+                            className="rounded-full border border-success/30 bg-success/10 px-3 py-1 text-xs font-semibold text-success hover:bg-success/20 disabled:opacity-60"
                             disabled={issueTransitionPending || issuePendingId === issue.id}
                           >
                             {issuePendingId === issue.id && issueTransitionPending
@@ -979,7 +979,7 @@ export default function AdminDashboard({
                             onClick={() =>
                               handleIssueTransition(issue.id, 'researching', 'Reopened')
                             }
-                            className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-100 disabled:opacity-60"
+                            className="rounded-full border border-warning/30 bg-warning/10 px-3 py-1 text-xs font-semibold text-warning hover:bg-warning/20 disabled:opacity-60"
                             disabled={issueTransitionPending || issuePendingId === issue.id}
                           >
                             {issuePendingId === issue.id && issueTransitionPending
@@ -991,7 +991,7 @@ export default function AdminDashboard({
                           <button
                             type="button"
                             onClick={() => handleIssueTransition(issue.id, 'new', 'Reset')}
-                            className="rounded-full border border-border bg-white px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-60"
+                            className="rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted disabled:opacity-60"
                             disabled={issueTransitionPending || issuePendingId === issue.id}
                           >
                             {issuePendingId === issue.id && issueTransitionPending
@@ -1034,7 +1034,7 @@ export default function AdminDashboard({
         <div className="grid gap-4 px-6 py-6 md:grid-cols-3">
           <button
             onClick={() => handleAction('queue-decisions')}
-            className="rounded-md border border-blue-200 bg-primary/5 px-4 py-3 text-left text-sm font-medium text-blue-700 hover:bg-blue-100"
+            className="rounded-md border border-primary/30 bg-primary/5 px-4 py-3 text-left text-sm font-medium text-primary hover:bg-primary/10"
           >
             <div className="flex items-center gap-2">
               <PlayCircle className="h-4 w-4" />
@@ -1046,7 +1046,7 @@ export default function AdminDashboard({
           </button>
           <button
             onClick={() => handleAction('cancel-decisions')}
-            className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-left text-sm font-medium text-amber-700 hover:bg-amber-100"
+            className="rounded-md border border-warning/30 bg-warning/10 px-4 py-3 text-left text-sm font-medium text-warning hover:bg-warning/20"
           >
             <div className="flex items-center gap-2">
               <Square className="h-4 w-4" />
@@ -1073,7 +1073,7 @@ export default function AdminDashboard({
 
       {pendingAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-lg border border-border bg-white p-6 shadow-xl">
+          <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-xl">
             <h3 className="text-lg font-semibold text-foreground">
               {ACTION_META[pendingAction].title}
             </h3>
@@ -1090,7 +1090,7 @@ export default function AdminDashboard({
               </button>
               <button
                 onClick={executeAction}
-                className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
                 disabled={isPending}
               >
                 {ACTION_META[pendingAction].confirmLabel}

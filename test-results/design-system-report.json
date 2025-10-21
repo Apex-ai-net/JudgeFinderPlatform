@@ -1,0 +1,53 @@
+[
+  {
+    "page": "Public Advertising Page",
+    "url": "https://judgefinder.io/advertise",
+    "timestamp": "2025-10-21T06:20:33.570Z",
+    "status": "fail",
+    "visualBugs": [
+      "Page returned status 304"
+    ],
+    "colorContrastIssues": [],
+    "darkModeIssues": [],
+    "responsiveIssues": [],
+    "hardcodedColors": [],
+    "accessibilityIssues": [],
+    "screenshots": []
+  },
+  {
+    "page": "Judges Search",
+    "url": "https://judgefinder.io/judges",
+    "timestamp": "2025-10-21T06:20:36.522Z",
+    "status": "pass",
+    "visualBugs": [],
+    "colorContrastIssues": [],
+    "darkModeIssues": [],
+    "responsiveIssues": [],
+    "hardcodedColors": [
+      "Inline style on .text-xl:  rgb(43, 159, 227)"
+    ],
+    "accessibilityIssues": [],
+    "screenshots": [
+      "/Users/tanner-osterkamp/JudgeFinderPlatform/test-results/design-system-screenshots/judges-search.png"
+    ]
+  },
+  {
+    "page": "Courts Directory",
+    "url": "https://judgefinder.io/courts",
+    "timestamp": "2025-10-21T06:20:38.901Z",
+    "status": "fail",
+    "visualBugs": [
+      "No court links found"
+    ],
+    "colorContrastIssues": [],
+    "darkModeIssues": [],
+    "responsiveIssues": [],
+    "hardcodedColors": [
+      "Inline style on .text-xl:  rgb(43, 159, 227)"
+    ],
+    "accessibilityIssues": [],
+    "screenshots": [
+      "/Users/tanner-osterkamp/JudgeFinderPlatform/test-results/design-system-screenshots/courts-directory.png"
+    ]
+  }
+]

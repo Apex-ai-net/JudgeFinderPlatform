@@ -12,14 +12,14 @@ export function SponsoredTile({ tile }: SponsoredTileProps): JSX.Element {
     : null
 
   return (
-    <div className="rounded-lg border border-yellow-400/40 bg-yellow-500/10 p-5 text-sm text-yellow-50">
+    <div className="rounded-lg border border-warning/40 bg-warning/10 p-5 text-sm text-warning-50">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-yellow-300">
-          <span className="rounded-full border border-yellow-400/40 px-3 py-1">Ad</span>
+        <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-warning-300">
+          <span className="rounded-full border border-warning/40 px-3 py-1">Ad</span>
           <span>Sponsored Placement</span>
         </div>
         {tile.promo_badge && (
-          <span className="rounded-full border border-yellow-400/40 bg-yellow-500/20 px-3 py-1 text-xs font-semibold">
+          <span className="rounded-full border border-warning/40 bg-warning/20 px-3 py-1 text-xs font-semibold">
             {tile.promo_badge}
           </span>
         )}
@@ -27,15 +27,15 @@ export function SponsoredTile({ tile }: SponsoredTileProps): JSX.Element {
 
       <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h3 className="text-lg font-semibold text-yellow-100">{tile.title}</h3>
-          {tile.description && <p className="mt-1 text-yellow-200/90">{tile.description}</p>}
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-yellow-200/80">
+          <h3 className="text-lg font-semibold text-warning-100">{tile.title}</h3>
+          {tile.description && <p className="mt-1 text-warning-200/90">{tile.description}</p>}
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-warning-200/80">
             {tile.verified && barUrl && (
               <Link
                 href={barUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 hover:text-yellow-50"
+                className="inline-flex items-center gap-1 hover:text-warning-50"
               >
                 <Shield className="h-3 w-3" /> CA Bar #{tile.bar_number}
               </Link>
@@ -45,12 +45,12 @@ export function SponsoredTile({ tile }: SponsoredTileProps): JSX.Element {
         </div>
         <div className="flex flex-col items-end gap-2 text-right">
           {tile.contact_phone && (
-            <span className="text-sm text-yellow-100">{tile.contact_phone}</span>
+            <span className="text-sm text-warning-100">{tile.contact_phone}</span>
           )}
           {tile.contact_email && (
             <a
               href={`mailto:${tile.contact_email}`}
-              className="text-sm text-yellow-100 hover:text-yellow-50"
+              className="text-sm text-warning-100 hover:text-warning-50"
             >
               {tile.contact_email}
             </a>
@@ -60,7 +60,7 @@ export function SponsoredTile({ tile }: SponsoredTileProps): JSX.Element {
               href={tile.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-yellow-100 hover:text-yellow-50"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-warning-100 hover:text-warning-50"
             >
               Visit site
               <ExternalLink className="h-4 w-4" />

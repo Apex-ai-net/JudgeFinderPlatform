@@ -18,29 +18,29 @@ const activityConfig = {
   search: {
     icon: Search,
     label: 'Searched for judges',
-    color: 'text-blue-600 dark:text-blue-400',
-    bgColor: 'bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-950/30 dark:to-blue-900/20',
+    color: 'text-primary',
+    bgColor: 'bg-gradient-to-br from-primary/10 to-primary/5',
   },
   bookmark: {
     icon: Bookmark,
     label: 'Bookmarked a judge',
-    color: 'text-green-600 dark:text-green-400',
+    color: 'text-success',
     bgColor:
-      'bg-gradient-to-br from-green-100 to-green-50 dark:from-green-950/30 dark:to-green-900/20',
+      'bg-gradient-to-br from-success/10 to-success/5',
   },
   view: {
     icon: Eye,
     label: 'Viewed judge profile',
-    color: 'text-purple-600 dark:text-purple-400',
+    color: 'text-accent',
     bgColor:
-      'bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-950/30 dark:to-purple-900/20',
+      'bg-gradient-to-br from-accent/10 to-accent/5',
   },
   compare: {
     icon: GitCompare,
     label: 'Compared judges',
-    color: 'text-orange-600 dark:text-orange-400',
+    color: 'text-warning',
     bgColor:
-      'bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-950/30 dark:to-orange-900/20',
+      'bg-gradient-to-br from-warning/10 to-warning/5',
   },
 }
 

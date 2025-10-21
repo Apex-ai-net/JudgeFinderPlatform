@@ -41,19 +41,19 @@ export default function JudgeCompareDashboard({
       <main
         id="main-content"
         role="main"
-        className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100"
+        className="min-h-screen bg-background"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <header className="mb-8">
             <Link
               href="/dashboard"
-              className="text-sm text-blue-600 hover:text-blue-700 mb-4 inline-flex items-center"
+              className="text-sm text-primary hover:text-primary/80 mb-4 inline-flex items-center"
             >
               ← Back to Dashboard
             </Link>
-            <h1 className="text-4xl font-bold text-gray-900 mt-2">Compare Judges</h1>
-            <p className="mt-2 text-gray-600">
+            <h1 className="text-4xl font-bold text-foreground mt-2">Compare Judges</h1>
+            <p className="mt-2 text-muted-foreground">
               Select up to 3 bookmarked judges to compare side-by-side
             </p>
           </header>
@@ -61,17 +61,17 @@ export default function JudgeCompareDashboard({
           {/* Selection Bar */}
           <section
             aria-labelledby="selected-judges-heading"
-            className="mb-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+            className="mb-8 bg-card rounded-xl shadow-sm border border-border p-6"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 id="selected-judges-heading" className="text-lg font-semibold text-gray-900">
+              <h2 id="selected-judges-heading" className="text-lg font-semibold text-foreground">
                 Selected ({selectedJudges.length}/3)
               </h2>
               {selectedJudges.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setSelectedJudges([])}
-                  className="text-sm text-red-600 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded px-2 py-1"
+                  className="text-sm text-destructive hover:text-destructive/80 focus:outline-none focus:ring-2 focus:ring-destructive focus:ring-offset-2 rounded px-2 py-1"
                   aria-label="Clear all selected judges"
                 >
                   Clear All
@@ -80,7 +80,7 @@ export default function JudgeCompareDashboard({
             </div>
 
             {selectedJudges.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">
+              <p className="text-muted-foreground text-center py-4">
                 No judges selected. Choose from your bookmarks below.
               </p>
             ) : (
@@ -88,16 +88,16 @@ export default function JudgeCompareDashboard({
                 {selectedJudges.map((judge) => (
                   <div
                     key={judge.id}
-                    className="p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between"
+                    className="p-4 bg-primary/10 border border-primary/30 rounded-lg flex items-center justify-between"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{judge.name}</p>
-                      <p className="text-sm text-gray-600 truncate">{judge.court_name}</p>
+                      <p className="font-medium text-foreground truncate">{judge.name}</p>
+                      <p className="text-sm text-muted-foreground truncate">{judge.court_name}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => toggleJudge(judge)}
-                      className="ml-2 text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+                      className="ml-2 text-primary hover:text-primary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
                       aria-label={`Remove ${judge.name} from selection`}
                     >
                       <X className="w-5 h-5" aria-hidden="true" />
@@ -110,7 +110,7 @@ export default function JudgeCompareDashboard({
             {selectedJudges.length >= 2 && (
               <Link
                 href={`/compare?judges=${selectedJudges.map((j) => j.slug).join(',')}`}
-                className="mt-4 block w-full py-3 bg-blue-600 text-white text-center rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                className="mt-4 block w-full py-3 bg-primary text-primary-foreground text-center rounded-lg font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors"
                 aria-label={`Compare ${selectedJudges.length} selected judges`}
               >
                 <Scale className="w-5 h-5 inline-block mr-2" aria-hidden="true" />
@@ -122,31 +122,31 @@ export default function JudgeCompareDashboard({
           {/* Bookmarked Judges List */}
           <section
             aria-labelledby="bookmarked-judges-heading"
-            className="bg-white rounded-xl shadow-sm border border-gray-200"
+            className="bg-card rounded-xl shadow-sm border border-border"
           >
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 id="bookmarked-judges-heading" className="text-lg font-semibold text-gray-900">
+            <div className="px-6 py-4 border-b border-border">
+              <h2 id="bookmarked-judges-heading" className="text-lg font-semibold text-foreground">
                 Your Bookmarked Judges
               </h2>
             </div>
 
             {bookmarkedJudges.length === 0 ? (
               <div className="px-6 py-12 text-center">
-                <Scale className="w-12 h-12 text-gray-300 mx-auto mb-4" aria-hidden="true" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No bookmarked judges yet</h3>
-                <p className="text-gray-500 mb-6">
+                <Scale className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" aria-hidden="true" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No bookmarked judges yet</h3>
+                <p className="text-muted-foreground mb-6">
                   Bookmark judges to compare their patterns and rulings
                 </p>
                 <Link
                   href="/judges"
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 >
                   <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
                   Browse Judges
                 </Link>
               </div>
             ) : (
-              <div className="divide-y divide-gray-200">
+              <div className="divide-y divide-border">
                 {bookmarkedJudges.map((bookmark) => {
                   const judge = bookmark.judges
                   if (!judge) return null
@@ -158,7 +158,7 @@ export default function JudgeCompareDashboard({
                     <div
                       key={bookmark.id}
                       className={`px-6 py-4 transition-colors ${
-                        selected ? 'bg-blue-50' : 'hover:bg-gray-50'
+                        selected ? 'bg-primary/5' : 'hover:bg-muted'
                       }`}
                     >
                       <div className="flex items-center justify-between">
@@ -174,12 +174,12 @@ export default function JudgeCompareDashboard({
                                 checked={selected}
                                 onChange={() => canSelect && toggleJudge(judge)}
                                 disabled={!canSelect}
-                                className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 disabled:opacity-50 focus:outline-none"
+                                className="w-5 h-5 text-primary rounded border-border focus:ring-primary disabled:opacity-50 focus:outline-none"
                                 aria-label={`Select ${judge.name} from ${judge.court_name} for comparison`}
                               />
                               <div className="flex-1">
-                                <p className="text-base font-medium text-gray-900">{judge.name}</p>
-                                <div className="mt-1 flex items-center space-x-4 text-sm text-gray-500">
+                                <p className="text-base font-medium text-foreground">{judge.name}</p>
+                                <div className="mt-1 flex items-center space-x-4 text-sm text-muted-foreground">
                                   <span>{judge.court_name}</span>
                                   {judge.total_cases > 0 && (
                                     <span className="flex items-center">
@@ -195,7 +195,7 @@ export default function JudgeCompareDashboard({
 
                         <Link
                           href={`/judges/${judge.slug}`}
-                          className="ml-4 inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                          className="ml-4 inline-flex items-center px-3 py-2 border border-border rounded-lg text-sm font-medium text-foreground bg-card hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                         >
                           <ExternalLink className="w-4 h-4 mr-1" aria-hidden="true" />
                           View Profile
@@ -211,16 +211,16 @@ export default function JudgeCompareDashboard({
           {/* Info Section */}
           <section
             aria-labelledby="comparison-features-heading"
-            className="mt-8 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200 p-6"
+            className="mt-8 bg-gradient-to-br from-accent/10 to-accent/5 rounded-xl border border-accent/30 p-6"
           >
             <h2
               id="comparison-features-heading"
-              className="text-lg font-semibold text-purple-900 mb-3"
+              className="text-lg font-semibold text-foreground mb-3"
             >
               <TrendingUp className="w-5 h-5 inline-block mr-2" aria-hidden="true" />
               Comparison Features
             </h2>
-            <ul className="space-y-2 text-sm text-purple-700">
+            <ul className="space-y-2 text-sm text-foreground">
               <li className="flex items-start">
                 <span className="mr-2">•</span>
                 <span>Compare ruling patterns across different case types</span>

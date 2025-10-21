@@ -43,86 +43,125 @@ export default async function AdvertiserDashboardPage(): Promise<JSX.Element> {
       <SkipLink />
       <main id="main-content" role="main" className="space-y-6">
         <header>
-          <h1 className="text-3xl font-bold text-gray-900">Advertising Dashboard</h1>
-          <p className="mt-2 text-gray-600">
-            Campaign management and billing tools are in private beta. We\'ll notify{' '}
-            {advertiserProfile.contact_email} when your workspace is enabled.
+          <h1 className="text-3xl font-bold text-foreground">Advertising Dashboard</h1>
+          <p className="mt-2 text-muted-foreground">
+            Welcome back, {advertiserProfile.firm_name}. Manage your campaigns and track performance.
           </p>
         </header>
 
+        {/* Quick Actions */}
         <section
-          aria-labelledby="beta-status-heading"
-          className="rounded-lg border border-dashed border-blue-300 bg-blue-50 p-6 text-blue-800"
+          aria-labelledby="quick-actions-heading"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
-          <h2 id="beta-status-heading" className="text-lg font-semibold mb-2">
-            Ad management is coming soon
+          <h2 id="quick-actions-heading" className="sr-only">Quick Actions</h2>
+
+          <Link
+            href="/dashboard/advertiser/campaigns"
+            className="rounded-lg border border-border bg-card p-6 shadow-sm hover:shadow-md hover:border-primary/50 transition-all"
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <MapPin className="h-5 w-5 text-primary" />
+              </div>
+              <h3 className="font-semibold text-foreground">Campaigns</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">Create and manage advertising campaigns</p>
+          </Link>
+
+          <Link
+            href="/dashboard/advertiser/performance"
+            className="rounded-lg border border-border bg-card p-6 shadow-sm hover:shadow-md hover:border-primary/50 transition-all"
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-secondary" />
+              </div>
+              <h3 className="font-semibold text-foreground">Performance</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">View analytics and campaign metrics</p>
+          </Link>
+
+          <Link
+            href="/dashboard/advertiser/creative"
+            className="rounded-lg border border-border bg-card p-6 shadow-sm hover:shadow-md hover:border-primary/50 transition-all"
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
+                <User className="h-5 w-5 text-success" />
+              </div>
+              <h3 className="font-semibold text-foreground">Ad Creative</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">Manage logo and ad content</p>
+          </Link>
+        </section>
+
+        {/* Account Status */}
+        <section
+          aria-labelledby="account-status-heading"
+          className={`rounded-lg border p-6 ${
+            advertiserProfile.verification_status === 'verified'
+              ? 'border-success/30 bg-success/10 text-success'
+              : advertiserProfile.verification_status === 'pending'
+                ? 'border-warning/30 bg-warning/10 text-warning'
+                : 'border-primary/30 bg-primary/10 text-primary'
+          }`}
+        >
+          <h2 id="account-status-heading" className="text-lg font-semibold mb-2">
+            Account Status
           </h2>
-          <p className="text-sm text-blue-700">
-            We\'re finalizing Stripe billing, automated placements, and analytics before opening
-            this dashboard.
-          </p>
-          <dl className="mt-4 grid gap-3 text-sm">
-            <div className="flex items-center justify-between">
-              <dt className="font-medium">Stripe connection</dt>
-              <dd
-                className={`px-2 py-1 rounded-full ${stripeReady ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}
-              >
-                {stripeReady ? 'Configured' : 'Not configured'}
-              </dd>
+          <dl className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <dt className="font-medium opacity-90">Status</dt>
+              <dd className="capitalize mt-1">{advertiserProfile.account_status}</dd>
             </div>
-            <div className="flex items-center justify-between">
-              <dt className="font-medium">Environment</dt>
-              <dd className="text-blue-900 uppercase">{environment}</dd>
+            <div>
+              <dt className="font-medium opacity-90">Verification</dt>
+              <dd className="capitalize mt-1">{advertiserProfile.verification_status}</dd>
             </div>
-            <div className="flex items-center justify-between">
-              <dt className="font-medium">Account status</dt>
-              <dd className="capitalize">{advertiserProfile.account_status}</dd>
+            <div>
+              <dt className="font-medium opacity-90">Environment</dt>
+              <dd className="uppercase mt-1">{environment}</dd>
             </div>
-            <div className="flex items-center justify-between">
-              <dt className="font-medium">Verification</dt>
-              <dd className="capitalize">{advertiserProfile.verification_status}</dd>
+            <div>
+              <dt className="font-medium opacity-90">Stripe</dt>
+              <dd className="mt-1">{stripeReady ? 'Configured' : 'Not configured'}</dd>
             </div>
           </dl>
-          {!stripeReady && (
-            <p className="mt-4 text-xs text-blue-700">
-              Add <code className="rounded bg-blue-100 px-1">STRIPE_SECRET_KEY</code> to your
-              environment to enable billing workflows.
-            </p>
-          )}
         </section>
 
         {/* Active Campaigns Section */}
         {activeBookings && activeBookings.length > 0 && (
           <section
             aria-labelledby="active-campaigns-heading"
-            className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+            className="rounded-lg border border-border bg-card p-6 shadow-sm"
           >
-            <h2 id="active-campaigns-heading" className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 id="active-campaigns-heading" className="text-lg font-semibold text-foreground mb-4">
               Your Active Ad Campaigns
             </h2>
             <div className="space-y-4">
               {activeBookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className="rounded-lg border border-gray-200 bg-gray-50 p-4 hover:border-primary/50 transition-colors"
+                  className="rounded-lg border border-border bg-muted p-4 hover:border-primary/50 transition-colors"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <Link
                         href={`/judges/${booking.judge.slug}`}
-                        className="text-base font-semibold text-gray-900 hover:text-primary"
+                        className="text-base font-semibold text-foreground hover:text-primary"
                       >
                         Judge {booking.judge.name}
                       </Link>
-                      <p className="text-sm text-gray-600 mt-1">{booking.judge.court_name}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{booking.judge.court_name}</p>
                     </div>
                     <div
                       className={`px-3 py-1 rounded-full text-xs font-medium ${
                         booking.status === 'active'
-                          ? 'bg-green-100 text-green-800'
+                          ? 'bg-success/20 text-success border border-success/30'
                           : booking.status === 'past_due'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-blue-100 text-blue-800'
+                            ? 'bg-destructive/20 text-destructive border border-destructive/30'
+                            : 'bg-primary/20 text-primary border border-primary/30'
                       }`}
                     >
                       {booking.status === 'active'
@@ -134,31 +173,31 @@ export default async function AdvertiserDashboardPage(): Promise<JSX.Element> {
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <MapPin className="h-4 w-4 text-gray-400" aria-hidden />
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <MapPin className="h-4 w-4 text-muted-foreground/50" aria-hidden />
                       <span>Slot #{booking.position}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <DollarSign className="h-4 w-4 text-gray-400" aria-hidden />
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <DollarSign className="h-4 w-4 text-muted-foreground/50" aria-hidden />
                       <span>${booking.monthly_price}/mo</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Calendar className="h-4 w-4 text-gray-400" aria-hidden />
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Calendar className="h-4 w-4 text-muted-foreground/50" aria-hidden />
                       <span>
                         {booking.billing_interval === 'annual' ? 'Annual' : 'Monthly'} billing
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <User className="h-4 w-4 text-gray-400" aria-hidden />
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <User className="h-4 w-4 text-muted-foreground/50" aria-hidden />
                       <span className="capitalize">{booking.court_level} court</span>
                     </div>
                   </div>
 
                   {booking.current_period_end && (
-                    <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500">
+                    <div className="mt-3 pt-3 border-t border-border text-xs text-muted-foreground/70">
                       {booking.cancel_at_period_end ? (
                         <p>
-                          <span className="font-medium text-amber-700">
+                          <span className="font-medium text-warning">
                             Canceling at period end
                           </span>{' '}
                           - Active until {new Date(booking.current_period_end).toLocaleDateString()}
@@ -175,7 +214,7 @@ export default async function AdvertiserDashboardPage(): Promise<JSX.Element> {
               ))}
             </div>
 
-            <div className="mt-4 pt-4 border-t border-gray-200 text-sm text-gray-600">
+            <div className="mt-4 pt-4 border-t border-border text-sm text-muted-foreground">
               <p>
                 To manage your subscriptions, visit your{' '}
                 <Link
@@ -192,25 +231,25 @@ export default async function AdvertiserDashboardPage(): Promise<JSX.Element> {
 
         <section
           aria-labelledby="preview-placements-heading"
-          className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+          className="rounded-lg border border-border bg-card p-6 shadow-sm"
         >
-          <h2 id="preview-placements-heading" className="text-lg font-semibold text-gray-900 mb-3">
+          <h2 id="preview-placements-heading" className="text-lg font-semibold text-foreground mb-3">
             Preview available placements
           </h2>
           {sampleSpots.length === 0 ? (
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               No ad spots are marked as available yet. We\'re preparing inventory for the beta
               launch.
             </p>
           ) : (
             <ul className="space-y-3">
               {sampleSpots.map((spot) => (
-                <li key={spot.id} className="rounded border border-gray-100 bg-gray-50 px-4 py-3">
-                  <div className="flex justify-between text-sm text-gray-700">
+                <li key={spot.id} className="rounded border border-border bg-muted px-4 py-3">
+                  <div className="flex justify-between text-sm text-foreground">
                     <span className="font-medium capitalize">{spot.entity_type} placement</span>
-                    <span className="text-gray-500">Position {spot.position}</span>
+                    <span className="text-muted-foreground">Position {spot.position}</span>
                   </div>
-                  <div className="mt-1 flex justify-between text-sm text-gray-600">
+                  <div className="mt-1 flex justify-between text-sm text-muted-foreground">
                     <span>Base price: ${spot.base_price_monthly.toLocaleString()} / mo</span>
                     <span>Impressions: {spot.impressions_total.toLocaleString()}</span>
                   </div>

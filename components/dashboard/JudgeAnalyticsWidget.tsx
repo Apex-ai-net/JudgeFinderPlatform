@@ -35,21 +35,21 @@ export default function JudgeAnalyticsWidget({
 
   if (!analytics || analytics.judges_summary.length === 0) {
     return (
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 rounded-xl border border-blue-200 dark:border-blue-900/50 p-6 reshade-depth">
+      <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/30 p-6 reshade-depth">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-blue-900 dark:text-blue-100">Judge Analytics</h3>
-            <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
+            <h3 className="font-semibold text-foreground">Judge Analytics</h3>
+            <p className="text-sm text-muted-foreground mt-2">
               Bookmark judges to see their performance analytics
             </p>
           </div>
-          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-            <BarChart3 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+            <BarChart3 className="w-6 h-6 text-primary" />
           </div>
         </div>
         <Link
           href="/judges"
-          className="inline-block mt-4 px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-all hover:scale-105"
+          className="inline-block mt-4 px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-all hover:scale-105"
         >
           Browse Judges
         </Link>
@@ -91,7 +91,7 @@ export default function JudgeAnalyticsWidget({
             {analytics.top_case_types.slice(0, 2).map((type) => (
               <span
                 key={type}
-                className="inline-block px-2 py-1 bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded"
+                className="inline-block px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded"
               >
                 {type}
               </span>

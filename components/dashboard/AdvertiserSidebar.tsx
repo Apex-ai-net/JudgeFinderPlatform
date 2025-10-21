@@ -14,15 +14,18 @@ import {
   Megaphone,
   Users,
   TrendingUp,
+  ImageIcon,
+  Activity,
 } from 'lucide-react'
 import { SafeSignOutButton } from '@/lib/auth/safe-clerk-components'
 
 const navigation = [
   { name: 'Overview', href: '/dashboard/advertiser', icon: Home },
   { name: 'Campaigns', href: '/dashboard/advertiser/campaigns', icon: Megaphone },
+  { name: 'Performance', href: '/dashboard/advertiser/performance', icon: Activity },
+  { name: 'Ad Creative', href: '/dashboard/advertiser/creative', icon: ImageIcon },
   { name: 'Ad Spots', href: '/dashboard/advertiser/ad-spots', icon: Target },
   { name: 'Bookings', href: '/dashboard/advertiser/bookings', icon: Calendar },
-  { name: 'Analytics', href: '/dashboard/advertiser/analytics', icon: BarChart3 },
   { name: 'Billing', href: '/dashboard/advertiser/billing', icon: CreditCard },
 ]
 
@@ -38,7 +41,7 @@ export default function AdvertiserSidebar(): JSX.Element {
     <div className="fixed inset-y-0 left-0 z-50 w-64 bg-surface-sunken text-white">
       <div className="flex h-full flex-col">
         {/* Logo */}
-        <div className="flex h-16 items-center gap-2 border-b border-gray-800 px-6">
+        <div className="flex h-16 items-center gap-2 border-b border-border/20 px-6">
           <div className="flex items-center justify-center w-8 h-8 bg-primary rounded-lg">
             <TrendingUp className="h-5 w-5 text-white" />
           </div>
@@ -76,7 +79,7 @@ export default function AdvertiserSidebar(): JSX.Element {
         </nav>
 
         {/* Bottom Navigation */}
-        <div className="border-t border-gray-800 px-3 py-4">
+        <div className="border-t border-border/20 px-3 py-4">
           {bottomNav.map((item) => {
             const isActive = pathname === item.href
 
@@ -109,7 +112,7 @@ export default function AdvertiserSidebar(): JSX.Element {
         </div>
 
         {/* User Info */}
-        <div className="border-t border-gray-800 px-6 py-4">
+        <div className="border-t border-border/20 px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-full bg-card flex items-center justify-center">
               <Users className="h-4 w-4 text-muted-foreground" />

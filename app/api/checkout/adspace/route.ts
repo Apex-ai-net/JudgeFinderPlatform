@@ -206,6 +206,48 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
+    // STEP 1: Save form data to pending_checkouts BEFORE creating Stripe session
+    // This prevents data loss if Stripe checkout fails or user abandons
+    const { createClient } = await import('@/lib/supabase/server')
+    const supabase = await createClient()
+
+    const { data: pendingCheckout, error: insertError } = await supabase
+      .from('pending_checkouts')
+      .insert({
+        clerk_user_id: userId || null,
+        organization_name,
+        email,
+        billing_cycle: billing_cycle || 'monthly',
+        notes: notes || null,
+        promo_code: promo_code || null,
+        judge_id: judge_id || null,
+        judge_name: judge_name || null,
+        court_name: court_name || null,
+        court_level: court_level || null,
+        ad_position: ad_position || null,
+        ad_type: effectiveAdType,
+        status: 'pending',
+        client_ip: clientIp,
+        metadata: {
+          user_agent: request.headers.get('user-agent') || null,
+          referrer: request.headers.get('referer') || null,
+        },
+      })
+      .select('id')
+      .single()
+
+    if (insertError || !pendingCheckout) {
+      logger.error('Failed to save pending checkout', { error: insertError })
+      // Non-blocking: continue with checkout even if save fails
+      logger.warn('Continuing checkout without pending_checkout record (data loss risk)')
+    } else {
+      logger.info('Pending checkout saved', {
+        pendingCheckoutId: pendingCheckout.id,
+        userId,
+        email,
+      })
+    }
+
     // Get base URL for success/cancel redirects
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || 'https://judgefinder.io'
@@ -274,6 +316,31 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         ad_position,
       }),
     })
+
+    // STEP 2: Update pending checkout with Stripe session ID
+    if (pendingCheckout?.id) {
+      const { error: updateError } = await supabase
+        .from('pending_checkouts')
+        .update({
+          stripe_session_id: session.id,
+          status: 'checkout_created',
+          checkout_created_at: new Date().toISOString(),
+        })
+        .eq('id', pendingCheckout.id)
+
+      if (updateError) {
+        logger.error('Failed to update pending checkout with session ID', {
+          pendingCheckoutId: pendingCheckout.id,
+          sessionId: session.id,
+          error: updateError,
+        })
+      } else {
+        logger.info('Pending checkout updated with session ID', {
+          pendingCheckoutId: pendingCheckout.id,
+          sessionId: session.id,
+        })
+      }
+    }
 
     return NextResponse.json({
       session_url: session.url,

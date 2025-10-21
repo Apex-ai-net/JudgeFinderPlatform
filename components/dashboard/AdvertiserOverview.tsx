@@ -33,8 +33,8 @@ export default function AdvertiserOverview({
       icon: DollarSign,
       change: '+12%',
       changeType: 'positive' as const,
-      bgColor: 'bg-green-50',
-      iconColor: 'text-green-600',
+      bgColor: 'bg-success/10',
+      iconColor: 'text-success',
     },
     {
       title: 'Active Campaigns',
@@ -51,8 +51,8 @@ export default function AdvertiserOverview({
       icon: Eye,
       change: '+25%',
       changeType: 'positive' as const,
-      bgColor: 'bg-purple-50',
-      iconColor: 'text-purple-600',
+      bgColor: 'bg-accent/10',
+      iconColor: 'text-accent',
     },
     {
       title: 'Click-through Rate',
@@ -60,8 +60,8 @@ export default function AdvertiserOverview({
       icon: MousePointer,
       change: '+0.5%',
       changeType: 'positive' as const,
-      bgColor: 'bg-yellow-50',
-      iconColor: 'text-yellow-600',
+      bgColor: 'bg-warning/10',
+      iconColor: 'text-warning',
     },
   ]
 
@@ -70,7 +70,7 @@ export default function AdvertiserOverview({
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat) => (
-          <div key={stat.title} className="bg-white rounded-lg shadow-sm border border-border p-6">
+          <div key={stat.title} className="bg-card rounded-lg shadow-sm border border-border p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
@@ -78,10 +78,10 @@ export default function AdvertiserOverview({
                 <p
                   className={`mt-2 text-sm ${
                     stat.changeType === 'positive'
-                      ? 'text-green-600'
+                      ? 'text-success'
                       : stat.changeType === 'neutral'
                         ? 'text-muted-foreground'
-                        : 'text-red-600'
+                        : 'text-destructive'
                   }`}
                 >
                   {stat.change}
@@ -96,12 +96,12 @@ export default function AdvertiserOverview({
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow-sm border border-border p-6">
+      <div className="bg-card rounded-lg shadow-sm border border-border p-6">
         <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             href="/dashboard/advertiser/campaigns/new"
-            className="flex items-center justify-between p-4 bg-primary/5 rounded-lg hover:bg-blue-100 transition-colors"
+            className="flex items-center justify-between p-4 bg-primary/5 rounded-lg hover:bg-primary/10 transition-colors"
           >
             <div className="flex items-center gap-3">
               <Plus className="h-5 w-5 text-primary" />
@@ -112,10 +112,10 @@ export default function AdvertiserOverview({
 
           <Link
             href="/dashboard/advertiser/ad-spots"
-            className="flex items-center justify-between p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+            className="flex items-center justify-between p-4 bg-accent/10 rounded-lg hover:bg-accent/20 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <Target className="h-5 w-5 text-purple-600" />
+              <Target className="h-5 w-5 text-accent" />
               <span className="font-medium text-foreground">Browse Ad Spots</span>
             </div>
             <ArrowRight className="h-4 w-4 text-muted-foreground" />
@@ -123,10 +123,10 @@ export default function AdvertiserOverview({
 
           <Link
             href="/dashboard/advertiser/analytics"
-            className="flex items-center justify-between p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+            className="flex items-center justify-between p-4 bg-success/10 rounded-lg hover:bg-success/20 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <BarChart3 className="h-5 w-5 text-green-600" />
+              <BarChart3 className="h-5 w-5 text-success" />
               <span className="font-medium text-foreground">View Analytics</span>
             </div>
             <ArrowRight className="h-4 w-4 text-muted-foreground" />
@@ -137,12 +137,12 @@ export default function AdvertiserOverview({
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Active Bookings */}
-        <div className="bg-white rounded-lg shadow-sm border border-border p-6">
+        <div className="bg-card rounded-lg shadow-sm border border-border p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-foreground">Active Ad Spots</h2>
             <Link
               href="/dashboard/advertiser/bookings"
-              className="text-sm text-primary hover:text-blue-700"
+              className="text-sm text-primary hover:text-primary/80"
             >
               View all
             </Link>
@@ -184,7 +184,7 @@ export default function AdvertiserOverview({
         </div>
 
         {/* Upcoming Bookings */}
-        <div className="bg-white rounded-lg shadow-sm border border-border p-6">
+        <div className="bg-card rounded-lg shadow-sm border border-border p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-foreground">Upcoming Bookings</h2>
             <Calendar className="h-5 w-5 text-muted-foreground" />

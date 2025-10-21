@@ -62,8 +62,8 @@ export default function AdvertiserOnboardingPage(): JSX.Element {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-card rounded-2xl border border-border p-8 text-center space-y-4">
           <div className="flex justify-center">
-            <div className="p-3 rounded-full bg-green-500/10">
-              <CheckCircle2 className="w-12 h-12 text-green-500" />
+            <div className="p-3 rounded-full bg-success/10">
+              <CheckCircle2 className="w-12 h-12 text-success" />
             </div>
           </div>
           <h2 className="text-2xl font-bold">Verification Successful!</h2>
@@ -95,11 +95,11 @@ export default function AdvertiserOnboardingPage(): JSX.Element {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
-              <div className="flex items-start gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-                <XCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-destructive/10 border border-destructive/30">
+                <XCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-red-500">Verification Failed</p>
-                  <p className="text-sm text-red-500/80">{error}</p>
+                  <p className="font-medium text-destructive">Verification Failed</p>
+                  <p className="text-sm text-destructive/80">{error}</p>
                 </div>
               </div>
             )}

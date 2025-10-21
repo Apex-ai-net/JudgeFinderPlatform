@@ -147,7 +147,7 @@ export default function AdvertisePage(): JSX.Element {
               <button
                 type="button"
                 onClick={() => setShowPreviewModal(true)}
-                className="inline-flex items-center justify-center px-8 py-4 bg-white text-foreground border-2 border-border rounded-lg hover:bg-muted transition-colors font-semibold text-lg"
+                className="inline-flex items-center justify-center px-8 py-4 bg-card text-foreground border-2 border-border rounded-lg hover:bg-muted transition-colors font-semibold text-lg"
               >
                 Preview Ad Slots
                 <ExternalLink className="ml-2 h-5 w-5" />
@@ -182,7 +182,7 @@ export default function AdvertisePage(): JSX.Element {
               const Icon = step.icon
               return (
                 <div key={step.step} className="relative">
-                  <div className="bg-white rounded-xl p-8 shadow-sm border border-border h-full">
+                  <div className="bg-card rounded-xl p-8 shadow-sm border border-border h-full">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                         <span className="text-2xl font-bold text-primary">{step.step}</span>
@@ -218,9 +218,9 @@ export default function AdvertisePage(): JSX.Element {
 
           <div className="grid md:grid-cols-2 gap-8 mb-12">
             {/* Federal Pricing Card */}
-            <div className="relative rounded-xl border-2 border-primary bg-white p-8 shadow-lg">
+            <div className="relative rounded-xl border-2 border-primary bg-card p-8 shadow-lg">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-1.5 rounded-full text-sm font-semibold">
+                <span className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground px-4 py-1.5 rounded-full text-sm font-semibold">
                   PREMIUM
                 </span>
               </div>
@@ -239,14 +239,14 @@ export default function AdvertisePage(): JSX.Element {
                 </div>
                 <div className="text-primary font-medium">
                   or $5,000/year{' '}
-                  <span className="text-green-600">(save $1,000)</span>
+                  <span className="text-success">(save $1,000)</span>
                 </div>
               </div>
 
               <ul className="space-y-3 mb-8">
                 {federalFeatures.map((feature, idx) => (
                   <li key={idx} className="flex items-start gap-3">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
                     <span className="text-foreground">{feature}</span>
                   </li>
                 ))}
@@ -261,15 +261,15 @@ export default function AdvertisePage(): JSX.Element {
             </div>
 
             {/* State Pricing Card */}
-            <div className="relative rounded-xl border-2 border-green-500 bg-white p-8 shadow-lg">
+            <div className="relative rounded-xl border-2 border-success bg-card p-8 shadow-lg">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-gradient-to-r from-green-600 to-green-500 text-white px-4 py-1.5 rounded-full text-sm font-semibold">
+                <span className="bg-gradient-to-r from-success to-success/90 text-white px-4 py-1.5 rounded-full text-sm font-semibold">
                   MOST POPULAR
                 </span>
               </div>
               <div className="text-center mb-6">
                 <h3 className="text-2xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
-                  <TrendingUp className="h-6 w-6 text-green-600" />
+                  <TrendingUp className="h-6 w-6 text-success" />
                   State Judge Profiles
                 </h3>
                 <p className="text-muted-foreground">High search volume, local targeting</p>
@@ -280,16 +280,16 @@ export default function AdvertisePage(): JSX.Element {
                   <span className="text-5xl font-bold text-foreground">$200</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
-                <div className="text-green-600 font-medium">
+                <div className="text-success font-medium">
                   or $2,000/year{' '}
-                  <span className="text-green-600">(save $400)</span>
+                  <span className="text-success">(save $400)</span>
                 </div>
               </div>
 
               <ul className="space-y-3 mb-8">
                 {stateFeatures.map((feature, idx) => (
                   <li key={idx} className="flex items-start gap-3">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
                     <span className="text-foreground">{feature}</span>
                   </li>
                 ))}
@@ -297,7 +297,7 @@ export default function AdvertisePage(): JSX.Element {
 
               <Link
                 href="/dashboard/advertiser/onboarding"
-                className="block w-full text-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
+                className="block w-full text-center px-6 py-3 bg-success text-white rounded-lg hover:bg-success/90 transition-colors font-semibold"
               >
                 Get Started with State
               </Link>
@@ -312,15 +312,15 @@ export default function AdvertisePage(): JSX.Element {
             </h4>
             <div className="grid sm:grid-cols-3 gap-4 text-sm">
               <div className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-green-500" />
+                <Check className="h-4 w-4 text-success" />
                 <span>3+ spots: 10% off</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-green-500" />
+                <Check className="h-4 w-4 text-success" />
                 <span>5+ spots: 15% off</span>
               </div>
               <div className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-green-500" />
+                <Check className="h-4 w-4 text-success" />
                 <span>10+ spots: 20% off</span>
               </div>
             </div>
@@ -343,7 +343,7 @@ export default function AdvertisePage(): JSX.Element {
             {valueProps.map((prop) => {
               const Icon = prop.icon
               return (
-                <div key={prop.title} className="bg-white rounded-xl p-8 shadow-sm border border-border">
+                <div key={prop.title} className="bg-card rounded-xl p-8 shadow-sm border border-border">
                   <div className="p-3 bg-primary/10 rounded-lg w-fit mb-4">
                     <Icon className="h-6 w-6 text-primary" />
                   </div>
@@ -359,10 +359,10 @@ export default function AdvertisePage(): JSX.Element {
       {/* Slot Availability */}
       <div className="px-4 py-20">
         <div className="mx-auto max-w-4xl">
-          <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-xl p-8">
+          <div className="bg-gradient-to-br from-warning/10 to-warning/5 border-2 border-warning/30 rounded-xl p-8">
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-yellow-100 rounded-lg">
-                <Clock className="h-6 w-6 text-yellow-700" />
+              <div className="p-3 bg-warning/20 rounded-lg">
+                <Clock className="h-6 w-6 text-warning" />
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-bold text-foreground mb-2">Limited Availability</h3>
@@ -373,15 +373,15 @@ export default function AdvertisePage(): JSX.Element {
                 </p>
                 <div className="flex flex-wrap gap-4 text-sm">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-success rounded-full"></div>
                     <span className="font-medium">Available</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-warning rounded-full"></div>
                     <span className="font-medium">Limited</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-destructive rounded-full"></div>
                     <span className="font-medium">Sold Out</span>
                   </div>
                 </div>
@@ -403,7 +403,7 @@ export default function AdvertisePage(): JSX.Element {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-border text-center">
+            <div className="bg-card rounded-xl p-6 shadow-sm border border-border text-center">
               <div className="p-3 bg-primary/10 rounded-lg w-fit mx-auto mb-4">
                 <Shield className="h-6 w-6 text-primary" />
               </div>
@@ -412,7 +412,7 @@ export default function AdvertisePage(): JSX.Element {
                 Every advertiser verified through California State Bar
               </p>
             </div>
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-border text-center">
+            <div className="bg-card rounded-xl p-6 shadow-sm border border-border text-center">
               <div className="p-3 bg-primary/10 rounded-lg w-fit mx-auto mb-4">
                 <Lock className="h-6 w-6 text-primary" />
               </div>
@@ -421,7 +421,7 @@ export default function AdvertisePage(): JSX.Element {
                 Strict adherence to professional conduct rules
               </p>
             </div>
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-border text-center">
+            <div className="bg-card rounded-xl p-6 shadow-sm border border-border text-center">
               <div className="p-3 bg-primary/10 rounded-lg w-fit mx-auto mb-4">
                 <Users className="h-6 w-6 text-primary" />
               </div>
@@ -455,7 +455,7 @@ export default function AdvertisePage(): JSX.Element {
             {faqs.map((faq, idx) => (
               <details
                 key={idx}
-                className="bg-white rounded-lg border border-border p-6 group"
+                className="bg-card rounded-lg border border-border p-6 group"
               >
                 <summary className="font-semibold text-foreground cursor-pointer list-none flex items-center justify-between">
                   <span>{faq.question}</span>
@@ -487,7 +487,7 @@ export default function AdvertisePage(): JSX.Element {
             </Link>
             <Link
               href="/docs/ads-policy"
-              className="inline-flex items-center justify-center px-8 py-4 bg-white text-foreground border-2 border-border rounded-lg hover:bg-muted transition-colors font-semibold text-lg"
+              className="inline-flex items-center justify-center px-8 py-4 bg-card text-foreground border-2 border-border rounded-lg hover:bg-muted transition-colors font-semibold text-lg"
             >
               Read Ad Policy
               <ExternalLink className="ml-2 h-5 w-5" />

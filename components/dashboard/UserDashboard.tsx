@@ -239,10 +239,10 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
           className="flex items-center justify-between p-3 bg-card/30 rounded-lg"
         >
           <div>
-            <p className="font-medium text-white">{judge.name}</p>
+            <p className="font-medium text-foreground">{judge.name}</p>
             <p className="text-sm text-muted-foreground">{courtLabel}</p>
           </div>
-          <StarIcon className="h-5 w-5 text-yellow-400" />
+          <StarIcon className="h-5 w-5 text-warning" />
         </div>
       )
     })
@@ -323,11 +323,11 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
         <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <SearchIcon className="h-8 w-8 text-green-400" />
+              <SearchIcon className="h-8 w-8 text-success" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-muted-foreground">Total Searches</p>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-2xl font-bold text-foreground">
                 {loading ? '...' : stats.totalSearches}
               </p>
             </div>
@@ -341,7 +341,7 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-muted-foreground">Judges Viewed</p>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-2xl font-bold text-foreground">
                 {loading ? '...' : stats.judgesViewed}
               </p>
             </div>
@@ -351,11 +351,11 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
         <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <ClockIcon className="h-8 w-8 text-orange-400" />
+              <ClockIcon className="h-8 w-8 text-warning" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-muted-foreground">Days Active</p>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-2xl font-bold text-foreground">
                 {loading ? '...' : stats.daysSinceJoin}
               </p>
             </div>
@@ -365,17 +365,17 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
 
       {/* Quick Actions */}
       <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">Quick Actions</h2>
+        <h2 className="text-xl font-semibold text-foreground mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Buy Ad Space - Featured Button */}
           <button
             onClick={() => setShowAdPurchaseModal(true)}
-            className="flex items-center p-4 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg border border-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all transform hover:scale-105 group shadow-lg"
+            className="flex items-center p-4 bg-gradient-to-r from-primary to-primary/90 rounded-lg border border-primary hover:from-primary/90 hover:to-primary/80 transition-all transform hover:scale-105 group shadow-lg"
           >
-            <Megaphone className="h-6 w-6 text-white mr-3" />
+            <Megaphone className="h-6 w-6 text-primary-foreground mr-3" />
             <div className="text-left">
-              <p className="font-medium text-white">Buy Ad Space</p>
-              <p className="text-sm text-blue-100">Promote your firm on judge profiles</p>
+              <p className="font-medium text-primary-foreground">Buy Ad Space</p>
+              <p className="text-sm text-primary-foreground/80">Promote your firm on judge profiles</p>
             </div>
           </button>
 
@@ -385,7 +385,7 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
           >
             <UserIcon className="h-6 w-6 text-primary mr-3" />
             <div>
-              <p className="font-medium text-white group-hover:text-primary">Browse Judges</p>
+              <p className="font-medium text-foreground group-hover:text-primary">Browse Judges</p>
               <p className="text-sm text-muted-foreground">Explore California judges statewide</p>
             </div>
           </Link>
@@ -394,9 +394,9 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
             href="/courts"
             className="flex items-center p-4 bg-card/50 rounded-lg border border-border/50 hover:bg-muted-foreground/50 transition-colors group"
           >
-            <BuildingIcon className="h-6 w-6 text-green-400 mr-3" />
+            <BuildingIcon className="h-6 w-6 text-success mr-3" />
             <div>
-              <p className="font-medium text-white group-hover:text-green-400">Browse Courts</p>
+              <p className="font-medium text-foreground group-hover:text-success">Browse Courts</p>
               <p className="text-sm text-muted-foreground">Search courts across California</p>
             </div>
           </Link>
@@ -405,9 +405,9 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
             href="/search"
             className="flex items-center p-4 bg-card/50 rounded-lg border border-border/50 hover:bg-muted-foreground/50 transition-colors group"
           >
-            <SearchIcon className="h-6 w-6 text-blue-500 mr-3" />
+            <SearchIcon className="h-6 w-6 text-primary mr-3" />
             <div>
-              <p className="font-medium text-white group-hover:text-blue-500">Advanced Search</p>
+              <p className="font-medium text-foreground group-hover:text-primary">Advanced Search</p>
               <p className="text-sm text-muted-foreground">Find specific judges and cases</p>
             </div>
           </Link>
@@ -416,9 +416,9 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
             href="/compare"
             className="flex items-center p-4 bg-card/50 rounded-lg border border-border/50 hover:bg-muted-foreground/50 transition-colors group"
           >
-            <BarChart3Icon className="h-6 w-6 text-orange-400 mr-3" />
+            <BarChart3Icon className="h-6 w-6 text-warning mr-3" />
             <div>
-              <p className="font-medium text-white group-hover:text-orange-400">Compare Judges</p>
+              <p className="font-medium text-foreground group-hover:text-warning">Compare Judges</p>
               <p className="text-sm text-muted-foreground">Analyze judicial patterns</p>
             </div>
           </Link>
@@ -438,9 +438,9 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
             href="/dashboard/bookmarks"
             className="flex items-center p-4 bg-card/50 rounded-lg border border-border/50 hover:bg-muted-foreground/50 transition-colors group"
           >
-            <BookmarkIcon className="h-6 w-6 text-yellow-400 mr-3" />
+            <BookmarkIcon className="h-6 w-6 text-warning mr-3" />
             <div>
-              <p className="font-medium text-white group-hover:text-yellow-400">Saved Judges</p>
+              <p className="font-medium text-foreground group-hover:text-warning">Saved Judges</p>
               <p className="text-sm text-muted-foreground">View bookmarked judges</p>
             </div>
           </Link>
@@ -452,8 +452,8 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
         {/* Saved Judges */}
         <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white">Recently Saved</h2>
-            <Link href="/dashboard/bookmarks" className="text-primary hover:text-blue-300 text-sm">
+            <h2 className="text-xl font-semibold text-foreground">Recently Saved</h2>
+            <Link href="/dashboard/bookmarks" className="text-primary hover:text-primary/80 text-sm">
               View All
             </Link>
           </div>
@@ -463,8 +463,8 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
         {/* Recent Searches */}
         <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white">Recent Searches</h2>
-            <Link href="/search" className="text-primary hover:text-blue-300 text-sm">
+            <h2 className="text-xl font-semibold text-foreground">Recent Searches</h2>
+            <Link href="/search" className="text-primary hover:text-primary/80 text-sm">
               New Search
             </Link>
           </div>
@@ -474,25 +474,25 @@ export function UserDashboard({ user }: UserDashboardProps): JSX.Element {
 
       {/* Account Info */}
       <div className="bg-card/50 backdrop-blur-sm rounded-lg border border-border/50 p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">Account Information</h2>
+        <h2 className="text-xl font-semibold text-foreground mb-4">Account Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <p className="text-sm font-medium text-muted-foreground mb-1">Email</p>
-            <p className="text-white">{user?.email}</p>
+            <p className="text-foreground">{user?.email}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground mb-1">Member Since</p>
-            <p className="text-white">{loading ? 'Loading...' : formattedMemberSince}</p>
+            <p className="text-foreground">{loading ? 'Loading...' : formattedMemberSince}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground mb-1">Account Type</p>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success/20 text-success">
               Free Account
             </span>
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground mb-1">Last Login</p>
-            <p className="text-white">Today</p>
+            <p className="text-foreground">Today</p>
           </div>
         </div>
       </div>

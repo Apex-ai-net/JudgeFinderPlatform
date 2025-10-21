@@ -117,15 +117,15 @@ export class ApiErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="min-h-[400px] flex items-center justify-center px-4 py-8">
-          <div className="max-w-md w-full bg-white rounded-lg shadow-lg border border-border p-6 text-center">
+          <div className="max-w-md w-full bg-card rounded-lg shadow-lg border border-border p-6 text-center">
             <div className="flex justify-center mb-4">
               {isNetworkError ? (
-                <div className="bg-orange-100 rounded-full p-3">
-                  <WifiOff className="h-8 w-8 text-orange-600" />
+                <div className="bg-warning/10 rounded-full p-3">
+                  <WifiOff className="h-8 w-8 text-warning" />
                 </div>
               ) : (
-                <div className="bg-red-100 rounded-full p-3">
-                  <AlertCircle className="h-8 w-8 text-red-600" />
+                <div className="bg-destructive/10 rounded-full p-3">
+                  <AlertCircle className="h-8 w-8 text-destructive" />
                 </div>
               )}
             </div>
@@ -142,11 +142,11 @@ export class ApiErrorBoundary extends Component<Props, State> {
             </p>
 
             {canAutoRetry && (
-              <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-700">
+              <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/30">
+                <p className="text-sm text-primary">
                   Automatically retrying... (Attempt {retryCount + 1}/3)
                 </p>
-                <div className="mt-2 w-full bg-blue-200 rounded-full h-2">
+                <div className="mt-2 w-full bg-primary/20 rounded-full h-2">
                   <div
                     className="bg-primary h-2 rounded-full transition-all duration-2000"
                     style={{ width: '100%' }}
@@ -159,7 +159,7 @@ export class ApiErrorBoundary extends Component<Props, State> {
               <button
                 onClick={this.handleRetry}
                 disabled={canAutoRetry}
-                className="w-full bg-primary text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+                className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${canAutoRetry ? 'animate-spin' : ''}`} />
                 {canAutoRetry ? 'Retrying...' : 'Try Again'}
@@ -167,7 +167,7 @@ export class ApiErrorBoundary extends Component<Props, State> {
 
               <button
                 onClick={this.handleGoBack}
-                className="w-full bg-muted text-foreground px-4 py-2 rounded-md hover:bg-gray-300 transition-colors flex items-center justify-center"
+                className="w-full bg-muted text-foreground px-4 py-2 rounded-md hover:bg-muted/80 transition-colors flex items-center justify-center"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Go Back
@@ -186,12 +186,12 @@ export class ApiErrorBoundary extends Component<Props, State> {
                 <div className="flex items-center justify-center text-sm text-muted-foreground">
                   {navigator.onLine ? (
                     <>
-                      <Wifi className="h-4 w-4 mr-2 text-green-500" />
+                      <Wifi className="h-4 w-4 mr-2 text-success" />
                       Connected to Internet
                     </>
                   ) : (
                     <>
-                      <WifiOff className="h-4 w-4 mr-2 text-red-500" />
+                      <WifiOff className="h-4 w-4 mr-2 text-destructive" />
                       No Internet Connection
                     </>
                   )}
@@ -205,7 +205,7 @@ export class ApiErrorBoundary extends Component<Props, State> {
                   Error Details (Development)
                 </summary>
                 <div className="mt-2 p-3 bg-muted rounded text-xs font-mono overflow-auto max-h-32">
-                  <div className="text-red-600 font-semibold">{this.state.error.message}</div>
+                  <div className="text-destructive font-semibold">{this.state.error.message}</div>
                   {this.state.error.stack && (
                     <pre className="mt-2 text-foreground whitespace-pre-wrap">
                       {this.state.error.stack}

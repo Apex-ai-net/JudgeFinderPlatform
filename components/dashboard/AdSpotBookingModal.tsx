@@ -83,7 +83,7 @@ export default function AdSpotBookingModal({
     >
       <div
         ref={modalRef}
-        className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-card rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
         tabIndex={-1}
       >
         {/* Header */}
@@ -115,8 +115,8 @@ export default function AdSpotBookingModal({
                     <span
                       className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                         spot.court_level === 'federal'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-green-100 text-green-800'
+                          ? 'bg-primary/10 text-primary'
+                          : 'bg-success/10 text-success'
                       }`}
                     >
                       {spot.court_level === 'federal' ? 'Federal' : 'State'}
@@ -147,7 +147,7 @@ export default function AdSpotBookingModal({
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
                   required
                   aria-required="true"
                 />
@@ -164,7 +164,7 @@ export default function AdSpotBookingModal({
                   id="booking-campaign"
                   value={campaignId}
                   onChange={(e) => setCampaignId(e.target.value)}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
                   aria-describedby="campaign-help"
                 >
                   <option value="">No campaign selected</option>

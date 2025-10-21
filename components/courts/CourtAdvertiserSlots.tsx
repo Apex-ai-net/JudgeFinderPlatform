@@ -255,7 +255,7 @@ function AdvertiserDetails({
           <div className="flex items-center gap-2">
             <h4 className="font-semibold text-foreground">{advertiser.firm_name}</h4>
             {advertiser.badge && (
-              <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+              <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
                 {advertiser.badge}
               </span>
             )}
@@ -307,7 +307,7 @@ function AdvertiserDetails({
               href={advertiser.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary hover:text-blue-700"
+              className="text-primary hover:text-primary/80"
               onClick={onWebsiteClick}
             >
               Visit Website
@@ -320,7 +320,7 @@ function AdvertiserDetails({
         <button
           type="button"
           onClick={onCtaClick}
-          className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
         >
           {slot.creative.cta_text}
         </button>

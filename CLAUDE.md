@@ -125,14 +125,22 @@ The platform's most critical component. Analyzes judicial patterns through:
 **Key Concept**: Requires minimum 500 cases for statistical confidence. All metrics include confidence intervals.
 
 ### 2. Court Advertising Platform (Importance: 90/100)
-**Location**: `lib/domain/services/AdPricingService.ts`
+**Location**: `lib/domain/services/AdPricingService.ts`, `lib/stripe/judge-products.ts`
 
-Tiered advertising system with legal compliance:
-- **Jurisdiction-based Pricing**: Different rates by court level
-- **Premium Rotation Slots**: 1.75x pricing multiplier
-- **Bundle Discounts**: 10-20% based on volume
-- **Professional Verification**: Bar number required for advertising
+**🔑 BUSINESS MODEL**: JudgeFinder is **FREE for end users**. Revenue comes from legal professional advertising.
+
+- **End Users**: 100% FREE (search, analytics, bias reports, no registration required)
+- **Advertisers** (Lawyers/Law Firms): Pay for ad placement on judge profile pages
+
+**Universal $500 Standard Pricing for Advertisers** (Updated 2025-10-20):
+- **Standard Pricing**: $500/month, $5,000/year for ALL judge ad placements (federal and state)
+- **Exclusive Placement Premium**: $750/month (1.5x multiplier, no competing ads on judge page)
+- **Bundle Discounts**: 10% (3+ spots), 15% (5+ spots), 20% (10+ spots)
+- **Annual Discount**: 2 months free (10-month pricing for 12-month subscription)
+- **Professional Verification**: Bar number required for advertising (lawyers only)
 - **Geographic Targeting**: Court-specific placement rules
+
+**Deprecated**: Tiered pricing (basic/premium/enterprise) and court-level multipliers removed for simplicity.
 
 **Critical**: All advertisers must have verified bar numbers. See `lib/domain/value-objects/BarNumber.ts` for validation.
 

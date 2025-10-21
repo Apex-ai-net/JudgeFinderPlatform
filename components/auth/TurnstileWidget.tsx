@@ -35,7 +35,7 @@ export function TurnstileWidget({
 
   if (!siteKey) {
     return (
-      <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-3 text-sm text-yellow-600 dark:text-yellow-400">
+      <div className="rounded-lg border border-warning/20 bg-warning/10 p-3 text-sm text-warning">
         ⚠️ Turnstile CAPTCHA is not configured. Please add NEXT_PUBLIC_TURNSTILE_SITE_KEY to
         environment variables.
       </div>

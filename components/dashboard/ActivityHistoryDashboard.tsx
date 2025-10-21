@@ -123,19 +123,19 @@ export default function ActivityHistoryDashboard({
       <main
         id="main-content"
         role="main"
-        className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100"
+        className="min-h-screen bg-background"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <header className="mb-8">
             <Link
               href="/dashboard"
-              className="text-sm text-blue-600 hover:text-blue-700 mb-4 inline-flex items-center"
+              className="text-sm text-primary hover:text-primary/80 mb-4 inline-flex items-center"
             >
               ← Back to Dashboard
             </Link>
-            <h1 className="text-4xl font-bold text-gray-900 mt-2">Activity History</h1>
-            <p className="mt-2 text-gray-600">
+            <h1 className="text-4xl font-bold text-foreground mt-2">Activity History</h1>
+            <p className="mt-2 text-muted-foreground">
               Complete history of your judicial research activities
             </p>
           </header>
@@ -146,49 +146,49 @@ export default function ActivityHistoryDashboard({
               Activity Statistics
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-card rounded-xl shadow-sm border border-border p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                       Total Activities
                     </p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">{stats.total}</p>
+                    <p className="text-3xl font-bold text-foreground mt-2">{stats.total}</p>
                   </div>
                   <Activity className="w-8 h-8 text-gray-400" />
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-card rounded-xl shadow-sm border border-border p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                       Today
                     </p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">{stats.today}</p>
+                    <p className="text-3xl font-bold text-foreground mt-2">{stats.today}</p>
                   </div>
                   <TrendingUp className="w-8 h-8 text-green-500" />
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-card rounded-xl shadow-sm border border-border p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                       Searches
                     </p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">{stats.searches}</p>
+                    <p className="text-3xl font-bold text-foreground mt-2">{stats.searches}</p>
                   </div>
                   <Search className="w-8 h-8 text-blue-500" />
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-card rounded-xl shadow-sm border border-border p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                       Profile Views
                     </p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">{stats.views}</p>
+                    <p className="text-3xl font-bold text-foreground mt-2">{stats.views}</p>
                   </div>
                   <Eye className="w-8 h-8 text-purple-500" />
                 </div>
@@ -201,7 +201,7 @@ export default function ActivityHistoryDashboard({
             <h2 id="filters-heading" className="sr-only">
               Activity Filters
             </h2>
-            <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="mb-6 bg-card rounded-xl shadow-sm border border-border p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label
@@ -251,9 +251,9 @@ export default function ActivityHistoryDashboard({
 
           {/* Activity List */}
           <section aria-labelledby="activity-list-heading">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 id="activity-list-heading" className="text-lg font-semibold text-gray-900">
+            <div className="bg-card rounded-xl shadow-sm border border-border">
+              <div className="px-6 py-4 border-b border-border">
+                <h2 id="activity-list-heading" className="text-lg font-semibold text-foreground">
                   Recent Activity ({filteredActivities.length})
                 </h2>
               </div>
@@ -261,7 +261,7 @@ export default function ActivityHistoryDashboard({
               {filteredActivities.length === 0 ? (
                 <div className="px-6 py-12 text-center">
                   <Activity className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No activity found</h3>
+                  <h3 className="text-lg font-medium text-foreground mb-2">No activity found</h3>
                   <p className="text-gray-500">
                     {selectedType !== 'all' || dateFilter !== 'all'
                       ? 'Try adjusting your filters'
@@ -287,7 +287,7 @@ export default function ActivityHistoryDashboard({
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-sm font-medium text-foreground">
                               {activity.activity_type === 'search' && 'Searched for judges'}
                               {activity.activity_type === 'view' && 'Viewed judge profile'}
                               {activity.activity_type === 'bookmark' && 'Bookmarked a judge'}
@@ -295,13 +295,13 @@ export default function ActivityHistoryDashboard({
                             </p>
 
                             {activity.search_query && (
-                              <p className="text-sm text-gray-600 mt-1 truncate">
+                              <p className="text-sm text-muted-foreground mt-1 truncate">
                                 Query: <span className="font-medium">{activity.search_query}</span>
                               </p>
                             )}
 
                             {activity.metadata && activity.metadata.judge_name && (
-                              <p className="text-sm text-gray-600 mt-1">
+                              <p className="text-sm text-muted-foreground mt-1">
                                 Judge:{' '}
                                 <span className="font-medium">{activity.metadata.judge_name}</span>
                               </p>
