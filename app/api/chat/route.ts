@@ -52,19 +52,33 @@ interface ChatMessage {
 
 export async function POST(request: NextRequest): Promise<Response | NextResponse> {
   try {
+    console.log('[Chat API] Request received')
+
     // CRITICAL: Authentication check (protected by middleware, but double-check)
     const { userId } = await auth()
     if (!userId) {
+      console.error('[Chat API] Authentication failed: No userId')
       return NextResponse.json(
         { error: 'Authentication required. Please sign in to use the AI chatbox.' },
         { status: 401 }
       )
     }
 
+    console.log('[Chat API] User authenticated:', userId)
+
     // Rate limiting: 20 messages per hour per user
     const rateLimitKey = `user:${userId}`
-    const rateLimitResult = await chatRateLimiter.limit(rateLimitKey)
+    let rateLimitResult
+    try {
+      rateLimitResult = await chatRateLimiter.limit(rateLimitKey)
+    } catch (rateLimitError) {
+      console.error('[Chat API] Rate limiter error (continuing without rate limit):', rateLimitError)
+      // Continue without rate limiting if Redis is unavailable
+      rateLimitResult = { success: true, remaining: 20, reset: Date.now() }
+    }
+
     if (!rateLimitResult.success) {
+      console.warn('[Chat API] Rate limit exceeded for user:', userId)
       return NextResponse.json(
         {
           error: 'Rate limit exceeded. You can send up to 20 messages per hour.',
@@ -82,33 +96,55 @@ export async function POST(request: NextRequest): Promise<Response | NextRespons
       )
     }
 
+    console.log('[Chat API] Rate limit check passed, remaining:', rateLimitResult.remaining)
+
     const body = await request.json()
     const { messages, stream = true, judge_id, judge_slug, turnstileToken } = body
 
+    console.log('[Chat API] Request body:', {
+      messageCount: messages?.length,
+      stream,
+      hasJudgeId: !!judge_id,
+      hasJudgeSlug: !!judge_slug,
+      hasTurnstileToken: !!turnstileToken,
+    })
+
     // Verify Turnstile CAPTCHA token to prevent bot abuse
     if (turnstileToken) {
+      console.log('[Chat API] Verifying Turnstile token...')
       const clientIp = getClientIp(request)
       const isValid = await verifyTurnstileToken(turnstileToken, clientIp)
       if (!isValid) {
+        console.error('[Chat API] Turnstile verification failed for IP:', clientIp)
         return NextResponse.json(
           { error: 'CAPTCHA verification failed. Please try again.' },
           { status: 403 }
         )
       }
+      console.log('[Chat API] Turnstile verification successful')
     }
 
     if (!messages || !Array.isArray(messages)) {
+      console.error('[Chat API] Invalid messages array')
       return NextResponse.json({ error: 'Messages array is required' }, { status: 400 })
     }
 
     if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 })
+      console.error('[Chat API] OpenAI API key not configured!')
+      return NextResponse.json(
+        { error: 'AI assistant is temporarily unavailable. The OpenAI API key is not configured.' },
+        { status: 500 }
+      )
     }
+
+    console.log('[Chat API] All validation checks passed, fetching context...')
 
     // Get context about judges if the query mentions any
     // If judge_id or judge_slug is provided, filter context to that specific judge only
     const userQuery = messages[messages.length - 1]?.content || ''
     const context = await getRelevantContext(userQuery, judge_id, judge_slug)
+
+    console.log('[Chat API] Context fetched, building chat messages...')
 
     // Build messages array with system prompt and context
     const chatMessages: ChatMessage[] = [
@@ -117,7 +153,10 @@ export async function POST(request: NextRequest): Promise<Response | NextRespons
       ...messages,
     ]
 
+    console.log('[Chat API] Chat messages built, total messages:', chatMessages.length)
+
     if (stream) {
+      console.log('[Chat API] Creating streaming OpenAI response...')
       // Create streaming response
       const streamResponse = await openai!.chat.completions.create({
         model: 'gpt-4o-mini',
@@ -126,6 +165,8 @@ export async function POST(request: NextRequest): Promise<Response | NextRespons
         max_tokens: 1000,
         stream: true,
       })
+
+      console.log('[Chat API] Streaming response created successfully')
 
       // Create a readable stream
       const encoder = new TextEncoder()
@@ -171,16 +212,33 @@ export async function POST(request: NextRequest): Promise<Response | NextRespons
       })
     }
   } catch (error) {
-    console.error('Chat API error:', error)
+    console.error('[Chat API] ERROR occurred:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      isOpenAIError: error instanceof OpenAI.APIError,
+    })
 
     if (error instanceof OpenAI.APIError) {
+      console.error('[Chat API] OpenAI API error details:', {
+        status: error.status,
+        code: error.code,
+        type: error.type,
+      })
       return NextResponse.json(
         { error: `OpenAI API error: ${error.message}` },
         { status: error.status || 500 }
       )
     }
 
-    return NextResponse.json({ error: 'Failed to process chat request' }, { status: 500 })
+    // Provide detailed error message for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+    console.error('[Chat API] Returning 500 error to client:', errorMessage)
+
+    return NextResponse.json(
+      { error: `Failed to process chat request: ${errorMessage}` },
+      { status: 500 }
+    )
   }
 }
 
@@ -241,7 +299,26 @@ async function getRelevantContext(
           similarity_threshold: 0.3,
         })
 
-        if (!error && judges && judges.length > 0) {
+        if (error) {
+          console.error('[Chat API] Error calling search_judges_ranked RPC:', error)
+          // Fallback to regular SELECT if RPC function doesn't exist
+          console.log('[Chat API] Falling back to regular SELECT query for judges')
+          const { data: fallbackJudges } = await supabase
+            .from('judges')
+            .select('id, name, court_name, jurisdiction, total_cases')
+            .ilike('name', `%${judgeName}%`)
+            .limit(5)
+
+          if (fallbackJudges && fallbackJudges.length > 0) {
+            const judgeList = fallbackJudges
+              .map((j: any) => `${j.name} - ${j.court_name || 'Court not specified'}`)
+              .join(', ')
+            context.push({
+              role: 'system',
+              content: `Judges matching "${judgeName}": ${judgeList}`,
+            })
+          }
+        } else if (judges && judges.length > 0) {
           if (judges.length === 1) {
             // Single match - provide full info
             const j = judges[0]
@@ -308,7 +385,11 @@ async function getRelevantContext(
       })
     }
   } catch (error) {
-    console.error('Error fetching context:', error)
+    console.error('[Chat API] Error fetching context:', {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    })
+    // Return empty context on error - don't fail the entire chat request
   }
 
   return context

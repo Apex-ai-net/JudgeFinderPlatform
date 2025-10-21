@@ -130,8 +130,38 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
         signal: abortControllerRef.current.signal,
       })
 
+      // Enhanced error handling with specific messages
       if (!response.ok) {
-        throw new Error('Failed to get response')
+        let errorMessage = 'Failed to get response from AI assistant.'
+
+        // Try to parse error response body
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorMessage
+          console.error('Chat API error response:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData,
+          })
+        } catch (parseError) {
+          console.error('Chat API error (no JSON body):', {
+            status: response.status,
+            statusText: response.statusText,
+          })
+        }
+
+        // Provide user-friendly messages based on status code
+        if (response.status === 401) {
+          errorMessage = 'Please sign in to use the AI assistant.'
+        } else if (response.status === 403) {
+          errorMessage = 'Security verification failed. Please try again.'
+        } else if (response.status === 429) {
+          errorMessage = 'Rate limit exceeded. You can send up to 20 messages per hour.'
+        } else if (response.status === 500) {
+          errorMessage = errorMessage || 'AI assistant is temporarily unavailable. Please try again later.'
+        }
+
+        throw new Error(errorMessage)
       }
 
       // Remove typing indicator
@@ -194,13 +224,16 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
       } else {
         console.error('Chat error:', error)
         setMessages((prev) => prev.filter((m) => m.id !== 'typing'))
+
+        // Use the actual error message if available
+        const errorMessage = error.message || 'I apologize, but I encountered an error processing your request. Please try again.'
+
         setMessages((prev) => [
           ...prev,
           {
             id: Date.now().toString(),
             role: 'assistant',
-            content:
-              'I apologize, but I encountered an error processing your request. Please try again.',
+            content: `Sorry, I encountered an error. ${errorMessage}`,
             timestamp: new Date(),
           },
         ])
