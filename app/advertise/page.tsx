@@ -138,7 +138,7 @@ export default function AdvertisePage(): JSX.Element {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/dashboard/advertiser/onboarding"
+                href="/advertise/onboarding"
                 className="inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg shadow-lg"
               >
                 Get Started

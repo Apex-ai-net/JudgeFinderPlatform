@@ -28,6 +28,7 @@ const isProtectedRoute = createRouteMatcher([
   '/ads/buy', // NEW: require sign-in to view purchase page
   '/api/checkout(.*)', // NEW: protect all checkout API routes
   '/api/billing(.*)', // NEW: protect billing routes
+  '/api/chat(.*)', // AI chatbox requires authentication to prevent bot abuse
 ])
 
 const isAdminRoute = createRouteMatcher(['/admin(.*)'])

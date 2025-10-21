@@ -15,6 +15,9 @@ process.env.GOOGLE_AI_API_KEY = 'test-google-ai-key'
 process.env.CLERK_SECRET_KEY = 'test-clerk-secret-key'
 process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = 'test-clerk-publishable-key'
 process.env.COURTLISTENER_API_KEY = 'test-courtlistener-key'
+process.env.OPENAI_API_KEY = 'test-openai-key'
+process.env.TURNSTILE_SECRET_KEY = '0xTEST_SECRET_KEY'
+process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY = '0xTEST_SITE_KEY'
 
 // Mock Next.js modules
 vi.mock('next/headers', () => ({

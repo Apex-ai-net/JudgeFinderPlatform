@@ -14,7 +14,11 @@ import {
   X,
   Minimize2,
   Maximize2,
+  LogIn,
 } from 'lucide-react'
+import { useSafeUser } from '@/lib/auth/safe-clerk-components'
+import { TurnstileWidget } from '@/components/auth/TurnstileWidget'
+import Link from 'next/link'
 
 interface Message {
   id: string
@@ -30,6 +34,7 @@ interface AILegalAssistantProps {
 }
 
 export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantProps): JSX.Element {
+  const { isSignedIn, isLoaded } = useSafeUser()
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -43,6 +48,8 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
   const [isLoading, setIsLoading] = useState(false)
   const [isExpanded, setIsExpanded] = useState(true)
   const [isListening, setIsListening] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
+  const [showTurnstile, setShowTurnstile] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -74,6 +81,12 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || isLoading) return
+
+    // Show Turnstile on first message if not yet verified
+    if (messages.length === 1 && !turnstileToken) {
+      setShowTurnstile(true)
+      return
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -112,6 +125,7 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
             }))
             .concat({ role: 'user', content: input.trim() }),
           stream: true,
+          turnstileToken, // Include Turnstile token
         }),
         signal: abortControllerRef.current.signal,
       })
@@ -242,6 +256,35 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
     'Find judges in Los Angeles County',
   ]
 
+  // Show authentication requirement if not signed in
+  if (isLoaded && !isSignedIn) {
+    return (
+      <motion.div
+        className={`relative bg-card/95 backdrop-blur-lg border border-border rounded-2xl shadow-2xl p-8 ${className}`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="flex flex-col items-center justify-center gap-4 text-center">
+          <div className="p-3 rounded-full bg-primary/10">
+            <LogIn className="w-8 h-8 text-primary" />
+          </div>
+          <h3 className="text-xl font-semibold">Sign In Required</h3>
+          <p className="text-muted-foreground max-w-md">
+            Please sign in to use our AI legal assistant. This helps us prevent bot abuse and provide you with a personalized experience.
+          </p>
+          <Link
+            href="/sign-in?redirect_url=/judges"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-all"
+          >
+            <LogIn className="w-4 h-4" />
+            Sign In to Continue
+          </Link>
+        </div>
+      </motion.div>
+    )
+  }
+
   return (
     <motion.div
       className={`relative bg-card/95 backdrop-blur-lg border border-border rounded-2xl shadow-2xl ${className}`}
@@ -329,7 +372,7 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
             </div>
 
             {/* Suggested Questions */}
-            {messages.length === 1 && (
+            {messages.length === 1 && !showTurnstile && (
               <div className="px-4 pb-2">
                 <p className="text-xs text-muted-foreground mb-2">Suggested questions:</p>
                 <div className="flex flex-wrap gap-2">
@@ -342,6 +385,35 @@ export function AILegalAssistant({ className, onJudgeSelect }: AILegalAssistantP
                       {question}
                     </button>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Turnstile CAPTCHA Verification */}
+            {showTurnstile && !turnstileToken && (
+              <div className="px-4 pb-4 border-t border-border">
+                <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Please complete the verification below to continue:
+                  </p>
+                  <TurnstileWidget
+                    onVerify={(token) => {
+                      setTurnstileToken(token)
+                      setShowTurnstile(false)
+                    }}
+                    onError={() => {
+                      setShowTurnstile(false)
+                      setMessages((prev) => [
+                        ...prev,
+                        {
+                          id: Date.now().toString(),
+                          role: 'assistant',
+                          content: 'CAPTCHA verification failed. Please try again.',
+                          timestamp: new Date(),
+                        },
+                      ])
+                    }}
+                  />
                 </div>
               </div>
             )}

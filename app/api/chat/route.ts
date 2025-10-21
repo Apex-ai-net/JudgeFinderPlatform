@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { createServerClient } from '@/lib/supabase/server'
+import { auth } from '@clerk/nextjs/server'
+import { verifyTurnstileToken } from '@/lib/auth/turnstile'
+import { getClientIp, buildRateLimiter } from '@/lib/security/rate-limit'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 30
+
+// Chat-specific rate limiter: 20 messages per hour for authenticated users
+const chatRateLimiter = buildRateLimiter({
+  tokens: 20,
+  window: '1 h',
+  prefix: 'chat:user',
+})
 
 const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({
@@ -42,8 +52,50 @@ interface ChatMessage {
 
 export async function POST(request: NextRequest): Promise<Response | NextResponse> {
   try {
+    // CRITICAL: Authentication check (protected by middleware, but double-check)
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Authentication required. Please sign in to use the AI chatbox.' },
+        { status: 401 }
+      )
+    }
+
+    // Rate limiting: 20 messages per hour per user
+    const rateLimitKey = `user:${userId}`
+    const rateLimitResult = await chatRateLimiter.limit(rateLimitKey)
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Rate limit exceeded. You can send up to 20 messages per hour.',
+          remaining: rateLimitResult.remaining,
+          reset: rateLimitResult.reset,
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': '20',
+            'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+            'X-RateLimit-Reset': String(rateLimitResult.reset),
+          },
+        }
+      )
+    }
+
     const body = await request.json()
-    const { messages, stream = true, judge_id, judge_slug } = body
+    const { messages, stream = true, judge_id, judge_slug, turnstileToken } = body
+
+    // Verify Turnstile CAPTCHA token to prevent bot abuse
+    if (turnstileToken) {
+      const clientIp = getClientIp(request)
+      const isValid = await verifyTurnstileToken(turnstileToken, clientIp)
+      if (!isValid) {
+        return NextResponse.json(
+          { error: 'CAPTCHA verification failed. Please try again.' },
+          { status: 403 }
+        )
+      }
+    }
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: 'Messages array is required' }, { status: 400 })

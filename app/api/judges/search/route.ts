@@ -3,6 +3,7 @@ import { createServerClient } from '@/lib/supabase/server'
 import type { Judge, SearchResult } from '@/types'
 import { sanitizeSearchQuery, normalizeJudgeSearchQuery } from '@/lib/utils/validation'
 import { buildCacheKey, withRedisCache } from '@/lib/cache/redis'
+import { auth } from '@clerk/nextjs/server'
 
 export const dynamic = 'force-dynamic'
 // Removed edge runtime - incompatible with cookies() API
@@ -11,10 +12,39 @@ export const revalidate = 60
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { buildRateLimiter, getClientIp } = await import('@/lib/security/rate-limit')
-    const rl = buildRateLimiter({ tokens: 40, window: '1 m', prefix: 'api:judges:search:get' })
-    const { success, remaining } = await rl.limit(`${getClientIp(request)}:global`)
+
+    // Check if user is authenticated
+    const { userId } = await auth()
+
+    // Different rate limits for authenticated vs anonymous users
+    // Anonymous: 10 searches per day (strict bot prevention)
+    // Authenticated: 100 searches per hour (generous for legitimate use)
+    const rl = userId
+      ? buildRateLimiter({ tokens: 100, window: '1 h', prefix: 'api:judges:search:auth' })
+      : buildRateLimiter({ tokens: 10, window: '24 h', prefix: 'api:judges:search:anon' })
+
+    const rateLimitKey = userId || getClientIp(request)
+    const { success, remaining, reset } = await rl.limit(rateLimitKey)
+
     if (!success) {
-      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+      return NextResponse.json(
+        {
+          error: userId
+            ? 'Rate limit exceeded. You can search up to 100 times per hour.'
+            : 'Daily search limit reached (10 searches). Please sign in for unlimited searches.',
+          remaining,
+          reset,
+          requiresAuth: !userId,
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': userId ? '100' : '10',
+            'X-RateLimit-Remaining': String(remaining),
+            'X-RateLimit-Reset': String(reset),
+          },
+        }
+      )
     }
     const { searchParams } = new URL(request.url)
     const rawQuery = searchParams.get('q') || ''
