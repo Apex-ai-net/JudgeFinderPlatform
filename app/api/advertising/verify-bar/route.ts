@@ -63,13 +63,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Check if bar number is already in use
     const { data: existingUser } = await supabase
-      .from('users')
-      .select('id')
+      .from('app_users')
+      .select('clerk_user_id')
       .eq('bar_number', cleanedBarNumber)
       .eq('bar_state', barState)
       .single()
 
-    if (existingUser && existingUser.id !== userId) {
+    if (existingUser && existingUser.clerk_user_id !== userId) {
       return NextResponse.json(
         { error: 'This bar number is already registered to another account.' },
         { status: 409 }
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Update user record with bar information and set role to advertiser
     const { error: updateError } = await supabase
-      .from('users')
+      .from('app_users')
       .update({
         bar_number: cleanedBarNumber,
         bar_state: barState,
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         bar_verified_at: new Date().toISOString(),
         user_role: 'advertiser', // This will be set automatically by trigger when verification_status = 'verified'
       })
-      .eq('clerk_id', userId)
+      .eq('clerk_user_id', userId)
 
     if (updateError) {
       console.error('Error updating user with bar information:', updateError)
