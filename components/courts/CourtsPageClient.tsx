@@ -2,11 +2,12 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, MapPin, Flag, Building2 } from 'lucide-react'
 import { CourtsSearch } from './CourtsSearch'
 import { CountiesTab } from './CountiesTab'
 import { CitiesTab } from './CitiesTab'
 import { CourtsDirectoryHeader } from './CourtsDirectoryHeader'
+import { CourtStatsRow } from './CourtStatsRow'
 
 interface Court {
   id: string
@@ -43,6 +44,15 @@ export function CourtsPageClient({
         transition={{ duration: 0.8 }}
       >
         <div className="mx-auto max-w-7xl">
+          {/* Stats Row */}
+          <CourtStatsRow
+            stats={[
+              { label: '58 Counties', value: 'California', icon: MapPin },
+              { label: '4 Federal Districts', value: 'Federal', icon: Flag },
+              { label: '5+ Court Types', value: 'All Levels', icon: Building2 },
+            ]}
+          />
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

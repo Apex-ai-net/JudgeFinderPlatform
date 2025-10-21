@@ -20,6 +20,8 @@ import { useSearchDebounce } from '@/lib/hooks/useDebounce'
 import { CourtCardSkeleton } from '@/components/ui/Skeleton'
 import { resolveCourtSlug } from '@/lib/utils/slug'
 import { AnimatedCard, AnimatedBadge } from '@/components/micro-interactions'
+import GlassCard from '@/components/ui/GlassCard'
+import { CourtGroupAccordion } from './CourtGroupAccordion'
 
 interface Court {
   id: string
@@ -249,6 +251,7 @@ export function CourtsSearch({
   const renderCourtCard = (court: Court, index: number): JSX.Element => {
     const typeInfo = getCourtTypeInfo(court)
     const TypeIcon = typeInfo.icon
+    const slug = resolveCourtSlug(court) || court.id
 
     return (
       <motion.div
@@ -257,44 +260,46 @@ export function CourtsSearch({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.05, duration: 0.5 }}
       >
-        <Link href={`/courts/${resolveCourtSlug(court) || court.id}`} className="block h-full">
-          <AnimatedCard
-            intensity="medium"
-            className="relative h-full p-6 shadow-card hover:shadow-card-hover"
-          >
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-enterprise-primary to-enterprise-deep opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none" />
+        <Link href={`/courts/${slug}`} className="block h-full group">
+          <GlassCard className="relative h-full p-6 hover:-translate-y-1 hover:border-primary/60 hover:shadow-lg transition-all duration-200">
+            {/* Gradient Overlay on Hover */}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
-            <div className="relative flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className={`p-1.5 rounded-lg ${typeInfo.bgColor} ${typeInfo.color}`}>
-                    <TypeIcon className="h-4 w-4" />
+            <div className="relative flex items-start gap-4">
+              {/* Icon */}
+              <div className="flex-shrink-0">
+                <div className="relative">
+                  <div className={`h-12 w-12 rounded-xl ${typeInfo.bgColor} flex items-center justify-center`}>
+                    <TypeIcon className={`h-6 w-6 ${typeInfo.color}`} />
                   </div>
-                  <AnimatedBadge
-                    variant={
-                      typeInfo.label === 'Federal'
-                        ? 'info'
-                        : typeInfo.label === 'State' || typeInfo.label === 'State Appellate'
-                          ? 'default'
-                          : 'success'
-                    }
-                    className="capitalize"
-                  >
+                  <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary/80" />
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                {/* Type Badge */}
+                <div className="mb-2">
+                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${typeInfo.bgColor} ${typeInfo.color}`}>
                     {typeInfo.label}
-                  </AnimatedBadge>
+                  </span>
                 </div>
 
+                {/* Court Name */}
                 <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-1 line-clamp-2">
                   {formatCourtName(court.name, court.court_level)}
                 </h3>
-                <p className="text-xs text-muted-foreground mb-3 capitalize">
+
+                {/* Court Type Description */}
+                <p className="text-xs text-muted-foreground mb-3">
                   {getCourtTypeDescription(court)}
                 </p>
 
-                <div className="space-y-2">
+                {/* Meta Information */}
+                <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                    <span>{court.jurisdiction}</span>
+                    <span className="truncate">{court.jurisdiction}</span>
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -303,25 +308,28 @@ export function CourtsSearch({
                       {court.judge_count} {court.judge_count === 1 ? 'judge' : 'judges'}
                     </span>
                   </div>
+
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Scale className="h-3.5 w-3.5 flex-shrink-0" />
+                    <span>{court.jurisdiction} jurisdiction</span>
+                  </div>
                 </div>
 
-                <div className="mt-4 flex items-center gap-1 text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-sm font-medium">View Details</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
+                {/* Call to Action */}
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {court.website && (
+                    <span className="inline-flex items-center rounded-full bg-interactive/10 px-3 py-1 text-primary">
+                      Official Website
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1 text-primary opacity-0 group-hover:opacity-100 transition-opacity font-medium">
+                    View Details
+                    <ArrowRight className="h-3 w-3" />
+                  </span>
                 </div>
-              </div>
-
-              <div className="ml-4">
-                <motion.div
-                  className={`p-2 rounded-lg ${typeInfo.bgColor}`}
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  transition={{ type: 'spring', stiffness: 400 }}
-                >
-                  <Scale className={`h-6 w-6 ${typeInfo.color}`} />
-                </motion.div>
               </div>
             </div>
-          </AnimatedCard>
+          </GlassCard>
         </Link>
       </motion.div>
     )
@@ -410,60 +418,70 @@ export function CourtsSearch({
     <div className="space-y-6">
       {/* Search and Filters */}
       <motion.div
-        className="bg-card rounded-xl border border-border p-6 shadow-sm backdrop-blur-sm"
+        className="mx-auto max-w-5xl"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search courts by name..."
-              className="w-full rounded-lg border border-border bg-background py-3 pl-10 pr-10 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-            />
-            {isSearching && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+        <GlassCard className="p-6">
+          <div className="space-y-4">
+            {/* Search Bar */}
+            <div className="relative max-w-2xl mx-auto">
+              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search courts by name..."
+                className="w-full rounded-xl border border-border bg-background py-3.5 pl-12 pr-12 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                aria-label="Search courts"
+              />
+              {isSearching && (
+                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                </div>
+              )}
+            </div>
+
+            {/* Filters Row - Centered Horizontal Layout */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <div className="min-w-[200px]">
+                <label htmlFor="jurisdiction-filter" className="sr-only">
+                  Jurisdiction
+                </label>
+                <select
+                  id="jurisdiction-filter"
+                  className="w-full rounded-lg border border-border bg-background py-2.5 px-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                  value={selectedJurisdiction}
+                  onChange={(e) => setSelectedJurisdiction(e.target.value)}
+                  aria-label="Filter by jurisdiction"
+                >
+                  <option value="">All Jurisdictions</option>
+                  <option value="CA">California</option>
+                  <option value="US">United States (Federal)</option>
+                </select>
               </div>
-            )}
-          </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Jurisdiction</label>
-              <select
-                className="w-full rounded-lg border border-border bg-background py-2.5 px-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                value={selectedJurisdiction}
-                onChange={(e) => setSelectedJurisdiction(e.target.value)}
-              >
-                <option value="">All Jurisdictions</option>
-                <option value="CA">California</option>
-                <option value="US">United States (Federal)</option>
-                <option value="NY">New York</option>
-                <option value="TX">Texas</option>
-                <option value="FL">Florida</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Court Level</label>
-              <select
-                className="w-full rounded-lg border border-border bg-background py-2.5 px-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                value={selectedCourtLevel}
-                onChange={(e) => setSelectedCourtLevel(e.target.value)}
-              >
-                <option value="">All Courts</option>
-                <option value="federal">Federal Courts</option>
-                <option value="state">State Courts (Appellate/Supreme)</option>
-                <option value="">County Superior Courts</option>
-              </select>
+              <div className="min-w-[200px]">
+                <label htmlFor="court-level-filter" className="sr-only">
+                  Court Level
+                </label>
+                <select
+                  id="court-level-filter"
+                  className="w-full rounded-lg border border-border bg-background py-2.5 px-4 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                  value={selectedCourtLevel}
+                  onChange={(e) => setSelectedCourtLevel(e.target.value)}
+                  aria-label="Filter by court level"
+                >
+                  <option value="">All Court Levels</option>
+                  <option value="federal">Federal Courts</option>
+                  <option value="state">State Courts (Appellate/Supreme)</option>
+                  <option value="">County Superior Courts</option>
+                </select>
+              </div>
             </div>
           </div>
-        </div>
+        </GlassCard>
       </motion.div>
 
       {/* Error Message */}
@@ -507,7 +525,7 @@ export function CourtsSearch({
         </button>
       </motion.div>
 
-      {/* Grouped Courts Display */}
+      {/* Grouped Courts Display with Accordions */}
       {groupByCounty &&
         courts.length > 0 &&
         !loading &&
@@ -518,44 +536,54 @@ export function CourtsSearch({
           )
 
           return (
-            <div className="space-y-8">
-              {/* Federal Courts */}
+            <div className="space-y-4">
+              {/* Federal Courts Accordion */}
               {federal.length > 0 && (
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
-                    <Flag className="h-6 w-6 text-blue-500" />
-                    Federal Courts
-                  </h2>
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <CourtGroupAccordion
+                  title="Federal Courts"
+                  icon={Flag}
+                  iconColor="text-blue-500"
+                  iconBgColor="bg-blue-500/10"
+                  count={federal.length}
+                  defaultOpen={true}
+                >
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {federal.map((court, index) => renderCourtCard(court, index))}
                   </div>
-                </div>
+                </CourtGroupAccordion>
               )}
 
-              {/* State Appellate Courts */}
+              {/* State Appellate Courts Accordion */}
               {stateAppellate.length > 0 && (
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
-                    <Landmark className="h-6 w-6 text-purple-500" />
-                    State Courts
-                  </h2>
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <CourtGroupAccordion
+                  title="State Courts"
+                  icon={Landmark}
+                  iconColor="text-purple-500"
+                  iconBgColor="bg-purple-500/10"
+                  count={stateAppellate.length}
+                  defaultOpen={true}
+                >
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {stateAppellate.map((court, index) => renderCourtCard(court, index))}
                   </div>
-                </div>
+                </CourtGroupAccordion>
               )}
 
-              {/* County Superior Courts */}
+              {/* County Superior Courts Accordions */}
               {sortedCounties.map(([county, countyCourts]) => (
-                <div key={county}>
-                  <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
-                    <Building2 className="h-6 w-6 text-green-500" />
-                    {county} County
-                  </h2>
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <CourtGroupAccordion
+                  key={county}
+                  title={`${county} County`}
+                  icon={Building2}
+                  iconColor="text-green-500"
+                  iconBgColor="bg-green-500/10"
+                  count={countyCourts.length}
+                  defaultOpen={false}
+                >
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {countyCourts.map((court, index) => renderCourtCard(court, index))}
                   </div>
-                </div>
+                </CourtGroupAccordion>
               ))}
             </div>
           )
