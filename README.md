@@ -1,293 +1,172 @@
 # JudgeFinder Platform
 
-AI-powered judicial transparency platform providing real-time analytics and bias
-detection across California's courts.
+AI-powered judicial transparency platform delivering real-time analytics and bias detection across California's courts.
 
-## Launch status: 5 Days to Production
-
-See `docs/LAUNCH_PLAN.md` for the full deployment strategy.
-
-## Quick Launch Commands
-
-```bash
-# Generate AI analytics for all judges (Day 1-2)
-npm run launch:analytics
-
-# Run complete data sync (Day 1)
-npm run launch:data
-
-# Validate all systems (Day 5)
-npm run launch:validate
-```
+🚀 **Live**: [judgefinder.io](https://judgefinder.io)
 
 ## Overview
 
-JudgeFinder delivers data-driven insights into judicial patterns using AI
-analysis and automated data ingestion from official sources.
+JudgeFinder provides data-driven insights into judicial patterns using AI analysis and automated data ingestion from official court sources.
 
-## Highlights
+### Key Features
 
-- **AI Analytics**: Gemini 1.5 Flash primary, GPT-4o-mini fallback
-- **Real-time Sync**: Daily and weekly automated jobs with retries and queueing
-- **Coverage**: California courts and judges with decision documents
+- 🤖 **AI Analytics**: Gemini 1.5 Flash (primary), GPT-4o-mini (fallback)
+- 📊 **Bias Detection**: Statistical analysis of judicial decision patterns
+- 🔄 **Real-time Sync**: Automated daily/weekly data updates with retry logic
+- 🎯 **Legal Search**: AI-powered query classification and judge matching
+- 🔐 **Enterprise Auth**: Clerk authentication with bot protection
 
-## Docs Navigation
-
-- Getting Started: `docs/getting-started/SETUP.md`, `docs/getting-started/ENVIRONMENT.md`
-- Architecture: `docs/architecture/ARCHITECTURE.md`
-- AI Agents: `docs/ai/AI_AGENTS.md`
-- AI Search: `docs/ai/search/AI_SEARCH_SUMMARY.md`, `docs/ai/search/AI_SEARCH_INTEGRATION_REPORT.md`
-- Deployments: `docs/deployment/DEPLOYMENT_SUMMARY.md`, `docs/deployment/netlify/NETLIFY_QUICK_START.md`
-- Recovery: `docs/ops/recovery/EXECUTE_RECOVERY_NOW.md`, `docs/ops/recovery/RECOVERY_SUMMARY.md`
-- Migrations: `docs/migrations/MIGRATION_INSTRUCTIONS.md`
-- Data & Automation: `docs/operations/SYNC_AND_CRON.md`, `docs/operations/OPERATIONS.md`
-- API & Database: `docs/api/API_REFERENCE.md`, `docs/data/DATABASE.md`
-- Security: `docs/security/SECURITY.md`
-- Accessibility: `docs/accessibility/CHAT_A11Y.md`, `docs/accessibility/COLOR_SYSTEM.md`
-- Launch: `docs/launch/LAUNCH_PLAN.md`
-- Contributing: `docs/contributing/CONTRIBUTING.md`
-
-## Architecture & Tech Stack
+### Tech Stack
 
 - **Framework**: Next.js 15 + TypeScript
-- **Database**: Supabase Postgres
-- **Auth**: Clerk
-- **Cache/Rate limit**: Upstash Redis
-- **Hosting**: Netlify (`@netlify/plugin-nextjs`)
-- **Error Monitoring**: Sentry
+- **Database**: Supabase PostgreSQL
+- **Auth**: Clerk (fail-fast security model)
+- **AI**: Google Gemini + OpenAI
+- **Cache**: Upstash Redis
+- **Hosting**: Netlify
 
-## Environment Variables
-
-```bash
-# Authentication (REQUIRED for production)
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=YOUR_CLERK_PUBLISHABLE_KEY_HERE
-CLERK_SECRET_KEY=YOUR_CLERK_SECRET_KEY_HERE
-
-# AI Services
-GOOGLE_AI_API_KEY=your_gemini_api_key
-OPENAI_API_KEY=your_openai_fallback_key
-
-# External APIs
-COURTLISTENER_API_KEY=your_courtlistener_key
-
-# Automation
-CRON_SECRET=secure_cron_token
-SYNC_API_KEY=manual_sync_trigger_key
-
-# Database (Supabase)
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-
-# Rate Limiting / Cache
-UPSTASH_REDIS_REST_URL=your_redis_url
-UPSTASH_REDIS_REST_TOKEN=your_redis_token
-
-# CourtListener Tuning (optional, defaults shown)
-COURTLISTENER_REQUEST_DELAY_MS=1000
-COURTLISTENER_MAX_RETRIES=5
-COURTLISTENER_REQUEST_TIMEOUT_MS=30000
-COURTLISTENER_BACKOFF_CAP_MS=15000
-COURTLISTENER_CIRCUIT_THRESHOLD=5
-COURTLISTENER_CIRCUIT_COOLDOWN_MS=60000
-
-# Optional
-SENTRY_DSN=your_sentry_dsn
-NEXT_PUBLIC_SITE_URL=https://your-site.netlify.app
-```
-
-Tip: If deploying on Netlify, prefer syncing local env with:
-
-```bash
-netlify link             # one-time, select the site
-netlify env:pull --json > .env.local
-# Or: netlify env:list --json
-```
-
-## Authentication & Security
-
-**Fail-Fast Security Model:**
-
-The platform implements a fail-fast authentication pattern:
-
-- **Production**: REQUIRES valid Clerk authentication keys. The application will refuse to start if keys are missing or invalid.
-- **Development**: Allows running without Clerk keys (with prominent warnings) for local development convenience.
-
-**Protected Routes:**
-
-- `/profile/*` - User profile management
-- `/settings/*` - User settings
-- `/dashboard/*` - User dashboard
-- `/admin/*` - Administrative functions
-
-**Authentication Flow:**
-
-1. Clerk provides the authentication UI and user management
-2. Users are automatically synchronized to the Supabase database
-3. Session management via Clerk's secure session handling
-4. Protected routes enforce authentication via middleware
-
-**Setup Clerk Authentication:**
-
-1. Create account at https://clerk.com
-2. Create a new application
-3. Copy the publishable key (starts with `pk_`) to `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
-4. Copy the secret key to `CLERK_SECRET_KEY`
-5. Configure sign-in/sign-up URLs in Clerk dashboard (optional)
-
-**Security Features:**
-
-- Startup validation ensures authentication is configured before serving requests
-- Middleware enforces authentication on protected routes
-- Production deployments fail immediately if auth is misconfigured
-- CSP headers, HSTS, and XSS protection enabled
-- Rate limiting via Upstash Redis
-- Sentry error tracking and monitoring
-
-## Getting Started (Local)
+## Quick Start
 
 ```bash
 # Install dependencies
 npm install
 
-# Create .env.local and fill with the variables above
-# Note: Clerk keys are optional for local dev but REQUIRED for production
+# Set up environment variables (see .env.example)
+cp .env.example .env.local
 
-# Start dev server
+# Start development server
 npm run dev
 ```
 
-Default dev URL: `http://localhost:3000` (Next.js default).
+Visit [http://localhost:3000](http://localhost:3000)
 
-## Data Sync & Analytics
+> **Note**: Production deployment requires Clerk authentication keys. Development mode allows running without keys (with warnings).
 
-Scripts are designed for incremental, resumable syncs with retries and logging
-to `sync_logs`.
+## Common Commands
 
 ```bash
-# Manual syncs
-npm run sync:courts
-npm run sync:judges
-npm run sync:decisions
+# Development
+npm run dev              # Start dev server
+npm run dev:turbo        # Start with Turbo mode (faster HMR)
+npm run build            # Production build
 
-# Batch generate analytics
-npm run analytics:generate
+# Testing
+npm test                 # Run all tests
+npm run test:unit        # Unit tests only
+npm run test:e2e         # E2E tests with Playwright
+npm run test:a11y        # Accessibility tests
 
-# Check data status (requires Supabase env in .env.local)
-npm run data:status
+# Code Quality
+npm run lint             # ESLint check
+npm run type-check       # TypeScript validation
+npm run format           # Format with Prettier
 
-# Smoke test key APIs (supply base URL + secrets)
-node scripts/test-all-api-endpoints.js \
-  --base https://your-site.netlify.app \
-  --sync-key $SYNC_API_KEY \
-  --cron-secret $CRON_SECRET
+# Data Operations
+npm run sync:judges      # Sync judge data
+npm run sync:courts      # Sync court data
+npm run analytics:generate # Generate AI analytics
+npm run data:status      # Check data freshness
 ```
 
-Admin endpoints (protected via `SYNC_API_KEY` header in production):
+## Key Documentation
 
-- `GET /api/admin/sync-status` – queue health, recent logs, freshness
-- `POST /api/admin/sync-status` – queue actions
-  (`queue_job`, `cancel_jobs`, `cleanup`, `restart_queue`)
-- `POST /api/admin/sync` – admin-triggered sync (Clerk admin auth)
+| Topic | Location |
+|-------|----------|
+| **For AI Assistants** | [CLAUDE.md](./CLAUDE.md) - Comprehensive guide for Claude Code |
+| **Architecture** | [docs/architecture/ARCHITECTURE.md](./docs/architecture/ARCHITECTURE.md) |
+| **API Reference** | [docs/api/API_REFERENCE.md](./docs/api/API_REFERENCE.md) |
+| **Deployment** | [docs/deployment/netlify/NETLIFY_QUICK_START.md](./docs/deployment/netlify/NETLIFY_QUICK_START.md) |
+| **Security** | [docs/security/SECURITY.md](./docs/security/SECURITY.md) |
+| **Accessibility** | [docs/accessibility/CHAT_A11Y.md](./docs/accessibility/CHAT_A11Y.md) |
+| **Data Sync** | [docs/operations/SYNC_AND_CRON.md](./docs/operations/SYNC_AND_CRON.md) |
 
-Health:
+## Environment Setup
 
-- `GET /api/health` – basic health check
+See [.env.example](./.env.example) for all required environment variables.
 
-## Scheduled Jobs
+**Critical for Production:**
+- `CLERK_SECRET_KEY` - Authentication (REQUIRED)
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Auth frontend (REQUIRED)
+- `OPENAI_API_KEY` - AI chat functionality
+- `SUPABASE_SERVICE_ROLE_KEY` - Database access
+- `UPSTASH_REDIS_REST_URL` - Rate limiting
 
-- Daily cron: `app/api/cron/daily-sync/route.ts`
-- Weekly cron: `app/api/cron/weekly-sync/route.ts`
+**Tip**: Sync Netlify env to local:
+```bash
+netlify link
+netlify env:pull --json > .env.local
+```
 
 ## Project Structure
 
-```text
-app/                 # Next.js App Router (APIs, pages)
-components/          # UI and feature components
-lib/                 # ai/, supabase/, sync/, utils/
-scripts/             # Node automation scripts
-supabase/            # SQL migrations and config
+```
+app/                    # Next.js App Router
+  api/                  # Serverless API routes
+    chat/               # AI assistant endpoint
+    admin/              # Admin APIs (sync, stats)
+    cron/               # Scheduled jobs
+  judges/[slug]/        # Dynamic judge pages
+  courts/[slug]/        # Dynamic court pages
+
+components/             # React components
+  judges/               # Judge-specific UI
+  chat/                 # AI chatbot
+  ads/                  # Advertising
+
+lib/                    # Business logic
+  analytics/            # Bias calculations
+  ai/                   # Legal search AI
+  sync/                 # Data sync
+  domain/               # DDD patterns
+  auth/                 # Clerk utilities
+
+scripts/                # Automation
+supabase/migrations/    # Database migrations
+docs/                   # Documentation
 ```
 
-## Netlify Deployment (Recommended)
+## Deployment
 
-**CRITICAL: Production deployment will FAIL if authentication is not properly configured.**
+### Netlify (Recommended)
 
-1. Configure Clerk authentication FIRST:
-   - Create production Clerk application at https://clerk.com
-   - Get your production keys (pk_live_xxx and sk_live_xxx)
+1. **Configure Clerk** ([clerk.com](https://clerk.com))
+   - Create production application
+   - Copy `pk_live_xxx` and `sk_live_xxx` keys
 
-2. Connect repository to Netlify (UI) and set ALL required env vars in Site Settings → Environment
-   - **MUST include**: `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`
-   - All other required variables from the Environment Variables section above
+2. **Connect to Netlify**
+   - Link GitHub repository
+   - Set environment variables in Site Settings
+   - Build deploys automatically on push to `main`
 
-3. Build config is in `netlify.toml` (Node 18, Next plugin). Deploys on push to `main`.
+3. **Verify Deployment**
+   ```bash
+   curl https://your-site.netlify.app/api/health
+   ```
 
-4. Secure cron and admin endpoints by setting `CRON_SECRET` and `SYNC_API_KEY`.
+> **⚠️ Security**: Production will FAIL without valid Clerk keys
 
-5. After deploy, validate:
+### Scheduled Jobs
 
-```bash
-# Health
-curl -s https://<site>/api/health | jq
+- **Daily**: `/api/cron/daily-sync` - Judge/decision updates
+- **Weekly**: `/api/cron/weekly-sync` - Full court sync
 
-# Sync status (requires header)
-curl -s -H "x-api-key: $SYNC_API_KEY" https://<site>/api/admin/sync-status | jq
-```
+Configure in Netlify dashboard with `CRON_SECRET` header.
 
-## Accessibility
+## Contributing
 
-JudgeFinder is committed to WCAG 2.2 Level AA compliance, ensuring the platform is usable by everyone, including people with disabilities.
+See [CLAUDE.md](./CLAUDE.md) for development guidelines and architecture overview.
 
-### Accessibility Features
+### Key Principles
 
-- ✅ **Full keyboard navigation** - All features accessible without a mouse
-- ✅ **Screen reader support** - Optimized for NVDA, JAWS, and VoiceOver
-- ✅ **ARIA live regions** - Dynamic content updates announced to assistive technologies
-- ✅ **Color contrast** - All text meets minimum 4.5:1 contrast ratio
-- ✅ **Focus indicators** - Visible focus states on all interactive elements
-- ✅ **Semantic HTML** - Proper heading hierarchy and landmark regions
-
-### Testing Accessibility
-
-```bash
-# Run automated accessibility tests
-npm run test:a11y
-
-# Run Lighthouse audit (includes accessibility score)
-npm run lighthouse:local
-
-# Use browser extensions
-# - axe DevTools: https://www.deque.com/axe/devtools/
-# - WAVE: https://wave.webaim.org/extension/
-```
-
-### Accessibility Documentation
-
-- [Chat Accessibility Guide](./docs/accessibility/CHAT_A11Y.md) - WCAG implementation for chat UI
-- [Color System](./docs/accessibility/COLOR_SYSTEM.md) - Accessible color tokens and contrast ratios
-- [WCAG 2.2 Guidelines](https://www.w3.org/WAI/WCAG22/quickref/) - Official W3C reference
-
-### Reporting Accessibility Issues
-
-If you encounter accessibility barriers, please [open an issue](https://github.com/yourusername/JudgeFinder/issues) with:
-
-- **Description** of the barrier
-- **Assistive technology** used (if applicable)
-- **Browser and OS** version
-- **Steps to reproduce**
-
-We aim to respond to accessibility issues within 48 hours.
-
-## Troubleshooting
-
-- Missing data locally: ensure `.env.local` includes Supabase URL and keys
-- CourtListener failures: verify `COURTLISTENER_API_KEY` and API availability
-- Queue stuck: `POST /api/admin/sync-status { action: 'restart_queue' }` with `x-api-key`
-- Rate limits: scripts include delays; reduce `batchSize` in options
+- **Complete code only** - No placeholders or `...` comments
+- **Detailed logging** - Include context in all error messages
+- **Test coverage** - Write tests before implementing features
+- **Accessibility first** - WCAG 2.2 Level AA compliance required
 
 ## License
 
-MIT. See `LICENSE` for details.
+MIT - See [LICENSE](./LICENSE) for details.
 
-— Built for judicial transparency.
+---
+
+**Built for judicial transparency** 🏛️
