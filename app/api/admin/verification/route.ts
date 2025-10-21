@@ -2,16 +2,30 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 import { auth } from '@clerk/nextjs/server'
 import { isAdmin } from '@/lib/auth/is-admin'
+import { buildRateLimiter, getClientIp } from '@/lib/security/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const { userId, status, notes } = await req.json()
-    if (!userId || !status) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
     const { userId: clerkUserId } = await auth()
     if (!clerkUserId || !(await isAdmin()))
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+    // SECURITY: Rate limit verification endpoint
+    const rateLimiter = buildRateLimiter({
+      tokens: 20,
+      window: '1 m',
+      prefix: 'admin:verification',
+    })
+    const ip = getClientIp(req)
+    const { success } = await rateLimiter.limit(`${ip}:${clerkUserId}`)
+    if (!success) {
+      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+    }
+
+    const { userId, status, notes } = await req.json()
+    if (!userId || !status) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
     const supabase = await createServerClient()
     await supabase
       .from('attorneys')

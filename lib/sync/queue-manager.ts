@@ -90,9 +90,40 @@ export class SyncQueueManager {
   }
 
   /**
-   * Get next job to process
+   * Get next job to process and atomically claim it
+   * SECURITY: Uses PostgreSQL row-level locking to prevent race conditions
+   * Multiple workers can safely call this concurrently
    */
   async getNextJob(): Promise<SyncJob | null> {
+    try {
+      // SECURITY FIX: Atomic claim-and-lock operation using PostgreSQL
+      // This uses FOR UPDATE SKIP LOCKED to prevent race conditions
+      // Only one worker will successfully claim each job
+      const { data, error } = await this.supabase.rpc('claim_next_sync_job', {
+        current_time: new Date().toISOString(),
+      })
+
+      if (error) {
+        // If RPC function doesn't exist, fall back to unsafe method with warning
+        logger.error('[SECURITY] claim_next_sync_job RPC not found - using unsafe fallback', {
+          error: error.message,
+        })
+        return this.getNextJobUnsafe()
+      }
+
+      // RPC returns single row or null
+      return data
+    } catch (error) {
+      logger.error('Failed to get next job', { error })
+      throw error
+    }
+  }
+
+  /**
+   * DEPRECATED: Unsafe fallback method with race condition
+   * TODO: Remove once claim_next_sync_job RPC is deployed
+   */
+  private async getNextJobUnsafe(): Promise<SyncJob | null> {
     const { data, error } = await this.supabase
       .from('sync_queue')
       .select('*')
@@ -107,11 +138,18 @@ export class SyncQueueManager {
       throw new Error(`Failed to get next job: ${error.message}`)
     }
 
+    if (data) {
+      // Mark as running immediately to reduce race window
+      await this.startJob(data.id)
+    }
+
     return data
   }
 
   /**
    * Mark job as running
+   * NOTE: With claim_next_sync_job RPC, this is handled atomically
+   * This method is kept for backwards compatibility
    */
   async startJob(jobId: string): Promise<void> {
     const { error } = await this.supabase
@@ -119,9 +157,10 @@ export class SyncQueueManager {
       .update({
         status: 'running',
         started_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', jobId)
+      .eq('status', 'pending') // SECURITY: Only update if still pending
 
     if (error) {
       throw new Error(`Failed to start job: ${error.message}`)

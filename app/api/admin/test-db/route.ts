@@ -1,13 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { isAdmin } from '@/lib/auth/is-admin'
+import { buildRateLimiter, getClientIp } from '@/lib/security/rate-limit'
+import { auth } from '@clerk/nextjs/server'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   // Require admin authentication
-  if (!(await isAdmin())) {
+  const { userId } = await auth()
+  if (!userId || !(await isAdmin())) {
     return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 403 })
+  }
+
+  // SECURITY: Rate limit test-db endpoint
+  const rateLimiter = buildRateLimiter({
+    tokens: 5,
+    window: '1 m',
+    prefix: 'admin:test-db',
+  })
+  const ip = getClientIp(request)
+  const { success } = await rateLimiter.limit(`${ip}:${userId}`)
+  if (!success) {
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
   }
   const results: any = {
     timestamp: new Date().toISOString(),
