@@ -81,17 +81,19 @@ export function buildRateLimiter(config: RateLimitConfig): {
   }
 
   if (!client) {
-    // Graceful degradation when Redis unavailable - return pass-through limiter
-    logger.warn('Rate limiter unavailable - returning pass-through limiter', {
+    // SECURITY: Fail-closed pattern when Redis unavailable
+    // Rate limiting is a critical security control, not optional
+    logger.error('Rate limiter UNAVAILABLE - BLOCKING all requests (fail-closed)', {
       scope: 'rate_limit',
       prefix: config.prefix,
+      security_event: true,
     })
 
     return {
       limit: async (_key: string) => ({
-        success: true,
-        remaining: Number.POSITIVE_INFINITY,
-        reset: Date.now() + 1000,
+        success: false,
+        remaining: 0,
+        reset: Date.now() + 60000, // 1 minute
       }),
     }
   }
@@ -148,7 +150,13 @@ export async function enforceRateLimit(
   const limiter = getDefaultLimiter()
 
   if (!limiter) {
-    return { allowed: true, remaining: undefined, reset: undefined }
+    // SECURITY: Fail-closed when Redis unavailable
+    logger.error('Rate limiter UNAVAILABLE - BLOCKING request (fail-closed)', {
+      scope: 'rate_limit',
+      key,
+      security_event: true,
+    })
+    return { allowed: false, remaining: 0, reset: Date.now() + 60000 }
   }
 
   const res = await limiter.limit(key)

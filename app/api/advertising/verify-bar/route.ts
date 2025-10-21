@@ -53,13 +53,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    // TODO: In production, integrate with actual State Bar API for real verification
-    // For now, we'll do a basic format check and store the information
-    // California Bar numbers are typically 6 digits
-    // Example API integration:
-    // const isValidBar = await verifyWithStateBarAPI(barState, cleanedBarNumber)
-
     const supabase = await createServerClient()
+
+    // SECURITY: Create audit log for all bar verification attempts
+    const auditLog = {
+      user_id: userId,
+      action: 'bar_verification_attempt',
+      bar_number: cleanedBarNumber,
+      bar_state: barState,
+      ip_address: getClientIp(request),
+      timestamp: new Date().toISOString(),
+    }
+
+    // Log the attempt (implement audit logging table separately)
+    console.log('[SECURITY AUDIT] Bar verification attempt:', auditLog)
 
     // Check if bar number is already in use
     const { data: existingUser } = await supabase
@@ -76,32 +83,46 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    // Update user record with bar information and set role to advertiser
+    // SECURITY FIX: Set status to 'pending' instead of 'verified'
+    // Admin must approve via State Bar API verification before granting advertiser role
+    // TODO: Implement admin approval workflow at /api/admin/verify-bar-approval
+    // TODO: Integrate with State Bar API for automated verification
+    //       - California: https://apps.calbar.ca.gov/attorney/Licensee/Detail/{barNumber}
+    //       - Other states: Add respective API integrations
     const { error: updateError } = await supabase
       .from('app_users')
       .update({
         bar_number: cleanedBarNumber,
         bar_state: barState,
-        verification_status: 'verified', // In production, set to 'pending' and verify via state bar API
-        bar_verified_at: new Date().toISOString(),
-        user_role: 'advertiser', // This will be set automatically by trigger when verification_status = 'verified'
+        verification_status: 'pending', // SECURITY: Require admin approval
+        // Do NOT set bar_verified_at until actually verified
+        // Do NOT set user_role - trigger will set when verification_status = 'verified'
       })
       .eq('clerk_user_id', userId)
 
     if (updateError) {
-      console.error('Error updating user with bar information:', updateError)
+      console.error('[SECURITY] Error updating user with bar information:', updateError)
       return NextResponse.json(
-        { error: 'Failed to update user information. Please try again.' },
+        { error: 'Failed to submit verification request. Please try again.' },
         { status: 500 }
       )
     }
 
-    // Return success
+    // SECURITY: Log successful submission for admin review
+    console.log('[SECURITY AUDIT] Bar verification submitted for admin review:', {
+      user_id: userId,
+      bar_number: cleanedBarNumber,
+      bar_state: barState,
+    })
+
+    // Return success with pending status
     return NextResponse.json({
       success: true,
-      message: 'Bar number verified successfully. You now have advertiser access.',
+      message:
+        'Bar number submitted for verification. An administrator will review your submission within 24-48 hours.',
       barNumber: cleanedBarNumber,
       barState,
+      status: 'pending',
     })
   } catch (error) {
     console.error('Bar verification error:', error)

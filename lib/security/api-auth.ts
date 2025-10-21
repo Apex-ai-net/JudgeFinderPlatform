@@ -78,8 +78,30 @@ export function requireApiKey(
   options: { allow?: AllowedKeyName[]; respond?: boolean } = {}
 ): { ok: true } | NextResponse {
   const { allow = ['SYNC_API_KEY', 'CRON_SECRET'], respond = true } = options
+
+  // SECURITY: Fail-closed - check if required keys are configured
+  const allowedValues = allow.map(getEnvKey).filter((v): v is string => Boolean(v))
+  if (allowedValues.length === 0) {
+    console.error('[SECURITY] No API keys configured for:', allow.join(', '))
+    if (!respond) {
+      return NextResponse.json(
+        { error: 'Server configuration error: Required API keys not set' },
+        { status: 500 }
+      )
+    }
+    return NextResponse.json(
+      { error: 'Server configuration error: Required API keys not set' },
+      { status: 500 }
+    )
+  }
+
   const provided = extractApiKey(req)
   if (!provided || !isValidApiKey(provided, allow)) {
+    console.error('[SECURITY AUDIT] Unauthorized API access attempt', {
+      timestamp: new Date().toISOString(),
+      ip: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip'),
+      hasKey: !!provided,
+    })
     if (!respond) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

@@ -389,9 +389,23 @@ async function generateAnalyticsFromCases(
 
 /**
  * Force refresh analytics (for admin use)
+ * SECURITY: Requires admin authentication or API key
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // SECURITY: Import admin auth check
+    const { requireAdminApiAccess } = await import('@/lib/security/api-auth')
+
+    // SECURITY: Require admin authentication or valid API key
+    try {
+      await requireAdminApiAccess(request, ['SYNC_API_KEY', 'CRON_SECRET'])
+    } catch (authError) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin access required to force refresh analytics' },
+        { status: 403 }
+      )
+    }
+
     const resolvedParams = await params
     const { searchParams } = new URL(request.url)
     const forceRefresh = searchParams.get('force') === 'true'

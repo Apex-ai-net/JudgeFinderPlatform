@@ -58,9 +58,16 @@ async function refreshMaterializedView(viewName: string): Promise<ViewRefreshRes
   }
 
   try {
+    // SECURITY: Whitelist allowed view names to prevent SQL injection
+    const ALLOWED_VIEWS = ['decision_counts_by_judge_year', 'top_judges_by_jurisdiction']
+    if (!ALLOWED_VIEWS.includes(viewName)) {
+      throw new Error(`Invalid view name: ${viewName}. Only whitelisted views can be refreshed.`)
+    }
+
     const supabase = getSupabaseClient()
 
-    // Refresh materialized view concurrently (non-blocking)
+    // SECURITY: Now safe to use viewName since it's validated against whitelist
+    // Alternative: Use identifier parameterization if exec_sql supports it
     const { error: refreshError } = await supabase.rpc('exec_sql', {
       sql: `REFRESH MATERIALIZED VIEW CONCURRENTLY ${viewName};`,
     })
@@ -145,11 +152,24 @@ async function logRefreshResult(report: RefreshReport): Promise<void> {
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    // Verify cron secret for security
+    // SECURITY: Verify cron secret (REQUIRED, not optional)
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    // SECURITY FIX: Fail-closed pattern - REQUIRE CRON_SECRET to be set
+    if (!cronSecret) {
+      console.error('[SECURITY] CRON_SECRET not configured - refusing to run cron job')
+      return NextResponse.json(
+        { error: 'Server configuration error: CRON_SECRET not set' },
+        { status: 500 }
+      )
+    }
+
+    if (authHeader !== `Bearer ${cronSecret}`) {
+      console.error('[SECURITY AUDIT] Unauthorized cron job access attempt', {
+        timestamp: new Date().toISOString(),
+        ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+      })
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
