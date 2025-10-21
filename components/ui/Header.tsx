@@ -16,14 +16,16 @@ import {
   tap,
   transitions,
 } from '@/lib/animations/presets'
+import { MegaMenu } from '@/components/navigation/MegaMenu'
 
+// Navigation links with mega menu configuration
 const NAV_LINKS = [
-  { href: '/judges', label: 'Judges' },
-  { href: '/courts', label: 'Courts' },
-  { href: '/analytics', label: 'Analytics' },
-  { href: '/about', label: 'About' },
-  { href: '/docs', label: 'Docs' },
-  { href: '/help', label: 'Resources' },
+  { href: '/judges', label: 'Judges', hasMegaMenu: true, megaMenuType: 'judges' as const },
+  { href: '/courts', label: 'Courts', hasMegaMenu: true, megaMenuType: 'courts' as const },
+  { href: '/analytics', label: 'Analytics', hasMegaMenu: false },
+  { href: '/about', label: 'About', hasMegaMenu: false },
+  { href: '/docs', label: 'Docs', hasMegaMenu: false },
+  { href: '/help', label: 'Resources', hasMegaMenu: true, megaMenuType: 'resources' as const },
 ]
 
 export function Header(): JSX.Element {
@@ -61,30 +63,45 @@ export function Header(): JSX.Element {
         <div className="flex items-center gap-6">
           <NavLogo />
           <nav className="hidden md:flex md:items-center md:gap-6" aria-label="Main navigation">
-            {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  'relative inline-flex items-center text-sm font-medium transition-colors group',
-                  isActive(href) ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {label}
-                {isActive(href) ? (
-                  <motion.span
-                    className="absolute inset-x-0 -bottom-2 h-0.5 rounded-full bg-primary"
-                    layoutId="activeIndicator"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+            {NAV_LINKS.map((link) => {
+              if (link.hasMegaMenu && link.megaMenuType) {
+                return (
+                  <MegaMenu
+                    key={link.href}
+                    type={link.megaMenuType}
+                    label={link.label}
+                    isActive={isActive(link.href)}
                   />
-                ) : (
-                  <motion.span
-                    className="absolute inset-x-0 -bottom-2 h-0.5 rounded-full bg-primary opacity-0 group-hover:opacity-30"
-                    transition={{ duration: 0.2 }}
-                  />
-                )}
-              </Link>
-            ))}
+                )
+              }
+
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    'relative inline-flex items-center text-sm font-medium transition-colors group',
+                    isActive(link.href)
+                      ? 'text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {link.label}
+                  {isActive(link.href) ? (
+                    <motion.span
+                      className="absolute inset-x-0 -bottom-2 h-0.5 rounded-full bg-primary"
+                      layoutId="activeIndicator"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  ) : (
+                    <motion.span
+                      className="absolute inset-x-0 -bottom-2 h-0.5 rounded-full bg-primary opacity-0 group-hover:opacity-30"
+                      transition={{ duration: 0.2 }}
+                    />
+                  )}
+                </Link>
+              )
+            })}
           </nav>
         </div>
 
@@ -133,10 +150,112 @@ export function Header(): JSX.Element {
           )}
         </div>
 
-        {/* Mobile menu button removed - users navigate via BottomNavigation component */}
+        {/* Mobile menu button */}
+        <button
+          type="button"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="flex items-center justify-center p-2 md:hidden"
+          aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={isMenuOpen}
+          aria-controls="mobile-menu"
+        >
+          {isMenuOpen ? (
+            <X className="h-6 w-6 text-foreground" />
+          ) : (
+            <Menu className="h-6 w-6 text-foreground" />
+          )}
+        </button>
       </div>
 
-      {/* Mobile Navigation - Hidden per client request */}
+      {/* Mobile Navigation Menu */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            id="mobile-menu"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="overflow-hidden border-t border-border bg-background md:hidden"
+          >
+            <nav className="py-4" aria-label="Mobile navigation">
+              {NAV_LINKS.map((link) => {
+                if (link.hasMegaMenu && link.megaMenuType) {
+                  return (
+                    <MegaMenu
+                      key={link.href}
+                      type={link.megaMenuType}
+                      label={link.label}
+                      isActive={isActive(link.href)}
+                      isMobile
+                    />
+                  )
+                }
+
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={closeMenu}
+                    className={cn(
+                      'block border-b border-border px-4 py-3 text-base font-medium transition-colors',
+                      isActive(link.href)
+                        ? 'bg-accent text-foreground'
+                        : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                )
+              })}
+
+              {/* Mobile menu actions */}
+              <div className="mt-4 space-y-2 border-t border-border px-4 pt-4">
+                <Link
+                  href="/search"
+                  onClick={closeMenu}
+                  className={cn(
+                    buttonVariants({ variant: 'outline', size: 'sm' }),
+                    'w-full justify-start gap-2'
+                  )}
+                >
+                  <Search className="h-4 w-4" />
+                  Search
+                </Link>
+                {isSignedIn ? (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      onClick={closeMenu}
+                      className={cn(
+                        buttonVariants({ variant: 'outline', size: 'sm' }),
+                        'w-full justify-start gap-2'
+                      )}
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </>
+                ) : (
+                  <SafeSignInButton
+                    mode="modal"
+                    fallbackRedirectUrl="/dashboard"
+                    forceRedirectUrl="/dashboard"
+                  >
+                    <button
+                      type="button"
+                      className={cn(buttonVariants({ variant: 'default', size: 'sm' }), 'w-full')}
+                      aria-label="Sign in"
+                    >
+                      Sign in
+                    </button>
+                  </SafeSignInButton>
+                )}
+              </div>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   )
 }

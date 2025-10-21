@@ -1,6 +1,7 @@
 import { sleep } from '@/lib/utils/helpers'
 import { logger } from '@/lib/utils/logger'
 import { GlobalRateLimiter } from './global-rate-limiter'
+import { CourtListenerResponseCache } from './response-cache'
 
 export interface CourtListenerOpinion {
   id: number
@@ -107,7 +108,7 @@ export class CourtListenerClient {
   private apiToken: string
   private requestDelay = Math.max(
     250,
-    parseInt(process.env.COURTLISTENER_REQUEST_DELAY_MS || '1000', 10)
+    parseInt(process.env.COURTLISTENER_REQUEST_DELAY_MS || '2000', 10)
   )
   private maxRetries = Math.max(0, parseInt(process.env.COURTLISTENER_MAX_RETRIES || '5', 10))
   private requestTimeoutMs = Math.max(
@@ -116,7 +117,7 @@ export class CourtListenerClient {
   )
   private backoffCapMs = Math.max(
     2000,
-    parseInt(process.env.COURTLISTENER_BACKOFF_CAP_MS || '15000', 10)
+    parseInt(process.env.COURTLISTENER_BACKOFF_CAP_MS || '30000', 10)
   )
   private retryJitterMaxMs = Math.max(
     1000,
@@ -126,7 +127,7 @@ export class CourtListenerClient {
   private circuitFailures = 0
   private circuitThreshold = Math.max(
     3,
-    parseInt(process.env.COURTLISTENER_CIRCUIT_THRESHOLD || '5', 10)
+    parseInt(process.env.COURTLISTENER_CIRCUIT_THRESHOLD || '3', 10)
   )
   private circuitCooldownMs = Math.max(
     10000,
@@ -138,6 +139,7 @@ export class CourtListenerClient {
     meta?: Record<string, unknown>
   ) => void | Promise<void>
   private globalRateLimiter: GlobalRateLimiter
+  private responseCache: CourtListenerResponseCache
 
   constructor() {
     this.apiToken = process.env.COURTLISTENER_API_KEY || process.env.COURTLISTENER_API_TOKEN || ''
@@ -147,12 +149,14 @@ export class CourtListenerClient {
       )
     }
     this.globalRateLimiter = new GlobalRateLimiter()
+    this.responseCache = new CourtListenerResponseCache()
   }
 
   setMetricsReporter(
     reporter: (name: string, value: number, meta?: Record<string, any>) => void | Promise<void>
   ) {
     this.metricsReporter = reporter
+    this.responseCache.setMetricsReporter(reporter)
   }
 
   private async makeRequest<T>(
@@ -160,6 +164,14 @@ export class CourtListenerClient {
     params: Record<string, string> = {},
     options: RequestOptions = {}
   ): Promise<T> {
+    // Check cache first (only for GET requests)
+    const cacheKey = endpoint
+    const cachedResponse = await this.responseCache.get<T>(cacheKey, params)
+    if (cachedResponse !== null) {
+      logger.debug('Returning cached CourtListener response', { endpoint })
+      return cachedResponse
+    }
+
     // Global rate limiter: check hourly quota before proceeding
     const rateLimitCheck = await this.globalRateLimiter.checkLimit()
     if (!rateLimitCheck.allowed) {
@@ -298,6 +310,10 @@ export class CourtListenerClient {
           const data = await response.json()
           // Record successful request in global rate limiter
           await this.globalRateLimiter.recordRequest()
+
+          // Cache successful response (24hr TTL)
+          await this.responseCache.set(endpoint, params, data)
+
           await sleep(this.requestDelay)
           // reset failure counter on success
           this.circuitFailures = 0

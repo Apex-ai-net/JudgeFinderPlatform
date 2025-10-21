@@ -4,7 +4,7 @@ import { Scale } from 'lucide-react'
 
 export default function ChatHeader(): JSX.Element {
   return (
-    <div className="px-4 py-3 bg-gradient-to-r from-[#2B9FE3] to-[#2389C9] text-white rounded-t-xl border-b border-blue-700/20">
+    <div className="px-4 py-3 bg-gradient-to-r from-primary to-primary-600 text-white rounded-t-xl border-b border-blue-700/20">
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm">
           <Scale className="w-4 h-4 text-white" />

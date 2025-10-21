@@ -90,7 +90,10 @@ const NavLogo: React.FC<NavLogoProps> = ({
                 width="30"
                 height="50"
                 fill={brandBlue}
-                className="transition-colors duration-200 group-hover:fill-[#2389C9]"
+                className="transition-colors duration-200"
+                style={{ transition: 'fill 200ms' }}
+                onMouseEnter={(e) => (e.currentTarget.style.fill = brandBlueDark)}
+                onMouseLeave={(e) => (e.currentTarget.style.fill = brandBlue)}
               />
 
               {/* Entablature */}

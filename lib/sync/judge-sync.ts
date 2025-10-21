@@ -510,7 +510,12 @@ export class JudgeSyncManager {
       const judgeData = await this.fetchJudgeFromCourtListener(courtlistenerJudgeId)
 
       if (!judgeData) {
-        throw new Error(`Judge not found: ${courtlistenerJudgeId}`)
+        // Graceful 404 handling - log missing resource and continue sync
+        logger.warn('Judge not found in CourtListener (404), skipping', {
+          courtlistenerJudgeId,
+          context: 'sync_single_judge',
+        })
+        return { updated: false, created: false, retired: false, enhanced: false }
       }
 
       // Find existing judge in our database
@@ -544,11 +549,14 @@ export class JudgeSyncManager {
 
   /**
    * Fetch judge data from CourtListener API
+   * Returns null if judge not found (404) - graceful degradation
    */
   private async fetchJudgeFromCourtListener(judgeId: string): Promise<CourtListenerJudge | null> {
     try {
       return await this.courtListener.getJudgeById(judgeId)
     } catch (error) {
+      // Only log and rethrow non-404 errors
+      // 404s are already handled by client.ts and return null
       logger.error('Failed to fetch judge from CourtListener', { judgeId, error })
       throw error
     }

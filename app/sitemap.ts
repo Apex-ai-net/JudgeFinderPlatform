@@ -147,12 +147,79 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.55,
   }))
 
+  // Add attorney jurisdiction pages
+  const attorneyJurisdictionEntries = Array.from(jurisdictionSet.entries()).map(
+    ([slug, updated]) => ({
+      url: `${siteUrl}/attorneys/${slug}`,
+      lastModified: updated,
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    })
+  )
+
+  // Add case analytics jurisdiction pages
+  const caseAnalyticsEntries = Array.from(jurisdictionSet.entries()).map(([slug, updated]) => ({
+    url: `${siteUrl}/case-analytics/${slug}`,
+    lastModified: updated,
+    changeFrequency: 'weekly' as const,
+    priority: 0.65,
+  }))
+
+  // Add court type filter pages
+  const courtTypes = ['superior', 'appellate', 'supreme', 'federal', 'municipal']
+  const courtTypeEntries = [
+    {
+      url: `${siteUrl}/courts/type`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.65,
+    },
+    ...courtTypes.map((type) => ({
+      url: `${siteUrl}/courts/type/${type}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    })),
+  ]
+
+  // Add judge filter pages
+  const judgeFilterEntries = [
+    {
+      url: `${siteUrl}/judges/veteran`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.65,
+    },
+    {
+      url: `${siteUrl}/judges/recently-appointed`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.65,
+    },
+    {
+      url: `${siteUrl}/judges/by-county`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.65,
+    },
+    ...courtTypes.map((type) => ({
+      url: `${siteUrl}/judges/by-court-type/${type}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    })),
+  ]
+
   // Combine all entries
   const allEntries = [
     ...getStaticPages(siteUrl),
     ...judgeEntries,
     ...courtEntries,
     ...jurisdictionEntries,
+    ...attorneyJurisdictionEntries,
+    ...caseAnalyticsEntries,
+    ...courtTypeEntries,
+    ...judgeFilterEntries,
   ]
 
   // Validate sitemap doesn't exceed protocol limits
@@ -222,10 +289,34 @@ function getStaticPages(siteUrl: string): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
+      url: `${siteUrl}/attorneys`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    },
+    {
       url: `${siteUrl}/analytics`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
+    },
+    {
+      url: `${siteUrl}/case-analytics`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.65,
+    },
+    {
+      url: `${siteUrl}/legal-research-tools`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${siteUrl}/judicial-analytics`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.75,
     },
     {
       url: `${siteUrl}/docs`,

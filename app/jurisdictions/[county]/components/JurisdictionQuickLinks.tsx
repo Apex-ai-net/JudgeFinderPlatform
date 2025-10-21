@@ -12,12 +12,10 @@ class JurisdictionQuickLinksView {
     const { jurisdiction } = this.props
 
     return (
-      <footer className="mt-16 bg-gradient-to-b from-[#0B1220] via-[#080F1C] to-[#050914] border-t border-white/5 py-10">
+      <footer className="mt-16 bg-gradient-to-b from-slate-900 via-slate-950 to-black dark:from-surface-elevated dark:via-surface-sunken dark:to-background border-t border-white/5 py-10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              Explore More
-            </h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Explore More</h3>
             <p className="text-sm text-primary/70 mb-6">
               Continue your research with judge analytics or browse additional jurisdictions.
             </p>
@@ -48,7 +46,5 @@ export function JurisdictionQuickLinks(props: JurisdictionQuickLinksProps): JSX.
   return new JurisdictionQuickLinksView(props).render()
 }
 
-export const renderJurisdictionQuickLinks = (
-  props: JurisdictionQuickLinksProps
-): JSX.Element => JurisdictionQuickLinks(props)
-
+export const renderJurisdictionQuickLinks = (props: JurisdictionQuickLinksProps): JSX.Element =>
+  JurisdictionQuickLinks(props)
