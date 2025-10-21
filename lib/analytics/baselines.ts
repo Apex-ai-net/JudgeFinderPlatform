@@ -156,6 +156,7 @@ export interface DeviationAnalysis {
   jurisdiction: string
   comparisons: MetricComparison[]
   overall_deviation_score: number
+  anomaly_count: number // Count of significant deviations from baseline
 }
 
 /**
@@ -440,10 +441,14 @@ export function compareToBaseline(
   const avgDeviation = deviations.reduce((a, b) => a + b, 0) / deviations.length
   const overallScore = Math.min(100, Math.round(avgDeviation * 25)) // Scale to 0-100
 
+  // Count significant anomalies (deviations > 2 standard deviations)
+  const anomalyCount = comparisons.filter((c) => c.is_significant).length
+
   return {
     jurisdiction: baseline.jurisdiction,
     comparisons,
     overall_deviation_score: overallScore,
+    anomaly_count: anomalyCount,
   }
 }
 

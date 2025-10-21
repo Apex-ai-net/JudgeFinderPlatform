@@ -44,14 +44,22 @@ function getRedis(): Redis | null {
     return null
   }
 
-  sharedRedis = new Redis({ url: creds.url, token: creds.token })
+  try {
+    sharedRedis = new Redis({ url: creds.url, token: creds.token })
 
-  logger.info('Rate limiting redis client initialised', {
-    scope: 'rate_limit',
-    prefix: 'init',
-  })
+    logger.info('Rate limiting redis client initialised', {
+      scope: 'rate_limit',
+      prefix: 'init',
+    })
 
-  return sharedRedis
+    return sharedRedis
+  } catch (error) {
+    logger.error('Failed to initialize Redis client - rate limiting will be disabled', {
+      scope: 'rate_limit',
+      error,
+    })
+    return null
+  }
 }
 
 export function isRateLimitConfigured(): boolean {
@@ -81,18 +89,20 @@ export function buildRateLimiter(config: RateLimitConfig): {
   }
 
   if (!client) {
-    // SECURITY: Fail-closed pattern when Redis unavailable
-    // Rate limiting is a critical security control, not optional
-    logger.error('Rate limiter UNAVAILABLE - BLOCKING all requests (fail-closed)', {
+    // GRACEFUL DEGRADATION: Fail-open pattern when Redis unavailable
+    // Allow requests to proceed but log security warning
+    // Rationale: Availability > Rate limiting enforcement (production resilience)
+    logger.warn('Rate limiter UNAVAILABLE - allowing requests (fail-open, degraded security)', {
       scope: 'rate_limit',
       prefix: config.prefix,
       security_event: true,
+      degraded_mode: true,
     })
 
     return {
       limit: async (_key: string) => ({
-        success: false,
-        remaining: 0,
+        success: true, // Allow request (fail-open)
+        remaining: 999, // Indicate unlimited (no enforcement)
         reset: Date.now() + 60000, // 1 minute
       }),
     }
@@ -150,13 +160,14 @@ export async function enforceRateLimit(
   const limiter = getDefaultLimiter()
 
   if (!limiter) {
-    // SECURITY: Fail-closed when Redis unavailable
-    logger.error('Rate limiter UNAVAILABLE - BLOCKING request (fail-closed)', {
+    // GRACEFUL DEGRADATION: Fail-open when Redis unavailable
+    logger.warn('Default rate limiter UNAVAILABLE - allowing request (fail-open)', {
       scope: 'rate_limit',
       key,
       security_event: true,
+      degraded_mode: true,
     })
-    return { allowed: false, remaining: 0, reset: Date.now() + 60000 }
+    return { allowed: true, remaining: 999, reset: Date.now() + 60000 }
   }
 
   const res = await limiter.limit(key)

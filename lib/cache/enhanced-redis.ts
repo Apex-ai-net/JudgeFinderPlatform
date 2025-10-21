@@ -74,8 +74,16 @@ function getRedis(): Redis | null {
     logger.warn('Redis not configured, caching disabled')
     return null
   }
-  redis = new Redis({ url, token })
-  return redis
+  try {
+    redis = new Redis({ url, token })
+    return redis
+  } catch (error) {
+    logger.error('Failed to initialize Redis client - caching will be disabled', {
+      scope: 'cache',
+      error,
+    })
+    return null
+  }
 }
 
 /**

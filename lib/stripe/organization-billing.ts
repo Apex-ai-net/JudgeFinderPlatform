@@ -415,7 +415,7 @@ export async function getOrganizationInvoices(params: {
 export async function getUpcomingInvoice(params: {
   customerId: string
   subscriptionId?: string
-}): Promise<Stripe.Invoice> {
+}): Promise<Stripe.UpcomingInvoice> {
   const stripe = getStripeClient()
 
   return await stripe.invoices.retrieveUpcoming({
