@@ -21,6 +21,9 @@ const openai = process.env.OPENAI_API_KEY
     })
   : null
 
+// Log OpenAI client initialization status at module load time
+console.log('[Chat API Module] OpenAI client initialized:', !!openai)
+
 const SYSTEM_PROMPT = `You are JudgeFinder AI, a legal information assistant for California's court system.
 
 Your capabilities:
@@ -53,6 +56,19 @@ interface ChatMessage {
 export async function POST(request: NextRequest): Promise<Response | NextResponse> {
   try {
     console.log('[Chat API] Request received')
+
+    // Log environment configuration (without exposing actual keys)
+    console.log('[Chat API] Environment check:', {
+      hasOpenAIKey: !!process.env.OPENAI_API_KEY,
+      openAIKeyLength: process.env.OPENAI_API_KEY?.length || 0,
+      hasRedisURL: !!process.env.UPSTASH_REDIS_REST_URL,
+      hasRedisToken: !!process.env.UPSTASH_REDIS_REST_TOKEN,
+      hasTurnstileSecret: !!process.env.TURNSTILE_SECRET_KEY,
+      hasSupabaseURL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+      hasSupabaseKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      hasSupabaseServiceRole: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      nodeEnv: process.env.NODE_ENV,
+    })
 
     // CRITICAL: Authentication check (protected by middleware, but double-check)
     const { userId } = await auth()
@@ -158,32 +174,48 @@ export async function POST(request: NextRequest): Promise<Response | NextRespons
     if (stream) {
       console.log('[Chat API] Creating streaming OpenAI response...')
       // Create streaming response
-      const streamResponse = await openai!.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: chatMessages as any,
-        temperature: 0.7,
-        max_tokens: 1000,
-        stream: true,
-      })
-
-      console.log('[Chat API] Streaming response created successfully')
+      let streamResponse
+      try {
+        streamResponse = await openai!.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: chatMessages as any,
+          temperature: 0.7,
+          max_tokens: 1000,
+          stream: true,
+        })
+        console.log('[Chat API] Streaming response created successfully')
+      } catch (openaiError) {
+        console.error('[Chat API] OpenAI streaming creation failed:', {
+          error: openaiError instanceof Error ? openaiError.message : String(openaiError),
+          stack: openaiError instanceof Error ? openaiError.stack : undefined,
+        })
+        throw openaiError
+      }
 
       // Create a readable stream
       const encoder = new TextEncoder()
       const readableStream = new ReadableStream({
         async start(controller) {
           try {
+            console.log('[Chat API] Starting stream processing...')
+            let chunkCount = 0
             for await (const chunk of streamResponse) {
+              chunkCount++
               const text = chunk.choices[0]?.delta?.content || ''
               if (text) {
                 const encoded = encoder.encode(`data: ${JSON.stringify({ text })}\n\n`)
                 controller.enqueue(encoded)
               }
             }
+            console.log('[Chat API] Stream completed, total chunks:', chunkCount)
             controller.enqueue(encoder.encode('data: [DONE]\n\n'))
             controller.close()
-          } catch (error) {
-            controller.error(error)
+          } catch (streamError) {
+            console.error('[Chat API] Stream processing error:', {
+              error: streamError instanceof Error ? streamError.message : String(streamError),
+              stack: streamError instanceof Error ? streamError.stack : undefined,
+            })
+            controller.error(streamError)
           }
         },
       })
