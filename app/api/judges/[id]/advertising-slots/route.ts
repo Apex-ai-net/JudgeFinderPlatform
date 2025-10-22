@@ -52,8 +52,8 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
       return NextResponse.json({ error: 'Failed to fetch advertising slots' }, { status: 500 })
     }
 
-    // Define max rotations (2 slots per judge)
-    const MAX_ROTATIONS = 2
+    // Define max rotations (3 slots per judge)
+    const MAX_ROTATIONS = 3
 
     // Transform bookings into slot format
     const activeSlots = (bookings || []).map((booking) => ({

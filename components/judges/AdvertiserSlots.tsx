@@ -45,7 +45,7 @@ interface ApiResponse {
   max_rotations?: number
 }
 
-const DEFAULT_MAX_ROTATIONS = 2
+const DEFAULT_MAX_ROTATIONS = 3
 
 function rotationLabel(position: number, maxRotations: number): string {
   if (maxRotations <= 1) return 'Featured Sponsor'
