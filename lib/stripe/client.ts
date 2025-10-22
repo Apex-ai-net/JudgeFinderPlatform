@@ -94,7 +94,7 @@ export async function createCheckoutSession(params: {
       judgeName: params.judge_name || 'Unknown Judge',
       courtName: params.court_name || '',
       courtLevel: params.court_level,
-      position: position === 1 || position === 2 ? position : 1,
+      position: (position >= 1 && position <= 3) ? position as 1 | 2 | 3 : 1,
     })
 
     // Select monthly or annual price based on billing cycle

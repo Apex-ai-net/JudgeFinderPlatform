@@ -23,7 +23,7 @@ export const dynamic = 'force-dynamic'
  *   judge_name?: string (NEW: Judge's full name for display)
  *   court_name?: string (NEW: Court name for context)
  *   court_level?: 'federal' | 'state' (NEW: Determines pricing)
- *   ad_position?: 1 | 2 (NEW: Which rotation slot)
+ *   ad_position?: 1 | 2 | 3 (NEW: Which rotation slot)
  * }
  *
  * Response:
@@ -145,10 +145,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         )
       }
 
-      if (ad_position && ad_position !== 1 && ad_position !== 2) {
+      if (ad_position && (ad_position < 1 || ad_position > 3)) {
         return NextResponse.json(
           {
-            error: 'ad_position must be either 1 or 2',
+            error: 'ad_position must be 1, 2, or 3',
           },
           { status: 400 }
         )

@@ -16,7 +16,7 @@ export interface JudgeAdProductParams {
   judgeName: string
   courtName: string
   courtLevel: 'federal' | 'state'
-  position: 1 | 2 // Rotation slot number
+  position: 1 | 2 | 3 // Rotation slot number
 }
 
 export interface JudgeAdPriceInfo {
