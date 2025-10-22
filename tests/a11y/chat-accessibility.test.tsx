@@ -69,13 +69,13 @@ describe('Chat Accessibility - WCAG 2.2 AA', () => {
       }
     })
 
-    it('focuses input on open', () => {
+    it('focuses input on open', async () => {
       render(<AIChatModal isOpen={true} onClose={() => {}} />)
 
       const input = screen.getByPlaceholderText(/ask me anything/i)
-      setTimeout(() => {
+      await waitFor(() => {
         expect(document.activeElement).toBe(input)
-      }, 0)
+      })
     })
 
     it('displays initial assistant message', () => {

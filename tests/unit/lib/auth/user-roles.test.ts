@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { getUserRole, getDashboardDataByRole } from '@/lib/auth/user-roles'
+import * as supabaseServer from '@/lib/supabase/server'
 
 // Mock the Supabase client
 vi.mock('@/lib/supabase/server', () => ({
@@ -13,7 +14,7 @@ describe('User Roles System', () => {
     mockSupabase = {
       from: vi.fn(),
     }
-    vi.mocked(require('@/lib/supabase/server').createServiceRoleClient).mockResolvedValue(
+    vi.mocked(supabaseServer.createServiceRoleClient).mockResolvedValue(
       mockSupabase
     )
   })
