@@ -42,20 +42,28 @@ COMMENT ON CONSTRAINT judge_ad_products_position_check ON judge_ad_products IS
   'Allows positions 1, 2, and 3 for judge ad products';
 
 -- =============================================================================
--- STEP 3: Update pending_checkouts table constraint
+-- STEP 3: Update pending_checkouts table constraint (CONDITIONAL)
 -- =============================================================================
--- Current constraint: CHECK (ad_position IN (1, 2))
--- New constraint: CHECK (ad_position IN (1, 2, 3))
+-- Note: This table may not exist in all environments
+-- Using conditional logic to avoid migration failure
 
-ALTER TABLE pending_checkouts
-  DROP CONSTRAINT IF EXISTS pending_checkouts_ad_position_check;
-
-ALTER TABLE pending_checkouts
-  ADD CONSTRAINT pending_checkouts_ad_position_check
-    CHECK (ad_position IN (1, 2, 3));
-
-COMMENT ON CONSTRAINT pending_checkouts_ad_position_check ON pending_checkouts IS
-  'Allows ad positions 1, 2, and 3 for pending checkouts';
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public'
+    AND table_name = 'pending_checkouts'
+  ) THEN
+    ALTER TABLE pending_checkouts DROP CONSTRAINT IF EXISTS pending_checkouts_ad_position_check;
+    ALTER TABLE pending_checkouts ADD CONSTRAINT pending_checkouts_ad_position_check
+      CHECK (ad_position IN (1, 2, 3));
+    COMMENT ON CONSTRAINT pending_checkouts_ad_position_check ON pending_checkouts IS
+      'Allows ad positions 1, 2, and 3 for pending checkouts';
+    RAISE NOTICE 'Updated pending_checkouts constraint to support position 3';
+  ELSE
+    RAISE NOTICE 'SKIPPED: pending_checkouts table does not exist in this database';
+  END IF;
+END $$;
 
 -- =============================================================================
 -- STEP 4: Update ad_spots table constraint
