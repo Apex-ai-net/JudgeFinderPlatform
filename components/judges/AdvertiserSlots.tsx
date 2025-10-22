@@ -154,10 +154,10 @@ export function AdvertiserSlots({
     return slots.every((slot) => isBooked(slot) || Boolean(slot.advertiser))
   }, [slots])
 
-  // Calculate pricing based on court level
+  // Universal $500 pricing for all judges (updated 2025-10-20)
   const pricing = useMemo(() => {
-    const monthly = courtLevel === 'federal' ? 500 : 200
-    const annual = courtLevel === 'federal' ? 5000 : 2000
+    const monthly = 500  // Universal pricing for all judges
+    const annual = 5000  // $5,000/year (2 months free)
     const savings = monthly * 12 - annual
 
     return { monthly, annual, savings }
