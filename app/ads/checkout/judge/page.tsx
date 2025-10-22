@@ -22,14 +22,14 @@ function JudgeCheckoutContent() {
   const [error, setError] = useState('')
   const [promoCode, setPromoCode] = useState('')
 
-  // Calculate pricing
+  // Universal $500 pricing for all judges (updated 2025-10-20)
   const pricing = {
-    federal: { monthly: 500, annual: 5000 },
-    state: { monthly: 200, annual: 2000 },
+    monthly: 500,  // Universal pricing for all judges
+    annual: 5000,  // $5,000/year (2 months free)
   }
 
-  const monthlyPrice = courtLevel === 'federal' ? pricing.federal.monthly : pricing.state.monthly
-  const annualPrice = courtLevel === 'federal' ? pricing.federal.annual : pricing.state.annual
+  const monthlyPrice = pricing.monthly
+  const annualPrice = pricing.annual
   const savings = monthlyPrice * 12 - annualPrice
 
   useEffect(() => {
