@@ -179,11 +179,11 @@ BEGIN
     RAISE NOTICE 'SUCCESS: All judges have position 1, 2, and 3 ad spots';
   END IF;
 
-  -- Verify constraints were updated
+  -- Verify constraints were updated (using pg_get_constraintdef for modern PostgreSQL)
   IF NOT EXISTS (
     SELECT 1 FROM pg_constraint
     WHERE conname = 'ad_spot_bookings_position_check'
-      AND consrc LIKE '%1, 2, 3%'
+      AND pg_get_constraintdef(oid) LIKE '%1, 2, 3%'
   ) THEN
     RAISE NOTICE 'WARNING: Constraint ad_spot_bookings_position_check may not be updated correctly';
   END IF;
@@ -223,14 +223,13 @@ COMMIT;
 --    -- Should match total judge count
 --
 -- 3. Verify constraints allow position 3:
---    SELECT conname, consrc
+--    SELECT conname, pg_get_constraintdef(oid) as definition
 --    FROM pg_constraint
 --    WHERE conname LIKE '%position%'
 --      AND conrelid IN (
 --        'ad_spot_bookings'::regclass,
 --        'judge_ad_products'::regclass,
---        'ad_spots'::regclass,
---        'pending_checkouts'::regclass
+--        'ad_spots'::regclass
 --      );
 --    -- All should allow values 1, 2, 3
 --
