@@ -734,6 +734,36 @@ export class CourtListenerClient {
       return false
     }
   }
+
+  /**
+   * Get education records for a person/judge
+   * GET /api/rest/v4/educations/?person={id}
+   */
+  async getEducations(personId: string): Promise<CourtListenerResponse<CourtListenerEducation>> {
+    return this.makeRequest<CourtListenerResponse<CourtListenerEducation>>('/educations/', {
+      person: personId,
+    })
+  }
+
+  /**
+   * Get political affiliations for a person/judge
+   * GET /api/rest/v4/political-affiliations/?person={id}
+   */
+  async getPoliticalAffiliations(personId: string): Promise<CourtListenerResponse<any>> {
+    return this.makeRequest<CourtListenerResponse<any>>('/political-affiliations/', {
+      person: personId,
+    })
+  }
+
+  /**
+   * Get positions (court appointments) for a person/judge
+   * GET /api/rest/v4/positions/?person={id}
+   */
+  async getPositions(personId: string): Promise<CourtListenerResponse<CourtListenerPosition>> {
+    return this.makeRequest<CourtListenerResponse<CourtListenerPosition>>('/positions/', {
+      person: personId,
+    })
+  }
 }
 
 // Helper function to create rate-limited requests

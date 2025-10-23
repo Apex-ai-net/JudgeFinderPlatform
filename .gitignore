@@ -225,3 +225,9 @@ dist
 .env.development.local
 
 .playwright-mcp/
+
+# Test Reports & Build Artifacts
+/playwright-report/
+/test-results/
+*.tsbuildinfo
+/coverage/
