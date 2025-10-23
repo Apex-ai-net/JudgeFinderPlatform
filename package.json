@@ -42,6 +42,8 @@
     "sync:judges": "node scripts/sync-judges-manual.js",
     "sync:decisions": "node scripts/sync-decisions-manual.js",
     "sync:education": "npx tsx scripts/sync-education-data.ts",
+    "sync:political": "npx tsx scripts/sync-political-affiliations.ts",
+    "test:political-api": "npx tsx scripts/test-political-affiliation-api.ts",
     "import:wcab": "node scripts/import-wcab-judges.js",
     "analytics:generate": "node scripts/batch-generate-analytics.js",
     "bias:analyze": "node scripts/run-bias-analysis.js",

@@ -91,7 +91,6 @@ describe('Search Intelligence', () => {
     })
 
     it('should process query with AI successfully', async (): Promise<void> => {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       const { GoogleGenerativeAI } = await import('@google/generative-ai')
       const mockGenerateContent = vi.fn().mockResolvedValue({
         response: {

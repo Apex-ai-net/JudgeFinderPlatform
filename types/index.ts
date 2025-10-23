@@ -16,6 +16,31 @@ export interface Judge {
   average_decision_time: number | null
   courtlistener_id?: string | null
   courtlistener_data?: Record<string, unknown> | null // Full CourtListener judge data
+
+  // Election and selection information
+  selection_method?: 'appointed' | 'elected' | 'merit_selection' | 'legislative_appointment' | 'retention_election' | 'commission_appointment' | null
+  current_term_end_date?: string | null
+  next_election_date?: string | null
+  is_elected?: boolean
+
+  // Optional relations (populated when explicitly requested)
+  elections?: Array<{
+    id: string
+    election_date: string
+    election_type: string
+    result: string
+    vote_percentage: number | null
+    [key: string]: unknown
+  }> | null
+  political_affiliations?: Array<{
+    id: string
+    political_party: string
+    start_date: string | null
+    end_date: string | null
+    is_current: boolean
+    [key: string]: unknown
+  }> | null
+
   created_at: string
   updated_at: string
 }
@@ -288,6 +313,13 @@ export interface JudgeDatabaseRow extends Record<string, unknown> {
   average_decision_time: number | null
   courtlistener_id?: string | null
   courtlistener_data?: Record<string, unknown> | null
+
+  // Election and selection information
+  selection_method?: 'appointed' | 'elected' | 'merit_selection' | 'legislative_appointment' | 'retention_election' | 'commission_appointment' | null
+  current_term_end_date?: string | null
+  next_election_date?: string | null
+  is_elected?: boolean
+
   created_at: string
   updated_at: string
 }
@@ -329,3 +361,32 @@ export interface CaseDatabaseRow extends Record<string, unknown> {
   created_at: string
   updated_at: string
 }
+
+// Re-export election types for convenience
+export type {
+  JudgeElection,
+  ElectionOpponent,
+  PoliticalAffiliation,
+  ElectionHistoryResponse,
+  UpcomingElectionResponse,
+  PoliticalAffiliationHistoryResponse,
+  ElectionStatisticsResponse,
+  ElectionInformationProps,
+  ElectionBadgeProps,
+  ElectionTimelineProps,
+  PoliticalAffiliationDisplayProps,
+  ElectionFilters,
+  ElectionSummary,
+  JudgeWithElections,
+} from './elections'
+
+export {
+  ElectionType,
+  SelectionMethod,
+  ElectionResult,
+  PoliticalParty,
+  isElectionType,
+  isSelectionMethod,
+  isElectionResult,
+  isPoliticalParty,
+} from './elections'

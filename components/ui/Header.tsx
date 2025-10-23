@@ -20,6 +20,7 @@ import {
 const NAV_LINKS = [
   { href: '/judges', label: 'Judges' },
   { href: '/courts', label: 'Courts' },
+  { href: '/elections', label: 'Elections' },
   { href: '/analytics', label: 'Analytics' },
   { href: '/about', label: 'About' },
   { href: '/docs', label: 'Docs' },

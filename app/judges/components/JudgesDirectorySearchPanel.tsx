@@ -43,7 +43,6 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
     if (!viewModel.state.initialized) return
     setSearchInput(viewModel.state.searchTerm)
     // MobX observables - don't add to deps to avoid infinite loops
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -53,7 +52,6 @@ export const JudgesDirectorySearchPanel = observer(function JudgesDirectorySearc
     }
     viewModel.setSearchTerm(nextValue)
     void viewModel.refresh()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchQuery])
 
   const decisionWindowLabel = useMemo(() => {

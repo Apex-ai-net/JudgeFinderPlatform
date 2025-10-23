@@ -1,7 +1,6 @@
 // Trigger production judges sync without exposing secrets in logs
 // Usage: node scripts/trigger-judges-sync.js [--force]
 
-/* eslint-disable no-console */
 require('dotenv').config({ path: '.env.local' })
 
 const endpoint = process.env.PROD_JUDGES_SYNC_ENDPOINT || 'https://olms-4375-tw501-x421.netlify.app/api/sync/judges'
@@ -44,5 +43,4 @@ main().catch((err) => {
   console.error('Failed to trigger judge sync:', err?.message || err)
   process.exit(1)
 })
-
 

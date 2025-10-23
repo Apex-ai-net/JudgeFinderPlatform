@@ -1,8 +1,6 @@
 import { logger } from '@/lib/utils/logger'
 import type { CaseAnalytics, AnalysisWindow } from './types'
 
-// Use require to avoid TS type friction with JS module
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { generateJudicialAnalytics, generateAnalyticsWithOpenAI } = require('@/lib/ai/judicial-analytics')
 
 export async function enhanceAnalyticsWithAI(
@@ -128,5 +126,4 @@ export async function enhanceAnalyticsWithAI(
 
   return merged
 }
-
 

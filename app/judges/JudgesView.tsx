@@ -73,7 +73,6 @@ export const JudgesView = observer(function JudgesView({ initialData }: JudgesVi
     if (validPage !== viewModel.state.currentPage) {
       viewModel.setPage(validPage)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.get('page')])
 
   // Sync search query with store state
@@ -84,7 +83,6 @@ export const JudgesView = observer(function JudgesView({ initialData }: JudgesVi
       viewModel.setSearchTerm(searchQuery)
       void viewModel.refresh()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.toString()])
 
   return (

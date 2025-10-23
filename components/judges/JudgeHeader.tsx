@@ -2,6 +2,8 @@ import { Building2, CalendarDays, Clock, Sparkles, Users } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils/index'
 import type { Judge } from '@/types'
+import { ElectionBadge } from '@/components/judges'
+import { SelectionMethod } from '@/types/elections'
 
 interface JudgeHeaderProps {
   judge: Judge
@@ -101,6 +103,15 @@ export function JudgeHeader({
                 </span>
               )}
             </div>
+            {judge.selection_method && (
+              <div className="mt-2">
+                <ElectionBadge
+                  selectionMethod={judge.selection_method as SelectionMethod}
+                  nextElectionDate={judge.next_election_date}
+                  variant="detailed"
+                />
+              </div>
+            )}
             <p className="max-w-prose text-sm leading-snug text-[color:hsl(var(--text-3))]">
               AI-assisted analysis of historical rulings; not a prediction of outcome.
             </p>

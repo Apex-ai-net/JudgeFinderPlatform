@@ -40,7 +40,6 @@ export function useJudgesDirectoryViewModel(
     if (!options.initialData) {
       void viewModel.loadInitial()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return viewModel

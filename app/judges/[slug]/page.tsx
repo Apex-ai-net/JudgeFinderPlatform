@@ -9,6 +9,7 @@ import { JudgeFAQ } from '@/components/judges/JudgeFAQ'
 import { AnalyticsSlidersShell } from '@/components/judges/AnalyticsSlidersShell'
 import { BookmarkButton } from '@/components/judges/BookmarkButton'
 import { ReportProfileIssueDialog } from '@/components/judges/ReportProfileIssueDialog'
+import { ElectionInformation } from '@/components/judges/ElectionInformation'
 import { SEOBreadcrumbs } from '@/components/seo/SEOBreadcrumbs'
 import { generateJudgeBreadcrumbs } from '@/lib/seo/breadcrumbs'
 import { RelatedJudges } from '@/components/seo/RelatedJudges'
@@ -18,6 +19,7 @@ import { isValidSlug, createCanonicalSlug, resolveCourtSlug } from '@/lib/utils/
 import { generateJudgeMetadata } from '@/lib/seo/metadata-generator'
 import { generateJudgeStructuredData } from '@/lib/seo/structured-data'
 import type { Judge, JudgeLookupResult } from '@/types'
+import { SelectionMethod } from '@/types/elections'
 import { getBaseUrl } from '@/lib/utils/baseUrl'
 import { DonationButton } from '@/components/fundraising/DonationButton'
 import { JudgeDetailTOC } from '@/components/judges/JudgeDetailTOC'
@@ -351,6 +353,21 @@ export default async function JudgePage({ params }: JudgePageProps): Promise<JSX
             <section id="professional-background" className="scroll-mt-24">
               <ProfessionalBackground judge={judge} />
             </section>
+
+            {/* Election Information Section */}
+            {judge.selection_method && (
+              <section id="election-information" className="scroll-mt-24">
+                <ElectionInformation
+                  judgeId={judge.id}
+                  selectionMethod={judge.selection_method as SelectionMethod}
+                  currentTermEndDate={judge.current_term_end_date || null}
+                  nextElectionDate={judge.next_election_date || null}
+                  electionHistory={(judge.elections || []) as any}
+                  showFullHistory={false}
+                  showPoliticalAffiliation={false}
+                />
+              </section>
+            )}
 
             {/* AI Analytics Section */}
             <section id="analytics" className="scroll-mt-24">

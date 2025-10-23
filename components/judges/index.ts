@@ -4,6 +4,8 @@ export * from "./AnalyticsSlidersShell";
 export * from "./BiasPatternAnalysis";
 export * from "./BookmarkButton";
 export * from "./CaseOutcomeStatistics";
+export * from "./ElectionBadge";
+export * from "./ElectionInformation";
 export * from "./EnhancedJudgeSearch";
 export * from "./JudgeClientWrapper";
 export * from "./JudgeDetailTOC";
