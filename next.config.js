@@ -1,6 +1,8 @@
 // Note: Console suppression removed to prevent Next.js build issues with URL validation
 // Sensitive data protection is handled by environment variables and security headers
 
+const { withSentryConfig } = require('@sentry/nextjs')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -172,4 +174,23 @@ const nextConfig = {
   // DO NOT use output: 'standalone' - that's for self-hosting (Docker/VPS), not Netlify
 }
 
-module.exports = nextConfig
+// Sentry configuration - disable automatic instrumentation to prevent build errors with Next.js 15
+const sentryWebpackPluginOptions = {
+  // For all available options, see:
+  // https://github.com/getsentry/sentry-webpack-plugin#options
+
+  // Suppresses source map uploading logs during build
+  silent: true,
+
+  // Disable automatic instrumentation that causes conflicts with App Router
+  autoInstrumentServerFunctions: false,
+  hideSourceMaps: true,
+
+  // Disable injecting custom error pages that conflict with Next.js 15
+  widenClientFileUpload: false,
+}
+
+// Export with Sentry configuration
+module.exports = process.env.SENTRY_DSN
+  ? withSentryConfig(nextConfig, sentryWebpackPluginOptions)
+  : nextConfig

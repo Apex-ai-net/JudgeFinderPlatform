@@ -202,7 +202,7 @@ export default function LACountyPage(): JSX.Element {
                 </div>
                 <div className="text-3xl font-bold text-purple-600 mb-2">
                   $
-                  {laMarketIntel.revenue_projections.tier_1_total.conservative_monthly.toLocaleString()}
+                  {laMarketIntel?.revenue_projections?.tier_1_total?.conservative_monthly?.toLocaleString() || '0'}
                   +
                 </div>
                 <div className="text-gray-600">Entertainment & Corporate</div>
@@ -216,7 +216,7 @@ export default function LACountyPage(): JSX.Element {
                 </div>
                 <div className="text-3xl font-bold text-blue-600 mb-2">
                   $
-                  {laMarketIntel.revenue_projections.tier_2_total.conservative_monthly.toLocaleString()}
+                  {laMarketIntel?.revenue_projections?.tier_2_total?.conservative_monthly?.toLocaleString() || '0'}
                   +
                 </div>
                 <div className="text-gray-600">PI & Immigration</div>
@@ -230,7 +230,7 @@ export default function LACountyPage(): JSX.Element {
                 </div>
                 <div className="text-3xl font-bold text-green-600 mb-2">
                   $
-                  {laMarketIntel.revenue_projections.tier_3_total.conservative_monthly.toLocaleString()}
+                  {laMarketIntel?.revenue_projections?.tier_3_total?.conservative_monthly?.toLocaleString() || '0'}
                   +
                 </div>
                 <div className="text-gray-600">Emerging Practices</div>
@@ -245,15 +245,15 @@ export default function LACountyPage(): JSX.Element {
                 <div className="text-4xl font-bold text-green-600 mb-2">
                   $
                   {(
-                    laMarketIntel.revenue_projections.tier_1_total.conservative_monthly +
-                    laMarketIntel.revenue_projections.tier_2_total.conservative_monthly +
-                    laMarketIntel.revenue_projections.tier_3_total.conservative_monthly
+                    (laMarketIntel?.revenue_projections?.tier_1_total?.conservative_monthly || 0) +
+                    (laMarketIntel?.revenue_projections?.tier_2_total?.conservative_monthly || 0) +
+                    (laMarketIntel?.revenue_projections?.tier_3_total?.conservative_monthly || 0)
                   ).toLocaleString()}
                   -$
                   {(
-                    laMarketIntel.revenue_projections.tier_1_total.aggressive_monthly +
-                    laMarketIntel.revenue_projections.tier_2_total.aggressive_monthly +
-                    laMarketIntel.revenue_projections.tier_3_total.aggressive_monthly
+                    (laMarketIntel?.revenue_projections?.tier_1_total?.aggressive_monthly || 0) +
+                    (laMarketIntel?.revenue_projections?.tier_2_total?.aggressive_monthly || 0) +
+                    (laMarketIntel?.revenue_projections?.tier_3_total?.aggressive_monthly || 0)
                   ).toLocaleString()}
                   /month
                 </div>

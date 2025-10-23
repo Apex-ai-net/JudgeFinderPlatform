@@ -3,18 +3,30 @@
 import { ClerkProvider } from '@clerk/nextjs'
 import { ReactNode, useEffect } from 'react'
 import { ThemeProvider } from './ThemeProvider'
-import * as Sentry from '@sentry/nextjs'
 
 // Skip authentication during build to prevent errors
 const SKIP_AUTH_BUILD = process.env.SKIP_AUTH_BUILD === 'true'
 
+// Lazy load Sentry to avoid build-time issues
+let Sentry: typeof import('@sentry/nextjs') | null = null
+
 // Check if Sentry is properly configured
 const isSentryAvailable = () => {
   return (
-    typeof Sentry !== 'undefined' &&
+    typeof window !== 'undefined' &&
+    Sentry !== null &&
     typeof Sentry.captureMessage === 'function' &&
     process.env.NEXT_PUBLIC_SENTRY_DSN
   )
+}
+
+// Lazy load Sentry only on client side
+if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_SENTRY_DSN) {
+  import('@sentry/nextjs').then((module) => {
+    Sentry = module
+  }).catch(() => {
+    // Sentry failed to load, continue without it
+  })
 }
 
 export function Providers({ children }: { children: ReactNode }): JSX.Element {
