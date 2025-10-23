@@ -17,6 +17,8 @@ import { SelectionMethod, type ElectionBadgeProps } from '@/types/elections'
  * - description: Detailed explanation shown in tooltip
  * - badgeClass: Tailwind classes for badge styling
  * - iconClass: Tailwind classes for icon styling
+ *
+ * IMPORTANT: Must include all values from the database ENUM `selection_method`
  */
 const SELECTION_METHOD_CONFIG = {
   [SelectionMethod.ELECTED]: {
@@ -33,7 +35,7 @@ const SELECTION_METHOD_CONFIG = {
     badgeClass: 'bg-blue-500/10 text-blue-600 border-blue-500/30 dark:text-blue-400',
     iconClass: 'text-blue-600 dark:text-blue-400',
   },
-  [SelectionMethod.RETENTION_ELECTION]: {
+  [SelectionMethod.RETENTION]: {
     label: 'Retention',
     icon: Scale,
     description: 'This judge faces periodic retention votes where voters decide whether to keep them in office.',
@@ -47,19 +49,26 @@ const SELECTION_METHOD_CONFIG = {
     badgeClass: 'bg-purple-500/10 text-purple-600 border-purple-500/30 dark:text-purple-400',
     iconClass: 'text-purple-600 dark:text-purple-400',
   },
-  [SelectionMethod.LEGISLATIVE_APPOINTMENT]: {
+  [SelectionMethod.LEGISLATIVE]: {
     label: 'Legislative',
     icon: UserCheck,
     description: 'This judge was appointed by the state legislature.',
     badgeClass: 'bg-indigo-500/10 text-indigo-600 border-indigo-500/30 dark:text-indigo-400',
     iconClass: 'text-indigo-600 dark:text-indigo-400',
   },
-  [SelectionMethod.COMMISSION_APPOINTMENT]: {
-    label: 'Commission',
-    icon: Award,
-    description: 'This judge was appointed by a judicial commission.',
+  [SelectionMethod.MIXED]: {
+    label: 'Mixed Method',
+    icon: Scale,
+    description: 'This judge was selected through a combination of methods (e.g., appointed then retention).',
     badgeClass: 'bg-teal-500/10 text-teal-600 border-teal-500/30 dark:text-teal-400',
     iconClass: 'text-teal-600 dark:text-teal-400',
+  },
+  [SelectionMethod.UNKNOWN]: {
+    label: 'Selection Method Not Specified',
+    icon: Award,
+    description: 'The method by which this judge was selected has not been determined.',
+    badgeClass: 'bg-gray-500/10 text-gray-600 border-gray-500/30 dark:text-gray-400',
+    iconClass: 'text-gray-600 dark:text-gray-400',
   },
 } as const
 
@@ -157,6 +166,7 @@ export function ElectionBadge({
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [])
 
+  // Get configuration for selection method (all database enum values are covered)
   const config = SELECTION_METHOD_CONFIG[selectionMethod]
   const Icon = config.icon
   const daysUntil = nextElectionDate ? getDaysUntilElection(nextElectionDate) : null

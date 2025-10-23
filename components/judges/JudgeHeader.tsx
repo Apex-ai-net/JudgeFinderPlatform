@@ -1,6 +1,7 @@
 import { Building2, CalendarDays, Clock, Sparkles, Users } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils/index'
+import { isValidSelectionMethod } from '@/lib/utils/type-guards'
 import type { Judge } from '@/types'
 import { ElectionBadge } from '@/components/judges'
 import { SelectionMethod } from '@/types/elections'
@@ -103,10 +104,10 @@ export function JudgeHeader({
                 </span>
               )}
             </div>
-            {judge.selection_method && (
+            {judge.selection_method && isValidSelectionMethod(judge.selection_method) && (
               <div className="mt-2">
                 <ElectionBadge
-                  selectionMethod={judge.selection_method as SelectionMethod}
+                  selectionMethod={judge.selection_method}
                   nextElectionDate={judge.next_election_date}
                   variant="detailed"
                 />

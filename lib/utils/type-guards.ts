@@ -269,3 +269,60 @@ export function assertType<T>(
   }
   return value
 }
+
+// Enum type guards
+import { SelectionMethod } from '@/types/elections'
+
+/**
+ * Valid selection method values as a constant array for validation
+ * MUST match database ENUM type `selection_method`
+ */
+const VALID_SELECTION_METHODS = [
+  SelectionMethod.APPOINTED,
+  SelectionMethod.ELECTED,
+  SelectionMethod.MERIT_SELECTION,
+  SelectionMethod.LEGISLATIVE,
+  SelectionMethod.RETENTION,
+  SelectionMethod.MIXED,
+  SelectionMethod.UNKNOWN,
+] as const
+
+/**
+ * Type guard to check if a value is a valid SelectionMethod enum value
+ *
+ * @param value - The value to check
+ * @returns True if the value is a valid SelectionMethod, false otherwise
+ *
+ * @example
+ * ```typescript
+ * if (isValidSelectionMethod(judge.selection_method)) {
+ *   // Safe to use as SelectionMethod
+ *   return <ElectionBadge selectionMethod={judge.selection_method} />
+ * }
+ * ```
+ */
+export function isValidSelectionMethod(value: unknown): value is SelectionMethod {
+  if (typeof value !== 'string') {
+    return false
+  }
+
+  return VALID_SELECTION_METHODS.includes(value as SelectionMethod)
+}
+
+/**
+ * Get the selection method with fallback to null if invalid
+ *
+ * @param value - The value to validate
+ * @returns The SelectionMethod if valid, null otherwise
+ *
+ * @example
+ * ```typescript
+ * const method = getValidSelectionMethod(judge.selection_method)
+ * if (method) {
+ *   return <ElectionBadge selectionMethod={method} />
+ * }
+ * ```
+ */
+export function getValidSelectionMethod(value: unknown): SelectionMethod | null {
+  return isValidSelectionMethod(value) ? value : null
+}

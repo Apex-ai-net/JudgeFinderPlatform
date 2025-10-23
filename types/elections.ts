@@ -30,20 +30,25 @@ export enum ElectionType {
 /**
  * Methods by which judges are selected for their positions
  *
+ * IMPORTANT: These values MUST match the database ENUM type `selection_method`
+ * defined in supabase/migrations/20250122_001_add_election_tables.sql
+ *
  * - `appointed`: Appointed by executive (governor, president)
  * - `elected`: Won a competitive election
  * - `merit_selection`: Missouri Plan - appointed from nominating commission
- * - `legislative_appointment`: Appointed by legislature
- * - `retention_election`: Retained through yes/no vote
- * - `commission_appointment`: Appointed by judicial commission
+ * - `legislative`: Appointed by legislature
+ * - `retention`: Subject to retention elections
+ * - `mixed`: Combination of methods (e.g., appointed then retention)
+ * - `unknown`: Method not yet determined
  */
 export enum SelectionMethod {
   APPOINTED = 'appointed',
   ELECTED = 'elected',
   MERIT_SELECTION = 'merit_selection',
-  LEGISLATIVE_APPOINTMENT = 'legislative_appointment',
-  RETENTION_ELECTION = 'retention_election',
-  COMMISSION_APPOINTMENT = 'commission_appointment',
+  LEGISLATIVE = 'legislative',
+  RETENTION = 'retention',
+  MIXED = 'mixed',
+  UNKNOWN = 'unknown',
 }
 
 /**
