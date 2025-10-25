@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { TrendingUp, TrendingDown, Minus, DollarSign, Loader2, Calendar } from 'lucide-react'
 import { SpendingAnalytics, getLastNMonths, formatMonthLabel } from '@/lib/billing/analytics'
+import { ZoomableChart } from '@/components/ui/ZoomableChart'
 
 export default function SpendingChart() {
   const [analytics, setAnalytics] = useState<SpendingAnalytics | null>(null)
@@ -152,20 +153,21 @@ export default function SpendingChart() {
           <>
             <div className="mb-3">
               <p className="text-sm font-medium text-foreground">Monthly Spending Trend</p>
-              <p className="text-xs text-muted-foreground">Last 6 months</p>
+              <p className="text-xs text-muted-foreground">Last 6 months · Use zoom controls to explore</p>
             </div>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                  axisLine={{ stroke: 'hsl(var(--border))' }}
-                />
-                <YAxis
-                  tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                  axisLine={{ stroke: 'hsl(var(--border))' }}
-                  tickFormatter={(value) => `$${value.toLocaleString()}`}
+            <ZoomableChart>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                    axisLine={{ stroke: 'hsl(var(--border))' }}
+                  />
+                  <YAxis
+                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                    axisLine={{ stroke: 'hsl(var(--border))' }}
+                    tickFormatter={(value) => `$${value.toLocaleString()}`}
                 />
                 <Tooltip
                   contentStyle={{
@@ -180,14 +182,15 @@ export default function SpendingChart() {
                   ]}
                   labelStyle={{ color: 'hsl(var(--foreground))' }}
                 />
-                <Bar
-                  dataKey="amount"
-                  fill="hsl(var(--primary))"
-                  radius={[8, 8, 0, 0]}
-                  maxBarSize={60}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+                  <Bar
+                    dataKey="amount"
+                    fill="hsl(var(--primary))"
+                    radius={[8, 8, 0, 0]}
+                    maxBarSize={60}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </ZoomableChart>
           </>
         )}
       </div>

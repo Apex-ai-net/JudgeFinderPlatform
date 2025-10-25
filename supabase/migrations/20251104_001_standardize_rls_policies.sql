@@ -115,24 +115,29 @@ CREATE POLICY "cases_public_select"
 -- Pattern: Public read, service/admin write
 -- ============================================================================
 
-SELECT drop_all_policies_for_table('judge_court_positions');
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'judge_court_positions') THEN
+    PERFORM drop_all_policies_for_table('judge_court_positions');
 
-CREATE POLICY "judge_court_positions_service_all"
-  ON public.judge_court_positions
-  FOR ALL
-  USING (auth.role() = 'service_role' OR is_service_account())
-  WITH CHECK (auth.role() = 'service_role' OR is_service_account());
+    CREATE POLICY "judge_court_positions_service_all"
+      ON public.judge_court_positions
+      FOR ALL
+      USING (auth.role() = 'service_role' OR is_service_account())
+      WITH CHECK (auth.role() = 'service_role' OR is_service_account());
 
-CREATE POLICY "judge_court_positions_admin_all"
-  ON public.judge_court_positions
-  FOR ALL
-  USING (is_admin())
-  WITH CHECK (is_admin());
+    CREATE POLICY "judge_court_positions_admin_all"
+      ON public.judge_court_positions
+      FOR ALL
+      USING (is_admin())
+      WITH CHECK (is_admin());
 
-CREATE POLICY "judge_court_positions_public_select"
-  ON public.judge_court_positions
-  FOR SELECT
-  USING (true);
+    CREATE POLICY "judge_court_positions_public_select"
+      ON public.judge_court_positions
+      FOR SELECT
+      USING (true);
+  END IF;
+END $$;
 
 -- ============================================================================
 -- Table: app_users
@@ -182,83 +187,103 @@ CREATE POLICY "sync_queue_admin_all"
 -- Pattern: Service/admin only
 -- ============================================================================
 
-SELECT drop_all_policies_for_table('sync_logs');
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'sync_logs') THEN
+    PERFORM drop_all_policies_for_table('sync_logs');
 
-CREATE POLICY "sync_logs_service_all"
-  ON public.sync_logs
-  FOR ALL
-  USING (auth.role() = 'service_role' OR is_service_account())
-  WITH CHECK (auth.role() = 'service_role' OR is_service_account());
+    CREATE POLICY "sync_logs_service_all"
+      ON public.sync_logs
+      FOR ALL
+      USING (auth.role() = 'service_role' OR is_service_account())
+      WITH CHECK (auth.role() = 'service_role' OR is_service_account());
 
-CREATE POLICY "sync_logs_admin_select"
-  ON public.sync_logs
-  FOR SELECT
-  USING (is_admin());
+    CREATE POLICY "sync_logs_admin_select"
+      ON public.sync_logs
+      FOR SELECT
+      USING (is_admin());
+  END IF;
+END $$;
 
 -- ============================================================================
 -- Table: profile_issues
 -- Pattern: Service/admin manage, users view own reports
 -- ============================================================================
 
-SELECT drop_all_policies_for_table('profile_issues');
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'profile_issues') THEN
+    PERFORM drop_all_policies_for_table('profile_issues');
 
-CREATE POLICY "profile_issues_service_all"
-  ON public.profile_issues
-  FOR ALL
-  USING (auth.role() = 'service_role' OR is_service_account())
-  WITH CHECK (auth.role() = 'service_role' OR is_service_account());
+    CREATE POLICY "profile_issues_service_all"
+      ON public.profile_issues
+      FOR ALL
+      USING (auth.role() = 'service_role' OR is_service_account())
+      WITH CHECK (auth.role() = 'service_role' OR is_service_account());
 
-CREATE POLICY "profile_issues_admin_all"
-  ON public.profile_issues
-  FOR ALL
-  USING (is_admin())
-  WITH CHECK (is_admin());
+    CREATE POLICY "profile_issues_admin_all"
+      ON public.profile_issues
+      FOR ALL
+      USING (is_admin())
+      WITH CHECK (is_admin());
 
-CREATE POLICY "profile_issues_user_select"
-  ON public.profile_issues
-  FOR SELECT
-  USING (reporter_id = auth.uid()::text);
+    -- Only create user_select policy if reporter_id column exists
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profile_issues' AND column_name = 'reporter_id') THEN
+      CREATE POLICY "profile_issues_user_select"
+        ON public.profile_issues
+        FOR SELECT
+        USING (reporter_id = auth.uid()::text);
+    END IF;
+  END IF;
+END $$;
 
 -- ============================================================================
 -- Table: ad_waitlist
 -- Pattern: Users insert own, admins manage all
 -- ============================================================================
 
-SELECT drop_all_policies_for_table('ad_waitlist');
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ad_waitlist') THEN
+    PERFORM drop_all_policies_for_table('ad_waitlist');
 
-CREATE POLICY "ad_waitlist_service_all"
-  ON public.ad_waitlist
-  FOR ALL
-  USING (auth.role() = 'service_role' OR is_service_account())
-  WITH CHECK (auth.role() = 'service_role' OR is_service_account());
+    CREATE POLICY "ad_waitlist_service_all"
+      ON public.ad_waitlist
+      FOR ALL
+      USING (auth.role() = 'service_role' OR is_service_account())
+      WITH CHECK (auth.role() = 'service_role' OR is_service_account());
 
-CREATE POLICY "ad_waitlist_admin_all"
-  ON public.ad_waitlist
-  FOR ALL
-  USING (is_admin())
-  WITH CHECK (is_admin());
+    CREATE POLICY "ad_waitlist_admin_all"
+      ON public.ad_waitlist
+      FOR ALL
+      USING (is_admin())
+      WITH CHECK (is_admin());
 
-CREATE POLICY "ad_waitlist_user_insert"
-  ON public.ad_waitlist
-  FOR INSERT
-  WITH CHECK (auth.uid() IS NOT NULL);
+    CREATE POLICY "ad_waitlist_user_insert"
+      ON public.ad_waitlist
+      FOR INSERT
+      WITH CHECK (auth.uid() IS NOT NULL);
 
-CREATE POLICY "ad_waitlist_user_select"
-  ON public.ad_waitlist
-  FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.app_users
-      WHERE clerk_user_id = auth.uid()::text
-      AND email = ad_waitlist.email
-    )
-  );
+    CREATE POLICY "ad_waitlist_user_select"
+      ON public.ad_waitlist
+      FOR SELECT
+      USING (
+        EXISTS (
+          SELECT 1 FROM public.app_users
+          WHERE clerk_user_id = auth.uid()::text
+          AND email = ad_waitlist.email
+        )
+      );
+  END IF;
+END $$;
 
 -- ============================================================================
 -- Table: ad_spots
--- Pattern: Public read, owners manage own, admins manage all
+-- Pattern: Public read, service/admin manage (no user_id column)
 -- ============================================================================
 
+-- Note: ad_spots uses current_advertiser_id, not user_id
+-- User policies removed as they would fail
 SELECT drop_all_policies_for_table('ad_spots');
 
 CREATE POLICY "ad_spots_service_all"
@@ -278,124 +303,119 @@ CREATE POLICY "ad_spots_public_select"
   FOR SELECT
   USING (true);
 
-CREATE POLICY "ad_spots_user_insert"
-  ON public.ad_spots
-  FOR INSERT
-  WITH CHECK (auth.uid() IS NOT NULL AND user_id = auth.uid()::text);
-
-CREATE POLICY "ad_spots_user_update"
-  ON public.ad_spots
-  FOR UPDATE
-  USING (user_id = auth.uid()::text)
-  WITH CHECK (user_id = auth.uid()::text);
-
-CREATE POLICY "ad_spots_user_delete"
-  ON public.ad_spots
-  FOR DELETE
-  USING (user_id = auth.uid()::text);
-
 -- ============================================================================
 -- Table: ad_events
 -- Pattern: Public insert (analytics), owners/admins view
 -- ============================================================================
 
-SELECT drop_all_policies_for_table('ad_events');
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ad_events') THEN
+    PERFORM drop_all_policies_for_table('ad_events');
 
-CREATE POLICY "ad_events_service_all"
-  ON public.ad_events
-  FOR ALL
-  USING (auth.role() = 'service_role' OR is_service_account())
-  WITH CHECK (auth.role() = 'service_role' OR is_service_account());
+    CREATE POLICY "ad_events_service_all"
+      ON public.ad_events
+      FOR ALL
+      USING (auth.role() = 'service_role' OR is_service_account())
+      WITH CHECK (auth.role() = 'service_role' OR is_service_account());
 
-CREATE POLICY "ad_events_admin_select"
-  ON public.ad_events
-  FOR SELECT
-  USING (is_admin());
+    CREATE POLICY "ad_events_admin_select"
+      ON public.ad_events
+      FOR SELECT
+      USING (is_admin());
 
-CREATE POLICY "ad_events_public_insert"
-  ON public.ad_events
-  FOR INSERT
-  WITH CHECK (true);
+    CREATE POLICY "ad_events_public_insert"
+      ON public.ad_events
+      FOR INSERT
+      WITH CHECK (true);
 
-CREATE POLICY "ad_events_user_select"
-  ON public.ad_events
-  FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.ad_spots
-      WHERE ad_spots.id = ad_events.ad_spot_id
-      AND ad_spots.user_id = auth.uid()::text
-    )
-  );
+    -- Skipping ad_events_user_select as ad_spots.user_id doesn't exist
+  END IF;
+END $$;
 
 -- ============================================================================
 -- Table: user_push_tokens
 -- Pattern: Users manage own, service/admin manage all
 -- ============================================================================
 
-SELECT drop_all_policies_for_table('user_push_tokens');
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'user_push_tokens') THEN
+    PERFORM drop_all_policies_for_table('user_push_tokens');
 
-CREATE POLICY "user_push_tokens_service_all"
-  ON public.user_push_tokens
-  FOR ALL
-  USING (auth.role() = 'service_role' OR is_service_account())
-  WITH CHECK (auth.role() = 'service_role' OR is_service_account());
+    CREATE POLICY "user_push_tokens_service_all"
+      ON public.user_push_tokens
+      FOR ALL
+      USING (auth.role() = 'service_role' OR is_service_account())
+      WITH CHECK (auth.role() = 'service_role' OR is_service_account());
 
-CREATE POLICY "user_push_tokens_admin_select"
-  ON public.user_push_tokens
-  FOR SELECT
-  USING (is_admin());
+    CREATE POLICY "user_push_tokens_admin_select"
+      ON public.user_push_tokens
+      FOR SELECT
+      USING (is_admin());
 
-CREATE POLICY "user_push_tokens_user_all"
-  ON public.user_push_tokens
-  FOR ALL
-  USING (user_id = auth.uid()::text)
-  WITH CHECK (user_id = auth.uid()::text);
+    CREATE POLICY "user_push_tokens_user_all"
+      ON public.user_push_tokens
+      FOR ALL
+      USING (user_id = auth.uid()::text)
+      WITH CHECK (user_id = auth.uid()::text);
+  END IF;
+END $$;
 
 -- ============================================================================
 -- Table: performance_metrics
 -- Pattern: Public read, service/admin write
 -- ============================================================================
 
-SELECT drop_all_policies_for_table('performance_metrics');
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'performance_metrics') THEN
+    PERFORM drop_all_policies_for_table('performance_metrics');
 
-CREATE POLICY "performance_metrics_service_all"
-  ON public.performance_metrics
-  FOR ALL
-  USING (auth.role() = 'service_role' OR is_service_account())
-  WITH CHECK (auth.role() = 'service_role' OR is_service_account());
+    CREATE POLICY "performance_metrics_service_all"
+      ON public.performance_metrics
+      FOR ALL
+      USING (auth.role() = 'service_role' OR is_service_account())
+      WITH CHECK (auth.role() = 'service_role' OR is_service_account());
 
-CREATE POLICY "performance_metrics_admin_select"
-  ON public.performance_metrics
-  FOR SELECT
-  USING (is_admin());
+    CREATE POLICY "performance_metrics_admin_select"
+      ON public.performance_metrics
+      FOR SELECT
+      USING (is_admin());
 
-CREATE POLICY "performance_metrics_public_select"
-  ON public.performance_metrics
-  FOR SELECT
-  USING (true);
+    CREATE POLICY "performance_metrics_public_select"
+      ON public.performance_metrics
+      FOR SELECT
+      USING (true);
+  END IF;
+END $$;
 
 -- ============================================================================
 -- Table: service_account_audit
 -- Pattern: Service write, admins read all, service accounts read own
 -- ============================================================================
 
-SELECT drop_all_policies_for_table('service_account_audit');
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'service_account_audit') THEN
+    PERFORM drop_all_policies_for_table('service_account_audit');
 
-CREATE POLICY "service_account_audit_service_insert"
-  ON public.service_account_audit
-  FOR INSERT
-  WITH CHECK (auth.role() = 'service_role' OR is_service_account());
+    CREATE POLICY "service_account_audit_service_insert"
+      ON public.service_account_audit
+      FOR INSERT
+      WITH CHECK (auth.role() = 'service_role' OR is_service_account());
 
-CREATE POLICY "service_account_audit_admin_select"
-  ON public.service_account_audit
-  FOR SELECT
-  USING (is_admin());
+    CREATE POLICY "service_account_audit_admin_select"
+      ON public.service_account_audit
+      FOR SELECT
+      USING (is_admin());
 
-CREATE POLICY "service_account_audit_user_select"
-  ON public.service_account_audit
-  FOR SELECT
-  USING (is_service_account() AND service_account_id = auth.uid()::text);
+    CREATE POLICY "service_account_audit_user_select"
+      ON public.service_account_audit
+      FOR SELECT
+      USING (is_service_account() AND service_account_id = auth.uid()::text);
+  END IF;
+END $$;
 
 -- ============================================================================
 -- Table: audit_logs (if exists)

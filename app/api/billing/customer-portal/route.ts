@@ -28,28 +28,32 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user's Stripe customer ID from advertiser profile
+    // Get user's organization and Stripe customer ID
     const supabase = await createServiceRoleClient()
-    const { data: appUser } = await supabase
-      .from('app_users')
-      .select('id')
-      .eq('clerk_user_id', userId)
+
+    // Find organization where user is a member
+    const { data: membership } = await supabase
+      .from('organization_members')
+      .select('organization_id, organizations(stripe_customer_id, name)')
+      .eq('user_id', userId)
       .single()
 
-    if (!appUser) {
-      logger.error('App user not found', { userId })
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    if (!membership?.organizations) {
+      logger.warn('No organization found for user', { userId })
+      return NextResponse.json(
+        {
+          error: 'No billing account found. Please make a purchase first.',
+        },
+        { status: 404 }
+      )
     }
 
-    // Check if user is an advertiser with a Stripe customer ID
-    const { data: advertiserProfile } = await supabase
-      .from('advertiser_profiles')
-      .select('stripe_customer_id, firm_name')
-      .eq('user_id', appUser.id)
-      .single()
+    const organization = Array.isArray(membership.organizations)
+      ? membership.organizations[0]
+      : membership.organizations
 
-    if (!advertiserProfile?.stripe_customer_id) {
-      logger.warn('No Stripe customer found for user', { userId })
+    if (!organization?.stripe_customer_id) {
+      logger.warn('No Stripe customer found for organization', { userId })
       return NextResponse.json(
         {
           error: 'No billing account found. Please make a purchase first.',
@@ -65,13 +69,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Create Stripe Customer Portal session
     const stripe = getStripeClient()
     const session = await stripe.billingPortal.sessions.create({
-      customer: advertiserProfile.stripe_customer_id,
+      customer: organization.stripe_customer_id,
       return_url: `${baseUrl}/dashboard/billing`,
     })
 
     logger.info('Customer portal session created', {
       userId,
-      customerId: advertiserProfile.stripe_customer_id,
+      customerId: organization.stripe_customer_id,
       sessionId: session.id,
     })
 

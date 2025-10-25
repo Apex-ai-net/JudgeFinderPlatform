@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import {
   Target,
@@ -13,6 +13,7 @@ import {
   BarChart3,
 } from 'lucide-react'
 import CampaignPerformanceChart from './CampaignPerformanceChart'
+import { DateRangePicker, type DateRange } from '@/components/ui/DateRangePicker'
 import type { AdvertiserDashboardStats, AdvertiserProfile } from '@/types/advertising'
 
 interface AdvertiserOverviewProps {
@@ -25,6 +26,22 @@ export default function AdvertiserOverview({
   advertiserProfile,
 }: AdvertiserOverviewProps): JSX.Element {
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d')
+
+  // Date range state
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    to: new Date(),
+  })
+
+  // Convert date range to timeRange format for backward compatibility
+  const timeRangeFromDates = useMemo(() => {
+    const days = Math.ceil(
+      (dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24)
+    )
+    if (days <= 7) return '7d'
+    if (days <= 30) return '30d'
+    return '90d'
+  }, [dateRange])
 
   const statCards = [
     {
@@ -211,25 +228,22 @@ export default function AdvertiserOverview({
         </div>
       </div>
 
-      {/* Time Range Selector */}
-      <div className="flex justify-end gap-2">
-        {(['7d', '30d', '90d'] as const).map((range) => (
-          <button
-            key={range}
-            onClick={() => setTimeRange(range)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              timeRange === range
-                ? 'bg-primary text-white'
-                : 'text-muted-foreground hover:bg-muted bg-card border border-border'
-            }`}
-          >
-            {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
-          </button>
-        ))}
+      {/* Date Range Selector */}
+      <div className="flex justify-end">
+        <DateRangePicker
+          value={dateRange}
+          onChange={setDateRange}
+          presets={[
+            { label: 'Last 7 days', days: 7 },
+            { label: 'Last 30 days', days: 30 },
+            { label: 'Last 90 days', days: 90 },
+            { label: 'Last 12 months', days: 365 },
+          ]}
+        />
       </div>
 
       {/* Performance Chart */}
-      <CampaignPerformanceChart timeRange={timeRange} />
+      <CampaignPerformanceChart timeRange={timeRangeFromDates} />
     </div>
   )
 }

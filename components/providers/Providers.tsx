@@ -153,9 +153,8 @@ export function Providers({ children }: { children: ReactNode }): JSX.Element {
   const content = (
     <ThemeProvider
       attribute="class"
-      defaultTheme="dark"
-      enableSystem={false}
-      forcedTheme="dark"
+      defaultTheme="system"
+      enableSystem={true}
       disableTransitionOnChange
     >
       {children}

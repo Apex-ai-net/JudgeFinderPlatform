@@ -237,29 +237,64 @@ END $$;
 -- 5. INDEXES FOR PERFORMANCE
 -- =====================================================
 
--- Organizations
+-- Organizations (conditional on column existence)
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'organizations' AND column_name = 'deleted_at') THEN
-    CREATE INDEX IF NOT EXISTS idx_organizations_owner ON organizations(owner_id) WHERE deleted_at IS NULL;
-    CREATE INDEX IF NOT EXISTS idx_organizations_slug ON organizations(slug) WHERE deleted_at IS NULL;
-    CREATE INDEX IF NOT EXISTS idx_organizations_status ON organizations(status) WHERE deleted_at IS NULL;
-  ELSE
-    CREATE INDEX IF NOT EXISTS idx_organizations_owner ON organizations(owner_id);
-    CREATE INDEX IF NOT EXISTS idx_organizations_slug ON organizations(slug);
-    CREATE INDEX IF NOT EXISTS idx_organizations_status ON organizations(status);
+  -- Check which columns exist and create appropriate indexes
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'organizations' AND column_name = 'owner_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'organizations' AND column_name = 'deleted_at') THEN
+      CREATE INDEX IF NOT EXISTS idx_organizations_owner ON organizations(owner_id) WHERE deleted_at IS NULL;
+    ELSE
+      CREATE INDEX IF NOT EXISTS idx_organizations_owner ON organizations(owner_id);
+    END IF;
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'organizations' AND column_name = 'slug') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'organizations' AND column_name = 'deleted_at') THEN
+      CREATE INDEX IF NOT EXISTS idx_organizations_slug ON organizations(slug) WHERE deleted_at IS NULL;
+    ELSE
+      CREATE INDEX IF NOT EXISTS idx_organizations_slug ON organizations(slug);
+    END IF;
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'organizations' AND column_name = 'status') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'organizations' AND column_name = 'deleted_at') THEN
+      CREATE INDEX IF NOT EXISTS idx_organizations_status ON organizations(status) WHERE deleted_at IS NULL;
+    ELSE
+      CREATE INDEX IF NOT EXISTS idx_organizations_status ON organizations(status);
+    END IF;
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'organizations' AND column_name = 'subscription_tier') THEN
+    CREATE INDEX IF NOT EXISTS idx_organizations_tier ON organizations(subscription_tier);
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'organizations' AND column_name = 'stripe_customer_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_organizations_stripe_customer ON organizations(stripe_customer_id) WHERE stripe_customer_id IS NOT NULL;
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'organizations' AND column_name = 'created_at') THEN
+    CREATE INDEX IF NOT EXISTS idx_organizations_created_at ON organizations(created_at DESC);
   END IF;
 END $$;
-CREATE INDEX IF NOT EXISTS idx_organizations_tier ON organizations(subscription_tier);
-CREATE INDEX IF NOT EXISTS idx_organizations_stripe_customer ON organizations(stripe_customer_id) WHERE stripe_customer_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_organizations_created_at ON organizations(created_at DESC);
 
 -- Organization Members
-CREATE INDEX IF NOT EXISTS idx_org_members_organization ON organization_members(organization_id);
-CREATE INDEX IF NOT EXISTS idx_org_members_user ON organization_members(user_id);
-CREATE INDEX IF NOT EXISTS idx_org_members_role ON organization_members(role);
-CREATE INDEX IF NOT EXISTS idx_org_members_org_role ON organization_members(organization_id, role);
-CREATE INDEX IF NOT EXISTS idx_org_members_last_active ON organization_members(last_active_at DESC);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'organization_members') THEN
+    CREATE INDEX IF NOT EXISTS idx_org_members_organization ON organization_members(organization_id);
+    CREATE INDEX IF NOT EXISTS idx_org_members_user ON organization_members(user_id);
+
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'organization_members' AND column_name = 'role') THEN
+      CREATE INDEX IF NOT EXISTS idx_org_members_role ON organization_members(role);
+      CREATE INDEX IF NOT EXISTS idx_org_members_org_role ON organization_members(organization_id, role);
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'organization_members' AND column_name = 'last_active_at') THEN
+      CREATE INDEX IF NOT EXISTS idx_org_members_last_active ON organization_members(last_active_at DESC);
+    END IF;
+  END IF;
+END $$;
 
 -- Organization Invitations
 CREATE INDEX IF NOT EXISTS idx_org_invitations_organization ON organization_invitations(organization_id);
@@ -278,16 +313,19 @@ CREATE INDEX IF NOT EXISTS idx_org_activity_category ON organization_activity_lo
 -- 6. TRIGGERS FOR UPDATED_AT
 -- =====================================================
 
+DROP TRIGGER IF EXISTS update_organizations_updated_at ON organizations;
 CREATE TRIGGER update_organizations_updated_at
     BEFORE UPDATE ON organizations
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_organization_members_updated_at ON organization_members;
 CREATE TRIGGER update_organization_members_updated_at
     BEFORE UPDATE ON organization_members
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_organization_invitations_updated_at ON organization_invitations;
 CREATE TRIGGER update_organization_invitations_updated_at
     BEFORE UPDATE ON organization_invitations
     FOR EACH ROW

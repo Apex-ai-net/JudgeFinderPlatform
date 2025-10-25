@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import GlassCard from '@/components/ui/GlassCard'
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
+import { GradualBlur } from '@/components/ui/GradualBlur'
 import { fadeInUp, staggerContainer } from '@/lib/animations/presets'
 import { Search, Scale, TrendingUp, Clock } from 'lucide-react'
 
@@ -44,54 +45,60 @@ export default function HomeHero(): JSX.Element {
               California Judicial Transparency
             </motion.span>
 
-            <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight sm:text-5xl xl:text-6xl">
-              <span className="block text-foreground">Just Got Assigned a Judge?</span>
-              <motion.span
-                className="block mt-2 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent"
-                animate={{
-                  backgroundPosition: ['0%', '100%', '0%'],
-                }}
-                transition={{
-                  duration: 5,
-                  repeat: Infinity,
-                  ease: 'linear',
-                }}
-                style={{ backgroundSize: '200% 200%' }}
-              >
-                Get Instant Insights
-              </motion.span>
-            </h1>
-
-            <p className="mt-6 max-w-2xl text-lg text-muted-foreground leading-relaxed">
-              Search any California judge to see ruling patterns, judicial tendencies, and case history instantly. Free, private, and updated daily with official court records.
-            </p>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-                <Link
-                  href="/judges"
-                  className="link-reset inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-primary-foreground shadow-lg hover:bg-primary/90 transition-all duration-200 relative overflow-hidden group"
+            <GradualBlur delay={0.2} duration={1}>
+              <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight sm:text-5xl xl:text-6xl">
+                <span className="block text-foreground">Just Got Assigned a Judge?</span>
+                <motion.span
+                  className="block mt-2 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent"
+                  animate={{
+                    backgroundPosition: ['0%', '100%', '0%'],
+                  }}
+                  transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: 'linear',
+                  }}
+                  style={{ backgroundSize: '200% 200%' }}
                 >
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                    animate={{ x: ['-100%', '100%'] }}
-                    transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
-                  />
-                  <Search className="h-5 w-5" />
-                  <span className="relative z-10">Find My Judge</span>
-                </Link>
-              </motion.div>
+                  Get Instant Insights
+                </motion.span>
+              </h1>
+            </GradualBlur>
 
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-                <Link
-                  href="/compare"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-border bg-background px-8 py-3.5 text-base font-semibold text-foreground hover:bg-accent transition-all duration-200"
-                >
-                  <Scale className="h-5 w-5" />
-                  Compare Judges
-                </Link>
-              </motion.div>
-            </div>
+            <GradualBlur delay={0.4} duration={1}>
+              <p className="mt-6 max-w-2xl text-lg text-muted-foreground leading-relaxed">
+                Search any California judge to see ruling patterns, judicial tendencies, and case history instantly. Free, private, and updated daily with official court records.
+              </p>
+            </GradualBlur>
+
+            <GradualBlur delay={0.6} duration={1}>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+                  <Link
+                    href="/judges"
+                    className="link-reset inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-primary-foreground shadow-lg hover:bg-primary/90 transition-all duration-200 relative overflow-hidden group"
+                  >
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                      animate={{ x: ['-100%', '100%'] }}
+                      transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
+                    />
+                    <Search className="h-5 w-5" />
+                    <span className="relative z-10">Find My Judge</span>
+                  </Link>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+                  <Link
+                    href="/compare"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-border bg-background px-8 py-3.5 text-base font-semibold text-foreground hover:bg-accent transition-all duration-200"
+                  >
+                    <Scale className="h-5 w-5" />
+                    Compare Judges
+                  </Link>
+                </motion.div>
+              </div>
+            </GradualBlur>
 
             <motion.dl
               className="mt-10 grid gap-6 text-sm sm:grid-cols-3"

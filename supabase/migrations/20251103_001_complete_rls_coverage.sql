@@ -244,8 +244,9 @@ BEGIN
       USING (
         EXISTS (
           SELECT 1 FROM public.ad_spots
+          JOIN public.advertiser_profiles ap ON ad_spots.current_advertiser_id = ap.id
           WHERE ad_spots.id = ad_events.ad_spot_id
-          AND ad_spots.user_id = auth.uid()::text
+          AND ap.user_id = auth.uid()
         )
       );
 

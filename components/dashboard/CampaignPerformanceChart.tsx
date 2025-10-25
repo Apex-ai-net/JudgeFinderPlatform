@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
   LineChart,
   Line,
@@ -14,6 +14,9 @@ import {
   Legend,
 } from 'recharts'
 import { TrendingUp } from 'lucide-react'
+import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
+import { Sparkline } from '@/components/ui/Sparkline'
+import { InteractiveChartLegend } from '@/components/ui/InteractiveChartLegend'
 
 interface PerformanceDataPoint {
   date: string
@@ -57,6 +60,9 @@ function generateMockData(timeRange: '7d' | '30d' | '90d'): PerformanceDataPoint
 export default function CampaignPerformanceChart({ timeRange }: CampaignPerformanceChartProps) {
   const data = useMemo(() => generateMockData(timeRange), [timeRange])
 
+  // State for interactive legend
+  const [hiddenSeries, setHiddenSeries] = useState<Set<string>>(new Set())
+
   // Calculate summary stats
   const totalImpressions = data.reduce((sum, d) => sum + d.impressions, 0)
   const totalClicks = data.reduce((sum, d) => sum + d.clicks, 0)
@@ -73,6 +79,19 @@ export default function CampaignPerformanceChart({ timeRange }: CampaignPerforma
     return data // Show all days for 7d
   }, [data, timeRange])
 
+  // Handle legend item toggle
+  const handleLegendToggle = (dataKey: string, visible: boolean) => {
+    setHiddenSeries((prev) => {
+      const newSet = new Set(prev)
+      if (visible) {
+        newSet.delete(dataKey)
+      } else {
+        newSet.add(dataKey)
+      }
+      return newSet
+    })
+  }
+
   return (
     <div className="bg-card rounded-lg shadow-sm border border-border p-6">
       <div className="flex items-center justify-between mb-4">
@@ -86,27 +105,61 @@ export default function CampaignPerformanceChart({ timeRange }: CampaignPerforma
         <TrendingUp className="h-5 w-5 text-success" />
       </div>
 
-      {/* Summary Stats */}
+      {/* Summary Stats - Animated KPIs with Sparklines */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-muted/50 rounded-lg p-3">
+        <div className="bg-muted/50 rounded-lg p-3 hover:bg-muted/70 transition-colors">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Impressions</p>
           <p className="text-xl font-bold text-foreground mt-1">
-            {totalImpressions.toLocaleString()}
+            <AnimatedCounter end={totalImpressions} duration={1500} />
           </p>
+          <div className="mt-2 -mb-1">
+            <Sparkline
+              data={data.map((d) => d.impressions)}
+              color="hsl(var(--primary))"
+              height={30}
+            />
+          </div>
         </div>
-        <div className="bg-muted/50 rounded-lg p-3">
+        <div className="bg-muted/50 rounded-lg p-3 hover:bg-muted/70 transition-colors">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Clicks</p>
-          <p className="text-xl font-bold text-foreground mt-1">{totalClicks.toLocaleString()}</p>
+          <p className="text-xl font-bold text-foreground mt-1">
+            <AnimatedCounter end={totalClicks} duration={1500} />
+          </p>
+          <div className="mt-2 -mb-1">
+            <Sparkline
+              data={data.map((d) => d.clicks)}
+              color="hsl(var(--success))"
+              height={30}
+            />
+          </div>
         </div>
-        <div className="bg-muted/50 rounded-lg p-3">
+        <div className="bg-muted/50 rounded-lg p-3 hover:bg-muted/70 transition-colors">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">Avg CTR</p>
-          <p className="text-xl font-bold text-foreground mt-1">{avgCTR}%</p>
+          <p className="text-xl font-bold text-foreground mt-1">
+            <AnimatedCounter end={parseFloat(avgCTR)} decimals={2} suffix="%" duration={1500} />
+          </p>
+          <div className="mt-2 -mb-1">
+            <Sparkline
+              data={data.map((d) => d.ctr)}
+              color="hsl(var(--accent))"
+              height={30}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Dual Chart: Impressions & Clicks */}
+      {/* Dual Chart: Impressions & Clicks with Interactive Legend */}
       <div className="mb-6">
-        <p className="text-sm font-medium text-foreground mb-3">Impressions & Clicks</p>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-medium text-foreground">Impressions & Clicks</p>
+          <InteractiveChartLegend
+            items={[
+              { dataKey: 'impressions', name: 'Impressions', color: 'hsl(var(--primary))' },
+              { dataKey: 'clicks', name: 'Clicks', color: 'hsl(var(--success))' },
+            ]}
+            onToggle={handleLegendToggle}
+          />
+        </div>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={sampledData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
@@ -138,25 +191,28 @@ export default function CampaignPerformanceChart({ timeRange }: CampaignPerforma
               }}
               labelStyle={{ color: 'hsl(var(--foreground))' }}
             />
-            <Legend wrapperStyle={{ fontSize: '12px', color: 'hsl(var(--muted-foreground))' }} />
-            <Area
-              type="monotone"
-              dataKey="impressions"
-              stroke="hsl(var(--primary))"
-              strokeWidth={2}
-              fillOpacity={1}
-              fill="url(#colorImpressions)"
-              name="Impressions"
-            />
-            <Area
-              type="monotone"
-              dataKey="clicks"
-              stroke="hsl(var(--success))"
-              strokeWidth={2}
-              fillOpacity={1}
-              fill="url(#colorClicks)"
-              name="Clicks"
-            />
+            {!hiddenSeries.has('impressions') && (
+              <Area
+                type="monotone"
+                dataKey="impressions"
+                stroke="hsl(var(--primary))"
+                strokeWidth={2}
+                fillOpacity={1}
+                fill="url(#colorImpressions)"
+                name="Impressions"
+              />
+            )}
+            {!hiddenSeries.has('clicks') && (
+              <Area
+                type="monotone"
+                dataKey="clicks"
+                stroke="hsl(var(--success))"
+                strokeWidth={2}
+                fillOpacity={1}
+                fill="url(#colorClicks)"
+                name="Clicks"
+              />
+            )}
           </AreaChart>
         </ResponsiveContainer>
       </div>
