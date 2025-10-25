@@ -156,8 +156,8 @@ export function AdvertiserSlots({
 
   // Universal $500 pricing for all judges (updated 2025-10-20)
   const pricing = useMemo(() => {
-    const monthly = 500  // Universal pricing for all judges
-    const annual = 5000  // $5,000/year (2 months free)
+    const monthly = 500 // Universal pricing for all judges
+    const annual = 5000 // $5,000/year (2 months free)
     const savings = monthly * 12 - annual
 
     return { monthly, annual, savings }
@@ -382,29 +382,12 @@ export function AdvertiserSlots({
               High-intent visibility for attorneys appearing before Judge {judgeName}.
             </p>
 
-            {/* Pricing Display */}
-            <div className="hidden md:flex flex-col gap-1 items-center">
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold text-foreground">${pricing.monthly}</span>
-                <span className="text-sm text-muted-foreground">/month</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                or ${pricing.annual}/year (save ${pricing.savings})
-              </p>
-            </div>
-
-            {/* Mobile Pricing */}
-            <div className="md:hidden text-xs font-semibold text-foreground">
-              ${pricing.monthly}/mo
-            </div>
-
             {isAdvertiser ? (
               <Link
                 href={`/ads/checkout/judge?id=${encodeURIComponent(judgeId)}&name=${encodeURIComponent(judgeName)}&court=${encodeURIComponent(courtName)}&level=${courtLevel}&position=${slot.position}`}
                 className="inline-flex items-center gap-2 rounded-full border border-primary/45 bg-interactive/15 px-3 py-2 md:px-4 md:py-2 text-[10px] md:text-sm font-semibold text-primary transition-colors hover:bg-[rgba(110,168,254,0.25)]"
               >
-                <span className="hidden md:inline">Book This Spot - ${pricing.monthly}/month</span>
-                <span className="md:hidden">Book - ${pricing.monthly}/mo</span>
+                <span>Book This Spot</span>
               </Link>
             ) : (
               <div className="flex flex-col items-center gap-2 w-full">
