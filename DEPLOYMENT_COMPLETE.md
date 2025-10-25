@@ -86,8 +86,20 @@ supabase/migrations/00000000000000_base_schema_idempotent.sql
 
 - Click "Run"
 - Expected: "Success" (may show "already exists" warnings - that's OK!)
+- ⚠️ If this fails with "column stripe_customer_id does not exist" → Skip to Step 2
 
-**Step 2 - Bar Verifications Table:**
+**Step 2 - Patch Migration (CRITICAL - NEW):** 🆕
+
+```bash
+# Copy and paste from:
+supabase/migrations/20251024_003_fix_base_schema_gaps.sql
+```
+
+- Click "Run"
+- Expected: "Success. All base schema gaps fixed successfully!"
+- This fixes missing columns and tables from Step 1
+
+**Step 3 - Bar Verifications Table:**
 
 ```bash
 # Copy and paste from:
@@ -97,7 +109,7 @@ supabase/migrations/20251024_001_bar_verifications_table.sql
 - Click "Run"
 - Expected: "Success. No rows returned"
 
-**Step 3 - RLS Policies (LAST):**
+**Step 4 - RLS Policies (LAST):**
 
 ```bash
 # Copy and paste from:
