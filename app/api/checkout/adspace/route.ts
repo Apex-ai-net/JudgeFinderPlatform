@@ -252,10 +252,26 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL || process.env.VERCEL_URL || 'https://judgefinder.io'
 
-    // Determine universal price when not judge-specific
+    // Determine price ID based on ad type
     let priceId: string | undefined
     const cycle = (billing_cycle || 'monthly') as 'monthly' | 'annual'
-    if (effectiveAdType !== 'judge-profile') {
+
+    if (effectiveAdType === 'judge-profile') {
+      // For judge-specific ads, get or create the product/price
+      const { getOrCreateJudgeAdProduct } = await import('@/lib/stripe/judge-products')
+      const position = ad_position >= 1 && ad_position <= 3 ? (ad_position as 1 | 2 | 3) : 1
+
+      const productInfo = await getOrCreateJudgeAdProduct({
+        judgeId: judge_id!,
+        judgeName: judge_name!,
+        courtName: court_name || '',
+        courtLevel: court_level!,
+        position,
+      })
+
+      priceId = cycle === 'annual' ? productInfo.annualPriceId : productInfo.monthlyPriceId
+    } else {
+      // Universal access pricing
       const priceMonthly = process.env.STRIPE_PRICE_MONTHLY
       const priceYearly = process.env.STRIPE_PRICE_YEARLY
       if (!priceMonthly || !priceYearly) {
@@ -274,17 +290,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Create Stripe Checkout session with linked customer
     const session = await createCheckoutSession({
       ...(stripeCustomerId ? { customer: stripeCustomerId } : { customer_email: email }),
-      ...(priceId ? { priceId } : {}),
+      priceId: priceId!,
       ...(promo_code ? { promotionCode: String(promo_code) } : {}),
       success_url: `${baseUrl}/ads/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/ads/buy?canceled=true`,
       billing_cycle: cycle,
-      // Pass judge-specific parameters for product/price creation
+      // Pass judge-specific parameters for line item description
       ...(effectiveAdType === 'judge-profile' && {
         judge_id,
         judge_name,
         court_name,
-        court_level,
       }),
       metadata: {
         organization_name,
@@ -302,7 +317,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           ad_position: ad_position?.toString() || '1',
         }),
       },
-    } as any)
+    })
 
     logger.info('Checkout session created', {
       session_id: session.id,

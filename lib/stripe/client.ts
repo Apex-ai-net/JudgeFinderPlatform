@@ -84,23 +84,10 @@ export async function createCheckoutSession(params: {
   let priceId = params.priceId
   let lineItemDescription: string | undefined
 
-  // For judge-profile ads, dynamically get or create the product/price
-  if (params.metadata?.ad_type === 'judge-profile' && params.judge_id && params.court_level) {
-    const { getOrCreateJudgeAdProduct } = await import('./judge-products')
-
+  // For judge-profile ads, the priceId must be provided by the caller
+  // (The caller should use the server-only judge-products module to get the price)
+  if (params.metadata?.ad_type === 'judge-profile' && params.judge_id) {
     const position = params.metadata.ad_position ? parseInt(params.metadata.ad_position) : 1
-    const productInfo = await getOrCreateJudgeAdProduct({
-      judgeId: params.judge_id,
-      judgeName: params.judge_name || 'Unknown Judge',
-      courtName: params.court_name || '',
-      courtLevel: params.court_level,
-      position: (position >= 1 && position <= 3) ? position as 1 | 2 | 3 : 1,
-    })
-
-    // Select monthly or annual price based on billing cycle
-    priceId =
-      params.billing_cycle === 'annual' ? productInfo.annualPriceId : productInfo.monthlyPriceId
-
     // Create descriptive line item text
     lineItemDescription = `Ad Spot for Judge ${params.judge_name} - ${params.court_name} (Rotation Slot ${position})`
   }
