@@ -246,19 +246,24 @@ CREATE POLICY "Service role has full access to billing_transactions" ON public.b
 -- Access: Service role only (internal analytics)
 -- =====================================================
 
-DROP POLICY IF EXISTS "Service role has full access to analytics_events" ON public.analytics_events;
-DROP POLICY IF EXISTS "Admins can read analytics_events" ON public.analytics_events;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'analytics_events') THEN
+    DROP POLICY IF EXISTS "Service role has full access to analytics_events" ON public.analytics_events;
+    DROP POLICY IF EXISTS "Admins can read analytics_events" ON public.analytics_events;
 
-CREATE POLICY "Service role has full access to analytics_events" ON public.analytics_events
-  FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+    CREATE POLICY "Service role has full access to analytics_events" ON public.analytics_events
+      FOR ALL
+      TO service_role
+      USING (true)
+      WITH CHECK (true);
 
-CREATE POLICY "Admins can read analytics_events" ON public.analytics_events
-  FOR SELECT
-  TO authenticated
-  USING (public.is_admin());
+    CREATE POLICY "Admins can read analytics_events" ON public.analytics_events
+      FOR SELECT
+      TO authenticated
+      USING (public.is_admin());
+  END IF;
+END $$;
 
 -- Log completion
 DO $$

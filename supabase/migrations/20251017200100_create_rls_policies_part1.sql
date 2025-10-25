@@ -49,29 +49,34 @@ CREATE POLICY "Users can update their own app_users data" ON public.app_users
 -- Access: Public read, service role write, admins full access
 -- =====================================================
 
--- Drop existing policies if they exist
-DROP POLICY IF EXISTS "Public can read judge_court_positions" ON public.judge_court_positions;
-DROP POLICY IF EXISTS "Service role can write judge_court_positions" ON public.judge_court_positions;
-DROP POLICY IF EXISTS "Admins have full access to judge_court_positions" ON public.judge_court_positions;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'judge_court_positions') THEN
+    -- Drop existing policies if they exist
+    DROP POLICY IF EXISTS "Public can read judge_court_positions" ON public.judge_court_positions;
+    DROP POLICY IF EXISTS "Service role can write judge_court_positions" ON public.judge_court_positions;
+    DROP POLICY IF EXISTS "Admins have full access to judge_court_positions" ON public.judge_court_positions;
 
--- Public read access
-CREATE POLICY "Public can read judge_court_positions" ON public.judge_court_positions
-  FOR SELECT
-  USING (true);
+    -- Public read access
+    CREATE POLICY "Public can read judge_court_positions" ON public.judge_court_positions
+      FOR SELECT
+      USING (true);
 
--- Service role full access
-CREATE POLICY "Service role can write judge_court_positions" ON public.judge_court_positions
-  FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+    -- Service role full access
+    CREATE POLICY "Service role can write judge_court_positions" ON public.judge_court_positions
+      FOR ALL
+      TO service_role
+      USING (true)
+      WITH CHECK (true);
 
--- Admin full access
-CREATE POLICY "Admins have full access to judge_court_positions" ON public.judge_court_positions
-  FOR ALL
-  TO authenticated
-  USING (public.is_admin())
-  WITH CHECK (public.is_admin());
+    -- Admin full access
+    CREATE POLICY "Admins have full access to judge_court_positions" ON public.judge_court_positions
+      FOR ALL
+      TO authenticated
+      USING (public.is_admin())
+      WITH CHECK (public.is_admin());
+  END IF;
+END $$;
 
 -- =====================================================
 -- TABLE: sync_queue

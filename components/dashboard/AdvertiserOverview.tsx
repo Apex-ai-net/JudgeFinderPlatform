@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import {
-  TrendingUp,
   Target,
   DollarSign,
   MousePointer,
@@ -13,6 +12,7 @@ import {
   Plus,
   BarChart3,
 } from 'lucide-react'
+import CampaignPerformanceChart from './CampaignPerformanceChart'
 import type { AdvertiserDashboardStats, AdvertiserProfile } from '@/types/advertising'
 
 interface AdvertiserOverviewProps {
@@ -211,37 +211,25 @@ export default function AdvertiserOverview({
         </div>
       </div>
 
-      {/* Performance Chart Placeholder */}
-      <div className="bg-white rounded-lg shadow-sm border border-border p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-foreground">Performance Overview</h2>
-          <div className="flex gap-2">
-            {(['7d', '30d', '90d'] as const).map((range) => (
-              <button
-                key={range}
-                onClick={() => setTimeRange(range)}
-                className={`px-3 py-1 text-sm font-medium rounded-lg transition-colors ${
-                  timeRange === range
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-muted-foreground hover:bg-muted'
-                }`}
-              >
-                {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="h-64 flex items-center justify-center bg-muted rounded-lg">
-          <div className="text-center">
-            <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">Performance chart will be displayed here</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Showing data for the last{' '}
-              {timeRange === '7d' ? '7 days' : timeRange === '30d' ? '30 days' : '90 days'}
-            </p>
-          </div>
-        </div>
+      {/* Time Range Selector */}
+      <div className="flex justify-end gap-2">
+        {(['7d', '30d', '90d'] as const).map((range) => (
+          <button
+            key={range}
+            onClick={() => setTimeRange(range)}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              timeRange === range
+                ? 'bg-primary text-white'
+                : 'text-muted-foreground hover:bg-muted bg-card border border-border'
+            }`}
+          >
+            {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
+          </button>
+        ))}
       </div>
+
+      {/* Performance Chart */}
+      <CampaignPerformanceChart timeRange={timeRange} />
     </div>
   )
 }
