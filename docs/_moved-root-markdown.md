@@ -67,4 +67,30 @@ The following root-level Markdown files were moved into `docs/`:
   - `RUNTIME_ISSUES_REPORT.md` → `docs/reports/RUNTIME_ISSUES_REPORT.md`
   - `SYNC_FIXES_SUMMARY.md` → `docs/reports/SYNC_FIXES_SUMMARY.md`
 
+- Data & Quality
+  - `CALIFORNIA_IMPORT_IMPLEMENTATION_SUMMARY.md` → `docs/data/CALIFORNIA_IMPORT_IMPLEMENTATION_SUMMARY.md`
+  - `JUDGE_DATA_ANALYSIS_SUMMARY.md` → `docs/data-quality/JUDGE_DATA_ANALYSIS_SUMMARY.md`
+
+- Dashboard
+  - `DASHBOARD_ENHANCEMENT_COMPLETE.md` → `docs/dashboard/DASHBOARD_ENHANCEMENT_COMPLETE.md`
+  - `DASHBOARD_PHASE_2_COMPLETE.md` → `docs/dashboard/DASHBOARD_PHASE_2_COMPLETE.md`
+  - `DASHBOARD_PHASE_3_COMPLETE.md` → `docs/dashboard/DASHBOARD_PHASE_3_COMPLETE.md`
+  - `DASHBOARD_PHASE_4_COMPLETE.md` → `docs/dashboard/DASHBOARD_PHASE_4_COMPLETE.md`
+  - `DASHBOARD_TRANSFORMATION_SUMMARY.md` → `docs/dashboard/DASHBOARD_TRANSFORMATION_SUMMARY.md`
+
+- Deployment
+  - `DEPLOYMENT_COMPLETE.md` → `docs/deployment/DEPLOYMENT_COMPLETE.md`
+  - `SENDGRID_ENVIRONMENT_CONFIGURATION.md` → `docs/deployment/SENDGRID_ENVIRONMENT_CONFIGURATION.md`
+
+- Netlify
+  - `NETLIFY_BUILD_FIX_SUMMARY.md` → `docs/deployment/netlify/NETLIFY_BUILD_FIX_SUMMARY.md`
+
+- Migrations
+  - `MIGRATION_DEPLOYMENT_GUIDE.md` → `docs/migrations/MIGRATION_DEPLOYMENT_GUIDE.md`
+  - `QUICK_FIX_MIGRATION.md` → `docs/migrations/QUICK_FIX_MIGRATION.md`
+
+- Project Status
+  - `ULTRATHINK_DEPLOYMENT_READY.md` → `docs/project-status/ULTRATHINK_DEPLOYMENT_READY.md`
+  - `ULTRATHINK_SUCCESS_SUMMARY.md` → `docs/project-status/ULTRATHINK_SUCCESS_SUMMARY.md`
+
 — Generated automatically as part of documentation cleanup.

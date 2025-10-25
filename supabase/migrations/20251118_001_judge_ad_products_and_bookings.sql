@@ -23,9 +23,9 @@ CREATE TABLE IF NOT EXISTS judge_ad_products (
 );
 
 -- Indexes for fast lookups
-CREATE INDEX idx_judge_ad_products_judge ON judge_ad_products(judge_id);
-CREATE INDEX idx_judge_ad_products_stripe_product ON judge_ad_products(stripe_product_id);
-CREATE INDEX idx_judge_ad_products_active ON judge_ad_products(judge_id) WHERE archived_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_judge_ad_products_judge ON judge_ad_products(judge_id);
+CREATE INDEX IF NOT EXISTS idx_judge_ad_products_stripe_product ON judge_ad_products(stripe_product_id);
+CREATE INDEX IF NOT EXISTS idx_judge_ad_products_active ON judge_ad_products(judge_id) WHERE archived_at IS NULL;
 
 -- Row Level Security
 ALTER TABLE judge_ad_products ENABLE ROW LEVEL SECURITY;
@@ -78,10 +78,10 @@ CREATE TABLE IF NOT EXISTS ad_spot_bookings (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_ad_bookings_judge ON ad_spot_bookings(judge_id);
-CREATE INDEX idx_ad_bookings_advertiser ON ad_spot_bookings(advertiser_id);
-CREATE INDEX idx_ad_bookings_stripe_sub ON ad_spot_bookings(stripe_subscription_id);
-CREATE INDEX idx_ad_bookings_status ON ad_spot_bookings(status);
+CREATE INDEX IF NOT EXISTS idx_ad_bookings_judge ON ad_spot_bookings(judge_id);
+CREATE INDEX IF NOT EXISTS idx_ad_bookings_advertiser ON ad_spot_bookings(advertiser_id);
+CREATE INDEX IF NOT EXISTS idx_ad_bookings_stripe_sub ON ad_spot_bookings(stripe_subscription_id);
+CREATE INDEX IF NOT EXISTS idx_ad_bookings_status ON ad_spot_bookings(status);
 
 -- Partial unique index to prevent double-booking (only one active booking per judge per position)
 CREATE UNIQUE INDEX idx_ad_bookings_unique_active
@@ -149,9 +149,9 @@ CREATE TABLE IF NOT EXISTS checkout_sessions (
   expires_at timestamptz DEFAULT (now() + interval '24 hours')
 );
 
-CREATE INDEX idx_checkout_sessions_session ON checkout_sessions(stripe_session_id);
-CREATE INDEX idx_checkout_sessions_customer ON checkout_sessions(stripe_customer_id);
-CREATE INDEX idx_checkout_sessions_expires ON checkout_sessions(expires_at);
+CREATE INDEX IF NOT EXISTS idx_checkout_sessions_session ON checkout_sessions(stripe_session_id);
+CREATE INDEX IF NOT EXISTS idx_checkout_sessions_customer ON checkout_sessions(stripe_customer_id);
+CREATE INDEX IF NOT EXISTS idx_checkout_sessions_expires ON checkout_sessions(expires_at);
 
 -- Row Level Security
 ALTER TABLE checkout_sessions ENABLE ROW LEVEL SECURITY;

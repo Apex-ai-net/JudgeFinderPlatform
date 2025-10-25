@@ -132,11 +132,11 @@ BEGIN
   IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'judge_analytics') THEN
     -- Fast analytics retrieval
     CREATE INDEX IF NOT EXISTS idx_judge_analytics_judge
-    ON judge_analytics(judge_id, generated_at DESC);
+    ON judge_analytics(judge_id, calculated_at DESC);
 
     -- Stale analytics cleanup
-    CREATE INDEX IF NOT EXISTS idx_judge_analytics_generated
-    ON judge_analytics(generated_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_judge_analytics_calculated
+    ON judge_analytics(calculated_at DESC);
   END IF;
 END $$;
 

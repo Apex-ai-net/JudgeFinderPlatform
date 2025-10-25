@@ -2,6 +2,7 @@
 # Netlify Configuration - JudgeFinder Platform
 # ============================================
 # Production deployment configuration for Netlify
+# Domain: judgefinder.io
 # See: https://docs.netlify.com/configure-builds/file-based-configuration/
 # ============================================
 
@@ -14,12 +15,19 @@
   # The plugin automatically handles Next.js API routes as serverless functions
   # functions = "netlify/functions"  # Only for standalone Netlify functions (scheduled tasks)
 
+  # Ignore builds for documentation changes only
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF . ':(exclude)docs/' ':(exclude)*.md'"
+
 [build.environment]
   # Node.js and Build Configuration
-  NODE_VERSION = "20"  # Match package.json requirement (^20)
+  NODE_VERSION = "20"  # Match package.json requirement (^20 || ^22)
   # Legacy peer dependencies flag for compatibility
   NPM_FLAGS = "--legacy-peer-deps"
   NODE_ENV = "production"
+
+  # Build Performance
+  # Increase memory for Next.js build (default: 1024)
+  NODE_OPTIONS = "--max-old-space-size=4096"
 
   # IMPORTANT: Set these in Netlify UI (Site settings > Environment variables)
   # ENCRYPTION_KEY - Required for secure data encryption in production
@@ -84,6 +92,10 @@
   command = "npm run build:production"
   [context.production.environment]
     NODE_ENV = "production"
+    # Production-specific optimizations
+    NEXT_TELEMETRY_DISABLED = "1"
+    # Enable all production security checks
+    SECRETS_SCAN_ENABLED = "true"
 
 # Deploy Preview Context (PR previews)
 [context.deploy-preview]
@@ -232,3 +244,35 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# ============================================
+# Edge Functions & Middleware
+# ============================================
+# Next.js middleware is automatically handled by @netlify/plugin-nextjs
+# Custom edge functions can be added to netlify/edge-functions/
+
+# ============================================
+# Environment Context Overrides
+# ============================================
+
+# Staging/Preview Environment (if using branch deploys)
+[context.staging]
+  command = "npm run build"
+  [context.staging.environment]
+    NODE_ENV = "production"
+    NEXT_PUBLIC_APP_NAME = "JudgeFinder Platform (Staging)"
+
+# ============================================
+# Split Testing (A/B Testing)
+# ============================================
+# Uncomment to enable A/B testing between branches
+# [[context.production.split]]
+#   id = "feature-test"
+#   branches = ["main", "feature-branch"]
+#   weight = [90, 10]  # 90% main, 10% feature-branch
+
+# ============================================
+# Build Performance & Caching
+# ============================================
+# Next.js cache is automatically managed by @netlify/plugin-nextjs
+# Additional caching can be configured here if needed

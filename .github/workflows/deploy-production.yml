@@ -1,0 +1,330 @@
+name: Production Deployment
+
+# Triggers on pushes to main branch or manual workflow dispatch
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.vscode/**'
+      - '.github/**'
+      - '!.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests (emergency deploy only)'
+        required: false
+        type: boolean
+        default: false
+
+# Environment variables for all jobs
+env:
+  NODE_VERSION: '20'
+  NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+jobs:
+  # Pre-deployment validation
+  validate:
+    name: Pre-Deployment Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better changelog generation
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Verify build security
+        run: bash scripts/verify-build-security.sh pre
+        env:
+          CI: true
+
+      - name: Check for secrets in code
+        run: |
+          echo "Scanning for hardcoded secrets..."
+          if grep -r -E 'sk_live_|sk_test_|whsec_|AIzaSy' app/ lib/ components/ --exclude-dir={node_modules,.next}; then
+            echo "ERROR: Potential secrets found in code!"
+            exit 1
+          fi
+          echo "No secrets detected"
+
+      - name: Validate environment variable references
+        run: |
+          echo "Validating environment variables are properly referenced..."
+          # Check for any process.env usage in client components
+          if grep -r "process\.env\." app/ components/ | grep -v "NEXT_PUBLIC_" | grep -v "node_modules" | grep "'use client'"; then
+            echo "WARNING: Server-side env vars may be referenced in client components"
+          fi
+          echo "Environment validation complete"
+
+  # Run comprehensive tests
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: validate
+    if: ${{ !inputs.skip_tests }}
+
+    strategy:
+      matrix:
+        test-suite: [unit, integration, e2e]
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run linter
+        if: matrix.test-suite == 'unit'
+        run: npm run lint
+
+      - name: Run type check
+        if: matrix.test-suite == 'unit'
+        run: npm run type-check
+
+      - name: Run unit tests
+        if: matrix.test-suite == 'unit'
+        run: npm run test:unit
+        env:
+          NODE_ENV: test
+
+      - name: Run integration tests
+        if: matrix.test-suite == 'integration'
+        run: npm run test:integration
+        env:
+          NODE_ENV: test
+
+      - name: Install Playwright
+        if: matrix.test-suite == 'e2e'
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        if: matrix.test-suite == 'e2e'
+        run: npm run test:e2e -- --project=chromium
+        env:
+          NODE_ENV: test
+          CI: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.test-suite }}
+          path: |
+            coverage/
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+  # Build and deploy to Netlify
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [validate, test]
+    if: always() && (needs.validate.result == 'success' && (needs.test.result == 'success' || needs.test.result == 'skipped'))
+    environment:
+      name: production
+      url: https://judgefinder.io
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli@latest
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build for production
+        run: npm run build:production
+        env:
+          NODE_ENV: production
+          # Public environment variables for build
+          NEXT_PUBLIC_SITE_URL: https://judgefinder.io
+          NEXT_PUBLIC_APP_URL: https://judgefinder.io
+          NEXT_PUBLIC_APP_NAME: JudgeFinder Platform
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_CLERK_SIGN_IN_URL: /sign-in
+          NEXT_PUBLIC_CLERK_SIGN_UP_URL: /sign-up
+          NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: /dashboard
+          NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: /welcome
+          # Server-side keys (needed for build-time operations)
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+          # Disable telemetry
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Post-build security check
+        run: bash scripts/verify-build-security.sh post
+        env:
+          CI: true
+
+      - name: Deploy to Netlify
+        id: netlify-deploy
+        run: |
+          netlify deploy \
+            --prod \
+            --site=${{ secrets.NETLIFY_SITE_ID }} \
+            --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --message="Production deploy from commit ${{ github.sha }}" \
+            --timeout=600
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: Comment on commit
+        if: github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = context.sha.substring(0, 7);
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `✅ Deployed to production: https://judgefinder.io\n\nCommit: ${sha}\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`
+            })
+
+  # Post-deployment verification
+  verify:
+    name: Post-Deployment Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: deploy
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Wait for deployment propagation
+        run: sleep 30
+
+      - name: Health check
+        run: |
+          echo "Checking site health..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://judgefinder.io)
+          if [ "$response" -eq 200 ]; then
+            echo "✅ Site is responding with 200 OK"
+          else
+            echo "❌ Site returned status: $response"
+            exit 1
+          fi
+
+      - name: Verify critical pages
+        run: |
+          echo "Verifying critical pages..."
+          pages=(
+            "/"
+            "/judges"
+            "/courts"
+            "/api/health"
+          )
+
+          for page in "${pages[@]}"; do
+            echo "Checking: $page"
+            status=$(curl -s -o /dev/null -w "%{http_code}" "https://judgefinder.io$page")
+            if [ "$status" -eq 200 ] || [ "$status" -eq 301 ] || [ "$status" -eq 302 ]; then
+              echo "  ✅ $page: $status"
+            else
+              echo "  ❌ $page: $status"
+              exit 1
+            fi
+          done
+
+          echo "All critical pages verified!"
+
+      - name: Check for JavaScript errors
+        run: |
+          echo "Checking for console errors in production..."
+          # This is a placeholder - consider using tools like Lighthouse CI
+          echo "Manual verification recommended"
+
+      - name: Verify sitemap
+        run: |
+          echo "Checking sitemap..."
+          curl -s https://judgefinder.io/sitemap.xml | grep -q "<urlset" && echo "✅ Sitemap is valid" || (echo "❌ Sitemap check failed" && exit 1)
+
+      - name: Test API endpoints
+        run: |
+          echo "Testing public API endpoints..."
+
+          # Test judges list API
+          judges_response=$(curl -s "https://judgefinder.io/api/judges/list?page=1&limit=10")
+          if echo "$judges_response" | grep -q '"judges"'; then
+            echo "✅ Judges API working"
+          else
+            echo "❌ Judges API failed"
+            exit 1
+          fi
+
+          echo "API verification complete"
+
+  # Notify on completion
+  notify:
+    name: Deployment Notification
+    runs-on: ubuntu-latest
+    needs: [deploy, verify]
+    if: always()
+
+    steps:
+      - name: Deployment succeeded
+        if: needs.deploy.result == 'success' && needs.verify.result == 'success'
+        run: |
+          echo "🎉 Deployment successful!"
+          echo "Site: https://judgefinder.io"
+          echo "Commit: ${{ github.sha }}"
+
+      - name: Deployment failed
+        if: needs.deploy.result == 'failure' || needs.verify.result == 'failure'
+        run: |
+          echo "❌ Deployment failed!"
+          echo "Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          exit 1
+
+      - name: Create deployment summary
+        if: always()
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Production (judgefinder.io)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Validation**: ${{ needs.validate.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tests**: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deploy**: ${{ needs.deploy.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Verification**: ${{ needs.verify.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[View deployment](https://judgefinder.io)" >> $GITHUB_STEP_SUMMARY

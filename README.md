@@ -42,6 +42,35 @@ Visit [http://localhost:3000](http://localhost:3000)
 
 > **Note**: Production deployment requires Clerk authentication keys. Development mode allows running without keys (with warnings).
 
+### 🔥 Data Sync Quick Actions
+
+Current judge data completeness:
+- ⚠️ **Education**: 13.3% (254/1,903) - Sync ready to run
+- 🔴 **Political Affiliation**: 0% - Sync ready to run (migration required first)
+- 🔴 **Position History**: 0% - Sync ready to run
+
+**To sync all judge data:**
+
+```bash
+# 1. Add political_affiliation column (run SQL in Supabase dashboard)
+# See: docs/JUDGE_DATA_SYNC_GUIDE.md
+
+# 2. Test sync with 10 judges (~20 mins)
+npm run sync:all -- --limit=10
+
+# 3. Full sync (~12 hours, runs in background)
+npm run sync:all
+```
+
+**Individual syncs:**
+```bash
+npm run sync:education   # Education data only
+npm run sync:political   # Political affiliation only
+npm run sync:positions   # Position history only
+```
+
+📚 **Complete guide**: [docs/JUDGE_DATA_SYNC_GUIDE.md](docs/JUDGE_DATA_SYNC_GUIDE.md)
+
 ## Common Commands
 
 ```bash
@@ -79,6 +108,12 @@ npm run data:status      # Check data freshness
 | **Security**          | [docs/security/SECURITY.md](./docs/security/SECURITY.md)                                             |
 | **Accessibility**     | [docs/accessibility/CHAT_A11Y.md](./docs/accessibility/CHAT_A11Y.md)                                 |
 | **Data Sync**         | [docs/operations/SYNC_AND_CRON.md](./docs/operations/SYNC_AND_CRON.md)                               |
+| **Dashboard Updates** | [docs/dashboard/DASHBOARD_TRANSFORMATION_SUMMARY.md](./docs/dashboard/DASHBOARD_TRANSFORMATION_SUMMARY.md) |
+| **Data Quality**      | [docs/data-quality/JUDGE_DATA_ANALYSIS_SUMMARY.md](./docs/data-quality/JUDGE_DATA_ANALYSIS_SUMMARY.md) |
+| **Migrations**        | [docs/migrations/MIGRATION_DEPLOYMENT_GUIDE.md](./docs/migrations/MIGRATION_DEPLOYMENT_GUIDE.md)     |
+| **Netlify Fixes**     | [docs/deployment/netlify/NETLIFY_BUILD_FIX_SUMMARY.md](./docs/deployment/netlify/NETLIFY_BUILD_FIX_SUMMARY.md) |
+| **SendGrid Config**   | [docs/deployment/SENDGRID_ENVIRONMENT_CONFIGURATION.md](./docs/deployment/SENDGRID_ENVIRONMENT_CONFIGURATION.md) |
+| **Project Status**    | [docs/project-status/ULTRATHINK_SUCCESS_SUMMARY.md](./docs/project-status/ULTRATHINK_SUCCESS_SUMMARY.md) |
 
 ## Environment Setup
 

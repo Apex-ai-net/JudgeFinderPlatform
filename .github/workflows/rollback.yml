@@ -1,0 +1,156 @@
+name: Rollback Deployment
+
+# Manual workflow to rollback to a previous deployment
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_id:
+        description: 'Netlify deployment ID to rollback to (leave empty for previous deployment)'
+        required: false
+        type: string
+      reason:
+        description: 'Reason for rollback'
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: '20'
+  NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+jobs:
+  confirm-rollback:
+    name: Confirm Rollback
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Display rollback information
+        run: |
+          echo "⚠️ ROLLBACK INITIATED"
+          echo ""
+          echo "Reason: ${{ inputs.reason }}"
+          echo "Target Deployment: ${{ inputs.deployment_id || 'Previous deployment' }}"
+          echo "Initiated by: ${{ github.actor }}"
+          echo "Time: $(date -u)"
+          echo ""
+          echo "This will restore the site to a previous state."
+
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli@latest
+
+      - name: Get current deployment
+        id: current
+        run: |
+          current=$(netlify api getCurrentDeploy --site=${{ secrets.NETLIFY_SITE_ID }} --auth=${{ secrets.NETLIFY_AUTH_TOKEN }})
+          echo "current-deploy=$current" >> $GITHUB_OUTPUT
+          echo "Current deployment ID: $current"
+
+      - name: List recent deployments
+        run: |
+          echo "Recent deployments:"
+          netlify api listSiteDeploys --site=${{ secrets.NETLIFY_SITE_ID }} --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} | head -20
+
+  execute-rollback:
+    name: Execute Rollback
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: confirm-rollback
+    environment:
+      name: production
+      url: https://judgefinder.io
+
+    steps:
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli@latest
+
+      - name: Rollback to previous deployment
+        if: inputs.deployment_id == ''
+        run: |
+          echo "Rolling back to previous deployment..."
+          netlify api rollbackSiteDeploy \
+            --site=${{ secrets.NETLIFY_SITE_ID }} \
+            --auth=${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: Rollback to specific deployment
+        if: inputs.deployment_id != ''
+        run: |
+          echo "Rolling back to deployment: ${{ inputs.deployment_id }}"
+          netlify api restoreSiteDeploy \
+            --deploy-id=${{ inputs.deployment_id }} \
+            --site=${{ secrets.NETLIFY_SITE_ID }} \
+            --auth=${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: Wait for rollback
+        run: sleep 30
+
+  verify-rollback:
+    name: Verify Rollback
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: execute-rollback
+
+    steps:
+      - name: Health check
+        run: |
+          echo "Verifying site health after rollback..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://judgefinder.io)
+          if [ "$response" -eq 200 ]; then
+            echo "✅ Site is responding after rollback"
+          else
+            echo "❌ Site health check failed: $response"
+            exit 1
+          fi
+
+      - name: Verify critical pages
+        run: |
+          echo "Checking critical pages..."
+          pages=("/" "/judges" "/courts")
+
+          for page in "${pages[@]}"; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" "https://judgefinder.io$page")
+            if [ "$status" -eq 200 ] || [ "$status" -eq 301 ]; then
+              echo "✅ $page: OK"
+            else
+              echo "❌ $page: $status"
+              exit 1
+            fi
+          done
+
+  notify-rollback:
+    name: Notify Rollback
+    runs-on: ubuntu-latest
+    needs: [execute-rollback, verify-rollback]
+    if: always()
+
+    steps:
+      - name: Rollback succeeded
+        if: needs.execute-rollback.result == 'success' && needs.verify-rollback.result == 'success'
+        run: |
+          echo "✅ ROLLBACK SUCCESSFUL"
+          echo ""
+          echo "Site: https://judgefinder.io"
+          echo "Reason: ${{ inputs.reason }}"
+          echo "Executed by: ${{ github.actor }}"
+
+      - name: Rollback failed
+        if: needs.execute-rollback.result == 'failure' || needs.verify-rollback.result == 'failure'
+        run: |
+          echo "❌ ROLLBACK FAILED"
+          echo ""
+          echo "Manual intervention required!"
+          echo "Check Netlify dashboard: https://app.netlify.com"
+          exit 1
+
+      - name: Create rollback summary
+        if: always()
+        run: |
+          echo "## Rollback Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ needs.execute-rollback.result == 'success' && needs.verify-rollback.result == 'success' && '✅ Success' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Reason**: ${{ inputs.reason }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Executed by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target Deployment**: ${{ inputs.deployment_id || 'Previous deployment' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[View site](https://judgefinder.io)" >> $GITHUB_STEP_SUMMARY

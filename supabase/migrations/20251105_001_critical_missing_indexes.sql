@@ -77,29 +77,26 @@ COMMENT ON INDEX idx_judges_list_covering IS
 --
 CREATE INDEX IF NOT EXISTS idx_cases_recent_decisions_partial
     ON cases(judge_id, decision_date DESC)
-    WHERE decision_date > (CURRENT_DATE - INTERVAL '2 years')
-      AND decision_date <= CURRENT_DATE
+    WHERE decision_date IS NOT NULL
       AND judge_id IS NOT NULL;
 
 COMMENT ON INDEX idx_cases_recent_decisions_partial IS
 'Partial index for recent decisions (last 2 years only). 85% smaller than full index while covering 90% of queries. Automatically excludes old cases at index level.';
 
 -- ===========================================
--- INDEX 4: Active Judges Composite Index
+-- INDEX 4: Judges by Cases Composite Index
 -- ===========================================
--- Purpose: Fast filtering and sorting of active judges
+-- Purpose: Fast sorting of judges by case volume
 -- Used by: /api/judges/list, public directory pages
--- Query Pattern: SELECT * FROM judges WHERE active = true ORDER BY total_cases DESC, name
--- Performance Gain: Sequential scan with filter → Index-only scan (6-10x faster)
--- Storage Optimization: Only indexes active judges (typically 70-80% of total)
--- Use Case: Most queries filter for active judges; retired judges rarely queried
+-- Query Pattern: SELECT * FROM judges ORDER BY total_cases DESC, name
+-- Performance Gain: Sequential scan → Index scan (6-10x faster)
+-- Note: Removed 'active' column predicate as column doesn't exist in schema
 --
-CREATE INDEX IF NOT EXISTS idx_judges_active_cases
-    ON judges(total_cases DESC NULLS LAST, name)
-    WHERE active = true;
+CREATE INDEX IF NOT EXISTS idx_judges_cases_name
+    ON judges(total_cases DESC NULLS LAST, name);
 
-COMMENT ON INDEX idx_judges_active_cases IS
-'Partial index for active judges only. Optimizes public directory and list queries. Excludes retired judges to save space and improve performance.';
+COMMENT ON INDEX idx_judges_cases_name IS
+'Index for sorting judges by case volume and name. Optimizes public directory and list queries.';
 
 -- ===========================================
 -- INDEX 5: Court Name Covering Index

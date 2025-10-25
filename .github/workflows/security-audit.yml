@@ -1,0 +1,234 @@
+name: Security Audit
+
+# Regular security audits and dependency checks
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  dependency-audit:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Run npm audit
+        id: npm-audit
+        run: |
+          echo "Running npm audit..."
+          npm audit --audit-level=moderate --json > audit-report.json || true
+
+          # Check for critical/high vulnerabilities
+          critical=$(jq '.metadata.vulnerabilities.critical // 0' audit-report.json)
+          high=$(jq '.metadata.vulnerabilities.high // 0' audit-report.json)
+
+          echo "critical=$critical" >> $GITHUB_OUTPUT
+          echo "high=$high" >> $GITHUB_OUTPUT
+
+          echo "Critical: $critical"
+          echo "High: $high"
+
+      - name: Generate audit summary
+        run: |
+          echo "## Security Audit Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Vulnerability Counts:" >> $GITHUB_STEP_SUMMARY
+          echo "- Critical: ${{ steps.npm-audit.outputs.critical }}" >> $GITHUB_STEP_SUMMARY
+          echo "- High: ${{ steps.npm-audit.outputs.high }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.npm-audit.outputs.critical }}" -gt 0 ] || [ "${{ steps.npm-audit.outputs.high }}" -gt 0 ]; then
+            echo "⚠️ **Action Required**: Critical or high severity vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No critical or high severity vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-report
+          path: audit-report.json
+          retention-days: 30
+
+      - name: Fail on critical vulnerabilities
+        if: steps.npm-audit.outputs.critical > 0
+        run: |
+          echo "❌ Critical vulnerabilities found!"
+          echo "Run 'npm audit fix' to resolve issues"
+          exit 1
+
+  secret-scan:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for secret scanning
+
+      - name: Run security scan
+        run: bash scripts/verify-build-security.sh pre
+        env:
+          CI: true
+
+      - name: Check for exposed secrets
+        run: |
+          echo "Scanning for exposed secrets..."
+
+          # Check for common secret patterns
+          if grep -r -E 'sk_live_|sk_test_|eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.|postgres://' \
+             app/ lib/ components/ \
+             --exclude-dir={node_modules,.next,.git} \
+             --exclude="*.md" \
+             --exclude="*.example"; then
+            echo "❌ Potential secrets found in code!"
+            exit 1
+          fi
+
+          echo "✅ No exposed secrets detected"
+
+      - name: Verify .env files not tracked
+        run: |
+          echo "Checking for tracked .env files..."
+          if git ls-files | grep -E '\.env$|\.env\.local$' | grep -v '.env.example'; then
+            echo "❌ .env files are tracked by git!"
+            exit 1
+          fi
+          echo "✅ No .env files tracked"
+
+  code-quality:
+    name: Code Quality Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run linter
+        run: npm run lint -- --max-warnings=10
+
+      - name: Run type check
+        run: npm run type-check
+
+      - name: Check for outdated dependencies
+        run: |
+          echo "Checking for outdated dependencies..."
+          npm outdated || true
+
+  environment-validation:
+    name: Environment Configuration Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate environment examples
+        run: |
+          echo "Validating .env.example files..."
+
+          # Check .env.example exists
+          if [ ! -f ".env.example" ]; then
+            echo "❌ .env.example not found"
+            exit 1
+          fi
+
+          # Check for required variables
+          required_vars=(
+            "NEXT_PUBLIC_SUPABASE_URL"
+            "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+            "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+            "CLERK_SECRET_KEY"
+            "SUPABASE_SERVICE_ROLE_KEY"
+          )
+
+          for var in "${required_vars[@]}"; do
+            if ! grep -q "^$var=" .env.example; then
+              echo "❌ Required variable $var not in .env.example"
+              exit 1
+            fi
+          done
+
+          echo "✅ Environment examples validated"
+
+      - name: Check netlify.toml configuration
+        run: |
+          echo "Validating netlify.toml..."
+
+          if [ ! -f "netlify.toml" ]; then
+            echo "❌ netlify.toml not found"
+            exit 1
+          fi
+
+          # Check for required sections
+          if ! grep -q '\[build\]' netlify.toml; then
+            echo "❌ [build] section missing in netlify.toml"
+            exit 1
+          fi
+
+          if ! grep -q 'command = "npm run build' netlify.toml; then
+            echo "❌ Build command not configured"
+            exit 1
+          fi
+
+          echo "✅ netlify.toml validated"
+
+  notify:
+    name: Audit Notification
+    runs-on: ubuntu-latest
+    needs: [dependency-audit, secret-scan, code-quality, environment-validation]
+    if: always()
+
+    steps:
+      - name: Generate audit summary
+        run: |
+          echo "## Security Audit Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Job Results:" >> $GITHUB_STEP_SUMMARY
+          echo "- Dependency Audit: ${{ needs.dependency-audit.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Secret Scan: ${{ needs.secret-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Code Quality: ${{ needs.code-quality.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Environment Validation: ${{ needs.environment-validation.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.dependency-audit.result }}" == "success" ] && \
+             [ "${{ needs.secret-scan.result }}" == "success" ] && \
+             [ "${{ needs.code-quality.result }}" == "success" ] && \
+             [ "${{ needs.environment-validation.result }}" == "success" ]; then
+            echo "✅ All security checks passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Some security checks failed - review logs" >> $GITHUB_STEP_SUMMARY
+          fi
