@@ -539,7 +539,7 @@ git push origin main
 
 ### Previous Reports
 
-- Security audit: `/SECURITY_AUDIT_REPORT.md`
+- Security audit: `/docs/security/SECURITY_AUDIT_REPORT.md`
 - Agent summaries: Search for `*_SUMMARY.md` files
 
 ---

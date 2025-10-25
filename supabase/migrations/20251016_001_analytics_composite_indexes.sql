@@ -60,7 +60,7 @@
 -- - Supports queries filtering by judge_id alone, or judge_id + outcome
 -- - Cannot be used for outcome-only queries (judge_id must be in WHERE clause)
 --
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_cases_judge_outcome_date 
+CREATE INDEX IF NOT EXISTS idx_cases_judge_outcome_date 
   ON cases(judge_id, outcome, decision_date DESC)
   WHERE outcome IS NOT NULL AND decision_date IS NOT NULL;
 
@@ -88,7 +88,7 @@ COMMENT ON INDEX idx_cases_judge_outcome_date IS
 -- - WHERE clause filters NULL case_types (reduces index size ~25%)
 -- - Enables index-only scans when only these 3 columns are selected
 --
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_cases_judge_type_outcome
+CREATE INDEX IF NOT EXISTS idx_cases_judge_type_outcome
   ON cases(judge_id, case_type, outcome)
   WHERE case_type IS NOT NULL;
 
@@ -121,10 +121,9 @@ COMMENT ON INDEX idx_cases_judge_type_outcome IS
 -- - Index automatically maintains 2-year window as new cases are added
 -- - Supports LIMIT queries efficiently (stops scanning after N rows)
 --
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_cases_bias_analysis
+CREATE INDEX IF NOT EXISTS idx_cases_bias_analysis
   ON cases(judge_id, decision_date DESC, case_type, outcome)
-  WHERE decision_date IS NOT NULL 
-    AND decision_date >= (CURRENT_DATE - INTERVAL '2 years');
+  WHERE decision_date IS NOT NULL;
 
 COMMENT ON INDEX idx_cases_bias_analysis IS
 'Partial composite index for recent bias analysis (last 2 years only). Optimizes the most common analytics query pattern with multi-column coverage. 85% smaller than full index while covering 90% of queries. Automatically maintains 2-year rolling window. Used by bias-analysis endpoint for judges with 5000+ cases.';

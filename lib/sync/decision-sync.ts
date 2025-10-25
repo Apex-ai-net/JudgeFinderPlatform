@@ -339,6 +339,13 @@ export class DecisionSyncManager {
       // Update judge's total case count after decisions and filings
       await this.repository.updateJudgeCaseCount(judge.id)
 
+      // Update sync progress with case counts
+      await this.updateSyncProgress(judge.id, {
+        opinions_count: decisionStats.processed,
+        dockets_count: filingStats.processed,
+        total_cases_count: decisionStats.processed + filingStats.processed,
+      })
+
       logger.info('Completed decision sync for judge', {
         judge: judge.name,
         decisions: decisionStats,
@@ -358,6 +365,42 @@ export class DecisionSyncManager {
     } catch (error) {
       logger.error('Error syncing judge decisions', { judge: judge.name, error })
       throw error
+    }
+  }
+
+  /**
+   * Update sync progress for a judge
+   */
+  private async updateSyncProgress(
+    judgeId: string,
+    updates: {
+      opinions_count?: number
+      dockets_count?: number
+      total_cases_count?: number
+    }
+  ) {
+    try {
+      const updateData: any = {
+        judge_id: judgeId,
+        last_synced_at: new Date().toISOString(),
+        ...updates,
+      }
+
+      if (updates.opinions_count !== undefined) {
+        updateData.opinions_synced_at = new Date().toISOString()
+      }
+      if (updates.dockets_count !== undefined) {
+        updateData.dockets_synced_at = new Date().toISOString()
+      }
+
+      await this.supabase.from('sync_progress').upsert(updateData, {
+        onConflict: 'judge_id',
+      })
+    } catch (error) {
+      logger.warn('[Decision Sync] Failed to update sync progress', {
+        judgeId,
+        error,
+      })
     }
   }
 

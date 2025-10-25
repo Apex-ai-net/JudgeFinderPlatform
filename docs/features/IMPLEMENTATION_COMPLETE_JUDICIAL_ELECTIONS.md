@@ -146,7 +146,7 @@ npm run test:political-api       # Test API connection
 3. **JUDICIAL_ELECTIONS_DATA_SOURCES.md** - Data source documentation
 4. **JUDICIAL_ELECTIONS_USER_GUIDE.md** - Voter-facing guide
 5. **JUDICIAL_ELECTIONS_DEVELOPER_GUIDE.md** - Developer reference
-6. **JUDICIAL_ELECTIONS_README.md** - Client-facing summary
+6. **JUDICIAL_ELECTIONS_README.md** - Client-facing summary (docs/features/JUDICIAL_ELECTIONS_README.md)
 
 Plus extensive component documentation, API docs, and integration guides.
 
@@ -428,7 +428,7 @@ A: Approximately $500-2000/year for nonprofit rate. Decision point at Phase 3 af
 
 ### Immediate (This Week)
 
-1. **Review Documentation:** Read `JUDICIAL_ELECTIONS_README.md` in project root
+1. **Review Documentation:** Read `docs/features/JUDICIAL_ELECTIONS_README.md`
 2. **Test Locally:** Run `npm install` and `npm run dev`, visit `/elections`
 3. **Review UI:** Check out the ElectionInformation and ElectionBadge components
 4. **Provide Feedback:** Any design changes or additional features needed?

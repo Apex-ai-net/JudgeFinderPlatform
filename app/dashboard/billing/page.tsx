@@ -7,6 +7,8 @@ import { CheckCircle2, AlertCircle, Package } from 'lucide-react'
 import ManageBillingButton from '@/components/billing/ManageBillingButton'
 import BillingDataClient from '@/components/billing/BillingDataClient'
 import PaymentHistoryFilter from '@/components/billing/PaymentHistoryFilter'
+import InvoiceHistoryTable from '@/components/billing/InvoiceHistoryTable'
+import SpendingChart from '@/components/billing/SpendingChart'
 import { SkipLink } from '@/components/ui/SkipLink'
 
 export const metadata: Metadata = {
@@ -118,6 +120,22 @@ export default async function BillingDashboard({
               Active Subscriptions and Payment Methods
             </h2>
             <BillingDataClient />
+          </section>
+
+          {/* Spending Analytics Chart */}
+          <section aria-labelledby="spending-chart-heading" className="mb-8">
+            <h2 id="spending-chart-heading" className="sr-only">
+              Spending Analytics
+            </h2>
+            <SpendingChart />
+          </section>
+
+          {/* Invoice History Table */}
+          <section aria-labelledby="invoice-history-heading" className="mb-8">
+            <h2 id="invoice-history-heading" className="sr-only">
+              Invoice History
+            </h2>
+            <InvoiceHistoryTable limit={20} />
           </section>
 
           {/* Orders List with Filtering */}

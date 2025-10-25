@@ -172,14 +172,26 @@ BEGIN
     updated_at = NOW()
   WHERE id = p_org_id;
 
-  -- Mark user as migrated (if users table exists)
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'users') THEN
-    UPDATE public.users
-    SET
-      migrated_to_org_billing = TRUE,
-      org_migration_date = NOW(),
-      organization_id = p_org_id
-    WHERE id = p_user_id OR clerk_user_id = p_user_id;
+  -- Mark user as migrated (if users table exists and has required columns)
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'users')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'migrated_to_org_billing')
+  THEN
+    -- Try to match by clerk_user_id if it exists, otherwise by id
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'clerk_user_id') THEN
+      UPDATE public.users
+      SET
+        migrated_to_org_billing = TRUE,
+        org_migration_date = NOW(),
+        organization_id = p_org_id
+      WHERE id::TEXT = p_user_id OR clerk_user_id = p_user_id;
+    ELSE
+      UPDATE public.users
+      SET
+        migrated_to_org_billing = TRUE,
+        org_migration_date = NOW(),
+        organization_id = p_org_id
+      WHERE id::TEXT = p_user_id;
+    END IF;
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -195,9 +207,18 @@ DECLARE
   v_org_id UUID;
   v_subscription_data JSONB;
 BEGIN
-  -- Only run if users table exists
+  -- Only run if users table exists and has the required billing columns
   IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'users') THEN
     RAISE NOTICE 'Users table not found - skipping migration';
+    RETURN;
+  END IF;
+
+  -- Check if users table has billing columns
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'users' AND column_name = 'stripe_customer_id'
+  ) THEN
+    RAISE NOTICE 'Users table does not have billing columns - skipping migration';
     RETURN;
   END IF;
 

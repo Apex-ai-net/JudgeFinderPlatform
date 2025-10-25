@@ -754,7 +754,7 @@ Consistent stat card design across all pages:
 - [DASHBOARD_AUDIT.md](./DASHBOARD_AUDIT.md) - Original audit findings
 - [API_REFERENCE.md](./docs/API_REFERENCE.md) - API documentation
 - [ARCHITECTURE.md](./docs/ARCHITECTURE.md) - System architecture
-- [DEPLOYMENT_CHECKLIST.md](./docs/DEPLOYMENT_CHECKLIST.md) - Deployment guide
+- [DEPLOYMENT_CHECKLIST_BAR_VERIFICATION.md](./docs/deployment/DEPLOYMENT_CHECKLIST_BAR_VERIFICATION.md) - Deployment guide
 
 ---
 

@@ -38,10 +38,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     error_message TEXT,
 
     -- Timestamps
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-
-    -- Indexes for performance
-    CONSTRAINT audit_logs_action_type_check CHECK (action_type IS NOT NULL)
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Create indexes for common queries

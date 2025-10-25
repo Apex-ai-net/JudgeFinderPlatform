@@ -221,12 +221,14 @@ ALTER TABLE public.onboarding_analytics ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies
 -- Users can view their own analytics
+DROP POLICY IF EXISTS "Users can view own onboarding analytics" ON public.onboarding_analytics;
 CREATE POLICY "Users can view own onboarding analytics"
     ON public.onboarding_analytics
     FOR SELECT
     USING (auth.uid()::text = user_id);
 
 -- Service role can do everything
+DROP POLICY IF EXISTS "Service role has full access to onboarding analytics" ON public.onboarding_analytics;
 CREATE POLICY "Service role has full access to onboarding analytics"
     ON public.onboarding_analytics
     FOR ALL

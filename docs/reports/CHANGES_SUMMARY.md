@@ -417,7 +417,7 @@ Eight AI agents worked in parallel to improve the JudgeFinder platform across mu
 
 ## Next Steps
 
-1. Review `DEPLOYMENT_CHECKLIST.md`
+1. Review `docs/deployment/DEPLOYMENT_CHECKLIST_BAR_VERIFICATION.md`
 2. Backup database
 3. Apply migrations
 4. Deploy code

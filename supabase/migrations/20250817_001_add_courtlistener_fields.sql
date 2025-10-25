@@ -18,11 +18,20 @@ CREATE INDEX IF NOT EXISTS idx_judges_courtlistener_id ON judges(courtlistener_i
 CREATE INDEX IF NOT EXISTS idx_judges_jurisdiction ON judges(jurisdiction);
 
 -- Add constraints for data integrity
-ALTER TABLE courts 
-ADD CONSTRAINT IF NOT EXISTS courts_courtlistener_id_unique UNIQUE(courtlistener_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'courts_courtlistener_id_unique'
+  ) THEN
+    ALTER TABLE courts ADD CONSTRAINT courts_courtlistener_id_unique UNIQUE(courtlistener_id);
+  END IF;
 
-ALTER TABLE judges
-ADD CONSTRAINT IF NOT EXISTS judges_courtlistener_id_unique UNIQUE(courtlistener_id);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'judges_courtlistener_id_unique'
+  ) THEN
+    ALTER TABLE judges ADD CONSTRAINT judges_courtlistener_id_unique UNIQUE(courtlistener_id);
+  END IF;
+END $$;
 
 -- Add comments for documentation
 COMMENT ON COLUMN courts.courtlistener_id IS 'External ID from CourtListener API for data synchronization';

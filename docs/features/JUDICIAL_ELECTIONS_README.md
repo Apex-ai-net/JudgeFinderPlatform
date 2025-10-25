@@ -258,7 +258,7 @@ Two highly polished React components:
 | **Data Sources**         | `/docs/features/JUDICIAL_ELECTIONS_DATA_SOURCES.md`         | Data Engineers, Researchers    | ✅ Complete |
 | **User Guide**           | `/docs/features/JUDICIAL_ELECTIONS_USER_GUIDE.md`           | End Users, Educators           | ✅ Complete |
 | **Developer Guide**      | `/docs/features/JUDICIAL_ELECTIONS_DEVELOPER_GUIDE.md`      | Engineers, API Consumers       | ✅ Complete |
-| **Client README**        | `/JUDICIAL_ELECTIONS_README.md` (this file)                 | Client, Stakeholders           | ✅ Complete |
+| **Client README**        | `/docs/features/JUDICIAL_ELECTIONS_README.md` (this file)   | Client, Stakeholders           | ✅ Complete |
 
 ---
 

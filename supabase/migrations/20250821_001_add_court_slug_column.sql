@@ -30,7 +30,7 @@ SET slug = generate_court_slug(name)
 WHERE slug IS NULL;
 
 -- Create unique index on slug column for fast lookups
-CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS idx_courts_slug 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_courts_slug
 ON courts(slug);
 
 -- Add constraint to ensure slug is always present for new records

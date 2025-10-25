@@ -23,24 +23,28 @@ This deployment implements a comprehensive authentication and bot protection sys
 ### New Features
 
 #### 1. Cloudflare Turnstile Bot Protection
+
 - Privacy-friendly alternative to reCAPTCHA
 - Integrated into AI chat and advertiser onboarding
 - Graceful fallback in development mode
 - Server-side token verification
 
 #### 2. AI Chatbox Authentication Requirement
+
 - Anonymous users see "Sign In Required" message
 - Sign-in flow redirects back to chat
 - First message triggers Turnstile CAPTCHA
 - Rate limited to 20 messages/hour per user
 
 #### 3. Tiered Rate Limiting
+
 - **Anonymous Users:** 10 judge searches per day
 - **Authenticated Users:** 100 searches/hour, 20 chat messages/hour
 - Powered by Upstash Redis
 - Graceful degradation if Redis unavailable
 
 #### 4. Law Professional Verification System
+
 - Advertiser onboarding flow at `/advertise/onboarding`
 - Bar number format validation
 - Duplicate bar number detection
@@ -48,6 +52,7 @@ This deployment implements a comprehensive authentication and bot protection sys
 - Future: Integrate with State Bar APIs
 
 #### 5. User Roles System
+
 - **Roles:** user (default), advertiser (verified), admin (manual)
 - Automatic promotion when bar number verified
 - Database trigger handles role assignment
@@ -56,6 +61,7 @@ This deployment implements a comprehensive authentication and bot protection sys
 ### Technical Implementation
 
 **Files Created (5):**
+
 1. `/lib/auth/turnstile.ts` - Turnstile verification utilities
 2. `/components/auth/TurnstileWidget.tsx` - Reusable CAPTCHA component
 3. `/app/advertise/onboarding/page.tsx` - Advertiser onboarding UI
@@ -63,6 +69,7 @@ This deployment implements a comprehensive authentication and bot protection sys
 5. `/supabase/migrations/20251020_173114_add_user_roles_and_verification.sql` - Database schema
 
 **Files Modified (8):**
+
 1. `.env.example` - Added Turnstile environment variables documentation
 2. `app/advertise/page.tsx` - Updated CTA to link to onboarding
 3. `app/api/chat/route.ts` - Added auth check, Turnstile, and rate limiting
@@ -73,6 +80,7 @@ This deployment implements a comprehensive authentication and bot protection sys
 8. `package-lock.json` - Updated lockfile
 
 **Database Changes:**
+
 - Added `user_role` column (enum: user, advertiser, admin)
 - Added `bar_number` column for legal professional ID
 - Added `bar_state` column (e.g., CA, NY)
@@ -87,6 +95,7 @@ This deployment implements a comprehensive authentication and bot protection sys
 ## Pre-Deployment Checklist
 
 ### 1. Database Migration ✅
+
 - [x] Migration file created
 - [ ] Migration reviewed for correctness
 - [ ] Backup plan ready
@@ -96,6 +105,7 @@ This deployment implements a comprehensive authentication and bot protection sys
 - [ ] Test trigger functionality
 
 ### 2. Environment Variables ⚠️
+
 - [x] Local .env.local updated with test keys
 - [ ] Production Turnstile site created in Cloudflare
 - [ ] `NEXT_PUBLIC_TURNSTILE_SITE_KEY` set in Netlify
@@ -106,6 +116,7 @@ This deployment implements a comprehensive authentication and bot protection sys
   - Upstash Redis keys
 
 ### 3. Code Quality ⚠️
+
 - [ ] `npm run lint` passes
 - [ ] `npm run type-check` passes
 - [ ] `npm run build` succeeds locally
@@ -113,6 +124,7 @@ This deployment implements a comprehensive authentication and bot protection sys
 - [ ] All test scenarios pass (see testing matrix)
 
 ### 4. Git & Deployment ⚠️
+
 - [ ] All changes reviewed
 - [ ] Commit created with descriptive message
 - [ ] Pushed to main branch
@@ -164,6 +176,7 @@ See `/docs/AUTH_DEPLOYMENT_GUIDE.md` for comprehensive step-by-step instructions
 ### Critical Paths to Test
 
 #### AI Chat Flow ✅ CRITICAL
+
 - [ ] Anonymous user sees "Sign In Required"
 - [ ] Sign-in redirects back to chat
 - [ ] First message triggers Turnstile
@@ -171,12 +184,14 @@ See `/docs/AUTH_DEPLOYMENT_GUIDE.md` for comprehensive step-by-step instructions
 - [ ] 21st message hits rate limit
 
 #### Rate Limiting ✅ CRITICAL
+
 - [ ] Anonymous: 10 searches/day limit
 - [ ] Authenticated: 100 searches/hour limit
 - [ ] Chat: 20 messages/hour limit
 - [ ] Proper 429 error responses
 
 #### Advertiser Onboarding ⚠️ IMPORTANT
+
 - [ ] Unauthenticated redirects to sign-in
 - [ ] Form validation works
 - [ ] Turnstile CAPTCHA required
@@ -185,6 +200,7 @@ See `/docs/AUTH_DEPLOYMENT_GUIDE.md` for comprehensive step-by-step instructions
 - [ ] Database role updated
 
 #### Security 🔒 CRITICAL
+
 - [ ] Direct API access blocked without auth
 - [ ] Invalid Turnstile token rejected
 - [ ] SQL injection prevented
@@ -195,18 +211,21 @@ See `/docs/AUTH_DEPLOYMENT_GUIDE.md` for comprehensive step-by-step instructions
 ## Rollback Plan
 
 ### Option 1: Netlify Dashboard (Fastest)
+
 1. Go to Deploys tab
 2. Find previous working deploy
 3. Click "Publish deploy"
 4. Rollback completes in ~30 seconds
 
 ### Option 2: Git Revert
+
 ```bash
 git revert HEAD
 git push origin main
 ```
 
 ### Option 3: Disable Features
+
 ```bash
 # Disable Turnstile temporarily
 netlify env:unset NEXT_PUBLIC_TURNSTILE_SITE_KEY
@@ -215,6 +234,7 @@ netlify deploy --prod
 ```
 
 ### Database Rollback (Last Resort)
+
 ```sql
 -- Only if absolutely necessary!
 ALTER TABLE users DROP COLUMN user_role CASCADE;
@@ -227,16 +247,19 @@ ALTER TABLE users DROP COLUMN bar_number CASCADE;
 ## Risk Assessment
 
 ### Low Risk ✅
+
 - Turnstile integration (fallback to dev mode if misconfigured)
 - Rate limiting (graceful degradation without Redis)
 - UI changes (no breaking changes)
 
 ### Medium Risk ⚠️
+
 - Database migration (reversible, but requires careful testing)
 - Authentication gate (may reduce chat engagement)
 - Route protection (could block legitimate users if misconfigured)
 
 ### Mitigation Strategies
+
 1. **Database:** Test migration on copy of production data first
 2. **Auth Gate:** Monitor conversion rates, prepare to adjust if drop-off too high
 3. **Route Protection:** Extensive testing of auth flows before deployment
@@ -247,18 +270,21 @@ ALTER TABLE users DROP COLUMN bar_number CASCADE;
 ## Success Metrics
 
 ### Immediate (Day 1)
+
 - ✅ Zero increase in error rates
 - ✅ All functional tests pass on production
 - ✅ Database migration applied successfully
 - ✅ No user-reported authentication issues
 
 ### Short-term (Week 1)
+
 - 📊 AI chat authentication conversion rate > 60%
 - 📊 Turnstile completion rate > 90%
 - 📊 Rate limit effectiveness (reduce bot traffic by > 50%)
 - 📊 Advertiser onboarding completion rate > 40%
 
 ### Long-term (Month 1)
+
 - 📈 Reduction in abuse/spam reports
 - 📈 Stable or improved user engagement
 - 📈 Increase in verified advertisers
@@ -269,18 +295,21 @@ ALTER TABLE users DROP COLUMN bar_number CASCADE;
 ## Monitoring Plan
 
 ### First Hour
+
 - Watch Sentry for new errors
 - Monitor Netlify function logs
 - Check database query performance
 - Verify Redis connection stable
 
 ### First Day
+
 - Review analytics for traffic patterns
 - Check user feedback/support tickets
 - Monitor rate limit hit rates
 - Verify advertiser onboarding conversions
 
 ### First Week
+
 - Analyze authentication conversion funnel
 - Review Turnstile success/failure rates
 - Evaluate rate limit effectiveness
@@ -291,6 +320,7 @@ ALTER TABLE users DROP COLUMN bar_number CASCADE;
 ## Known Limitations & Future Enhancements
 
 ### Current Limitations
+
 1. **Bar verification is auto-approved** (format validation only)
    - No actual State Bar API integration yet
    - Trust but verify approach
@@ -303,6 +333,7 @@ ALTER TABLE users DROP COLUMN bar_number CASCADE;
    - Future: Risk-based CAPTCHA (only show for suspicious activity)
 
 ### Planned Enhancements
+
 - [ ] Integrate actual State Bar API for real-time verification
 - [ ] Add admin dashboard for managing advertiser applications
 - [ ] Implement email notifications for verification status
@@ -315,18 +346,21 @@ ALTER TABLE users DROP COLUMN bar_number CASCADE;
 ## Communication Plan
 
 ### Internal Team
+
 - [ ] Notify development team of deployment
 - [ ] Brief support team on new features
 - [ ] Update internal documentation
 - [ ] Schedule post-mortem review
 
 ### Users
+
 - [ ] Update help docs with authentication info
 - [ ] Create FAQ: "Why do I need to sign in?"
 - [ ] Publish advertiser onboarding guide
 - [ ] Monitor feedback channels
 
 ### Stakeholders
+
 - [ ] Report deployment completion
 - [ ] Share initial metrics after 24 hours
 - [ ] Weekly progress updates
@@ -357,17 +391,20 @@ See `/docs/AUTH_DEPLOYMENT_GUIDE.md` for detailed troubleshooting.
 ## Resources
 
 ### Documentation
+
 - [Deployment Guide](/docs/AUTH_DEPLOYMENT_GUIDE.md) - Comprehensive step-by-step guide
-- [Deployment Checklist](/docs/DEPLOYMENT_CHECKLIST.md) - General deployment procedures
+- [Deployment Checklist](/docs/deployment/DEPLOYMENT_CHECKLIST_BAR_VERIFICATION.md) - General deployment procedures
 - [.env.example](/.env.example) - Environment variables reference
 
 ### External Resources
+
 - [Cloudflare Turnstile Docs](https://developers.cloudflare.com/turnstile/)
 - [Upstash Redis Docs](https://docs.upstash.com/redis)
 - [Clerk Auth Docs](https://clerk.com/docs)
 - [Supabase RLS Guide](https://supabase.com/docs/guides/auth/row-level-security)
 
 ### Migration File
+
 - `/supabase/migrations/20251020_173114_add_user_roles_and_verification.sql`
 
 ---
@@ -397,6 +434,7 @@ See `/docs/AUTH_DEPLOYMENT_GUIDE.md` for detailed troubleshooting.
 **Ready for Deployment:** ⚠️ Pending final review and environment setup
 
 **Blockers:**
+
 - Cloudflare Turnstile site needs to be created
 - Environment variables need to be set in Netlify
 - Database migration needs to be applied
@@ -407,4 +445,4 @@ All code is committed and ready to deploy. Once environment is configured and mi
 
 ---
 
-*Last Updated: 2025-10-20*
+_Last Updated: 2025-10-20_

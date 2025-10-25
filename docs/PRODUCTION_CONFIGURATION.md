@@ -46,6 +46,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Where to get these:**
+
 1. Go to [Supabase Dashboard](https://app.supabase.com)
 2. Select your project
 3. Settings → API
@@ -59,6 +60,7 @@ CLERK_SECRET_KEY=sk_live_YOUR_SECRET_HERE
 ```
 
 **Where to get these:**
+
 1. Go to [Clerk Dashboard](https://dashboard.clerk.com)
 2. Select your application
 3. API Keys
@@ -71,6 +73,7 @@ COURTLISTENER_API_KEY=YOUR_COURTLISTENER_API_KEY_HERE
 ```
 
 **Where to get this:**
+
 1. Register at [CourtListener](https://www.courtlistener.com)
 2. Account → API Access
 3. Generate new token
@@ -83,6 +86,7 @@ UPSTASH_REDIS_REST_TOKEN=AYourTokenHere
 ```
 
 **Where to get these:**
+
 1. Go to [Upstash Console](https://console.upstash.com)
 2. Create or select Redis database
 3. REST API → Copy URL and Token
@@ -95,6 +99,7 @@ CRON_SECRET=generate_random_32_char_string
 ```
 
 **How to generate:**
+
 ```bash
 openssl rand -base64 32
 ```
@@ -121,6 +126,7 @@ SENTRY_RELEASE=1.0.0
 ```
 
 **Setup:**
+
 1. Create project at [Sentry.io](https://sentry.io)
 2. Get DSN from Settings → Client Keys
 3. Configure source maps for better error tracking
@@ -134,6 +140,7 @@ STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET
 ```
 
 **Setup:**
+
 1. Go to [Stripe Dashboard](https://dashboard.stripe.com)
 2. Developers → API Keys
 3. Use LIVE mode keys for production
@@ -147,6 +154,7 @@ OPENAI_API_KEY=sk-proj-YOUR_KEY_HERE
 ```
 
 **Setup:**
+
 - Google AI: [Google AI Studio](https://makersuite.google.com/app/apikey)
 - OpenAI: [OpenAI Platform](https://platform.openai.com/api-keys)
 
@@ -217,11 +225,13 @@ In Netlify dashboard or `netlify.toml`:
 #### 3. Set Environment Variables
 
 In Netlify dashboard:
+
 1. Site Settings → Environment Variables
 2. Add all required variables
 3. Mark sensitive variables as "Secret"
 
 Or via CLI:
+
 ```bash
 netlify env:set NEXT_PUBLIC_SUPABASE_URL "https://xxx.supabase.co"
 netlify env:set SUPABASE_SERVICE_ROLE_KEY "eyJ..." --secret
@@ -269,6 +279,7 @@ CREATE POLICY "Admins can manage judges"
 #### 3. Connection Pooling
 
 Configure in Supabase dashboard:
+
 - Database → Settings → Connection Pooling
 - Enable transaction pooling
 - Set max connections based on your plan
@@ -280,6 +291,7 @@ Point your domain to Netlify:
 #### Using Netlify DNS (Recommended)
 
 1. Update nameservers to Netlify:
+
    ```
    dns1.p01.nsone.net
    dns2.p01.nsone.net
@@ -352,6 +364,7 @@ PROD_URL=https://judgefinder.io npx playwright test tests/smoke/production.spec.
 ```
 
 Manual verification:
+
 - [ ] Homepage loads
 - [ ] Search works
 - [ ] Authentication works
@@ -380,6 +393,7 @@ curl https://judgefinder.io/api/health
 ```
 
 Returns:
+
 ```json
 {
   "status": "healthy",
@@ -400,11 +414,13 @@ Returns:
 ### Monitoring Dashboard
 
 Access the admin dashboard:
+
 ```
 https://judgefinder.io/admin/deployments
 ```
 
 Features:
+
 - Real-time health status
 - Environment variable summary
 - Performance metrics
@@ -413,11 +429,13 @@ Features:
 ### Sentry Error Tracking
 
 Configure Sentry alerts:
+
 1. Project Settings → Alerts
 2. Create alert for high error rates
 3. Set notification channels (email, Slack)
 
 Monitor errors:
+
 ```
 https://sentry.io/organizations/{org}/issues/
 ```
@@ -428,6 +446,7 @@ https://sentry.io/organizations/{org}/issues/
 - **PostHog**: [PostHog Dashboard](https://app.posthog.com)
 
 Key metrics to monitor:
+
 - Page load time
 - Search usage
 - User engagement
@@ -439,11 +458,13 @@ Key metrics to monitor:
 Configure external uptime monitoring:
 
 **Option 1: UptimeRobot**
+
 - Monitor: `https://judgefinder.io/api/health`
 - Interval: 5 minutes
 - Alert: email/SMS on downtime
 
 **Option 2: Pingdom**
+
 - Create HTTP check
 - Monitor health endpoint
 - Set alert thresholds
@@ -526,6 +547,7 @@ EXPLAIN ANALYZE SELECT * FROM judges WHERE name ILIKE '%smith%';
 ### 4. CDN Configuration
 
 Netlify Edge Network provides:
+
 - Global CDN
 - Edge functions
 - Automatic image optimization
@@ -534,6 +556,7 @@ Netlify Edge Network provides:
 ### 5. Performance Budget
 
 Target metrics:
+
 - First Contentful Paint: < 1.8s
 - Largest Contentful Paint: < 2.5s
 - Time to Interactive: < 3.5s
@@ -548,6 +571,7 @@ Monitor with Lighthouse CI in GitHub Actions.
 **Problem**: Build fails on Netlify
 
 **Solutions**:
+
 1. Check build logs in Netlify dashboard
 2. Verify Node version matches local (22)
 3. Clear cache and retry: Site Settings → Build & Deploy → Clear cache
@@ -558,6 +582,7 @@ Monitor with Lighthouse CI in GitHub Actions.
 **Problem**: Can't connect to Supabase
 
 **Solutions**:
+
 1. Verify credentials are correct
 2. Check Supabase project is not paused
 3. Verify connection pooling configured
@@ -569,6 +594,7 @@ Monitor with Lighthouse CI in GitHub Actions.
 **Problem**: Functions timing out or memory errors
 
 **Solutions**:
+
 1. Check `/api/health` for memory metrics
 2. Reduce concurrent operations
 3. Implement pagination for large queries
@@ -580,6 +606,7 @@ Monitor with Lighthouse CI in GitHub Actions.
 **Problem**: 429 errors from CourtListener
 
 **Solutions**:
+
 1. Verify API key is valid
 2. Check rate limit configuration:
    ```bash
@@ -594,6 +621,7 @@ Monitor with Lighthouse CI in GitHub Actions.
 **Problem**: Clerk authentication not working
 
 **Solutions**:
+
 1. Verify publishable key matches environment
 2. Check Clerk dashboard for API status
 3. Verify redirect URLs configured
@@ -640,6 +668,7 @@ psql $DATABASE_URL < migrations/down.sql
 Schedule maintenance during low-traffic periods:
 
 1. Enable maintenance mode:
+
    ```bash
    netlify env:set MAINTENANCE_MODE true
    ```
@@ -649,6 +678,7 @@ Schedule maintenance during low-traffic periods:
 3. Perform maintenance tasks
 
 4. Disable maintenance mode:
+
    ```bash
    netlify env:set MAINTENANCE_MODE false
    ```
@@ -666,7 +696,7 @@ Schedule maintenance during low-traffic periods:
 
 ### Internal Resources
 
-- Deployment Checklist: `docs/DEPLOYMENT_CHECKLIST.md`
+- Deployment Checklist: `docs/deployment/DEPLOYMENT_CHECKLIST_BAR_VERIFICATION.md`
 - Environment Variables: `.env.example`
 - Monitoring Dashboard: `/admin/deployments`
 

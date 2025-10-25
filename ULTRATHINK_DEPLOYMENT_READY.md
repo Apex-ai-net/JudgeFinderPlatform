@@ -177,7 +177,7 @@ git push origin main
 - Migration: 32 RLS policies
 - Verification script: `scripts/verify_database_security.sql`
 - Documentation: `docs/DATABASE_SECURITY_GUIDE.md` (500 lines)
-- Audit report: `SECURITY_AUDIT_REPORT.md` (200 lines)
+- Audit report: `docs/security/SECURITY_AUDIT_REPORT.md` (200 lines)
 
 ---
 
@@ -383,7 +383,7 @@ SELECT COUNT(*) FROM pg_policies WHERE schemaname = 'public';
 
 - **THIS FILE:** Quick start deployment guide
 - `MIGRATION_DEPLOYMENT_GUIDE.md` - Detailed step-by-step instructions
-- `docs/DEPLOYMENT_CHECKLIST.md` - Comprehensive checklist
+- `docs/deployment/DEPLOYMENT_CHECKLIST_BAR_VERIFICATION.md` - Comprehensive checklist
 
 ### Feature Documentation
 
@@ -404,12 +404,12 @@ SELECT COUNT(*) FROM pg_policies WHERE schemaname = 'public';
 - `docs/WEEK-1-IMPLEMENTATION-SUMMARY.md` - Site architecture
 - `docs/EMAIL_IMPLEMENTATION_SUMMARY.md` - Email system
 - `docs/ACCESSIBILITY_COMPLETION_REPORT.md` - Accessibility work
-- `SECURITY_AUDIT_REPORT.md` - Security audit findings
+- `docs/security/SECURITY_AUDIT_REPORT.md` - Security audit findings
 
 ### Quick References
 
 - `docs/EMAIL_QUICK_REFERENCE.md` - Email commands and queries
-- `DATABASE_SECURITY_README.md` - Security quick start
+- `docs/database/DATABASE_SECURITY_README.md` - Security quick start
 
 ---
 

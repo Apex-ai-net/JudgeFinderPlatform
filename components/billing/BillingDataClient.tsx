@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import ActiveSubscriptionsWidget from './ActiveSubscriptionsWidget'
 import PaymentMethodsWidget from './PaymentMethodsWidget'
+import BillingAlertsWidget from './BillingAlertsWidget'
 import { Loader2 } from 'lucide-react'
 
 interface BillingData {
@@ -57,9 +58,20 @@ export default function BillingDataClient() {
 
   return (
     <div className="space-y-6">
+      {/* Billing Alerts */}
+      {(data.subscriptions.length > 0 || data.paymentMethods.length > 0) && (
+        <BillingAlertsWidget
+          subscriptions={data.subscriptions}
+          paymentMethods={data.paymentMethods}
+        />
+      )}
+
+      {/* Active Subscriptions */}
       {data.subscriptions.length > 0 && (
         <ActiveSubscriptionsWidget subscriptions={data.subscriptions} />
       )}
+
+      {/* Payment Methods */}
       {data.paymentMethods.length > 0 && (
         <PaymentMethodsWidget paymentMethods={data.paymentMethods} />
       )}

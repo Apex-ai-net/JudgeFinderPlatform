@@ -60,11 +60,11 @@ COMMENT ON EXTENSION unaccent IS
 -- Stores pre-processed search tokens for instant full-text search
 -- Includes both name and court_name for comprehensive search
 --
-ALTER TABLE judges 
+ALTER TABLE judges
 ADD COLUMN IF NOT EXISTS name_search_vector tsvector
 GENERATED ALWAYS AS (
-    setweight(to_tsvector('english', COALESCE(unaccent(name), '')), 'A') ||
-    setweight(to_tsvector('english', COALESCE(unaccent(court_name), '')), 'B')
+    setweight(to_tsvector('english', COALESCE(name, '')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(court_name, '')), 'B')
 ) STORED;
 
 COMMENT ON COLUMN judges.name_search_vector IS 

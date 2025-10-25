@@ -12,10 +12,10 @@ CREATE INDEX IF NOT EXISTS idx_judge_court_positions_judge_profile
     ON judge_court_positions(judge_id, start_date DESC, end_date DESC)
     INCLUDE (court_id, position_type, status);
 
--- Partial index for current active positions only
+-- Partial index for current active positions only (end_date filtering done at query time)
 CREATE INDEX IF NOT EXISTS idx_active_positions_only
-    ON judge_court_positions(judge_id, court_id, position_type)
-    WHERE status = 'active' AND (end_date IS NULL OR end_date > CURRENT_DATE);
+    ON judge_court_positions(judge_id, court_id, position_type, end_date)
+    WHERE status = 'active';
 
 -- Index for historical position queries
 CREATE INDEX IF NOT EXISTS idx_historical_positions

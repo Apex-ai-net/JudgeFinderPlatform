@@ -5,7 +5,7 @@
 -- Create sync_progress table to track which judges have complete data
 CREATE TABLE IF NOT EXISTS sync_progress (
   id BIGSERIAL PRIMARY KEY,
-  judge_id INTEGER NOT NULL REFERENCES judges(id) ON DELETE CASCADE,
+  judge_id UUID NOT NULL REFERENCES judges(id) ON DELETE CASCADE,
 
   -- Data completeness flags
   has_positions BOOLEAN DEFAULT FALSE,

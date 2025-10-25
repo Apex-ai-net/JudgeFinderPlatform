@@ -3,7 +3,7 @@
 -- Security: Prevents multiple workers from claiming the same job
 
 -- Create RPC function to atomically claim next pending job
-CREATE OR REPLACE FUNCTION claim_next_sync_job(current_time timestamptz)
+CREATE OR REPLACE FUNCTION claim_next_sync_job(p_current_time timestamptz)
 RETURNS TABLE (
   id text,
   type text,
@@ -41,7 +41,7 @@ BEGIN
     SELECT sync_queue.id
     FROM sync_queue
     WHERE sync_queue.status = 'pending'
-      AND sync_queue.scheduled_for <= current_time
+      AND sync_queue.scheduled_for <= p_current_time
     ORDER BY sync_queue.priority DESC, sync_queue.created_at ASC
     LIMIT 1
     FOR UPDATE SKIP LOCKED

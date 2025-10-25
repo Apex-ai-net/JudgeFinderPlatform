@@ -530,7 +530,7 @@ netlify env:get NEXT_PUBLIC_SENTRY_DSN
 
 - ✅ This diagnostic report
 - ⏳ Post-incident review
-- ⏳ Updated DEPLOYMENT_CHECKLIST.md
+- ⏳ Updated DEPLOYMENT_CHECKLIST_BAR_VERIFICATION.md
 - ⏳ Enhanced TROUBLESHOOTING.md
 
 **Priority**: 📚 **LOW - DO AFTER RECOVERY**

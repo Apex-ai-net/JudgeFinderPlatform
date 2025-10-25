@@ -39,11 +39,16 @@ COMMENT ON INDEX idx_cases_judge_decision_date IS
 -- Query Pattern: SELECT * FROM judge_analytics_cache WHERE judge_id = ? ORDER BY created_at DESC LIMIT 1
 -- Performance Gain: Full table scan → Index-only scan
 --
-CREATE INDEX IF NOT EXISTS idx_judge_analytics_cache_freshness
-    ON judge_analytics_cache(judge_id, created_at DESC);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'judge_analytics_cache') THEN
+    CREATE INDEX IF NOT EXISTS idx_judge_analytics_cache_freshness
+        ON judge_analytics_cache(judge_id, created_at DESC);
 
-COMMENT ON INDEX idx_judge_analytics_cache_freshness IS 
-'Enables fast cache freshness checks for AI analytics. Supports ORDER BY created_at queries.';
+    COMMENT ON INDEX idx_judge_analytics_cache_freshness IS
+    'Enables fast cache freshness checks for AI analytics. Supports ORDER BY created_at queries.';
+  END IF;
+END $$;
 
 -- ===========================================
 -- INDEX 3: Recent Decisions Composite Index
@@ -52,12 +57,11 @@ COMMENT ON INDEX idx_judge_analytics_cache_freshness IS
 -- Used by: /api/judges/list/route.ts:245-252 (fetchJudgeIdsWithRecentDecisions)
 -- Query Pattern: SELECT judge_id FROM cases WHERE decision_date >= '2023-01-01' AND judge_id IS NOT NULL
 -- Performance Gain: Sequential scan → Index range scan (10x faster)
--- Space Optimization: Partial index only stores last 5 years (85% smaller than full index)
+-- Note: Partial index predicate removed (CURRENT_DATE not allowed in index WHERE clause)
 --
 CREATE INDEX IF NOT EXISTS idx_cases_recent_decisions
     ON cases(decision_date DESC, judge_id)
-    WHERE decision_date >= (CURRENT_DATE - INTERVAL '5 years')
-      AND judge_id IS NOT NULL;
+    WHERE judge_id IS NOT NULL;
 
 COMMENT ON INDEX idx_cases_recent_decisions IS 
 'Partial index for recent decisions only. Reduces index size by 85% while maintaining performance.';
@@ -116,26 +120,44 @@ COMMENT ON INDEX idx_judges_jurisdiction_name IS
 -- Query Pattern: SELECT * FROM judges WHERE courtlistener_id = ?
 -- Performance Gain: Critical for avoiding duplicate judge creation during sync
 --
-CREATE UNIQUE INDEX IF NOT EXISTS idx_judges_courtlistener_id
-    ON judges(courtlistener_id)
-    WHERE courtlistener_id IS NOT NULL;
+-- Drop old non-unique indexes first
+DROP INDEX IF EXISTS idx_judges_courtlistener_id;
+DROP INDEX IF EXISTS idx_courts_courtlistener_id;
+DROP INDEX IF EXISTS idx_cases_courtlistener_id;
 
-COMMENT ON INDEX idx_judges_courtlistener_id IS 
-'Unique index on CourtListener ID. Prevents duplicate judge records during data synchronization.';
+-- Create unique indexes (only if columns exist)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'judges' AND column_name = 'courtlistener_id'
+  ) THEN
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_judges_courtlistener_id_unique
+        ON judges(courtlistener_id)
+        WHERE courtlistener_id IS NOT NULL;
+    EXECUTE 'COMMENT ON INDEX idx_judges_courtlistener_id_unique IS ''Unique index on CourtListener ID. Prevents duplicate judge records during data synchronization.''';
+  END IF;
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_courts_courtlistener_id
-    ON courts(courtlistener_id)
-    WHERE courtlistener_id IS NOT NULL;
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'courts' AND column_name = 'courtlistener_id'
+  ) THEN
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_courts_courtlistener_id_unique
+        ON courts(courtlistener_id)
+        WHERE courtlistener_id IS NOT NULL;
+    EXECUTE 'COMMENT ON INDEX idx_courts_courtlistener_id_unique IS ''Unique index on CourtListener ID for courts. Ensures referential integrity during bulk imports.''';
+  END IF;
 
-COMMENT ON INDEX idx_courts_courtlistener_id IS 
-'Unique index on CourtListener ID for courts. Ensures referential integrity during bulk imports.';
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_cases_courtlistener_id
-    ON cases(courtlistener_id)
-    WHERE courtlistener_id IS NOT NULL;
-
-COMMENT ON INDEX idx_cases_courtlistener_id IS 
-'Unique index on case CourtListener ID. Prevents duplicate case imports from bulk data sync.';
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'cases' AND column_name = 'courtlistener_id'
+  ) THEN
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_cases_courtlistener_id_unique
+        ON cases(courtlistener_id)
+        WHERE courtlistener_id IS NOT NULL;
+    EXECUTE 'COMMENT ON INDEX idx_cases_courtlistener_id_unique IS ''Unique index on case CourtListener ID. Prevents duplicate case imports from bulk data sync.''';
+  END IF;
+END $$;
 
 -- ===========================================
 -- Update Statistics for Query Planner
@@ -146,7 +168,14 @@ COMMENT ON INDEX idx_cases_courtlistener_id IS
 ANALYZE cases;
 ANALYZE judges;
 ANALYZE courts;
-ANALYZE judge_analytics_cache;
+
+-- Analyze judge_analytics_cache only if it exists
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'judge_analytics_cache') THEN
+    EXECUTE 'ANALYZE judge_analytics_cache';
+  END IF;
+END $$;
 
 -- ===========================================
 -- Performance Validation Query

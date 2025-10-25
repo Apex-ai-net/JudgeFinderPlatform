@@ -32,12 +32,12 @@ CREATE INDEX IF NOT EXISTS idx_cases_judge_type
 -- ============================================================================
 -- Optimizes judge profile lookups and court-based queries
 
--- Partial index for active judge lookups by slug
--- Supports: SELECT * FROM judges WHERE slug = ? AND active = true
--- Space-efficient: Only indexes active judges (most common query pattern)
-CREATE INDEX IF NOT EXISTS idx_judges_slug_active
+-- Index for judge lookups by slug
+-- Supports: SELECT * FROM judges WHERE slug = ?
+-- Note: Removed 'active' column predicate as it doesn't exist in schema
+CREATE INDEX IF NOT EXISTS idx_judges_slug_lookup
   ON judges(slug)
-  WHERE active = true;
+  WHERE slug IS NOT NULL;
 
 -- Index for court-based judge listings ordered by case volume
 -- Supports: SELECT * FROM judges WHERE court_name = ? ORDER BY total_cases DESC
@@ -49,11 +49,16 @@ CREATE INDEX IF NOT EXISTS idx_judges_court_cases
 -- ============================================================================
 -- Improves analytics cache retrieval and invalidation
 
--- Index for judge analytics cache ordered by recency
--- Supports: SELECT * FROM judge_analytics_cache WHERE judge_id = ? ORDER BY created_at DESC LIMIT 1
--- Use case: Fetching most recent cached analytics for a judge
-CREATE INDEX IF NOT EXISTS idx_analytics_cache_judge_created
-  ON judge_analytics_cache(judge_id, created_at DESC);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'judge_analytics_cache') THEN
+    -- Index for judge analytics cache ordered by recency
+    -- Supports: SELECT * FROM judge_analytics_cache WHERE judge_id = ? ORDER BY created_at DESC LIMIT 1
+    -- Use case: Fetching most recent cached analytics for a judge
+    CREATE INDEX IF NOT EXISTS idx_analytics_cache_judge_created
+      ON judge_analytics_cache(judge_id, created_at DESC);
+  END IF;
+END $$;
 
 COMMIT;
 

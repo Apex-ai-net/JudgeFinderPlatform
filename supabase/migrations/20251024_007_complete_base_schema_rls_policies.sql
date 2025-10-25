@@ -4,7 +4,7 @@
 -- Priority: P0 - CRITICAL SECURITY FIX
 -- Issue: 6 base schema tables missing explicit RLS policies
 -- Tables: users, attorneys, attorney_slots, bookmarks, search_history, subscriptions
--- Reference: SECURITY_AUDIT_REPORT.md
+-- Reference: docs/security/SECURITY_AUDIT_REPORT.md
 -- =====================================================
 
 BEGIN;
@@ -438,7 +438,7 @@ BEGIN
   - Public read (where appropriate for discovery)
 
   Next Steps:
-  1. Run verification queries from SECURITY_AUDIT_REPORT.md
+  1. Run verification queries from docs/security/SECURITY_AUDIT_REPORT.md
   2. Test user access patterns in staging
   3. Monitor for any access denied errors
   4. Check Supabase security advisors for warnings

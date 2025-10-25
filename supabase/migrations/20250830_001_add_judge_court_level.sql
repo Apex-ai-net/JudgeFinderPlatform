@@ -14,29 +14,34 @@ WHERE court_name ILIKE '%federal%'
 -- Create index for better query performance
 CREATE INDEX IF NOT EXISTS idx_judges_court_level ON judges(court_level);
 
--- Add court_level to ad_spots for easier pricing management
-ALTER TABLE ad_spots 
-ADD COLUMN IF NOT EXISTS court_level VARCHAR(20);
+-- Add court_level to ad_spots for easier pricing management (only if table exists)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ad_spots') THEN
+    ALTER TABLE ad_spots
+    ADD COLUMN IF NOT EXISTS court_level VARCHAR(20);
 
--- Update ad_spots based on judge court_level
-UPDATE ad_spots 
-SET court_level = j.court_level
-FROM judges j
-WHERE ad_spots.entity_type = 'judge' 
-  AND ad_spots.entity_id = j.id;
+    -- Update ad_spots based on judge court_level
+    UPDATE ad_spots
+    SET court_level = j.court_level
+    FROM judges j
+    WHERE ad_spots.entity_type = 'judge'
+      AND ad_spots.entity_id = j.id;
 
--- Update base prices based on court level
-UPDATE ad_spots 
-SET base_price_monthly = CASE 
-    WHEN court_level = 'federal' THEN 500.00
-    WHEN court_level = 'state' THEN 200.00
-    ELSE base_price_monthly
-END
-WHERE entity_type = 'judge';
+    -- Update base prices based on court level
+    UPDATE ad_spots
+    SET base_price_monthly = CASE
+        WHEN court_level = 'federal' THEN 500.00
+        WHEN court_level = 'state' THEN 200.00
+        ELSE base_price_monthly
+    END
+    WHERE entity_type = 'judge';
 
--- Add pricing_tier column for more flexible pricing options
-ALTER TABLE ad_spots 
-ADD COLUMN IF NOT EXISTS pricing_tier VARCHAR(50) DEFAULT 'standard';
+    -- Add pricing_tier column for more flexible pricing options
+    ALTER TABLE ad_spots
+    ADD COLUMN IF NOT EXISTS pricing_tier VARCHAR(50) DEFAULT 'standard';
+  END IF;
+END $$;
 
 -- Create a pricing_tiers table for centralized pricing management
 CREATE TABLE IF NOT EXISTS pricing_tiers (
@@ -64,11 +69,16 @@ VALUES
      '{"placement": "standard", "analytics": "detailed", "support": "email", "visibility": "standard"}'::jsonb)
 ON CONFLICT (tier_name) DO NOTHING;
 
--- Add column to track pricing tier in bookings
-ALTER TABLE ad_bookings 
-ADD COLUMN IF NOT EXISTS pricing_tier_id UUID REFERENCES pricing_tiers(id),
-ADD COLUMN IF NOT EXISTS is_annual BOOLEAN DEFAULT false,
-ADD COLUMN IF NOT EXISTS months_purchased INTEGER DEFAULT 1;
+-- Add column to track pricing tier in bookings (only if table exists)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ad_bookings') THEN
+    ALTER TABLE ad_bookings
+    ADD COLUMN IF NOT EXISTS pricing_tier_id UUID REFERENCES pricing_tiers(id),
+    ADD COLUMN IF NOT EXISTS is_annual BOOLEAN DEFAULT false,
+    ADD COLUMN IF NOT EXISTS months_purchased INTEGER DEFAULT 1;
+  END IF;
+END $$;
 
 -- Create function to calculate pricing based on tier and duration
 CREATE OR REPLACE FUNCTION calculate_ad_pricing(

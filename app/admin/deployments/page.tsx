@@ -85,19 +85,27 @@ export default function DeploymentsPage() {
 
   function getStatusColor(status: string): string {
     switch (status) {
-      case 'healthy': return 'text-green-600 bg-green-50'
-      case 'degraded': return 'text-yellow-600 bg-yellow-50'
-      case 'unhealthy': return 'text-red-600 bg-red-50'
-      default: return 'text-gray-600 bg-gray-50'
+      case 'healthy':
+        return 'text-green-600 bg-green-50'
+      case 'degraded':
+        return 'text-yellow-600 bg-yellow-50'
+      case 'unhealthy':
+        return 'text-red-600 bg-red-50'
+      default:
+        return 'text-gray-600 bg-gray-50'
     }
   }
 
   function getStatusIcon(status: string): string {
     switch (status) {
-      case 'healthy': return '✓'
-      case 'degraded': return '⚠'
-      case 'unhealthy': return '✗'
-      default: return '?'
+      case 'healthy':
+        return '✓'
+      case 'degraded':
+        return '⚠'
+      case 'unhealthy':
+        return '✗'
+      default:
+        return '?'
     }
   }
 
@@ -138,7 +146,9 @@ export default function DeploymentsPage() {
           <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-sm font-medium text-gray-500">Overall Status</h3>
-              <div className={`mt-2 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(healthStatus.status)}`}>
+              <div
+                className={`mt-2 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(healthStatus.status)}`}
+              >
                 <span className="mr-1">{getStatusIcon(healthStatus.status)}</span>
                 {healthStatus.status.toUpperCase()}
               </div>
@@ -146,18 +156,23 @@ export default function DeploymentsPage() {
 
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-sm font-medium text-gray-500">Environment</h3>
-              <p className="mt-2 text-2xl font-semibold text-gray-900">{healthStatus.environment}</p>
+              <p className="mt-2 text-2xl font-semibold text-gray-900">
+                {healthStatus.environment}
+              </p>
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-sm font-medium text-gray-500">Response Time</h3>
-              <p className="mt-2 text-2xl font-semibold text-gray-900">{healthStatus.performance.responseTime}ms</p>
+              <p className="mt-2 text-2xl font-semibold text-gray-900">
+                {healthStatus.performance.responseTime}ms
+              </p>
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-sm font-medium text-gray-500">Uptime</h3>
               <p className="mt-2 text-2xl font-semibold text-gray-900">
-                {Math.floor(healthStatus.uptime / 3600)}h {Math.floor((healthStatus.uptime % 3600) / 60)}m
+                {Math.floor(healthStatus.uptime / 3600)}h{' '}
+                {Math.floor((healthStatus.uptime % 3600) / 60)}m
               </p>
             </div>
           </div>
@@ -177,13 +192,19 @@ export default function DeploymentsPage() {
                       {key.replace(/_/g, ' ')}
                     </h3>
                     {key === 'database' && healthStatus.performance.databaseLatency && (
-                      <p className="text-sm text-gray-500">Latency: {healthStatus.performance.databaseLatency}ms</p>
+                      <p className="text-sm text-gray-500">
+                        Latency: {healthStatus.performance.databaseLatency}ms
+                      </p>
                     )}
                     {key === 'redis' && healthStatus.performance.redisLatency && (
-                      <p className="text-sm text-gray-500">Latency: {healthStatus.performance.redisLatency}ms</p>
+                      <p className="text-sm text-gray-500">
+                        Latency: {healthStatus.performance.redisLatency}ms
+                      </p>
                     )}
                   </div>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(status)}`}>
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(status)}`}
+                  >
                     {getStatusIcon(status)} {status}
                   </span>
                 </div>
@@ -204,20 +225,25 @@ export default function DeploymentsPage() {
                   <div className="flex justify-between mb-1">
                     <span className="text-sm font-medium text-gray-700">Memory Usage</span>
                     <span className="text-sm text-gray-500">
-                      {healthStatus.performance.memoryUsage.used}MB / {healthStatus.performance.memoryUsage.total}MB
+                      {healthStatus.performance.memoryUsage.used}MB /{' '}
+                      {healthStatus.performance.memoryUsage.total}MB
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className={`h-2 rounded-full ${
-                        healthStatus.performance.memoryUsage.percentage > 90 ? 'bg-red-600' :
-                        healthStatus.performance.memoryUsage.percentage > 70 ? 'bg-yellow-500' :
-                        'bg-green-600'
+                        healthStatus.performance.memoryUsage.percentage > 90
+                          ? 'bg-red-600'
+                          : healthStatus.performance.memoryUsage.percentage > 70
+                            ? 'bg-yellow-500'
+                            : 'bg-green-600'
                       }`}
                       style={{ width: `${healthStatus.performance.memoryUsage.percentage}%` }}
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">{healthStatus.performance.memoryUsage.percentage}%</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {healthStatus.performance.memoryUsage.percentage}%
+                  </p>
                 </div>
               </div>
             </div>
@@ -237,8 +263,10 @@ export default function DeploymentsPage() {
                     Configured ({envSummary.configured.length})
                   </h3>
                   <ul className="text-sm text-gray-600 space-y-1 max-h-40 overflow-y-auto">
-                    {envSummary.configured.slice(0, 10).map(key => (
-                      <li key={key} className="truncate" title={key}>✓ {key}</li>
+                    {envSummary.configured.slice(0, 10).map((key) => (
+                      <li key={key} className="truncate" title={key}>
+                        ✓ {key}
+                      </li>
                     ))}
                     {envSummary.configured.length > 10 && (
                       <li className="text-gray-400">+ {envSummary.configured.length - 10} more</li>
@@ -252,7 +280,7 @@ export default function DeploymentsPage() {
                       Missing ({envSummary.missing.length})
                     </h3>
                     <ul className="text-sm text-gray-600 space-y-1">
-                      {envSummary.missing.map(key => (
+                      {envSummary.missing.map((key) => (
                         <li key={key}>⚠ {key}</li>
                       ))}
                     </ul>
@@ -265,7 +293,7 @@ export default function DeploymentsPage() {
                       Invalid ({envSummary.invalid.length})
                     </h3>
                     <ul className="text-sm text-gray-600 space-y-1">
-                      {envSummary.invalid.map(key => (
+                      {envSummary.invalid.map((key) => (
                         <li key={key}>✗ {key}</li>
                       ))}
                     </ul>
@@ -341,7 +369,10 @@ export default function DeploymentsPage() {
         <div className="mt-6 text-center text-sm text-gray-500">
           <p>
             For deployment procedures, see{' '}
-            <a href="/docs/DEPLOYMENT_CHECKLIST.md" className="text-blue-600 hover:underline">
+            <a
+              href="/docs/deployment/DEPLOYMENT_CHECKLIST_BAR_VERIFICATION.md"
+              className="text-blue-600 hover:underline"
+            >
               Deployment Checklist
             </a>
           </p>

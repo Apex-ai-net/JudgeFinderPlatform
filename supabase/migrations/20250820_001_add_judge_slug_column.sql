@@ -10,8 +10,14 @@ ADD COLUMN IF NOT EXISTS slug VARCHAR(255);
 CREATE INDEX IF NOT EXISTS idx_judges_slug ON judges(slug) WHERE slug IS NOT NULL;
 
 -- Add unique constraint for slug (allow nulls for now during population)
-ALTER TABLE judges 
-ADD CONSTRAINT IF NOT EXISTS judges_slug_unique UNIQUE(slug) DEFERRABLE INITIALLY DEFERRED;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'judges_slug_unique'
+  ) THEN
+    ALTER TABLE judges ADD CONSTRAINT judges_slug_unique UNIQUE(slug) DEFERRABLE INITIALLY DEFERRED;
+  END IF;
+END $$;
 
 -- Function to generate slug from judge name
 CREATE OR REPLACE FUNCTION generate_judge_slug(judge_name TEXT)
