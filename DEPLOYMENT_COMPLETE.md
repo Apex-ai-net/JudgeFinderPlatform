@@ -65,7 +65,9 @@
 
 ## 📋 NEXT STEPS (CRITICAL - YOU MUST DO)
 
-### 1. **Apply Database Migrations** ⚠️ BEFORE CODE DEPLOYS
+### 1. **Apply Database Migrations** ⚠️ IN CORRECT ORDER
+
+**⚠️ IMPORTANT:** See [QUICK_FIX_MIGRATION.md](QUICK_FIX_MIGRATION.md) for the correct migration order!
 
 **Open Supabase Dashboard:**
 
@@ -73,7 +75,19 @@
 2. Select your JudgeFinder project
 3. Click "SQL Editor"
 
-**Apply Migration 1 - Bar Verifications Table:**
+**Apply Migrations in This Order:**
+
+**Step 1 - Base Schema (if not already applied):**
+
+```bash
+# Copy and paste from:
+supabase/migrations/00000000000000_base_schema_idempotent.sql
+```
+
+- Click "Run"
+- Expected: "Success" (may show "already exists" warnings - that's OK!)
+
+**Step 2 - Bar Verifications Table:**
 
 ```bash
 # Copy and paste from:
@@ -83,7 +97,7 @@ supabase/migrations/20251024_001_bar_verifications_table.sql
 - Click "Run"
 - Expected: "Success. No rows returned"
 
-**Apply Migration 2 - RLS Policies:**
+**Step 3 - RLS Policies (LAST):**
 
 ```bash
 # Copy and paste from:
@@ -97,31 +111,17 @@ supabase/migrations/20251024_complete_base_schema_rls_policies.sql
 
 ```sql
 SELECT COUNT(*) FROM pg_policies WHERE schemaname = 'public';
--- Should return > 100
+-- Should return > 30
 ```
 
-### 2. **Set Environment Variables** ⚠️ FOR EMAIL SYSTEM
+### 2. **SendGrid** ✅ ALREADY CONFIGURED
 
-**Netlify Dashboard:**
+**Good News:** SendGrid is already configured in your `.env.local`:
 
-1. Go to https://app.netlify.com
-2. Select JudgeFinder site
-3. Site Settings → Environment Variables
+- ✅ `SENDGRID_API_KEY` is set
+- ✅ `SENDGRID_FROM_EMAIL=billing@judgefinder.io` is set
 
-**Add These Variables:**
-
-```env
-SENDGRID_API_KEY=SG.your_key_here
-SENDGRID_FROM_EMAIL=billing@judgefinder.io
-```
-
-**Get SendGrid API Key:**
-
-- Sign up: https://signup.sendgrid.com (free tier: 100 emails/day)
-- Settings → API Keys → Create API Key
-- Permissions: "Full Access" or "Mail Send"
-- **COPY KEY IMMEDIATELY** (you won't see it again!)
-- Verify sender email: billing@judgefinder.io
+**No action needed!** Your email system will work with your existing configuration.
 
 ### 3. **Monitor Netlify Deployment**
 
