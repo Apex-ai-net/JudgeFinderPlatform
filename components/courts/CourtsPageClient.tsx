@@ -6,7 +6,6 @@ import { Sparkles, MapPin, Flag, Building2 } from 'lucide-react'
 import { CourtsSearch } from './CourtsSearch'
 import { CountiesTab } from './CountiesTab'
 import { CitiesTab } from './CitiesTab'
-import { CourtsDirectoryHeader } from './CourtsDirectoryHeader'
 import { CourtStatsRow } from './CourtStatsRow'
 
 interface Court {
@@ -33,9 +32,6 @@ export function CourtsPageClient({
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
-      {/* Hero Section */}
-      <CourtsDirectoryHeader />
-
       <motion.section
         className="px-4 py-16"
         initial={{ opacity: 0 }}
