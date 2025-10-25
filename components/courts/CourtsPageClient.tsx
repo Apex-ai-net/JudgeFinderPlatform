@@ -2,11 +2,9 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles, MapPin, Flag, Building2 } from 'lucide-react'
 import { CourtsSearch } from './CourtsSearch'
 import { CountiesTab } from './CountiesTab'
 import { CitiesTab } from './CitiesTab'
-import { CourtStatsRow } from './CourtStatsRow'
 
 interface Court {
   id: string
@@ -40,27 +38,6 @@ export function CourtsPageClient({
         transition={{ duration: 0.8 }}
       >
         <div className="mx-auto max-w-7xl">
-          {/* Stats Row */}
-          <CourtStatsRow
-            stats={[
-              { label: '58 Counties', value: 'California', icon: MapPin },
-              { label: '4 Federal Districts', value: 'Federal', icon: Flag },
-              { label: '5+ Court Types', value: 'All Levels', icon: Building2 },
-            ]}
-          />
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-8 text-center"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-4">
-              <Sparkles className="w-4 h-4" />
-              <span className="text-sm font-medium">Explore California's court network</span>
-            </div>
-          </motion.div>
-
           <div className="mb-6 flex items-center gap-2 justify-center">
             <button
               onClick={() => setActiveTab('courts')}
