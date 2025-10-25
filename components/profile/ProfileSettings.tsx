@@ -295,7 +295,11 @@ export function ProfileSettings({ user }: ProfileSettingsProps): JSX.Element {
             <div>
               <p className="text-white font-medium">Member Since</p>
               <p className="text-sm text-muted-foreground">
-                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                {user.createdAt
+                  ? new Date(
+                      typeof user.createdAt === 'string' ? user.createdAt : user.createdAt
+                    ).toLocaleDateString()
+                  : 'N/A'}
               </p>
             </div>
           </div>

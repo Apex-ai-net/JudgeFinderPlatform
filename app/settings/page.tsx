@@ -45,6 +45,18 @@ export default async function SettingsPage(): Promise<JSX.Element> {
       })
     }
 
+    // Serialize user object for client component (only include what's needed and ensure JSON-serializable)
+    const serializedUser = {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      emailAddresses: user.emailAddresses?.map((email) => ({
+        id: email.id,
+        emailAddress: email.emailAddress,
+      })),
+      createdAt: user.createdAt ? new Date(user.createdAt).toISOString() : null,
+    }
+
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
         <div className="container mx-auto px-4 py-8">
@@ -55,7 +67,7 @@ export default async function SettingsPage(): Promise<JSX.Element> {
             </p>
           </div>
 
-          <ProfileSettings user={user} />
+          <ProfileSettings user={serializedUser as any} />
         </div>
       </div>
     )
