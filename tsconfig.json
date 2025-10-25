@@ -31,6 +31,7 @@
     "vitest.config.ts",
     "tests",
     "e2e",
+    "scripts",
     "**/*.e2e.ts",
     "**/*.e2e.tsx",
     "**/*.test.ts",

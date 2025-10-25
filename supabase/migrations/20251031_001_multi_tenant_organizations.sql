@@ -212,36 +212,67 @@ CREATE TABLE IF NOT EXISTS organization_activity_log (
 );
 
 -- =====================================================
+-- 4.5: ADD MISSING COLUMNS TO EXISTING TABLES
+-- =====================================================
+
+-- Add missing columns to existing organizations table
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'organizations' AND column_name = 'deleted_at'
+  ) THEN
+    ALTER TABLE organizations ADD COLUMN deleted_at TIMESTAMPTZ;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'organizations' AND column_name = 'owner_id'
+  ) THEN
+    ALTER TABLE organizations ADD COLUMN owner_id TEXT;
+  END IF;
+END $$;
+
+-- =====================================================
 -- 5. INDEXES FOR PERFORMANCE
 -- =====================================================
 
 -- Organizations
-CREATE INDEX idx_organizations_owner ON organizations(owner_id) WHERE deleted_at IS NULL;
-CREATE INDEX idx_organizations_slug ON organizations(slug) WHERE deleted_at IS NULL;
-CREATE INDEX idx_organizations_status ON organizations(status) WHERE deleted_at IS NULL;
-CREATE INDEX idx_organizations_tier ON organizations(subscription_tier);
-CREATE INDEX idx_organizations_stripe_customer ON organizations(stripe_customer_id) WHERE stripe_customer_id IS NOT NULL;
-CREATE INDEX idx_organizations_created_at ON organizations(created_at DESC);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'organizations' AND column_name = 'deleted_at') THEN
+    CREATE INDEX IF NOT EXISTS idx_organizations_owner ON organizations(owner_id) WHERE deleted_at IS NULL;
+    CREATE INDEX IF NOT EXISTS idx_organizations_slug ON organizations(slug) WHERE deleted_at IS NULL;
+    CREATE INDEX IF NOT EXISTS idx_organizations_status ON organizations(status) WHERE deleted_at IS NULL;
+  ELSE
+    CREATE INDEX IF NOT EXISTS idx_organizations_owner ON organizations(owner_id);
+    CREATE INDEX IF NOT EXISTS idx_organizations_slug ON organizations(slug);
+    CREATE INDEX IF NOT EXISTS idx_organizations_status ON organizations(status);
+  END IF;
+END $$;
+CREATE INDEX IF NOT EXISTS idx_organizations_tier ON organizations(subscription_tier);
+CREATE INDEX IF NOT EXISTS idx_organizations_stripe_customer ON organizations(stripe_customer_id) WHERE stripe_customer_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_organizations_created_at ON organizations(created_at DESC);
 
 -- Organization Members
-CREATE INDEX idx_org_members_organization ON organization_members(organization_id);
-CREATE INDEX idx_org_members_user ON organization_members(user_id);
-CREATE INDEX idx_org_members_role ON organization_members(role);
-CREATE INDEX idx_org_members_org_role ON organization_members(organization_id, role);
-CREATE INDEX idx_org_members_last_active ON organization_members(last_active_at DESC);
+CREATE INDEX IF NOT EXISTS idx_org_members_organization ON organization_members(organization_id);
+CREATE INDEX IF NOT EXISTS idx_org_members_user ON organization_members(user_id);
+CREATE INDEX IF NOT EXISTS idx_org_members_role ON organization_members(role);
+CREATE INDEX IF NOT EXISTS idx_org_members_org_role ON organization_members(organization_id, role);
+CREATE INDEX IF NOT EXISTS idx_org_members_last_active ON organization_members(last_active_at DESC);
 
 -- Organization Invitations
-CREATE INDEX idx_org_invitations_organization ON organization_invitations(organization_id);
-CREATE INDEX idx_org_invitations_email ON organization_invitations(LOWER(email));
-CREATE INDEX idx_org_invitations_token ON organization_invitations(token) WHERE status = 'pending';
-CREATE INDEX idx_org_invitations_status ON organization_invitations(status);
-CREATE INDEX idx_org_invitations_expires ON organization_invitations(expires_at) WHERE status = 'pending';
+CREATE INDEX IF NOT EXISTS idx_org_invitations_organization ON organization_invitations(organization_id);
+CREATE INDEX IF NOT EXISTS idx_org_invitations_email ON organization_invitations(LOWER(email));
+CREATE INDEX IF NOT EXISTS idx_org_invitations_token ON organization_invitations(token) WHERE status = 'pending';
+CREATE INDEX IF NOT EXISTS idx_org_invitations_status ON organization_invitations(status);
+CREATE INDEX IF NOT EXISTS idx_org_invitations_expires ON organization_invitations(expires_at) WHERE status = 'pending';
 
 -- Organization Activity Log
-CREATE INDEX idx_org_activity_organization ON organization_activity_log(organization_id, created_at DESC);
-CREATE INDEX idx_org_activity_user ON organization_activity_log(user_id, created_at DESC);
-CREATE INDEX idx_org_activity_event_type ON organization_activity_log(event_type);
-CREATE INDEX idx_org_activity_category ON organization_activity_log(event_category, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_org_activity_organization ON organization_activity_log(organization_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_org_activity_user ON organization_activity_log(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_org_activity_event_type ON organization_activity_log(event_type);
+CREATE INDEX IF NOT EXISTS idx_org_activity_category ON organization_activity_log(event_category, created_at DESC);
 
 -- =====================================================
 -- 6. TRIGGERS FOR UPDATED_AT

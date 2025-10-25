@@ -40,12 +40,13 @@ CREATE POLICY "Service role has full access to ad_orders"
   USING (true)
   WITH CHECK (true);
 
--- Policy 2: Authenticated users can view their own orders (via Clerk user ID)
+-- Policy 2: Authenticated users can view their own orders (via auth.uid())
+-- Note: created_by is UUID type, so we use auth.uid() directly
 CREATE POLICY "Users can view their own ad orders via Clerk ID"
   ON public.ad_orders
   FOR SELECT
   TO authenticated
-  USING (created_by = public.requesting_user_id());
+  USING (created_by = auth.uid());
 
 -- Policy 3: Authenticated users can insert their own orders (webhook creates via service role)
 -- Note: Inserts are typically done by service role (webhook), so this is defensive
@@ -53,15 +54,15 @@ CREATE POLICY "Users can insert their own ad orders"
   ON public.ad_orders
   FOR INSERT
   TO authenticated
-  WITH CHECK (created_by = public.requesting_user_id());
+  WITH CHECK (created_by = auth.uid());
 
 -- Policy 4: Authenticated users can update their own orders
 CREATE POLICY "Users can update their own ad orders"
   ON public.ad_orders
   FOR UPDATE
   TO authenticated
-  USING (created_by = public.requesting_user_id())
-  WITH CHECK (created_by = public.requesting_user_id());
+  USING (created_by = auth.uid())
+  WITH CHECK (created_by = auth.uid());
 
 -- Step 4: Ensure RLS is enabled
 ALTER TABLE public.ad_orders ENABLE ROW LEVEL SECURITY;
