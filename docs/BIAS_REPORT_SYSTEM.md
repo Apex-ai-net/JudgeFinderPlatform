@@ -306,7 +306,7 @@ Potential improvements:
 
 - **API Reference**: [docs/API_REFERENCE.md](docs/API_REFERENCE.md)
 - **Specification**: [.cursor/rules/bias-analytics-algorithms.mdc](.cursor/rules/bias-analytics-algorithms.mdc)
-- **Main Codebase Docs**: [CLAUDE.md](CLAUDE.md)
+- **Main Codebase Docs**: [CLAUDE_CODE_GUIDE.md](ai/CLAUDE_CODE_GUIDE.md)
 - **Issues**: Report at [GitHub Issues](https://github.com/your-repo/issues)
 
 ---

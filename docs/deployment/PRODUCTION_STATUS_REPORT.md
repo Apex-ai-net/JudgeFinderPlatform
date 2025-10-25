@@ -12,6 +12,7 @@
 ### 1. Security Hardening ✅
 
 **Fixed Admin Endpoint Vulnerabilities**
+
 - ✅ Added authentication to `/api/admin/rate-limit` (GET/POST)
 - ✅ Added authentication to `/api/notifications/send` (POST)
 - ✅ Replaced incomplete TODO comments with full Clerk + admin verification
@@ -19,11 +20,13 @@
 - ✅ Used `resolveAdminStatus()` from lib/auth/is-admin for role verification
 
 **Commits**:
+
 - `83441bd` - feat(security): add admin authentication to protected endpoints
 
 ### 2. Production Deployment ✅
 
 **Successfully Deployed to Production**
+
 - ✅ Built production version (40+ pages, 102KB first load JS)
 - ✅ Pushed to GitHub triggering Netlify continuous deployment
 - ✅ Verified site live at https://judgefinder.io
@@ -32,6 +35,7 @@
 - ✅ CDN and edge functions configured
 
 **Deployment Details**:
+
 - Build Time: ~3-4 minutes
 - Pages Generated: 40+
 - First Load JS: 102KB
@@ -41,6 +45,7 @@
 ### 3. Database Health Verification ✅
 
 **Confirmed Healthy Production Database**
+
 - ✅ All Supabase services healthy (auth, db, realtime, rest, storage)
 - ✅ 1,903 judges in database
 - ✅ 442,691 cases indexed
@@ -49,6 +54,7 @@
 - ✅ Database connections stable
 
 **Database Stats**:
+
 - Total Judges: 1,903
 - Total Cases: 442,691
 - Judges with Cases: 1,605 (84%)
@@ -68,6 +74,7 @@
 PostgreSQL type mismatch in `search_judges_ranked` database function causes all search queries to fail with HTTP 500 errors.
 
 **Error**:
+
 ```
 Search error: {
   code: '42804',
@@ -77,11 +84,13 @@ Search error: {
 ```
 
 **Root Cause**:
+
 - Database column: `judges.profile_image_url` is `VARCHAR(500)`
 - Function returns: `profile_image_url TEXT` (column 7)
 - PostgreSQL enforces strict type matching between actual column and function return type
 
 **Impact**:
+
 - ❌ Homepage search broken
 - ❌ Advanced search broken
 - ❌ All search API endpoints return 500 errors
@@ -91,6 +100,7 @@ Search error: {
 
 **Solution Available**:
 Migration files created and committed:
+
 - `supabase/migrations/20251001_001_fix_profile_image_url_type.sql` (Option 1)
 - `supabase/migrations/20251001_002_fix_search_function_return_type.sql` (Option 2)
 - `scripts/apply-search-fix-migration.js` (automated helper)
@@ -102,6 +112,7 @@ Apply ONE of the migration files to production database via Supabase dashboard o
 
 **Estimated Fix Time**: 5 minutes
 **Commits**:
+
 - `e94ae5e` - fix(database): add migration to fix search function type mismatch
 - `10b9ae1` - docs(database): add critical search function fix documentation
 
@@ -115,11 +126,13 @@ Apply ONE of the migration files to production database via Supabase dashboard o
 **Priority**: Medium
 
 **Issue**:
+
 - 0 analytics profiles cached
 - All analytics must be generated on first request (slow)
 - Recommended to pre-generate analytics for judges with case data
 
 **Solution**:
+
 ```bash
 npm run analytics:generate
 ```
@@ -127,6 +140,7 @@ npm run analytics:generate
 **Estimated Time**: 13-14 minutes for 1,605 judges (with concurrency=2)
 
 **Impact**:
+
 - First analytics request per judge: 15-20 seconds
 - Subsequent requests: <100ms (cached)
 - User experience degraded until cache populated
@@ -137,40 +151,40 @@ npm run analytics:generate
 
 ### API Endpoints
 
-| Endpoint Group | Status | Notes |
-|---|---|---|
-| **Judge APIs** (25 endpoints) | 🟡 Partial | Search broken, list/profile working |
-| **Court APIs** (5 endpoints) | ✅ Working | All endpoints functional |
-| **Admin APIs** (6 endpoints) | ✅ Secured | Now requires authentication |
-| **Sync APIs** (12 endpoints) | ✅ Working | Data sync operational |
-| **Analytics APIs** (8 endpoints) | ✅ Working | Analytics generation functional |
-| **User/Auth APIs** (12 endpoints) | ✅ Working | Clerk integration active |
+| Endpoint Group                    | Status     | Notes                               |
+| --------------------------------- | ---------- | ----------------------------------- |
+| **Judge APIs** (25 endpoints)     | 🟡 Partial | Search broken, list/profile working |
+| **Court APIs** (5 endpoints)      | ✅ Working | All endpoints functional            |
+| **Admin APIs** (6 endpoints)      | ✅ Secured | Now requires authentication         |
+| **Sync APIs** (12 endpoints)      | ✅ Working | Data sync operational               |
+| **Analytics APIs** (8 endpoints)  | ✅ Working | Analytics generation functional     |
+| **User/Auth APIs** (12 endpoints) | ✅ Working | Clerk integration active            |
 
 ### Core Features
 
-| Feature | Status | Notes |
-|---|---|---|
-| **Judge Directory** | ✅ Working | List view functional |
-| **Judge Profiles** | ✅ Working | Individual profiles load |
-| **Judge Search** | ❌ Broken | Type mismatch error |
-| **Judge Comparison** | ✅ Working | Side-by-side comparison |
-| **Analytics Generation** | ✅ Working | AI bias analysis functional |
-| **Bias Analysis** | ✅ Working | Statistical calculations active |
-| **Court Directory** | ✅ Working | Court listing functional |
-| **Authentication** | ✅ Working | Clerk integration active |
-| **Admin Dashboard** | ✅ Secured | Now requires admin role |
+| Feature                  | Status     | Notes                           |
+| ------------------------ | ---------- | ------------------------------- |
+| **Judge Directory**      | ✅ Working | List view functional            |
+| **Judge Profiles**       | ✅ Working | Individual profiles load        |
+| **Judge Search**         | ❌ Broken  | Type mismatch error             |
+| **Judge Comparison**     | ✅ Working | Side-by-side comparison         |
+| **Analytics Generation** | ✅ Working | AI bias analysis functional     |
+| **Bias Analysis**        | ✅ Working | Statistical calculations active |
+| **Court Directory**      | ✅ Working | Court listing functional        |
+| **Authentication**       | ✅ Working | Clerk integration active        |
+| **Admin Dashboard**      | ✅ Secured | Now requires admin role         |
 
 ### External Services
 
-| Service | Status | Notes |
-|---|---|---|
-| **Clerk Auth** | ✅ Connected | Production keys configured |
-| **Supabase Database** | ✅ Healthy | All services operational |
-| **Upstash Redis** | ✅ Connected | Rate limiting active |
-| **Google AI (Gemini)** | ✅ Configured | Primary analytics engine |
-| **OpenAI (GPT-4o)** | ✅ Configured | Fallback analytics engine |
-| **Netlify CDN** | ✅ Active | Edge functions deployed |
-| **Sentry Monitoring** | ✅ Active | Error tracking enabled |
+| Service                | Status        | Notes                      |
+| ---------------------- | ------------- | -------------------------- |
+| **Clerk Auth**         | ✅ Connected  | Production keys configured |
+| **Supabase Database**  | ✅ Healthy    | All services operational   |
+| **Upstash Redis**      | ✅ Connected  | Rate limiting active       |
+| **Google AI (Gemini)** | ✅ Configured | Primary analytics engine   |
+| **OpenAI (GPT-4o)**    | ✅ Configured | Fallback analytics engine  |
+| **Netlify CDN**        | ✅ Active     | Edge functions deployed    |
+| **Sentry Monitoring**  | ✅ Active     | Error tracking enabled     |
 
 ---
 
@@ -202,24 +216,24 @@ npm run analytics:generate
 
 ### Current Measurements
 
-| Metric | Status | Target | Notes |
-|---|---|---|---|
-| **Homepage Load** | Unknown | <3s | Not yet measured |
-| **Judge Profile Load** | Unknown | <3s | Not yet measured |
-| **Search Response** | Broken | <1s | Needs database fix |
-| **Analytics Generation** | 15-20s | <5s | After caching: <100ms |
-| **API Rate Limiting** | ✅ Active | 20-60 req/min | Varies by endpoint |
-| **Build Time** | 3-4 min | <5 min | Netlify deployment |
+| Metric                   | Status    | Target        | Notes                 |
+| ------------------------ | --------- | ------------- | --------------------- |
+| **Homepage Load**        | Unknown   | <3s           | Not yet measured      |
+| **Judge Profile Load**   | Unknown   | <3s           | Not yet measured      |
+| **Search Response**      | Broken    | <1s           | Needs database fix    |
+| **Analytics Generation** | 15-20s    | <5s           | After caching: <100ms |
+| **API Rate Limiting**    | ✅ Active | 20-60 req/min | Varies by endpoint    |
+| **Build Time**           | 3-4 min   | <5 min        | Netlify deployment    |
 
 ### Database Performance
 
-| Query Type | Performance | Notes |
-|---|---|---|
-| Judge List | Fast (<200ms) | Indexed queries |
-| Judge Profile | Fast (<300ms) | Cached where possible |
-| Search Function | Broken | Awaiting fix |
-| Analytics Fetch | Fast (<100ms) | When cached |
-| Case Queries | Moderate (300-600ms) | Large table scans |
+| Query Type      | Performance          | Notes                 |
+| --------------- | -------------------- | --------------------- |
+| Judge List      | Fast (<200ms)        | Indexed queries       |
+| Judge Profile   | Fast (<300ms)        | Cached where possible |
+| Search Function | Broken               | Awaiting fix          |
+| Analytics Fetch | Fast (<100ms)        | When cached           |
+| Case Queries    | Moderate (300-600ms) | Large table scans     |
 
 ---
 
@@ -286,18 +300,21 @@ npm run analytics:generate
 ## 📞 Support & Resources
 
 ### Documentation
-- Platform Overview: `CLAUDE.md`
+
+- Platform Overview: `docs/ai/CLAUDE_CODE_GUIDE.md`
 - AI Automation: `agents.md`
 - Search Fix: `DATABASE_SEARCH_FIX_REQUIRED.md`
 - Migration Plans: `MIGRATION_*.md` files
 
 ### Monitoring Dashboards
+
 - Netlify: https://app.netlify.com/sites/olms-4375-tw501-x421
 - Supabase: https://supabase.com/dashboard/project/xstlnicbnzdxlgfiewmg
 - Sentry: (configured in production)
 - Clerk: https://dashboard.clerk.com
 
 ### Repository
+
 - GitHub: https://github.com/thefiredev-cloud/JudgeFinderPlatform
 - Branch: main
 - Latest Commits:

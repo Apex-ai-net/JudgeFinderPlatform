@@ -33,11 +33,13 @@ export class CourtSyncManager {
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
     if (!supabaseUrl || !serviceRoleKey) {
-      throw new Error('Supabase credentials missing: set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
+      throw new Error(
+        'Supabase credentials missing: set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY'
+      )
     }
 
     this.supabase = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false }
+      auth: { persistSession: false },
     })
     this.courtListener = new CourtListenerClient()
     this.courtListener.setMetricsReporter(async (name, value, meta) => {
@@ -49,7 +51,7 @@ export class CourtSyncManager {
           page_type: 'sync',
           metric_id: name,
           rating: 'needs-improvement',
-          metadata: meta || null
+          metadata: meta || null,
         })
       } catch (error) {
         logger.warn('Failed to track court sync metric', { metric: name, error })
@@ -69,7 +71,7 @@ export class CourtSyncManager {
       courtsUpdated: 0,
       courtsCreated: 0,
       errors: [],
-      duration: 0
+      duration: 0,
     }
 
     try {
@@ -87,7 +89,7 @@ export class CourtSyncManager {
       const batchSize = options.batchSize || 20
       for (let i = 0; i < courtListenerCourts.length; i += batchSize) {
         const batch = courtListenerCourts.slice(i, i + batchSize)
-        
+
         const batchResult = await this.processCourtsBatch(batch, options)
         result.courtsUpdated += batchResult.updated
         result.courtsCreated += batchResult.created
@@ -107,25 +109,24 @@ export class CourtSyncManager {
       // Log sync completion
       await this.logSyncCompletion('court', result)
 
-      logger.info('Court sync completed', { 
-        syncId: this.syncId, 
+      logger.info('Court sync completed', {
+        syncId: this.syncId,
         result: {
           ...result,
-          errors: result.errors.length
-        }
+          errors: result.errors.length,
+        },
       })
 
       return result
-
     } catch (error) {
       result.duration = Date.now() - startTime
       result.success = false
       result.errors.push(`Sync failed: ${error}`)
 
       logger.error('Court sync failed', { syncId: this.syncId, error })
-      
+
       await this.logSyncError('court', error as Error)
-      
+
       return result
     }
   }
@@ -133,7 +134,9 @@ export class CourtSyncManager {
   /**
    * Fetch courts from CourtListener API
    */
-  private async fetchCourtsFromCourtListener(options: CourtSyncOptions): Promise<CourtListenerCourt[]> {
+  private async fetchCourtsFromCourtListener(
+    options: CourtSyncOptions
+  ): Promise<CourtListenerCourt[]> {
     const collected: CourtListenerCourt[] = []
     let cursor: string | null = null
 
@@ -141,7 +144,7 @@ export class CourtSyncManager {
       do {
         const response = await this.courtListener.listCourts({
           cursorUrl: cursor,
-          ordering: '-date_modified'
+          ordering: '-date_modified',
         })
 
         const results = response.results || []
@@ -157,12 +160,7 @@ export class CourtSyncManager {
       let courts = collected
 
       if (options.jurisdiction) {
-        const matcher = options.jurisdiction.toUpperCase()
-        courts = courts.filter(court => (
-          court.jurisdiction?.toUpperCase() === matcher ||
-          court.full_name?.toUpperCase().includes(matcher) ||
-          court.name?.toUpperCase().includes(matcher)
-        ))
+        courts = this.filterCourtsByJurisdiction(courts, options.jurisdiction)
       }
 
       logger.info('Fetched courts from CourtListener', { count: courts.length })
@@ -177,12 +175,12 @@ export class CourtSyncManager {
           page_type: 'sync',
           metric_id: 'fetch_courts_failed',
           rating: 'poor',
-          metadata: { error: error instanceof Error ? error.message : String(error) }
+          metadata: { error: error instanceof Error ? error.message : String(error) },
         })
       } catch (metricError) {
         logger.warn('Failed to record failure metric', {
           context: 'fetch_courts_failed_metric',
-          error: metricError
+          error: metricError,
         })
       }
       throw error
@@ -190,10 +188,183 @@ export class CourtSyncManager {
   }
 
   /**
+   * Comprehensive California court filtering
+   * Ensures ALL California courts are captured including:
+   * - 58 county superior courts
+   * - 6 appellate districts
+   * - California Supreme Court
+   * - 4 federal district courts (C.D., N.D., S.D., E.D. Cal)
+   * - 9th Circuit Court of Appeals
+   */
+  private filterCourtsByJurisdiction(
+    courts: CourtListenerCourt[],
+    jurisdiction: string
+  ): CourtListenerCourt[] {
+    const matcher = jurisdiction.toUpperCase()
+
+    // For California, use comprehensive filtering
+    if (matcher === 'CA' || matcher === 'CALIFORNIA') {
+      return courts.filter((court) => this.isCaliforniaCourt(court))
+    }
+
+    // For other jurisdictions, use simple matching
+    return courts.filter(
+      (court) =>
+        court.jurisdiction?.toUpperCase() === matcher ||
+        court.full_name?.toUpperCase().includes(matcher) ||
+        court.name?.toUpperCase().includes(matcher)
+    )
+  }
+
+  /**
+   * Comprehensive check if a court is a California court
+   */
+  private isCaliforniaCourt(court: CourtListenerCourt): boolean {
+    const name = (court.name || '').toUpperCase()
+    const fullName = (court.full_name || '').toUpperCase()
+    const jurisdiction = (court.jurisdiction || '').toUpperCase()
+    const location = (court.location || '').toUpperCase()
+
+    // Check 1: Jurisdiction field indicates California
+    if (jurisdiction === 'CA' || jurisdiction.includes('CALIFORNIA')) {
+      return true
+    }
+
+    // Check 2: California state courts
+    const stateCourtPatterns = [
+      'CALIFORNIA SUPREME COURT',
+      'CALIFORNIA COURT OF APPEAL',
+      'CALIFORNIA SUPERIOR COURT',
+      'SUPERIOR COURT OF CALIFORNIA',
+      'CA COURT OF APPEAL',
+      'CA SUPERIOR COURT',
+    ]
+
+    if (
+      stateCourtPatterns.some((pattern) => name.includes(pattern) || fullName.includes(pattern))
+    ) {
+      return true
+    }
+
+    // Check 3: California county superior courts (58 counties)
+    const californiaCounties = [
+      'ALAMEDA',
+      'ALPINE',
+      'AMADOR',
+      'BUTTE',
+      'CALAVERAS',
+      'COLUSA',
+      'CONTRA COSTA',
+      'DEL NORTE',
+      'EL DORADO',
+      'FRESNO',
+      'GLENN',
+      'HUMBOLDT',
+      'IMPERIAL',
+      'INYO',
+      'KERN',
+      'KINGS',
+      'LAKE',
+      'LASSEN',
+      'LOS ANGELES',
+      'MADERA',
+      'MARIN',
+      'MARIPOSA',
+      'MENDOCINO',
+      'MERCED',
+      'MODOC',
+      'MONO',
+      'MONTEREY',
+      'NAPA',
+      'NEVADA',
+      'ORANGE',
+      'PLACER',
+      'PLUMAS',
+      'RIVERSIDE',
+      'SACRAMENTO',
+      'SAN BENITO',
+      'SAN BERNARDINO',
+      'SAN DIEGO',
+      'SAN FRANCISCO',
+      'SAN JOAQUIN',
+      'SAN LUIS OBISPO',
+      'SAN MATEO',
+      'SANTA BARBARA',
+      'SANTA CLARA',
+      'SANTA CRUZ',
+      'SHASTA',
+      'SIERRA',
+      'SISKIYOU',
+      'SOLANO',
+      'SONOMA',
+      'STANISLAUS',
+      'SUTTER',
+      'TEHAMA',
+      'TRINITY',
+      'TULARE',
+      'TUOLUMNE',
+      'VENTURA',
+      'YOLO',
+      'YUBA',
+    ]
+
+    if (
+      californiaCounties.some(
+        (county) =>
+          (name.includes(county) || fullName.includes(county)) &&
+          (name.includes('SUPERIOR') || fullName.includes('SUPERIOR'))
+      )
+    ) {
+      return true
+    }
+
+    // Check 4: Federal courts in California
+    const federalCaliforniaPatterns = [
+      'CENTRAL DISTRICT OF CALIFORNIA',
+      'NORTHERN DISTRICT OF CALIFORNIA',
+      'SOUTHERN DISTRICT OF CALIFORNIA',
+      'EASTERN DISTRICT OF CALIFORNIA',
+      'C.D. CAL',
+      'N.D. CAL',
+      'S.D. CAL',
+      'E.D. CAL',
+      'CDCAL',
+      'NDCAL',
+      'SDCAL',
+      'EDCAL',
+    ]
+
+    if (
+      federalCaliforniaPatterns.some(
+        (pattern) => name.includes(pattern) || fullName.includes(pattern)
+      )
+    ) {
+      return true
+    }
+
+    // Check 5: 9th Circuit (covers California)
+    if (
+      name.includes('NINTH CIRCUIT') ||
+      fullName.includes('NINTH CIRCUIT') ||
+      name.includes('9TH CIRCUIT') ||
+      fullName.includes('9TH CIRCUIT')
+    ) {
+      return true
+    }
+
+    // Check 6: Location-based filtering
+    if (location.includes('CALIFORNIA') || location.includes(', CA')) {
+      return true
+    }
+
+    return false
+  }
+
+  /**
    * Process a batch of courts
    */
   private async processCourtsBatch(
-    courts: CourtListenerCourt[], 
+    courts: CourtListenerCourt[],
     options: CourtSyncOptions
   ): Promise<{ updated: number; created: number; errors: string[] }> {
     let updated = 0
@@ -203,11 +374,12 @@ export class CourtSyncManager {
     for (const courtData of courts) {
       try {
         const existingCourt = await this.findExistingCourt(courtData)
-        
+
         if (existingCourt) {
           // Update existing court
-          const shouldUpdate = options.forceRefresh || await this.shouldUpdateCourt(existingCourt, courtData)
-          
+          const shouldUpdate =
+            options.forceRefresh || (await this.shouldUpdateCourt(existingCourt, courtData))
+
           if (shouldUpdate) {
             await this.updateCourt(existingCourt.id, courtData)
             updated++
@@ -269,11 +441,14 @@ export class CourtSyncManager {
   /**
    * Check if court needs updating
    */
-  private async shouldUpdateCourt(existingCourt: any, newData: CourtListenerCourt): Promise<boolean> {
+  private async shouldUpdateCourt(
+    existingCourt: any,
+    newData: CourtListenerCourt
+  ): Promise<boolean> {
     // Update if name changed or it's been more than 7 days
     const lastUpdate = new Date(existingCourt.updated_at)
     const daysSinceUpdate = (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24)
-    
+
     return (
       existingCourt.name !== newData.name ||
       existingCourt.courtlistener_id !== newData.id ||
@@ -295,7 +470,7 @@ export class CourtSyncManager {
         website: courtData.url,
         address: courtData.location || null,
         courthouse_metadata: metadata,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', courtId)
 
@@ -309,19 +484,17 @@ export class CourtSyncManager {
    */
   private async createCourt(courtData: CourtListenerCourt) {
     const metadata = this.buildCourthouseMetadata(courtData)
-    const { error } = await this.supabase
-      .from('courts')
-      .insert({
-        name: courtData.name || courtData.full_name,
-        type: this.determineCourtType(courtData),
-        jurisdiction: this.extractJurisdiction(courtData),
-        courtlistener_id: courtData.id,
-        website: courtData.url,
-        address: courtData.location || null,
-        courthouse_metadata: metadata,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
+    const { error } = await this.supabase.from('courts').insert({
+      name: courtData.name || courtData.full_name,
+      type: this.determineCourtType(courtData),
+      jurisdiction: this.extractJurisdiction(courtData),
+      courtlistener_id: courtData.id,
+      website: courtData.url,
+      address: courtData.location || null,
+      courthouse_metadata: metadata,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
 
     if (error) {
       throw new Error(`Failed to create court: ${error.message}`)
@@ -333,13 +506,13 @@ export class CourtSyncManager {
    */
   private extractJurisdiction(courtData: CourtListenerCourt): string {
     if (courtData.jurisdiction) return courtData.jurisdiction
-    
+
     const name = courtData.name || courtData.full_name || ''
-    
+
     // Extract state from court name
     if (name.includes('California') || name.includes('CA ')) return 'CA'
     if (name.includes('Federal') || name.includes('U.S.')) return 'US'
-    
+
     // Default to state jurisdiction
     return 'CA'
   }
@@ -349,14 +522,14 @@ export class CourtSyncManager {
    */
   private determineCourtType(courtData: CourtListenerCourt): string {
     const name = courtData.name || courtData.full_name || ''
-    
+
     if (name.includes('Federal') || name.includes('U.S.') || name.includes('Circuit')) {
       return 'federal'
     }
     if (name.includes('Superior') || name.includes('District') || name.includes('County')) {
       return 'state'
     }
-    
+
     return 'state' // Default
   }
 
@@ -371,13 +544,17 @@ export class CourtSyncManager {
       short_name: courtData.short_name || null,
       citation_string: courtData.citation_string || null,
       in_use: typeof courtData.in_use === 'boolean' ? courtData.in_use : null,
-      has_opinion_scraper: typeof courtData.has_opinion_scraper === 'boolean' ? courtData.has_opinion_scraper : null,
-      has_oral_argument_scraper: typeof courtData.has_oral_argument_scraper === 'boolean' ? courtData.has_oral_argument_scraper : null,
+      has_opinion_scraper:
+        typeof courtData.has_opinion_scraper === 'boolean' ? courtData.has_opinion_scraper : null,
+      has_oral_argument_scraper:
+        typeof courtData.has_oral_argument_scraper === 'boolean'
+          ? courtData.has_oral_argument_scraper
+          : null,
       position_count: courtData.position_count ?? null,
       established_date: courtData.start_date || courtData.date_created || null,
       retired_date: courtData.end_date || null,
       location: courtData.location || null,
-      raw: courtData
+      raw: courtData,
     }
   }
 
@@ -386,15 +563,13 @@ export class CourtSyncManager {
    */
   private async logSyncStart(syncType: string, options: any) {
     try {
-      await this.supabase
-        .from('sync_logs')
-        .insert({
-          sync_id: this.syncId,
-          sync_type: syncType,
-          status: 'started',
-          options: options,
-          started_at: new Date().toISOString()
-        })
+      await this.supabase.from('sync_logs').insert({
+        sync_id: this.syncId,
+        sync_type: syncType,
+        status: 'started',
+        options: options,
+        started_at: new Date().toISOString(),
+      })
     } catch (error) {
       logger.error('Failed to log sync start', { error })
     }
@@ -411,7 +586,7 @@ export class CourtSyncManager {
           status: result.success ? 'completed' : 'failed',
           result: result,
           completed_at: new Date().toISOString(),
-          duration_ms: result.duration
+          duration_ms: result.duration,
         })
         .eq('sync_id', this.syncId)
     } catch (error) {
@@ -429,7 +604,7 @@ export class CourtSyncManager {
         .update({
           status: 'failed',
           error_message: error.message,
-          completed_at: new Date().toISOString()
+          completed_at: new Date().toISOString(),
         })
         .eq('sync_id', this.syncId)
     } catch (logError) {

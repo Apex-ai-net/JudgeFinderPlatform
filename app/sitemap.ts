@@ -147,12 +147,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.55,
   }))
 
+  // Add attorney pages (by jurisdiction)
+  const attorneyEntries = Array.from(jurisdictionSet.entries()).map(([slug, updated]) => ({
+    url: `${siteUrl}/attorneys/${slug}`,
+    lastModified: updated,
+    changeFrequency: 'weekly' as const,
+    priority: 0.6,
+  }))
+
+  // Add case analytics pages (by jurisdiction)
+  const caseAnalyticsEntries = Array.from(jurisdictionSet.entries()).map(([slug, updated]) => ({
+    url: `${siteUrl}/case-analytics/${slug}`,
+    lastModified: updated,
+    changeFrequency: 'weekly' as const,
+    priority: 0.65,
+  }))
+
   // Combine all entries
   const allEntries = [
     ...getStaticPages(siteUrl),
     ...judgeEntries,
     ...courtEntries,
     ...jurisdictionEntries,
+    ...attorneyEntries,
+    ...caseAnalyticsEntries,
   ]
 
   // Validate sitemap doesn't exceed protocol limits
@@ -274,6 +292,33 @@ function getStaticPages(siteUrl: string): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.6,
+    },
+    // Attorney directory pages
+    {
+      url: `${siteUrl}/attorneys`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.65,
+    },
+    // Case analytics pages
+    {
+      url: `${siteUrl}/case-analytics`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    },
+    // Research tools pages
+    {
+      url: `${siteUrl}/legal-research-tools`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${siteUrl}/judicial-analytics`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.75,
     },
     // Help Center AEO hubs
     {

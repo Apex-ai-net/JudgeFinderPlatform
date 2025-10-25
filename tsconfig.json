@@ -36,6 +36,9 @@
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/*.spec.ts",
-    "**/*.spec.tsx"
+    "**/*.spec.tsx",
+    "**/*.example.ts",
+    "**/*.example.tsx",
+    "**/*.examples.tsx"
   ]
 }

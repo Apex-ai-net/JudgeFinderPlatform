@@ -52,7 +52,7 @@ export default function AdvertiserSidebar(): JSX.Element {
         </div>
 
         {/* Main Navigation */}
-        <nav className="flex-1 space-y-1 px-3 py-4">
+        <nav aria-label="Advertiser dashboard navigation" className="flex-1 space-y-1 px-3 py-4">
           {navigation.map((item) => {
             const isActive =
               pathname === item.href ||
@@ -79,7 +79,10 @@ export default function AdvertiserSidebar(): JSX.Element {
         </nav>
 
         {/* Bottom Navigation */}
-        <div className="border-t border-border/20 px-3 py-4">
+        <nav
+          aria-label="Account settings navigation"
+          className="border-t border-border/20 px-3 py-4"
+        >
           {bottomNav.map((item) => {
             const isActive = pathname === item.href
 
@@ -109,7 +112,7 @@ export default function AdvertiserSidebar(): JSX.Element {
               Sign Out
             </button>
           </SafeSignOutButton>
-        </div>
+        </nav>
 
         {/* User Info */}
         <div className="border-t border-border/20 px-6 py-4">

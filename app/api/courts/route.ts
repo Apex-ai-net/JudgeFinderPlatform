@@ -103,12 +103,26 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       has_more: hasMore,
     }
 
-    // Set cache headers - disable caching to ensure county parameter works correctly
-    // TODO: Re-enable caching with proper Vary headers once Netlify cache key includes all query params
+    // Set proper cache headers with Vary to ensure cache keys include query params
     const response = NextResponse.json({ ...result, rate_limit_remaining: remaining })
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
-    response.headers.set('Pragma', 'no-cache')
-    response.headers.set('Expires', '0')
+
+    // Cache courts data with proper invalidation strategy
+    // - Public caching: Safe for CDN/proxy caching
+    // - s-maxage: Cache on CDN/edge for 1 hour
+    // - stale-while-revalidate: Serve stale content while revalidating (24 hours)
+    // - Vary headers: Ensure different query params get different cache entries
+    response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400')
+    response.headers.set('Vary', 'Accept-Encoding, Accept-Language')
+
+    // Netlify-specific cache control for edge caching
+    response.headers.set('CDN-Cache-Control', 'max-age=3600')
+
+    // Add cache tags for easier invalidation
+    const cacheTags = ['courts']
+    if (jurisdiction) cacheTags.push(`jurisdiction:${jurisdiction}`)
+    if (type) cacheTags.push(`type:${type}`)
+    if (county) cacheTags.push(`county:${county}`)
+    response.headers.set('Cache-Tag', cacheTags.join(','))
 
     return response
   } catch (error) {

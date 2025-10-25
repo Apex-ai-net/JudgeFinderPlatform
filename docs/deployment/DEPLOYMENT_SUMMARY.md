@@ -226,7 +226,7 @@ Once the latest deployment completes:
 
 - **Fix Report:** [`FIXES_2025_10_06.md`](../releases/FIXES_2025_10_06.md)
 - **This Summary:** [`DEPLOYMENT_SUMMARY.md`](DEPLOYMENT_SUMMARY.md)
-- **Platform Docs:** [`CLAUDE.md`](../ai/CLAUDE.md)
+- **Platform Docs:** [`CLAUDE_CODE_GUIDE.md`](../ai/CLAUDE_CODE_GUIDE.md)
 
 ---
 

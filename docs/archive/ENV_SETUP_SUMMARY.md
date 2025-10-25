@@ -98,6 +98,7 @@ These variables have their full values and are ready to use:
 **Option B: Use Original Sources**
 
 Retrieve keys from their original providers:
+
 - **Clerk**: https://dashboard.clerk.com (API Keys section)
 - **Supabase**: https://app.supabase.com/project/xstlnicbnzdxlgfiewmg/settings/api
 - **OpenAI**: https://platform.openai.com/api-keys
@@ -133,21 +134,25 @@ The app should start at `http://localhost:3000`
 ## Helper Commands
 
 ### Check which values are still masked
+
 ```bash
 bash scripts/check-env-status.sh
 ```
 
 ### Re-fetch environment variables from Netlify
+
 ```bash
 bash scripts/fetch-netlify-env.sh
 ```
 
 ### Find masked values in .env.local
+
 ```bash
 grep '\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*' .env.local
 ```
 
 ### Verify critical variables are set
+
 ```bash
 grep -E '^(CLERK_SECRET_KEY|NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY|SUPABASE_SERVICE_ROLE_KEY)=' .env.local
 ```
@@ -166,14 +171,17 @@ grep -E '^(CLERK_SECRET_KEY|NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY|SUPABASE_SERVICE_R
 ## Files Created
 
 ### Configuration Files
+
 - `/Users/tanner-osterkamp/JudgeFinderPlatform/.env.local` - Your local environment file
 - `/Users/tanner-osterkamp/JudgeFinderPlatform/.env.local.backup.20251020_232023` - Backup
 
 ### Helper Scripts
+
 - `/Users/tanner-osterkamp/JudgeFinderPlatform/scripts/fetch-netlify-env.sh` - Re-fetch from Netlify
 - `/Users/tanner-osterkamp/JudgeFinderPlatform/scripts/check-env-status.sh` - Check status
 
 ### Documentation
+
 - `/Users/tanner-osterkamp/JudgeFinderPlatform/NETLIFY_ENV_SETUP_GUIDE.md` - Detailed guide
 - `/Users/tanner-osterkamp/JudgeFinderPlatform/ENV_SETUP_SUMMARY.md` - This file
 
@@ -182,18 +190,22 @@ grep -E '^(CLERK_SECRET_KEY|NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY|SUPABASE_SERVICE_R
 ## Troubleshooting
 
 ### "Authentication not configured" error
+
 - Ensure `CLERK_SECRET_KEY` is set (not masked)
 - Verify it starts with `sk_`
 
 ### "Missing judge data" error
+
 - Set `SUPABASE_SERVICE_ROLE_KEY`
 - Run `npm run sync:judges`
 
 ### Rate limiting issues
+
 - Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
 - App will degrade gracefully if Redis unavailable
 
 ### AI features not working
+
 - Set `OPENAI_API_KEY` or `GOOGLE_AI_API_KEY`
 - At least one is required for AI features
 
@@ -201,7 +213,7 @@ grep -E '^(CLERK_SECRET_KEY|NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY|SUPABASE_SERVICE_R
 
 ## Reference Documentation
 
-- **Project Documentation**: `/Users/tanner-osterkamp/JudgeFinderPlatform/CLAUDE.md`
+- **Project Documentation**: `/docs/ai/CLAUDE_CODE_GUIDE.md`
 - **Environment Variables Reference**: `/Users/tanner-osterkamp/JudgeFinderPlatform/.env.example`
 - **Netlify Setup Guide**: `/Users/tanner-osterkamp/JudgeFinderPlatform/NETLIFY_ENV_SETUP_GUIDE.md`
 

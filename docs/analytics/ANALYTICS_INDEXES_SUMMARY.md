@@ -319,7 +319,7 @@ ANALYZE cases;
 
 ## Context Used
 
-Information from CLAUDE.md:
+Information from CLAUDE_CODE_GUIDE.md:
 
 - Judicial Data Processing architecture
 - Bias pattern analysis implementation

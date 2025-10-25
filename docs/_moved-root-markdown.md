@@ -8,7 +8,7 @@ The following root-level Markdown files were moved into `docs/`:
   - `AI_SEARCH_INTEGRATION_REPORT.md` → `docs/ai/search/AI_SEARCH_INTEGRATION_REPORT.md`
   - `AGENTS.md` → `docs/ai/agents.md`
   - `AGENT_SWARM_SUMMARY.md` → `docs/ai/AGENT_SWARM_SUMMARY.md`
-  - `CLAUDE.md` → `docs/ai/CLAUDE.md`
+  - `CLAUDE_CODE_GUIDE.md` → `docs/ai/CLAUDE_CODE_GUIDE.md`
 
 - Analytics
   - `ANALYTICS_FLOW_DIAGRAM.md` → `docs/analytics/ANALYTICS_FLOW_DIAGRAM.md`
@@ -21,7 +21,7 @@ The following root-level Markdown files were moved into `docs/`:
   - `MIGRATION_STATUS_REPORT.md` → `docs/migrations/MIGRATION_STATUS_REPORT.md`
 
 - Deployment
-  - `DEPLOYMENT_CHECKLIST.md` → `docs/deployment/DEPLOYMENT_CHECKLIST.md`
+  - `DEPLOYMENT_CHECKLIST_BAR_VERIFICATION.md` → `docs/deployment/DEPLOYMENT_CHECKLIST_BAR_VERIFICATION.md`
   - `DEPLOYMENT_SUCCESS_SUMMARY.md` → `docs/deployment/DEPLOYMENT_SUCCESS_SUMMARY.md`
   - `NETLIFY_CONFIGURATION_SUMMARY.md` → `docs/deployment/netlify/NETLIFY_CONFIGURATION_SUMMARY.md`
   - `NETLIFY_ENV_FIX.md` → `docs/deployment/netlify/NETLIFY_ENV_FIX.md`

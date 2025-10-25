@@ -254,12 +254,44 @@ function calculateSpecializationScore(result: SearchResult, aiIntent?: SearchInt
 /**
  * Calculate recency score (0-1)
  * Higher scores for judges with recent data updates
- * Currently returns 0.5 as placeholder - can be enhanced with update_at field
+ *
+ * Scoring strategy:
+ * - Recently updated (< 30 days): 1.0
+ * - Updated within 90 days: 0.8
+ * - Updated within 180 days: 0.6
+ * - Updated within 365 days: 0.4
+ * - Older than 1 year: 0.2
+ * - No update timestamp: 0.5 (neutral)
  */
 function calculateRecencyScore(result: SearchResult): number {
-  // TODO: Implement when updated_at field is available
-  // For now, give all results neutral score
-  return 0.5
+  if (result.type !== 'judge') return 0.5
+
+  const judgeResult = result as JudgeSearchResult
+  const updatedAt = (judgeResult as any).updated_at
+
+  if (!updatedAt) {
+    // No update timestamp - give neutral score
+    return 0.5
+  }
+
+  try {
+    const updatedDate = new Date(updatedAt)
+    const now = new Date()
+    const daysSinceUpdate = (now.getTime() - updatedDate.getTime()) / (1000 * 60 * 60 * 24)
+
+    // Apply decay function with thresholds
+    if (daysSinceUpdate < 30) return 1.0
+    if (daysSinceUpdate < 90) return 0.8
+    if (daysSinceUpdate < 180) return 0.6
+    if (daysSinceUpdate < 365) return 0.4
+
+    // Older than 1 year - gradual decay to minimum of 0.2
+    const yearsOld = daysSinceUpdate / 365
+    return Math.max(0.2, 0.4 - yearsOld * 0.1)
+  } catch (error) {
+    // Invalid date format - return neutral score
+    return 0.5
+  }
 }
 
 /**

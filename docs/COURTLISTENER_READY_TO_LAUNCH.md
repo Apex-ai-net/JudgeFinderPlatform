@@ -9,17 +9,20 @@
 ## 📋 Quick Start (When Rate Limit Resets)
 
 ### 1️⃣ Check if rate limit has reset
+
 ```bash
 bash scripts/check-rate-limit.sh
 ```
 
 **Expected output:**
+
 ```
 ✅ API quota available!
 🚀 Ready to sync
 ```
 
 ### 2️⃣ Run test sync (10 judges)
+
 ```bash
 npx tsx scripts/sync-education-data.ts -- --limit=10
 ```
@@ -28,6 +31,7 @@ npx tsx scripts/sync-education-data.ts -- --limit=10
 **Expected result:** 8-10 judges updated with education data
 
 ### 3️⃣ If test succeeds, run full sync
+
 ```bash
 npx tsx scripts/sync-education-data.ts
 ```
@@ -41,18 +45,22 @@ npx tsx scripts/sync-education-data.ts
 ## 📊 What Was Accomplished
 
 ### ✅ Database Migration
+
 - Added `positions` JSONB column to `judges` table
 - Verified with `node scripts/check-migration-status.js`
 - Status: **Applied successfully**
 
 ### ✅ Code Implementation
+
 Created/enhanced:
+
 - [lib/courtlistener/education-sync.ts](../lib/courtlistener/education-sync.ts) - Core sync manager
 - [scripts/sync-education-data.ts](../scripts/sync-education-data.ts) - CLI tool
 - [lib/courtlistener/client.ts](../lib/courtlistener/client.ts) - Enhanced API client
 - [scripts/check-rate-limit.sh](../scripts/check-rate-limit.sh) - Rate limit checker
 
 ### ✅ Safety Features
+
 - Rate limiting: 1,440 req/hr (72% under 5,000/hr quota)
 - Batch processing: 10 judges per batch with 2s delays
 - Smart skipping: Only syncs judges missing education
@@ -60,6 +68,7 @@ Created/enhanced:
 - Progress logging: Detailed console output
 
 ### ✅ Testing
+
 - ✅ API authentication working
 - ✅ Database connectivity verified
 - ✅ Migration applied successfully
@@ -79,6 +88,7 @@ Missing Education:   1,649 (86.7%)
 ```
 
 **After sync:**
+
 ```
 With Education:      ~1,410 (74% estimated)
 Missing Education:     ~493 (26% - no data in CourtListener)
@@ -89,36 +99,43 @@ Missing Education:     ~493 (26% - no data in CourtListener)
 ## 🔧 Commands Reference
 
 ### Check rate limit status
+
 ```bash
 bash scripts/check-rate-limit.sh
 ```
 
 ### Test sync (10 judges)
+
 ```bash
 npx tsx scripts/sync-education-data.ts -- --limit=10
 ```
 
 ### Full sync (all missing education)
+
 ```bash
 npx tsx scripts/sync-education-data.ts
 ```
 
 ### Force sync all judges (even with existing data)
+
 ```bash
 npx tsx scripts/sync-education-data.ts -- --all
 ```
 
 ### Sync specific number of judges
+
 ```bash
 npx tsx scripts/sync-education-data.ts -- --limit=100
 ```
 
 ### Check if migration applied
+
 ```bash
 node scripts/check-migration-status.js
 ```
 
 ### Verify education sync results
+
 ```bash
 node scripts/final-cl-audit.js
 ```
@@ -128,6 +145,7 @@ node scripts/final-cl-audit.js
 ## ⏱️ Rate Limit Information
 
 ### Current Status
+
 - **Status:** 429 Too Many Requests
 - **Resets at:** 2025-10-23 01:39 UTC
 - **Time remaining:** ~56 minutes
@@ -135,6 +153,7 @@ node scripts/final-cl-audit.js
 - **Our usage:** 1,440 requests/hour (safe)
 
 ### What Happened
+
 The API quota was exhausted by earlier API calls. This is **normal** and **expected** when testing integrations. The sync script:
 
 1. ✅ Detected the 429 response
@@ -143,6 +162,7 @@ The API quota was exhausted by earlier API calls. This is **normal** and **expec
 4. ✅ Can be restarted after rate limit resets
 
 ### Rate Limit Headers
+
 ```http
 HTTP/2 429
 retry-after: 3369
@@ -153,6 +173,7 @@ retry-after: 3369
 ## 📈 Expected Sync Results
 
 ### Phase 1: Test Sync (10 judges)
+
 ```bash
 npx tsx scripts/sync-education-data.ts -- --limit=10
 ```
@@ -162,6 +183,7 @@ npx tsx scripts/sync-education-data.ts -- --limit=10
 **Updates:** 8-10 judges
 
 **Console output:**
+
 ```
 🎓 CourtListener Education Sync
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -190,6 +212,7 @@ Processing batch 1/1...
 ```
 
 ### Phase 2: Full Sync (1,649 judges)
+
 ```bash
 npx tsx scripts/sync-education-data.ts
 ```
@@ -206,16 +229,19 @@ npx tsx scripts/sync-education-data.ts
 Education data will be stored in the `judges.education` column as formatted text:
 
 ### Example 1: Multiple Degrees
+
 ```
 Harvard Law School (J.D., 1995); Yale University (B.A., 1992)
 ```
 
 ### Example 2: Single Degree
+
 ```
 Stanford Law School (J.D., 2001)
 ```
 
 ### Example 3: Multiple Schools, Same Degree Type
+
 ```
 University of California, Berkeley (J.D., 2005); UCLA (B.A., 2002); Santa Monica College (A.A., 2000)
 ```
@@ -225,9 +251,11 @@ University of California, Berkeley (J.D., 2005); UCLA (B.A., 2002); Santa Monica
 ## 🔄 Next Phases (After Education Sync)
 
 ### Phase 2: Political Affiliations
+
 Sync party affiliation data for all judges.
 
 **Command:**
+
 ```bash
 npx tsx scripts/sync-affiliations-data.ts
 ```
@@ -235,9 +263,11 @@ npx tsx scripts/sync-affiliations-data.ts
 **Expected:** Political party + appointment dates
 
 ### Phase 3: Position History
+
 Populate the `positions` JSONB field with career history.
 
 **Command:**
+
 ```bash
 npx tsx scripts/sync-positions-data.ts
 ```
@@ -245,17 +275,21 @@ npx tsx scripts/sync-positions-data.ts
 **Expected:** Court assignments, titles, tenure dates
 
 ### Phase 4: Bulk Bootstrap
+
 For new jurisdictions, use bulk CSV downloads.
 
 **Benefits:**
+
 - Faster than API (no rate limits)
 - Good for 10,000+ records
 - One-time import
 
 ### Phase 5: Admin Dashboard
+
 Web UI for monitoring and control.
 
 **Features:**
+
 - View quota usage
 - Monitor sync progress
 - Trigger manual syncs
@@ -266,12 +300,15 @@ Web UI for monitoring and control.
 ## 🐛 Troubleshooting
 
 ### If rate limit check shows 429
+
 **Wait for the retry-after time to pass:**
+
 ```bash
 bash scripts/check-rate-limit.sh
 ```
 
 **Output will show:**
+
 ```
 ⏸️  Rate limit hit!
 ⏱️  Retry after: 3369 seconds (~56 minutes)
@@ -279,19 +316,25 @@ bash scripts/check-rate-limit.sh
 ```
 
 ### If sync fails with import errors
+
 **Make sure you're using `tsx` not `ts-node`:**
+
 ```bash
 npx tsx scripts/sync-education-data.ts -- --limit=10
 ```
 
 ### If sync shows 0 judges to process
+
 **Check if education data already exists:**
+
 ```bash
 node scripts/final-cl-audit.js
 ```
 
 ### If you want to force re-sync
+
 **Use the --all flag:**
+
 ```bash
 npx tsx scripts/sync-education-data.ts -- --all
 ```
@@ -301,12 +344,14 @@ npx tsx scripts/sync-education-data.ts -- --all
 ## 📚 Documentation
 
 ### Quick Reference
+
 - [COURTLISTENER_SYNC_STATUS.md](./COURTLISTENER_SYNC_STATUS.md) - Detailed status report
-- [COURTLISTENER_QUICKSTART.md](../COURTLISTENER_QUICKSTART.md) - 3-step quick start
+- [COURTLISTENER_QUICKSTART.md](../integrations/courtlistener/COURTLISTENER_QUICKSTART.md) - 3-step quick start
 - [COURTLISTENER_ENHANCEMENT_COMPLETE.md](./COURTLISTENER_ENHANCEMENT_COMPLETE.md) - Full technical docs
 - [CA_JUDGES_DATABASE_STATUS.md](./CA_JUDGES_DATABASE_STATUS.md) - Database state
 
 ### Key Files
+
 - `lib/courtlistener/education-sync.ts` - Core sync logic
 - `lib/courtlistener/client.ts` - API client
 - `scripts/sync-education-data.ts` - CLI tool
@@ -333,22 +378,27 @@ npx tsx scripts/sync-education-data.ts -- --all
 ## 🚀 Launch Timeline
 
 ### Now (00:43 UTC)
+
 - ✅ All code ready
 - ⏸️ Waiting for rate limit reset
 
 ### 01:39 UTC (~56 minutes)
+
 - ✅ Rate limit resets
 - ▶️ Run: `bash scripts/check-rate-limit.sh`
 
 ### 01:40 UTC
+
 - ▶️ Run test sync: `npx tsx scripts/sync-education-data.ts -- --limit=10`
 - ⏱️ Duration: 1-2 minutes
 
 ### 01:45 UTC (if test successful)
+
 - ▶️ Run full sync: `npx tsx scripts/sync-education-data.ts`
 - ⏱️ Duration: ~70 minutes
 
 ### 02:55 UTC (estimated)
+
 - ✅ Full sync complete
 - 📊 Verify: `node scripts/final-cl-audit.js`
 - 🎉 Education coverage: 13.3% → ~74%
@@ -373,6 +423,7 @@ The sync will be considered successful when:
 **Everything is ready.** Just need to wait for the rate limit to reset at **01:39 UTC** (~56 minutes), then launch! 🚀
 
 Check status anytime with:
+
 ```bash
 bash scripts/check-rate-limit.sh
 ```

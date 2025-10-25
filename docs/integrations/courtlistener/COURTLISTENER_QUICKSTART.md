@@ -11,14 +11,17 @@
 Go to: https://supabase.com/dashboard/project/xstlnicbnzdxlgfiewmg/sql/new
 
 Paste and run:
+
 ```sql
 ALTER TABLE judges ADD COLUMN IF NOT EXISTS positions JSONB DEFAULT '[]'::jsonb;
 ```
 
 Verify:
+
 ```bash
 node scripts/check-migration-status.js
 ```
+
 Expected: `✅ positions column EXISTS`
 
 ---
@@ -40,11 +43,13 @@ npx tsx scripts/sync-education-data.ts
 ```
 
 **Safe Rate**:
+
 - 24 judges/min
 - 1,440/hr (well under 5,000/hr quota)
 - No risk of API ban
 
 **Expected Result**:
+
 - Before: 254 judges (13%) with education
 - After: 1,400+ judges (74%) with education
 - Gain: +1,146 judges
@@ -58,6 +63,7 @@ node scripts/final-cl-audit.js
 ```
 
 Look for:
+
 ```
 With Education: 1400+ (74%+)
 ```
@@ -88,6 +94,7 @@ With Education: 1400+ (74%+)
 ## 🎯 What's Next?
 
 After education sync completes, you can add:
+
 - **Political affiliations** (party, dates)
 - **Position history** (career, appointments)
 - **Bulk bootstrap** (for non-CA expansion)

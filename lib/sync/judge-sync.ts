@@ -505,9 +505,10 @@ export class JudgeSyncManager {
     courtlistenerJudgeId: string,
     options: JudgeSyncOptions
   ): Promise<{ updated: boolean; created: boolean; retired: boolean; enhanced: boolean }> {
+    let judgeData: any = null
     try {
       // Fetch judge data from CourtListener
-      const judgeData = await this.fetchJudgeFromCourtListener(courtlistenerJudgeId)
+      judgeData = await this.fetchJudgeFromCourtListener(courtlistenerJudgeId)
 
       if (!judgeData) {
         throw new Error(`Judge not found: ${courtlistenerJudgeId}`)
@@ -524,6 +525,12 @@ export class JudgeSyncManager {
         const retired = await this.detectAndMarkRetirement(existingJudge, judgeData)
 
         const enhanced = await this.enhanceJudgeProfile(existingJudge.id, judgeData)
+
+        // Update sync progress - basic info synced
+        await this.updateSyncProgress(existingJudge.id, {
+          has_positions: judgeData.positions && judgeData.positions.length > 0,
+        })
+
         return { updated, created: false, retired, enhanced }
       } else {
         // Create new judge
@@ -534,11 +541,121 @@ export class JudgeSyncManager {
         const judgeId = await this.createJudge(judgeData)
         const enhanced = await this.enhanceJudgeProfile(judgeId, judgeData)
         this.createdCount++
+
+        // Initialize sync progress for new judge
+        await this.initializeSyncProgress(judgeId, judgeData)
+
         return { updated: false, created: true, retired: false, enhanced }
       }
     } catch (error) {
       logger.error('Failed to sync single judge', { judgeId: courtlistenerJudgeId, error })
+
+      // Try to record error in sync progress if we have a judge ID
+      try {
+        const existingJudge = await this.findExistingJudge(judgeData)
+        if (existingJudge) {
+          await this.recordSyncError(existingJudge.id, error as Error)
+        }
+      } catch (progressError) {
+        // Ignore progress tracking errors
+      }
+
       throw error
+    }
+  }
+
+  /**
+   * Initialize sync progress for a newly created judge
+   */
+  private async initializeSyncProgress(judgeId: string, judgeData: CourtListenerJudge) {
+    try {
+      await this.supabase.from('sync_progress').upsert(
+        {
+          judge_id: judgeId,
+          has_positions: judgeData.positions && judgeData.positions.length > 0,
+          has_education: false,
+          has_political_affiliations: false,
+          opinions_count: 0,
+          dockets_count: 0,
+          total_cases_count: 0,
+          sync_phase: 'discovery',
+          last_synced_at: new Date().toISOString(),
+        },
+        { onConflict: 'judge_id' }
+      )
+    } catch (error) {
+      logger.warn('Failed to initialize sync progress', { judgeId, error })
+    }
+  }
+
+  /**
+   * Update sync progress for a judge
+   */
+  private async updateSyncProgress(
+    judgeId: string,
+    updates: {
+      has_positions?: boolean
+      has_education?: boolean
+      has_political_affiliations?: boolean
+      opinions_count?: number
+      dockets_count?: number
+      total_cases_count?: number
+    }
+  ) {
+    try {
+      const updateData: any = {
+        judge_id: judgeId,
+        last_synced_at: new Date().toISOString(),
+        ...updates,
+      }
+
+      if (updates.has_positions !== undefined) {
+        updateData.positions_synced_at = new Date().toISOString()
+      }
+      if (updates.has_education !== undefined) {
+        updateData.education_synced_at = new Date().toISOString()
+      }
+      if (updates.has_political_affiliations !== undefined) {
+        updateData.political_affiliations_synced_at = new Date().toISOString()
+      }
+      if (updates.opinions_count !== undefined) {
+        updateData.opinions_synced_at = new Date().toISOString()
+      }
+      if (updates.dockets_count !== undefined) {
+        updateData.dockets_synced_at = new Date().toISOString()
+      }
+
+      await this.supabase.from('sync_progress').upsert(updateData, { onConflict: 'judge_id' })
+    } catch (error) {
+      logger.warn('Failed to update sync progress', { judgeId, error })
+    }
+  }
+
+  /**
+   * Record sync error in progress tracking
+   */
+  private async recordSyncError(judgeId: string, error: Error) {
+    try {
+      const { data: existing } = await this.supabase
+        .from('sync_progress')
+        .select('error_count')
+        .eq('judge_id', judgeId)
+        .single()
+
+      const errorCount = (existing?.error_count || 0) + 1
+
+      await this.supabase.from('sync_progress').upsert(
+        {
+          judge_id: judgeId,
+          error_count: errorCount,
+          last_error: error.message,
+          last_error_at: new Date().toISOString(),
+          last_synced_at: new Date().toISOString(),
+        },
+        { onConflict: 'judge_id' }
+      )
+    } catch (progressError) {
+      // Ignore errors when recording errors
     }
   }
 

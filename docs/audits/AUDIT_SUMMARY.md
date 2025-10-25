@@ -15,6 +15,7 @@ JudgeFinder's CourtListener API integration has been comprehensively audited aga
 **Overall Grade**: **B+ (85/100)**
 
 ### Quick Stats
+
 - **Files Audited**: 47
 - **API Endpoints Used**: 7 primary endpoints
 - **Tests Created**: 550+ test cases
@@ -28,9 +29,11 @@ JudgeFinder's CourtListener API integration has been comprehensively audited aga
 ### 🔴 CRITICAL (Must Fix Before Production)
 
 #### 1. Missing Global Rate Limit Tracking
+
 **Risk**: HIGH - Could exceed CourtListener's 5,000 req/hour limit
 
 **Current State**:
+
 - Per-request delays implemented (1000ms)
 - Exponential backoff working correctly
 - Circuit breaker pattern active
@@ -40,6 +43,7 @@ JudgeFinder's CourtListener API integration has been comprehensively audited aga
 Multiple sync jobs running concurrently could collectively exceed the rate limit without any single job detecting it.
 
 **Impact**:
+
 - Temporary API access suspension
 - Failed sync operations
 - Data inconsistency
@@ -51,21 +55,25 @@ Multiple sync jobs running concurrently could collectively exceed the rate limit
 ---
 
 #### 2. Unverified Webhook Signature Implementation
+
 **Risk**: HIGH - Security vulnerability, data integrity risk
 
 **Current State**:
+
 - HMAC-SHA256 signature verification implemented
 - Timing-safe comparison used
 - ❌ **No documentation confirming CourtListener's signature format**
 
 **Problem**:
 The webhook signature verification code is based on assumptions. Without official documentation from CourtListener, we cannot confirm:
+
 - Correct signature algorithm
 - Correct header name
 - Timestamp inclusion in signature
 - Signature prefix format
 
 **Impact**:
+
 - Webhooks may fail silently
 - Potential security vulnerability if verification is incorrect
 - Could accept invalid webhooks
@@ -79,6 +87,7 @@ The webhook signature verification code is based on assumptions. Without officia
 ### ⚠️ HIGH PRIORITY (Fix Within 2 Weeks)
 
 #### 3. No Idempotency Tracking for Webhooks
+
 **Risk**: MEDIUM - Duplicate data processing
 
 **Problem**: Webhook processing doesn't track processed webhook IDs, potentially processing the same webhook multiple times if retried.
@@ -90,6 +99,7 @@ The webhook signature verification code is based on assumptions. Without officia
 ---
 
 #### 4. Rate Limit Headers Not Monitored
+
 **Risk**: MEDIUM - No proactive rate limit management
 
 **Problem**: CourtListener returns `X-RateLimit-Remaining` headers but client doesn't read them.
@@ -101,6 +111,7 @@ The webhook signature verification code is based on assumptions. Without officia
 ---
 
 #### 5. No Field Selection (Large Payloads)
+
 **Risk**: LOW - Unnecessary bandwidth usage
 
 **Problem**: Fetching all fields when only a subset is needed (50-70% larger payloads).
@@ -114,7 +125,9 @@ The webhook signature verification code is based on assumptions. Without officia
 ## What Was Audited
 
 ### 1. Code Review
+
 ✅ **47 files analyzed** including:
+
 - Primary API client (`lib/courtlistener/client.ts`)
 - Sync managers (judge, court, decision)
 - Webhook handler
@@ -122,7 +135,9 @@ The webhook signature verification code is based on assumptions. Without officia
 - Helper functions and utilities
 
 ### 2. API Compliance
+
 ✅ **Verified against CourtListener API v4 specification**:
+
 - Endpoint URLs and paths
 - Query parameters
 - Authentication headers
@@ -131,7 +146,9 @@ The webhook signature verification code is based on assumptions. Without officia
 - Pagination methods
 
 ### 3. Rate Limiting
+
 ✅ **Analyzed rate limit compliance**:
+
 - Request delays (1000ms default)
 - Exponential backoff with jitter
 - Circuit breaker pattern
@@ -139,7 +156,9 @@ The webhook signature verification code is based on assumptions. Without officia
 - `Retry-After` header respect
 
 ### 4. Error Handling
+
 ✅ **Tested error scenarios**:
+
 - 429 (Rate Limit) handling
 - 5xx (Server Error) retries
 - 404 (Not Found) handling
@@ -147,7 +166,9 @@ The webhook signature verification code is based on assumptions. Without officia
 - Circuit breaker triggers
 
 ### 5. Security
+
 ✅ **Security audit**:
+
 - Authentication token handling
 - Webhook signature verification
 - Timing-safe comparisons
@@ -158,35 +179,41 @@ The webhook signature verification code is based on assumptions. Without officia
 ## Strengths of Current Implementation
 
 ### ✅ Excellent Error Handling
+
 - Comprehensive try-catch blocks
 - Proper error propagation
 - Detailed error logging
 - Graceful degradation
 
 ### ✅ Robust Retry Logic
+
 - Exponential backoff with jitter
 - Configurable retry attempts (max 5)
 - Respects `Retry-After` headers
 - Different strategies for 429 vs 5xx
 
 ### ✅ Circuit Breaker Pattern
+
 - Opens after 5 consecutive failures
 - 60-second cooldown period
 - Prevents cascading failures
 - Automatic reset on success
 
 ### ✅ Request Delay Enforcement
+
 - 1000ms delay between requests (default)
 - Configurable via environment variable
 - Consistently applied across all endpoints
 
 ### ✅ Proper Authentication
+
 - Correct `Token` prefix format
 - Secure environment variable storage
 - No hardcoded credentials
 - Custom User-Agent header
 
 ### ✅ Timeout Protection
+
 - 30-second timeout (default)
 - AbortController implementation
 - Proper cleanup on completion
@@ -196,11 +223,13 @@ The webhook signature verification code is based on assumptions. Without officia
 ## Test Suite Deliverables
 
 ### 1. Unit Tests (Vitest)
+
 **File**: `tests/api/courtlistener/client.test.ts`
 **Lines**: 550+
 **Coverage**: 95%
 
 **Test Categories**:
+
 - ✅ Authentication (3 tests)
 - ✅ Rate Limiting (4 tests)
 - ✅ Error Handling (8 tests)
@@ -212,6 +241,7 @@ The webhook signature verification code is based on assumptions. Without officia
 - ✅ Helper Functions (2 tests)
 
 **Usage**:
+
 ```bash
 npm run test:courtlistener
 npm run test:courtlistener:coverage
@@ -221,11 +251,13 @@ npm run test:courtlistener:watch
 ---
 
 ### 2. Postman Collection
+
 **File**: `tests/api/courtlistener/postman-collection.json`
 **Requests**: 30+
 **Format**: Postman Collection v2.1
 
 **Test Folders**:
+
 1. Authentication Tests (3)
 2. Judge/People Endpoints (4)
 3. Opinion Endpoints (3)
@@ -237,6 +269,7 @@ npm run test:courtlistener:watch
 9. Error Handling Tests (2)
 
 **Usage**:
+
 ```bash
 # Import to Postman GUI or run with Newman
 newman run tests/api/courtlistener/postman-collection.json \
@@ -246,11 +279,13 @@ newman run tests/api/courtlistener/postman-collection.json \
 ---
 
 ### 3. REST Client Tests
+
 **File**: `tests/api/courtlistener/rest-client.http`
 **Requests**: 60+
 **Format**: HTTP file for VS Code REST Client
 
 **Test Sections**:
+
 - Authentication Tests (3)
 - Judge/People Endpoints (7)
 - Opinion Endpoints (5)
@@ -272,7 +307,9 @@ newman run tests/api/courtlistener/postman-collection.json \
 ---
 
 ### 4. Comprehensive Documentation
+
 **Files Created**:
+
 1. `COURTLISTENER_API_AUDIT.md` (18,000+ words)
    - Detailed audit findings
    - Code-level recommendations
@@ -298,43 +335,44 @@ newman run tests/api/courtlistener/postman-collection.json \
 
 ### Immediate (Before Production - Week 1)
 
-| Priority | Action | Effort | Files |
-|----------|--------|--------|-------|
-| 🔴 CRITICAL | Implement global rate limiter | 6 hours | `lib/courtlistener/rate-limiter.ts` (new), `lib/courtlistener/client.ts` |
-| 🔴 CRITICAL | Verify webhook signature format | 3 hours | `app/api/webhooks/courtlistener/route.ts` |
-| ⚠️ HIGH | Add rate limit header monitoring | 3 hours | `lib/courtlistener/client.ts` |
-| ⚠️ HIGH | Implement webhook idempotency | 3 hours | Database migration + `app/api/webhooks/courtlistener/route.ts` |
-| **TOTAL** | **Week 1 Fixes** | **15 hours** | **4 files** |
+| Priority    | Action                           | Effort       | Files                                                                    |
+| ----------- | -------------------------------- | ------------ | ------------------------------------------------------------------------ |
+| 🔴 CRITICAL | Implement global rate limiter    | 6 hours      | `lib/courtlistener/rate-limiter.ts` (new), `lib/courtlistener/client.ts` |
+| 🔴 CRITICAL | Verify webhook signature format  | 3 hours      | `app/api/webhooks/courtlistener/route.ts`                                |
+| ⚠️ HIGH     | Add rate limit header monitoring | 3 hours      | `lib/courtlistener/client.ts`                                            |
+| ⚠️ HIGH     | Implement webhook idempotency    | 3 hours      | Database migration + `app/api/webhooks/courtlistener/route.ts`           |
+| **TOTAL**   | **Week 1 Fixes**                 | **15 hours** | **4 files**                                                              |
 
 ---
 
 ### Short-term (Month 1)
 
-| Priority | Action | Effort | Files |
-|----------|--------|--------|-------|
-| ⚠️ HIGH | Add field selection to API calls | 4 hours | `lib/courtlistener/client.ts`, sync managers |
-| 🟡 MEDIUM | Implement ETag caching | 4 hours | `lib/courtlistener/client.ts` |
-| 🟡 MEDIUM | Add comprehensive logging | 3 hours | `lib/courtlistener/client.ts` |
-| 🟡 MEDIUM | Create custom error classes | 3 hours | `lib/courtlistener/errors.ts` (new) |
-| **TOTAL** | **Month 1 Improvements** | **14 hours** | **5 files** |
+| Priority  | Action                           | Effort       | Files                                        |
+| --------- | -------------------------------- | ------------ | -------------------------------------------- |
+| ⚠️ HIGH   | Add field selection to API calls | 4 hours      | `lib/courtlistener/client.ts`, sync managers |
+| 🟡 MEDIUM | Implement ETag caching           | 4 hours      | `lib/courtlistener/client.ts`                |
+| 🟡 MEDIUM | Add comprehensive logging        | 3 hours      | `lib/courtlistener/client.ts`                |
+| 🟡 MEDIUM | Create custom error classes      | 3 hours      | `lib/courtlistener/errors.ts` (new)          |
+| **TOTAL** | **Month 1 Improvements**         | **14 hours** | **5 files**                                  |
 
 ---
 
 ### Long-term (Quarter 1)
 
-| Priority | Action | Effort | Files |
-|----------|--------|--------|-------|
-| 🟢 LOW | Add detailed metrics | 4 hours | Multiple |
-| 🟢 LOW | Optimize with parallel processing | 6 hours | `lib/sync/batch-processor.ts` (new) |
-| 🟢 LOW | Retry budget limiting | 2 hours | `lib/courtlistener/client.ts` |
-| 🟢 LOW | Webhook replay capability | 3 hours | Database + admin UI |
-| **TOTAL** | **Q1 Enhancements** | **15 hours** | **4+ files** |
+| Priority  | Action                            | Effort       | Files                               |
+| --------- | --------------------------------- | ------------ | ----------------------------------- |
+| 🟢 LOW    | Add detailed metrics              | 4 hours      | Multiple                            |
+| 🟢 LOW    | Optimize with parallel processing | 6 hours      | `lib/sync/batch-processor.ts` (new) |
+| 🟢 LOW    | Retry budget limiting             | 2 hours      | `lib/courtlistener/client.ts`       |
+| 🟢 LOW    | Webhook replay capability         | 3 hours      | Database + admin UI                 |
+| **TOTAL** | **Q1 Enhancements**               | **15 hours** | **4+ files**                        |
 
 ---
 
 ## Production Readiness Checklist
 
 ### Must Have ✅
+
 - [ ] Global rate limit tracking implemented
 - [ ] Webhook signature verification confirmed with CourtListener
 - [ ] Rate limit headers monitored and logged
@@ -344,6 +382,7 @@ newman run tests/api/courtlistener/postman-collection.json \
 - [ ] Incident runbook created
 
 ### Should Have 🔶
+
 - [ ] Field selection implemented
 - [ ] ETag caching enabled
 - [ ] Comprehensive logging active
@@ -352,6 +391,7 @@ newman run tests/api/courtlistener/postman-collection.json \
 - [ ] Sentry error tracking configured
 
 ### Nice to Have 🟢
+
 - [ ] Detailed metrics collection
 - [ ] Parallel processing optimization
 - [ ] Retry budget limiting
@@ -363,31 +403,34 @@ newman run tests/api/courtlistener/postman-collection.json \
 
 ## Risk Assessment
 
-| Risk | Severity | Likelihood | Mitigation Status |
-|------|----------|-----------|-------------------|
-| Rate limit violation | 🔴 High | 🟡 Medium | ⏳ Fix pending (#1.1) |
-| Webhook signature failure | 🔴 Critical | 🔴 High | ⏳ Verification needed (#1.3) |
-| Duplicate webhook processing | 🟡 Medium | 🟡 Medium | ⏳ Fix pending (#2.1) |
-| API version deprecation | 🟡 Medium | 🟢 Low | ✅ Monitoring recommended |
-| Circuit breaker stuck | 🟢 Low | 🟢 Low | ✅ Manual reset available |
-| Network partition | 🟡 Medium | 🟢 Low | ✅ Retry logic sufficient |
-| API key exposure | 🔴 Critical | 🟢 Low | ✅ Proper env var usage |
+| Risk                         | Severity    | Likelihood | Mitigation Status             |
+| ---------------------------- | ----------- | ---------- | ----------------------------- |
+| Rate limit violation         | 🔴 High     | 🟡 Medium  | ⏳ Fix pending (#1.1)         |
+| Webhook signature failure    | 🔴 Critical | 🔴 High    | ⏳ Verification needed (#1.3) |
+| Duplicate webhook processing | 🟡 Medium   | 🟡 Medium  | ⏳ Fix pending (#2.1)         |
+| API version deprecation      | 🟡 Medium   | 🟢 Low     | ✅ Monitoring recommended     |
+| Circuit breaker stuck        | 🟢 Low      | 🟢 Low     | ✅ Manual reset available     |
+| Network partition            | 🟡 Medium   | 🟢 Low     | ✅ Retry logic sufficient     |
+| API key exposure             | 🔴 Critical | 🟢 Low     | ✅ Proper env var usage       |
 
 ---
 
 ## Cost Analysis
 
 ### Current API Usage
+
 - **Request Delay**: 1000ms (3,600 req/hour max per process)
 - **Rate Limit**: 5,000 req/hour (CourtListener authenticated limit)
 - **Headroom**: ~28% unused capacity per process
 
 ### Optimization Potential
+
 - **Field Selection**: 50-70% bandwidth reduction
 - **ETag Caching**: 30-50% request reduction for unchanged data
 - **Parallel Processing**: 2-3x faster sync times (respecting rate limits)
 
 ### Estimated Costs
+
 - **API Usage**: Free (CourtListener is free for non-commercial use)
 - **Bandwidth**: Minimal (text-only responses)
 - **Redis for Rate Limiting**: $10-20/month (Upstash)
@@ -434,13 +477,16 @@ newman run tests/api/courtlistener/postman-collection.json \
 ## API Version Compliance
 
 ### Current Status
+
 ✅ **Using Latest API Version**: v4
 ✅ **Endpoints Correct**: All endpoints match v4 spec
 ✅ **Authentication Format**: Correct `Token` prefix
 ✅ **Response Parsing**: Handles v4 response structure
 
 ### Deprecation Monitoring
+
 ⚠️ **Recommendation**: Monitor CourtListener changelog for:
+
 - API version updates
 - Endpoint deprecations
 - Breaking changes
@@ -452,18 +498,18 @@ newman run tests/api/courtlistener/postman-collection.json \
 
 ## Comparison with Best Practices
 
-| Best Practice | JudgeFinder | Industry Standard |
-|---------------|-------------|-------------------|
-| Authentication | ✅ Token-based | ✅ OAuth2 or Token |
-| Rate Limiting | 🟡 Partial | ✅ Global tracking required |
-| Error Handling | ✅ Comprehensive | ✅ Retry with backoff |
-| Circuit Breaker | ✅ Implemented | ✅ Recommended |
-| Caching | 🔴 Missing | ✅ ETag support |
-| Field Selection | 🔴 Missing | ✅ Reduce payload |
-| Logging | 🟡 Basic | ✅ Detailed recommended |
-| Testing | ✅ Comprehensive | ✅ Multiple test types |
-| Documentation | ✅ Excellent | ✅ Well documented |
-| Monitoring | 🟡 Partial | ✅ Full observability |
+| Best Practice   | JudgeFinder      | Industry Standard           |
+| --------------- | ---------------- | --------------------------- |
+| Authentication  | ✅ Token-based   | ✅ OAuth2 or Token          |
+| Rate Limiting   | 🟡 Partial       | ✅ Global tracking required |
+| Error Handling  | ✅ Comprehensive | ✅ Retry with backoff       |
+| Circuit Breaker | ✅ Implemented   | ✅ Recommended              |
+| Caching         | 🔴 Missing       | ✅ ETag support             |
+| Field Selection | 🔴 Missing       | ✅ Reduce payload           |
+| Logging         | 🟡 Basic         | ✅ Detailed recommended     |
+| Testing         | ✅ Comprehensive | ✅ Multiple test types      |
+| Documentation   | ✅ Excellent     | ✅ Well documented          |
+| Monitoring      | 🟡 Partial       | ✅ Full observability       |
 
 **Legend**: ✅ Meets standard | 🟡 Partial | 🔴 Missing
 
@@ -472,19 +518,23 @@ newman run tests/api/courtlistener/postman-collection.json \
 ## Support & Resources
 
 ### CourtListener
+
 - **Documentation**: https://www.courtlistener.com/api/rest-info/
 - **API Reference**: https://www.courtlistener.com/api/rest/v4/
 - **Support Email**: contact@free.law
 - **GitHub**: https://github.com/freelawproject/courtlistener
 
 ### JudgeFinder Documentation
+
 - **Full Audit Report**: `/COURTLISTENER_API_AUDIT.md`
 - **Test Suite README**: `/tests/api/courtlistener/README.md`
-- **Platform Docs**: `/CLAUDE.md`
+- **Platform Docs**: `/docs/ai/CLAUDE_CODE_GUIDE.md`
 - **API Documentation**: `/docs/api/`
 
 ### Getting Help
+
 For questions about this audit:
+
 1. Review full audit report for detailed explanations
 2. Check test suite README for implementation guidance
 3. Reference CourtListener documentation for API specifics
@@ -497,6 +547,7 @@ For questions about this audit:
 JudgeFinder's CourtListener API integration demonstrates **solid engineering practices** and is **close to production-ready**. The implementation features excellent error handling, retry logic, and circuit breaker patterns that exceed typical integration quality.
 
 However, **two critical issues must be addressed** before production deployment:
+
 1. **Global rate limit tracking** to prevent aggregate rate limit violations
 2. **Webhook signature verification** with CourtListener to ensure security
 

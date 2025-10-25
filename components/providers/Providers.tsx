@@ -22,11 +22,13 @@ const isSentryAvailable = () => {
 
 // Lazy load Sentry only on client side
 if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_SENTRY_DSN) {
-  import('@sentry/nextjs').then((module) => {
-    Sentry = module
-  }).catch(() => {
-    // Sentry failed to load, continue without it
-  })
+  import('@sentry/nextjs')
+    .then((module) => {
+      Sentry = module
+    })
+    .catch(() => {
+      // Sentry failed to load, continue without it
+    })
 }
 
 export function Providers({ children }: { children: ReactNode }): JSX.Element {
@@ -88,7 +90,7 @@ export function Providers({ children }: { children: ReactNode }): JSX.Element {
             seenFingerprints.add(fingerprint)
 
             // Only capture if Sentry is available
-            if (isSentryAvailable()) {
+            if (isSentryAvailable() && Sentry) {
               Sentry.captureMessage('hydration-bailout', {
                 level: 'warning',
                 tags: {
@@ -121,7 +123,7 @@ export function Providers({ children }: { children: ReactNode }): JSX.Element {
 
     const handleViolation = (event: SecurityPolicyViolationEvent) => {
       // Only capture if Sentry is available
-      if (isSentryAvailable()) {
+      if (isSentryAvailable() && Sentry) {
         Sentry.captureMessage('csp-violation', {
           level: 'warning',
           tags: {

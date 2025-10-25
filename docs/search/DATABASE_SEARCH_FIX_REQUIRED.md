@@ -161,7 +161,7 @@ curl "http://localhost:3005/api/judges/search?q=smith&limit=5" | jq '.'
 
 ## Contact
 
-For questions or issues applying this fix, refer to [`CLAUDE.md`](../ai/CLAUDE.md) for platform details.
+For questions or issues applying this fix, refer to [`CLAUDE_CODE_GUIDE.md`](../ai/CLAUDE_CODE_GUIDE.md) for platform details.
 
 ---
 

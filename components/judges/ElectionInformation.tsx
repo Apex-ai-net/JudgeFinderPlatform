@@ -14,7 +14,7 @@ import {
   Users,
   AlertCircle,
   BookOpen,
-  MapPin
+  MapPin,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AnimatedCard } from '@/components/micro-interactions'
@@ -80,7 +80,7 @@ export function ElectionInformation({
     const diffMonths = endDate.getMonth() - now.getMonth()
 
     // Calculate precise years remaining (with decimals)
-    const years = diffYears + (diffMonths / 12)
+    const years = diffYears + diffMonths / 12
     return Math.max(0, years)
   }, [currentTermEndDate])
 
@@ -96,22 +96,17 @@ export function ElectionInformation({
 
   // Sort election history by date (most recent first)
   const sortedElections = useMemo(() => {
-    return [...electionHistory].sort((a, b) =>
-      new Date(b.election_date).getTime() - new Date(a.election_date).getTime()
+    return [...electionHistory].sort(
+      (a, b) => new Date(b.election_date).getTime() - new Date(a.election_date).getTime()
     )
   }, [electionHistory])
 
   // Show limited elections if not expanded
-  const displayedElections = isHistoryExpanded
-    ? sortedElections
-    : sortedElections.slice(0, 3)
+  const displayedElections = isHistoryExpanded ? sortedElections : sortedElections.slice(0, 3)
 
   // Check if there's any election data
   const hasElectionData =
-    currentTermEndDate ||
-    nextElectionDate ||
-    electionHistory.length > 0 ||
-    showPoliticalAffiliation
+    currentTermEndDate || nextElectionDate || electionHistory.length > 0 || showPoliticalAffiliation
 
   // If no data available, show empty state
   if (!hasElectionData) {
@@ -132,7 +127,8 @@ export function ElectionInformation({
             No election data available for this judge.
           </p>
           <p className="mt-2 text-xs text-[color:hsl(var(--text-3))]">
-            Election information may not be applicable for appointed positions or data is pending enrichment.
+            Election information may not be applicable for appointed positions or data is pending
+            enrichment.
           </p>
         </div>
       </section>
@@ -175,8 +171,7 @@ export function ElectionInformation({
                       <p className="text-sm text-[color:hsl(var(--text-2))]">
                         {yearsRemaining < 1
                           ? 'Less than 1 year remaining'
-                          : `${yearsRemaining.toFixed(1)} years remaining`
-                        }
+                          : `${yearsRemaining.toFixed(1)} years remaining`}
                       </p>
                     )}
                   </div>
@@ -202,8 +197,7 @@ export function ElectionInformation({
                           ? 'Election day is today'
                           : daysUntilElection < 30
                             ? `${daysUntilElection} days away`
-                            : `${Math.floor(daysUntilElection / 30)} months away`
-                        }
+                            : `${Math.floor(daysUntilElection / 30)} months away`}
                       </p>
                     )}
                   </div>
@@ -262,11 +256,7 @@ export function ElectionInformation({
             </header>
 
             <AnimatePresence mode="sync">
-              <motion.div
-                id="election-history-list"
-                className="space-y-3"
-                initial={false}
-              >
+              <motion.div id="election-history-list" className="space-y-3" initial={false}>
                 {displayedElections.map((election, index) => (
                   <ElectionHistoryItem
                     key={election.id}
@@ -353,7 +343,11 @@ export function ElectionInformation({
  *
  * Displays a badge indicating how the judge was selected
  */
-function SelectionMethodBadge({ selectionMethod }: { selectionMethod: SelectionMethod }): JSX.Element {
+function SelectionMethodBadge({
+  selectionMethod,
+}: {
+  selectionMethod: SelectionMethod
+}): JSX.Element {
   const methodInfo = getSelectionMethodInfo(selectionMethod)
 
   return (
@@ -391,12 +385,16 @@ function ElectionHistoryItem({ election, index, onClick }: ElectionHistoryItemPr
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
-      onKeyDown={onClick ? (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick()
-        }
-      } : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onClick()
+              }
+            }
+          : undefined
+      }
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 space-y-2">
@@ -413,9 +411,7 @@ function ElectionHistoryItem({ election, index, onClick }: ElectionHistoryItemPr
           </div>
 
           {/* Position */}
-          <p className="text-sm text-[color:hsl(var(--text-2))]">
-            {election.position_sought}
-          </p>
+          <p className="text-sm text-[color:hsl(var(--text-2))]">{election.position_sought}</p>
 
           {/* Vote Percentage */}
           {election.vote_percentage !== null && (
@@ -447,7 +443,9 @@ function ElectionHistoryItem({ election, index, onClick }: ElectionHistoryItemPr
         {/* Result Badge */}
         <div className={`flex items-center gap-1 rounded-full px-3 py-1 ${resultInfo.bgColor}`}>
           {resultInfo.icon}
-          <span className={`text-xs font-semibold uppercase tracking-wider ${resultInfo.textColor}`}>
+          <span
+            className={`text-xs font-semibold uppercase tracking-wider ${resultInfo.textColor}`}
+          >
             {resultInfo.label}
           </span>
         </div>
@@ -457,9 +455,7 @@ function ElectionHistoryItem({ election, index, onClick }: ElectionHistoryItemPr
       {election.is_incumbent && (
         <div className="mt-3 inline-flex items-center gap-1 rounded-full border border-border/60 bg-[hsl(var(--bg-2))] px-2 py-1">
           <Award className="h-3 w-3 text-[color:hsl(var(--accent))]" aria-hidden />
-          <span className="text-xs font-medium text-[color:hsl(var(--text-3))]">
-            Incumbent
-          </span>
+          <span className="text-xs font-medium text-[color:hsl(var(--text-3))]">Incumbent</span>
         </div>
       )}
     </motion.article>
@@ -504,8 +500,8 @@ function EducationalContent(): JSX.Element {
         </h4>
         <p className="text-sm text-[color:hsl(var(--text-2))] leading-relaxed">
           California uses different methods for selecting judges depending on the court level.
-          Superior Court judges are elected by voters in nonpartisan elections, while appellate
-          and Supreme Court justices are appointed by the Governor and subject to retention elections.
+          Superior Court judges are elected by voters in nonpartisan elections, while appellate and
+          Supreme Court justices are appointed by the Governor and subject to retention elections.
         </p>
       </div>
 
@@ -514,9 +510,9 @@ function EducationalContent(): JSX.Element {
           Retention elections
         </h4>
         <p className="text-sm text-[color:hsl(var(--text-2))] leading-relaxed">
-          In retention elections, voters answer yes or no to whether a judge should remain in office.
-          There are no opposing candidates. If a majority votes "no," the position becomes vacant and
-          a new appointment is made.
+          In retention elections, voters answer yes or no to whether a judge should remain in
+          office. There are no opposing candidates. If a majority votes "no," the position becomes
+          vacant and a new appointment is made.
         </p>
       </div>
 
@@ -526,8 +522,8 @@ function EducationalContent(): JSX.Element {
         </h4>
         <p className="text-sm text-[color:hsl(var(--text-2))] leading-relaxed">
           Superior Court judicial elections are nonpartisan, meaning candidates' political party
-          affiliations are not listed on the ballot. This is designed to promote judicial independence
-          and impartiality.
+          affiliations are not listed on the ballot. This is designed to promote judicial
+          independence and impartiality.
         </p>
       </div>
 
@@ -588,20 +584,24 @@ function getSelectionMethodInfo(method: SelectionMethod): { label: string; descr
       description: 'Won a competitive election',
     },
     [SelectionMethod.MERIT_SELECTION]: {
-      label: 'Merit selection',
-      description: 'Appointed from nominating commission',
+      label: 'Merit Selection',
+      description: 'Appointed from nominating commission (Missouri Plan)',
     },
-    [SelectionMethod.LEGISLATIVE_APPOINTMENT]: {
-      label: 'Legislative appointment',
+    [SelectionMethod.LEGISLATIVE]: {
+      label: 'Legislative Appointment',
       description: 'Appointed by legislature',
     },
-    [SelectionMethod.RETENTION_ELECTION]: {
-      label: 'Retention election',
-      description: 'Retained through yes/no vote',
+    [SelectionMethod.RETENTION]: {
+      label: 'Retention Election',
+      description: 'Subject to retention elections',
     },
-    [SelectionMethod.COMMISSION_APPOINTMENT]: {
-      label: 'Commission appointment',
-      description: 'Appointed by judicial commission',
+    [SelectionMethod.MIXED]: {
+      label: 'Mixed Method',
+      description: 'Combination of selection methods',
+    },
+    [SelectionMethod.UNKNOWN]: {
+      label: 'Unknown',
+      description: 'Selection method not yet determined',
     },
   }
 
@@ -664,12 +664,14 @@ function getElectionResultInfo(result: ElectionResult): {
     },
   }
 
-  return info[result] || {
-    label: 'Unknown',
-    icon: <AlertCircle className={`${iconClass} text-gray-500`} aria-hidden />,
-    textColor: 'text-gray-600',
-    bgColor: 'bg-gray-500/10',
-  }
+  return (
+    info[result] || {
+      label: 'Unknown',
+      icon: <AlertCircle className={`${iconClass} text-gray-500`} aria-hidden />,
+      textColor: 'text-gray-600',
+      bgColor: 'bg-gray-500/10',
+    }
+  )
 }
 
 /**

@@ -26,10 +26,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Validate required fields
     if (!barNumber || !barState) {
-      return NextResponse.json(
-        { error: 'Bar number and state are required.' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Bar number and state are required.' }, { status: 400 })
     }
 
     // Verify Turnstile CAPTCHA token
@@ -83,18 +80,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    // SECURITY FIX: Set status to 'pending' instead of 'verified'
-    // Admin must approve via State Bar API verification before granting advertiser role
-    // TODO: Implement admin approval workflow at /api/admin/verify-bar-approval
-    // TODO: Integrate with State Bar API for automated verification
-    //       - California: https://apps.calbar.ca.gov/attorney/Licensee/Detail/{barNumber}
-    //       - Other states: Add respective API integrations
+    // Create verification record in bar_verifications table
+    // This provides an audit trail and enables admin workflow
+    const { data: verificationRecord, error: verificationError } = await supabase
+      .from('bar_verifications')
+      .insert({
+        user_id: userId,
+        bar_number: cleanedBarNumber,
+        bar_state: barState,
+        status: 'pending',
+        submitted_at: new Date().toISOString(),
+      })
+      .select()
+      .single()
+
+    if (verificationError) {
+      console.error('[ERROR] Failed to create verification record:', verificationError)
+      return NextResponse.json(
+        { error: 'Failed to submit verification request. Please try again.' },
+        { status: 500 }
+      )
+    }
+
+    // Update user record with bar information and pending status
     const { error: updateError } = await supabase
       .from('app_users')
       .update({
         bar_number: cleanedBarNumber,
         bar_state: barState,
-        verification_status: 'pending', // SECURITY: Require admin approval
+        verification_status: 'pending',
         // Do NOT set bar_verified_at until actually verified
         // Do NOT set user_role - trigger will set when verification_status = 'verified'
       })

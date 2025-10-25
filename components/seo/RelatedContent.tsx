@@ -6,7 +6,7 @@
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { resolveCourtSlug } from '@/lib/utils/slug'
+import { resolveCourtSlug, createCanonicalSlug } from '@/lib/utils/slug'
 import type { Judge } from '@/types'
 
 interface RelatedContentProps {
@@ -17,27 +17,27 @@ interface RelatedContentProps {
   courtSlug?: string | null
 }
 
-export function RelatedContent({ 
-  currentJudge, 
-  relatedJudges, 
-  jurisdiction, 
+export function RelatedContent({
+  currentJudge,
+  relatedJudges,
+  jurisdiction,
   courtName,
-  courtSlug
+  courtSlug,
 }: RelatedContentProps) {
   const safeName = currentJudge.name || 'Unknown Judge'
   const cleanName = safeName.replace(/^(judge|justice|the honorable)\s+/i, '')
   const preferredCourtSlug =
-    courtSlug || resolveCourtSlug({ slug: currentJudge.court_slug, name: courtName }) || 'unknown-court'
-  
+    courtSlug ||
+    resolveCourtSlug({ slug: currentJudge.court_slug, name: courtName }) ||
+    'unknown-court'
+
   return (
     <div className="space-y-8">
       {/* Related Judges Section */}
       {relatedJudges.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">
-              Other Judges in {jurisdiction}
-            </CardTitle>
+            <CardTitle className="text-lg font-semibold">Other Judges in {jurisdiction}</CardTitle>
             <p className="text-sm text-muted-foreground">
               Explore other judicial officers serving in {jurisdiction}
             </p>
@@ -45,20 +45,20 @@ export function RelatedContent({
           <CardContent>
             <div className="space-y-3">
               {relatedJudges.slice(0, 5).map((judge) => {
-                const relatedName = judge.name?.replace(/^(judge|justice|the honorable)\s+/i, '') || 'Unknown Judge'
-                const slug = judge.slug || judge.name?.toLowerCase().replace(/\s+/g, '-') || 'unknown'
-                
+                const relatedName =
+                  judge.name?.replace(/^(judge|justice|the honorable)\s+/i, '') || 'Unknown Judge'
+                const slug =
+                  judge.slug || judge.name?.toLowerCase().replace(/\s+/g, '-') || 'unknown'
+
                 return (
-                  <Link 
-                    key={judge.id} 
+                  <Link
+                    key={judge.id}
                     href={`/judges/${slug}`}
                     className="block p-3 rounded-lg border border-border hover:border-blue-300 hover:bg-primary/5 transition-colors"
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h4 className="font-medium text-foreground">
-                          Judge {relatedName}
-                        </h4>
+                        <h4 className="font-medium text-foreground">Judge {relatedName}</h4>
                         <p className="text-sm text-muted-foreground">
                           {judge.court_name || courtName}
                         </p>
@@ -76,10 +76,10 @@ export function RelatedContent({
                 )
               })}
             </div>
-            
+
             <div className="mt-4 pt-4 border-t">
-              <Link 
-                href={`/jurisdictions/${jurisdiction.toLowerCase().replace(/\s+/g, '-')}`}
+              <Link
+                href={`/jurisdictions/${createCanonicalSlug(jurisdiction)}`}
                 className="text-primary hover:text-blue-800 text-sm font-medium"
               >
                 View All {jurisdiction} Judges →
@@ -92,9 +92,7 @@ export function RelatedContent({
       {/* Court Information Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">
-            {courtName}
-          </CardTitle>
+          <CardTitle className="text-lg font-semibold">{courtName}</CardTitle>
           <p className="text-sm text-muted-foreground">
             Learn more about Judge {cleanName}'s court
           </p>
@@ -109,16 +107,16 @@ export function RelatedContent({
                 <li>• Service Area: {getServiceArea(jurisdiction)}</li>
               </ul>
             </div>
-            
+
             <div className="space-y-2">
-              <Link 
+              <Link
                 href={`/courts/${preferredCourtSlug}`}
                 className="block p-2 text-primary hover:text-blue-800 text-sm font-medium"
               >
                 View {courtName} Directory →
               </Link>
-              <Link 
-                href={`/jurisdictions/${jurisdiction.toLowerCase().replace(/\s+/g, '-')}`}
+              <Link
+                href={`/jurisdictions/${createCanonicalSlug(jurisdiction)}`}
                 className="block p-2 text-primary hover:text-blue-800 text-sm font-medium"
               >
                 Explore {jurisdiction} Legal System →
@@ -131,9 +129,7 @@ export function RelatedContent({
       {/* Legal Resources Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-foreground">
-            Legal Resources
-          </CardTitle>
+          <CardTitle className="text-lg font-semibold text-foreground">Legal Resources</CardTitle>
           <p className="text-sm text-muted-foreground">
             Additional resources for legal professionals and litigants
           </p>
@@ -141,8 +137,8 @@ export function RelatedContent({
         <CardContent>
           <div className="space-y-3">
             <div className="grid grid-cols-1 gap-2">
-              <Link 
-                href={`/attorneys/${jurisdiction.toLowerCase().replace(/\s+/g, '-')}`}
+              <Link
+                href={`/attorneys/${createCanonicalSlug(jurisdiction)}`}
                 className="p-3 border border-border rounded-lg hover:border-primary/60 hover:bg-primary/5 transition-colors"
               >
                 <h4 className="font-medium text-foreground">Attorney Directory</h4>
@@ -150,18 +146,16 @@ export function RelatedContent({
                   Find experienced attorneys in {jurisdiction}
                 </p>
               </Link>
-              
-              <Link 
-                href={`/case-analytics/${jurisdiction.toLowerCase().replace(/\s+/g, '-')}`}
+
+              <Link
+                href={`/case-analytics/${createCanonicalSlug(jurisdiction)}`}
                 className="p-3 border border-border rounded-lg hover:border-primary/60 hover:bg-primary/5 transition-colors"
               >
                 <h4 className="font-medium text-foreground">Case Analytics</h4>
-                <p className="text-sm text-muted-foreground">
-                  Research case patterns and outcomes
-                </p>
+                <p className="text-sm text-muted-foreground">Research case patterns and outcomes</p>
               </Link>
-              
-              <Link 
+
+              <Link
                 href="/legal-research-tools"
                 className="p-3 border border-border rounded-lg hover:border-primary/60 hover:bg-primary/5 transition-colors"
               >
@@ -178,43 +172,33 @@ export function RelatedContent({
       {/* SEO-focused Content Links */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">
-            Popular Searches
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Frequently searched judicial information
-          </p>
+          <CardTitle className="text-lg font-semibold">Popular Searches</CardTitle>
+          <p className="text-sm text-muted-foreground">Frequently searched judicial information</p>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-2 text-sm">
-              <Link 
-                href={`/judges?jurisdiction=${encodeURIComponent(jurisdiction)}`}
-                className="text-primary hover:text-blue-800"
-              >
+            <Link
+              href={`/judges?jurisdiction=${encodeURIComponent(jurisdiction)}`}
+              className="text-primary hover:text-blue-800"
+            >
               All {jurisdiction} Judges
             </Link>
-            <Link 
+            <Link
               href={`/judges?court=${encodeURIComponent(courtName)}`}
-                className="text-primary hover:text-blue-800"
+              className="text-primary hover:text-blue-800"
             >
               {getCourtType(courtName)} Judges
             </Link>
-            <Link 
-              href="/judges?experience=veteran"
-                className="text-primary hover:text-blue-800"
-            >
+            <Link href="/judges?experience=veteran" className="text-primary hover:text-blue-800">
               Veteran Judges (15+ Years)
             </Link>
-            <Link 
+            <Link
               href="/judges?recently-appointed=true"
-                className="text-primary hover:text-blue-800"
+              className="text-primary hover:text-blue-800"
             >
               Recently Appointed Judges
             </Link>
-            <Link 
-              href="/judicial-analytics"
-                className="text-primary hover:text-blue-800"
-            >
+            <Link href="/judicial-analytics" className="text-primary hover:text-blue-800">
               Judicial Analytics Dashboard
             </Link>
           </div>
@@ -229,7 +213,7 @@ export function RelatedContent({
  */
 function getCourtType(courtName: string): string {
   const name = courtName.toLowerCase()
-  
+
   if (name.includes('superior')) return 'Superior Court'
   if (name.includes('appeal')) return 'Court of Appeal'
   if (name.includes('supreme')) return 'Supreme Court'
@@ -237,7 +221,7 @@ function getCourtType(courtName: string): string {
   if (name.includes('family')) return 'Family Court'
   if (name.includes('criminal')) return 'Criminal Court'
   if (name.includes('civil')) return 'Civil Court'
-  
+
   return 'Court'
 }
 
@@ -255,8 +239,8 @@ function getServiceArea(jurisdiction: string): string {
     'Santa Clara County': '1.9M residents across 15 cities',
     'Riverside County': '2.4M residents across 28 cities',
     'San Bernardino County': '2.2M residents across 24 cities',
-    'California': '39M residents statewide'
+    California: '39M residents statewide',
   }
-  
+
   return jurisdictionData[jurisdiction] || `${jurisdiction} residents`
 }

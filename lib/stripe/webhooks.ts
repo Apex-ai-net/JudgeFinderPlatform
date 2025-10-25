@@ -227,7 +227,11 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription): Pro
   }
 
   // Send cancellation notification
-  await notifySubscriptionCanceled(organizationId)
+  await notifySubscriptionCanceled(
+    organizationId,
+    subscription.metadata.tier || 'Subscription',
+    subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : undefined
+  )
 
   console.log(`Subscription canceled for organization ${organizationId}`)
 }
@@ -266,9 +270,7 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice): Promise<v
     paid_at: invoice.status_transitions.paid_at
       ? new Date(invoice.status_transitions.paid_at * 1000).toISOString()
       : new Date().toISOString(),
-    period_start: invoice.period_start
-      ? new Date(invoice.period_start * 1000).toISOString()
-      : null,
+    period_start: invoice.period_start ? new Date(invoice.period_start * 1000).toISOString() : null,
     period_end: invoice.period_end ? new Date(invoice.period_end * 1000).toISOString() : null,
     created_at: new Date().toISOString(),
   })
@@ -288,7 +290,12 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice): Promise<v
     .eq('id', organizationId)
 
   // Send payment success notification
-  await notifyPaymentSucceeded(organizationId, invoice.amount_paid / 100)
+  await notifyPaymentSucceeded(
+    organizationId,
+    invoice.amount_paid / 100,
+    invoice.hosted_invoice_url,
+    invoice.period_end ? new Date(invoice.period_end * 1000) : undefined
+  )
 
   console.log(`Invoice payment succeeded for organization ${organizationId}: ${invoice.id}`)
 }
@@ -348,6 +355,8 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice): Promise<void
     attemptCount: invoice.attempt_count || 0,
     nextAttempt: invoice.next_payment_attempt,
     amount: invoice.amount_due / 100,
+    stripeInvoiceId: invoice.id,
+    invoiceUrl: invoice.hosted_invoice_url,
   })
 
   console.log(`Invoice payment failed for organization ${organizationId}: ${invoice.id}`)
@@ -468,10 +477,26 @@ async function logWebhookEvent(
  */
 async function notifyPaymentSucceeded(
   organizationId: string,
-  amount: number
+  amount: number,
+  invoiceUrl?: string | null,
+  periodEnd?: Date
 ): Promise<void> {
-  // TODO: Implement email notification or in-app notification
-  console.log(`Payment succeeded notification for org ${organizationId}: $${amount}`)
+  const { sendPaymentSuccessEmail } = await import('@/lib/email/service')
+
+  await sendPaymentSuccessEmail(organizationId, {
+    amount,
+    currency: 'usd',
+    invoiceUrl,
+    periodEnd: periodEnd
+      ? periodEnd.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+      : 'Next billing cycle',
+  })
+
+  console.log(`Payment succeeded notification sent for org ${organizationId}: $${amount}`)
 }
 
 /**
@@ -484,16 +509,70 @@ async function notifyPaymentFailed(
     attemptCount?: number
     nextAttempt?: number | null
     amount?: number
+    stripeInvoiceId?: string
+    invoiceUrl?: string | null
   }
 ): Promise<void> {
-  // TODO: Implement dunning email sequence
-  console.log(`Payment failed notification for org ${organizationId}: ${reason}`, details)
+  const { sendPaymentFailedEmail } = await import('@/lib/email/service')
+  const { sendDunningNotification } = await import('@/lib/email/dunning-manager')
+
+  // Send immediate payment failed notification
+  if (details?.amount) {
+    await sendPaymentFailedEmail(organizationId, {
+      amount: details.amount,
+      currency: 'usd',
+      invoiceUrl: details.invoiceUrl,
+      attemptCount: details.attemptCount || 0,
+      nextAttempt: details.nextAttempt
+        ? new Date(details.nextAttempt * 1000).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+          })
+        : undefined,
+      billingPortalUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/billing`,
+    })
+  }
+
+  // If we have invoice details, trigger dunning sequence
+  if (details?.stripeInvoiceId && details?.amount) {
+    await sendDunningNotification({
+      organizationId,
+      stripeInvoiceId: details.stripeInvoiceId,
+      amount: details.amount,
+      currency: 'usd',
+      attemptCount: details.attemptCount || 0,
+      invoiceUrl: details.invoiceUrl,
+      billingPortalUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/billing`,
+    })
+  }
+
+  console.log(`Payment failed notification sent for org ${organizationId}: ${reason}`, details)
 }
 
 /**
  * Send notification for subscription cancellation
  */
-async function notifySubscriptionCanceled(organizationId: string): Promise<void> {
-  // TODO: Implement cancellation email
-  console.log(`Subscription canceled notification for org ${organizationId}`)
+async function notifySubscriptionCanceled(
+  organizationId: string,
+  tier: string,
+  endDate?: Date
+): Promise<void> {
+  const { sendSubscriptionCancelledEmail } = await import('@/lib/email/service')
+
+  await sendSubscriptionCancelledEmail(organizationId, {
+    tier: tier || 'Subscription',
+    endDate: endDate
+      ? endDate.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+      : 'End of current period',
+    reactivationUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/billing`,
+  })
+
+  console.log(`Subscription canceled notification sent for org ${organizationId}`)
 }

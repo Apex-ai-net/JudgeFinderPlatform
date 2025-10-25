@@ -823,7 +823,7 @@ const rl = buildRateLimiter({
 
 ### Key Documentation Files
 
-- `CLAUDE.md` - Platform overview
+- `CLAUDE_CODE_GUIDE.md` - Platform overview
 - `AGENTS.md` - AI agent documentation
 - `docs/deployment/DEPLOYMENT_STATUS.md` - Previous deployment status
 - `docs/deployment/PRODUCTION_STATUS_REPORT.md` - Detailed production report
@@ -849,7 +849,7 @@ postgresql://postgres:[PASSWORD]@db.xstlnicbnzdxlgfiewmg.supabase.co:5432/postgr
 
 ### Support Contacts
 
-- **Platform Documentation**: See `CLAUDE.md`
+- **Platform Documentation**: See `docs/ai/CLAUDE_CODE_GUIDE.md`
 - **Emergency Rollback**: Via Netlify dashboard → Deploys → Previous deploy → Publish
 - **Database Issues**: Supabase support or direct SQL access
 

@@ -1,4 +1,5 @@
 # CourtListener Education Sync - Status Report
+
 **Date:** October 22, 2025
 **Status:** ✅ Ready to Run (Rate limit hit - retry in ~1 hour)
 
@@ -23,9 +24,11 @@ The CourtListener education sync system is fully implemented and tested. We succ
 ## 🔧 What Was Built
 
 ### 1. Education Sync Manager
+
 **File:** `lib/courtlistener/education-sync.ts`
 
 Features:
+
 - Batch processing (10 judges per batch)
 - Rate limiting (1.5s delay between requests)
 - Smart skipping (only syncs missing data)
@@ -33,9 +36,11 @@ Features:
 - Error recovery with detailed logging
 
 ### 2. CLI Tool
+
 **File:** `scripts/sync-education-data.ts`
 
 Usage:
+
 ```bash
 # Test with 10 judges
 npx tsx scripts/sync-education-data.ts -- --limit=10
@@ -48,19 +53,23 @@ npx tsx scripts/sync-education-data.ts -- --all
 ```
 
 ### 3. Enhanced API Client
+
 **File:** `lib/courtlistener/client.ts`
 
 Added three new public methods:
+
 - `getEducations(personId)` - Fetch education history
 - `getPoliticalAffiliations(personId)` - Fetch party affiliations
 - `getPositions(personId)` - Fetch position/career history
 
 ### 4. Database Migration
+
 **Migration:** `supabase/migrations/20250817_001_add_courtlistener_fields.sql`
 
 Status: ✅ Applied successfully
 
 Added columns:
+
 - `judges.positions` - JSONB array for career history
 - `judges.courtlistener_id` - External ID (already populated)
 - Indexes and constraints for performance
@@ -68,6 +77,7 @@ Added columns:
 ## 🚦 Rate Limit Status
 
 ### Current Situation
+
 - **Status:** 429 Too Many Requests
 - **Reset Time:** ~58 minutes from now (as of 00:41 UTC)
 - **Retry-After Header:** 3,460 seconds
@@ -75,6 +85,7 @@ Added columns:
 - **Our Rate:** 1,440 requests/hour (72% safety margin)
 
 ### What This Means
+
 The API quota was likely used up by earlier API calls today. This is **not an error** - it's the API's way of enforcing limits. The sync script:
 
 1. ✅ Detected the 429 response correctly
@@ -83,6 +94,7 @@ The API quota was likely used up by earlier API calls today. This is **not an er
 4. ✅ Will automatically retry when the limit resets
 
 ### Rate Limit Headers
+
 ```
 HTTP/2 429
 retry-after: 3460
@@ -91,20 +103,26 @@ retry-after: 3460
 ## 📅 Next Steps
 
 ### Option 1: Wait for Rate Limit Reset (Recommended)
+
 Wait ~1 hour, then run:
+
 ```bash
 npx tsx scripts/sync-education-data.ts -- --limit=10
 ```
 
 ### Option 2: Schedule for Off-Peak Hours
+
 Run the sync during low-usage times (e.g., overnight):
+
 ```bash
 # Run at 2 AM local time
 npx tsx scripts/sync-education-data.ts
 ```
 
 ### Option 3: Smaller Batches Throughout the Day
+
 Sync in smaller increments:
+
 ```bash
 # Morning: 100 judges
 npx tsx scripts/sync-education-data.ts -- --limit=100
@@ -119,13 +137,16 @@ npx tsx scripts/sync-education-data.ts -- --limit=100
 ## 🎯 Expected Results
 
 ### After Full Sync (1,649 judges)
+
 - **Duration:** ~70 minutes
 - **API Requests:** ~1,649 requests
 - **Education Coverage:** 13.3% → ~74% (estimated)
 - **Rate:** 1,440 req/hr (safe under 5,000/hr quota)
 
 ### Data Format
+
 Education will be stored as formatted text in `judges.education`:
+
 ```
 Harvard Law School (J.D., 1995); Yale University (B.A., 1992)
 ```
@@ -133,17 +154,20 @@ Harvard Law School (J.D., 1995); Yale University (B.A., 1992)
 ## 🔍 Verification Commands
 
 ### Check Rate Limit Status
+
 ```bash
 curl -s -I -H "Authorization: Token 11b745157612fd1895856aedf5421a3bc8ecea34" \
   "https://www.courtlistener.com/api/rest/v4/people/?id=1" | grep -i "retry-after"
 ```
 
 ### Check If Migration Applied
+
 ```bash
 node scripts/check-migration-status.js
 ```
 
 ### Test API Connection
+
 ```bash
 curl -H "Authorization: Token 11b745157612fd1895856aedf5421a3bc8ecea34" \
   "https://www.courtlistener.com/api/rest/v4/people/?id=1"
@@ -152,25 +176,33 @@ curl -H "Authorization: Token 11b745157612fd1895856aedf5421a3bc8ecea34" \
 ## 📈 Future Phases
 
 ### Phase 2: Political Affiliations
+
 Similar sync for party affiliation data:
+
 ```bash
 npx tsx scripts/sync-affiliations-data.ts
 ```
 
 ### Phase 3: Position History
+
 Populate the new `positions` JSONB field:
+
 ```bash
 npx tsx scripts/sync-positions-data.ts
 ```
 
 ### Phase 4: Bulk Bootstrap
+
 For new jurisdictions, download bulk CourtListener CSV files:
+
 - Faster initial seed
 - Bypass API rate limits
 - Good for importing 10,000+ records
 
 ### Phase 5: Admin Dashboard
+
 Web UI at `/dashboard/admin/courtlistener`:
+
 - View quota usage
 - Monitor sync progress
 - Trigger manual syncs
@@ -187,19 +219,24 @@ Web UI at `/dashboard/admin/courtlistener`:
 ## ⚠️ Important Notes
 
 ### Don't Worry About 429 Errors
+
 The `429 Too Many Requests` response is **normal** and **expected** when:
+
 - You've made API calls earlier in the hour
 - Testing the sync multiple times
 - Running other CourtListener integrations
 
 The sync script handles this gracefully:
+
 - Detects 429 automatically
 - Reads retry-after header
 - Waits the specified time
 - Retries automatically
 
 ### Safe to Run Anytime
+
 The script is safe to run multiple times:
+
 - Won't duplicate data (uses `skipIfExists`)
 - Won't lose progress (batch processing)
 - Won't exceed quota (rate limiting)
@@ -207,7 +244,7 @@ The script is safe to run multiple times:
 
 ## 🔗 Related Documentation
 
-- [COURTLISTENER_QUICKSTART.md](../COURTLISTENER_QUICKSTART.md) - 3-step quick start
+- [COURTLISTENER_QUICKSTART.md](../integrations/courtlistener/COURTLISTENER_QUICKSTART.md) - 3-step quick start
 - [COURTLISTENER_ENHANCEMENT_COMPLETE.md](./COURTLISTENER_ENHANCEMENT_COMPLETE.md) - Full technical docs
 - [CA_JUDGES_DATABASE_STATUS.md](./CA_JUDGES_DATABASE_STATUS.md) - Current database state
 
@@ -224,6 +261,7 @@ npx tsx scripts/sync-education-data.ts
 ```
 
 The system will:
+
 1. ✅ Query 1,649 judges missing education
 2. ✅ Fetch education data from CourtListener
 3. ✅ Format it into readable text

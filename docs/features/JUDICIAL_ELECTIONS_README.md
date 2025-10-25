@@ -48,6 +48,7 @@ Synchronized political party affiliation data for **1,600+ California judges** f
 - **Rate-Limited**: Safe processing respecting CourtListener's API limits
 
 **Coverage**:
+
 - ✅ 100% of federal judges
 - ✅ 95%+ of appellate judges
 - ✅ ~75% of Superior Court judges (limited by source data availability)
@@ -68,12 +69,12 @@ New public-facing page at **[judgefinder.io/elections](https://judgefinder.io/el
 
 Four production-ready RESTful endpoints:
 
-| Endpoint | Purpose | Rate Limit |
-|----------|---------|------------|
-| `GET /api/v1/elections/upcoming` | List upcoming elections with filters | 50/hour |
-| `GET /api/v1/elections/statistics` | Aggregated election statistics | 50/hour |
-| `GET /api/v1/judges/[id]/elections` | Single judge's election history | 50/hour |
-| `GET /api/v1/elections/[id]` | Single election details | 50/hour |
+| Endpoint                            | Purpose                              | Rate Limit |
+| ----------------------------------- | ------------------------------------ | ---------- |
+| `GET /api/v1/elections/upcoming`    | List upcoming elections with filters | 50/hour    |
+| `GET /api/v1/elections/statistics`  | Aggregated election statistics       | 50/hour    |
+| `GET /api/v1/judges/[id]/elections` | Single judge's election history      | 50/hour    |
+| `GET /api/v1/elections/[id]`        | Single election details              | 50/hour    |
 
 **Use Cases**: Legal research platforms, voter advocacy organizations, political campaigns, academic researchers
 
@@ -82,12 +83,14 @@ Four production-ready RESTful endpoints:
 Two highly polished React components:
 
 **ElectionInformation**:
+
 - Full-featured section for judge profiles
 - Responsive design (mobile-first)
 - Accessible (WCAG 2.2 Level AA)
 - Animated interactions with Framer Motion
 
 **ElectionBadge**:
+
 - Compact badges for search results and cards
 - Three variants (minimal, compact, detailed)
 - Countdown timers for upcoming elections
@@ -102,6 +105,7 @@ Two highly polished React components:
 **Problem**: California voters routinely skip judicial races due to lack of information.
 
 **Solution**: JudgeFinder now provides:
+
 - Complete election histories
 - Political affiliation data with context
 - Next election dates with countdown timers
@@ -114,6 +118,7 @@ Two highly polished React components:
 **Market Position**: Only platform combining judicial analytics with comprehensive election data.
 
 **Competitive Advantages**:
+
 - Political affiliation transparency (unavailable elsewhere)
 - Election history timelines
 - Upcoming elections calendar
@@ -122,6 +127,7 @@ Two highly polished React components:
 ### SEO & Traffic Growth
 
 **New Keyword Rankings**:
+
 - "California judicial elections"
 - "judge elections 2025"
 - "judicial retention voting"
@@ -129,6 +135,7 @@ Two highly polished React components:
 - "California ballot judges"
 
 **Traffic Projections**:
+
 - 50,000+ unique visitors to `/elections` page (6-month target)
 - Seasonal spikes during election cycles (November)
 - Media coverage opportunities during election seasons
@@ -138,6 +145,7 @@ Two highly polished React components:
 **Mission Alignment**: Advances JudgeFinder's core mission of judicial transparency and informed decision-making.
 
 **Community Impact**:
+
 - Empowers first-time voters researching judicial candidates
 - Provides journalists with investigative data sources
 - Enables civic educators to teach about judicial selection
@@ -199,6 +207,7 @@ Two highly polished React components:
    - Source tracking and verification
 
 **Extended `judges` Table**:
+
 - `selection_method`: How judge was selected
 - `next_election_date`: Next scheduled election
 - `current_term_end_date`: When term expires
@@ -209,6 +218,7 @@ Two highly polished React components:
 ### Data Pipeline
 
 **Political Affiliation Sync**:
+
 - **Frequency**: Weekly for new judges, monthly re-sync for updates
 - **Rate**: ~24 judges/minute (1,440/hour, under 5,000/hour limit)
 - **Processing**: Batch processing with delays to respect API limits
@@ -216,6 +226,7 @@ Two highly polished React components:
 - **Logging**: Comprehensive statistics and error tracking
 
 **Data Quality**:
+
 - ✅ Verified data from official sources
 - 📋 Sourced data from reputable third parties (CourtListener)
 - ⚠️ Unverified data flagged with disclaimers
@@ -226,28 +237,28 @@ Two highly polished React components:
 
 ### Code Deliverables
 
-| Component | Location | Status |
-|-----------|----------|--------|
-| Database Migrations | `/supabase/migrations/20250122_001_add_election_tables.sql` | ✅ Complete |
+| Component                       | Location                                                          | Status      |
+| ------------------------------- | ----------------------------------------------------------------- | ----------- |
+| Database Migrations             | `/supabase/migrations/20250122_001_add_election_tables.sql`       | ✅ Complete |
 | Political Affiliation Migration | `/supabase/migrations/20251122_001_add_political_affiliation.sql` | ✅ Complete |
-| Type Definitions | `/types/elections.ts`, `/types/election-data.ts` | ✅ Complete |
-| ElectionInformation Component | `/components/judges/ElectionInformation.tsx` | ✅ Complete |
-| ElectionBadge Component | `/components/judges/ElectionBadge.tsx` | ✅ Complete |
-| API Endpoints | `/app/api/v1/elections/**/*.ts` | ✅ Complete |
-| Elections Landing Page | `/app/elections/page.tsx` | ✅ Complete |
-| Sync Script | `/scripts/sync-political-affiliations.ts` | ✅ Complete |
-| Sync Manager | `/lib/courtlistener/political-affiliation-sync.ts` | ✅ Complete |
+| Type Definitions                | `/types/elections.ts`, `/types/election-data.ts`                  | ✅ Complete |
+| ElectionInformation Component   | `/components/judges/ElectionInformation.tsx`                      | ✅ Complete |
+| ElectionBadge Component         | `/components/judges/ElectionBadge.tsx`                            | ✅ Complete |
+| API Endpoints                   | `/app/api/v1/elections/**/*.ts`                                   | ✅ Complete |
+| Elections Landing Page          | `/app/elections/page.tsx`                                         | ✅ Complete |
+| Sync Script                     | `/scripts/sync-political-affiliations.ts`                         | ✅ Complete |
+| Sync Manager                    | `/lib/courtlistener/political-affiliation-sync.ts`                | ✅ Complete |
 
 ### Documentation Deliverables
 
-| Document | Location | Audience | Status |
-|----------|----------|----------|--------|
-| **Feature Overview** | `/docs/features/JUDICIAL_ELECTIONS_FEATURE.md` | Stakeholders, Product Managers | ✅ Complete |
-| **Implementation Guide** | `/docs/features/JUDICIAL_ELECTIONS_IMPLEMENTATION_GUIDE.md` | Developers, DevOps | ✅ Complete |
-| **Data Sources** | `/docs/features/JUDICIAL_ELECTIONS_DATA_SOURCES.md` | Data Engineers, Researchers | ✅ Complete |
-| **User Guide** | `/docs/features/JUDICIAL_ELECTIONS_USER_GUIDE.md` | End Users, Educators | ✅ Complete |
-| **Developer Guide** | `/docs/features/JUDICIAL_ELECTIONS_DEVELOPER_GUIDE.md` | Engineers, API Consumers | ✅ Complete |
-| **Client README** | `/JUDICIAL_ELECTIONS_README.md` (this file) | Client, Stakeholders | ✅ Complete |
+| Document                 | Location                                                    | Audience                       | Status      |
+| ------------------------ | ----------------------------------------------------------- | ------------------------------ | ----------- |
+| **Feature Overview**     | `/docs/features/JUDICIAL_ELECTIONS_FEATURE.md`              | Stakeholders, Product Managers | ✅ Complete |
+| **Implementation Guide** | `/docs/features/JUDICIAL_ELECTIONS_IMPLEMENTATION_GUIDE.md` | Developers, DevOps             | ✅ Complete |
+| **Data Sources**         | `/docs/features/JUDICIAL_ELECTIONS_DATA_SOURCES.md`         | Data Engineers, Researchers    | ✅ Complete |
+| **User Guide**           | `/docs/features/JUDICIAL_ELECTIONS_USER_GUIDE.md`           | End Users, Educators           | ✅ Complete |
+| **Developer Guide**      | `/docs/features/JUDICIAL_ELECTIONS_DEVELOPER_GUIDE.md`      | Engineers, API Consumers       | ✅ Complete |
+| **Client README**        | `/JUDICIAL_ELECTIONS_README.md` (this file)                 | Client, Stakeholders           | ✅ Complete |
 
 ---
 
@@ -298,18 +309,21 @@ Two highly polished React components:
 ### Phase 2 Enhancements (Q1-Q2 2026)
 
 **Priority 1: California Secretary of State Integration**
+
 - **Timeline**: Before November 2026 elections
 - **Scope**: Direct import of official election results
 - **Impact**: 100% verified data for all California judicial elections
 - **Effort**: 60 hours development + testing
 
 **Priority 2: Enhanced Election Analytics**
+
 - Comparative judge analysis (side-by-side election histories)
 - Retention election trend predictions
 - Voter turnout analysis by jurisdiction
 - **Effort**: 40 hours
 
 **Priority 3: Voter Tools**
+
 - Email alerts for upcoming elections in user's county
 - Personalized PDF voter guides
 - Sample ballot generation based on user's address
@@ -332,6 +346,7 @@ Two highly polished React components:
 ### Technical Questions
 
 **Developer Support**: For API questions, integration issues, or technical documentation:
+
 - Email: dev@judgefinder.io
 - GitHub Issues: Tag with `elections-feature` label
 - Developer Guide: `/docs/features/JUDICIAL_ELECTIONS_DEVELOPER_GUIDE.md`
@@ -339,6 +354,7 @@ Two highly polished React components:
 ### Data Questions
 
 **Data Accuracy**: For corrections or verification requests:
+
 - Email: data@judgefinder.io
 - Use "Report Issue" button on judge profiles
 - Include source documentation for corrections
@@ -346,6 +362,7 @@ Two highly polished React components:
 ### General Inquiries
 
 **General Support**: For all other questions:
+
 - Email: support@judgefinder.io
 - Help Center: [judgefinder.io/help](https://judgefinder.io/help)
 - User Guide: `/docs/features/JUDICIAL_ELECTIONS_USER_GUIDE.md`
@@ -363,6 +380,7 @@ Two highly polished React components:
 ### Open Source
 
 This feature builds on excellent open-source tools:
+
 - Next.js 15 (Vercel)
 - React 18 (Meta)
 - TypeScript (Microsoft)

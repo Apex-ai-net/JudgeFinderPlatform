@@ -69,21 +69,19 @@ export class SyncQueueManager {
       retry_count: 0,
       max_retries: maxRetries,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }
 
-    const { error } = await this.supabase
-      .from('sync_queue')
-      .insert(job)
+    const { error } = await this.supabase.from('sync_queue').insert(job)
 
     if (error) {
       throw new Error(`Failed to add job to queue: ${error.message}`)
     }
 
-    logger.info('Job added to sync queue', { 
-      jobId: job.id, 
-      type: job.type, 
-      priority: job.priority 
+    logger.info('Job added to sync queue', {
+      jobId: job.id,
+      type: job.type,
+      priority: job.priority,
     })
 
     return job.id
@@ -121,7 +119,8 @@ export class SyncQueueManager {
 
   /**
    * DEPRECATED: Unsafe fallback method with race condition
-   * TODO: Remove once claim_next_sync_job RPC is deployed
+   * NOTE: claim_next_sync_job RPC is deployed (migration 20250120)
+   * This fallback is kept for emergency scenarios only
    */
   private async getNextJobUnsafe(): Promise<SyncJob | null> {
     const { data, error } = await this.supabase
@@ -177,7 +176,7 @@ export class SyncQueueManager {
         status: 'completed',
         result,
         completed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', jobId)
 
@@ -197,17 +196,17 @@ export class SyncQueueManager {
       .single()
 
     const canRetry = shouldRetry && job && job.retry_count < job.max_retries
-    
+
     const updateData: any = {
       error_message: error.message,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }
 
     if (canRetry) {
       // Schedule for retry (exponential backoff)
       const retryDelay = Math.pow(2, job.retry_count) * 60 * 1000 // Minutes in milliseconds
       const retryAt = new Date(Date.now() + retryDelay)
-      
+
       updateData.status = 'pending'
       updateData.scheduled_for = retryAt.toISOString()
       updateData.retry_count = job.retry_count + 1
@@ -227,10 +226,10 @@ export class SyncQueueManager {
     }
 
     if (canRetry) {
-      logger.info('Job scheduled for retry', { 
-        jobId, 
-        retryCount: job.retry_count + 1, 
-        retryAt: updateData.scheduled_for 
+      logger.info('Job scheduled for retry', {
+        jobId,
+        retryCount: job.retry_count + 1,
+        retryAt: updateData.scheduled_for,
       })
     } else {
       logger.error('Job failed permanently', { jobId, error: error.message })
@@ -241,17 +240,17 @@ export class SyncQueueManager {
    * Process a single job
    */
   async processJob(job: SyncJob): Promise<void> {
-    logger.info('Processing sync job', { 
-      jobId: job.id, 
-      type: job.type, 
-      attempt: job.retry_count + 1 
+    logger.info('Processing sync job', {
+      jobId: job.id,
+      type: job.type,
+      attempt: job.retry_count + 1,
     })
 
     try {
       await this.startJob(job.id)
 
       let result: any
-      
+
       switch (job.type) {
         case 'court':
           const courtSync = new CourtSyncManager()
@@ -272,7 +271,7 @@ export class SyncQueueManager {
           const deletedCount = await this.cleanupOldJobs(job.options?.olderThanDays || 7)
           result = {
             success: true,
-            deleted: deletedCount
+            deleted: deletedCount,
           }
           break
 
@@ -286,20 +285,19 @@ export class SyncQueueManager {
       }
 
       await this.completeJob(job.id, result)
-      
-      logger.info('Job completed successfully', { 
-        jobId: job.id, 
-        type: job.type, 
-        result: result.success 
+
+      logger.info('Job completed successfully', {
+        jobId: job.id,
+        type: job.type,
+        result: result.success,
+      })
+    } catch (error) {
+      logger.error('Job processing failed', {
+        jobId: job.id,
+        type: job.type,
+        error,
       })
 
-    } catch (error) {
-      logger.error('Job processing failed', { 
-        jobId: job.id, 
-        type: job.type, 
-        error 
-      })
-      
       await this.failJob(job.id, error as Error)
     }
   }
@@ -309,17 +307,17 @@ export class SyncQueueManager {
    */
   async runFullSync(options: any = {}) {
     const results: {
-      court: any | null;
-      judge: any | null;
-      decision: any | null;
-      success: boolean;
-      duration: number;
+      court: any | null
+      judge: any | null
+      decision: any | null
+      success: boolean
+      duration: number
     } = {
       court: null,
       judge: null,
       decision: null,
       success: false,
-      duration: 0
+      duration: 0,
     }
 
     const startTime = Date.now()
@@ -341,10 +339,13 @@ export class SyncQueueManager {
       results.decision = await decisionSync.syncDecisions(options.decision || {})
 
       results.duration = Date.now() - startTime
-      results.success = !!(results.court?.success && results.judge?.success && results.decision?.success)
+      results.success = !!(
+        results.court?.success &&
+        results.judge?.success &&
+        results.decision?.success
+      )
 
       return results
-
     } catch (error) {
       results.duration = Date.now() - startTime
       results.success = false
@@ -362,13 +363,13 @@ export class SyncQueueManager {
     }
 
     this.isProcessing = true
-    
+
     logger.info('Starting queue processing', { intervalMs })
 
     this.processingInterval = setInterval(async () => {
       try {
         const job = await this.getNextJob()
-        
+
         if (job) {
           await this.processJob(job)
         }
@@ -387,7 +388,7 @@ export class SyncQueueManager {
     }
 
     this.isProcessing = false
-    
+
     if (this.processingInterval) {
       clearInterval(this.processingInterval)
       this.processingInterval = null
@@ -400,9 +401,7 @@ export class SyncQueueManager {
    * Get queue statistics
    */
   async getStats(): Promise<QueueStats> {
-    const { data, error } = await this.supabase
-      .from('sync_queue')
-      .select('status')
+    const { data, error } = await this.supabase.from('sync_queue').select('status')
 
     if (error) {
       throw new Error(`Failed to get queue stats: ${error.message}`)
@@ -413,7 +412,7 @@ export class SyncQueueManager {
       running: 0,
       completed: 0,
       failed: 0,
-      total: data?.length || 0
+      total: data?.length || 0,
     }
 
     data?.forEach((job: any) => {
@@ -442,10 +441,10 @@ export class SyncQueueManager {
     }
 
     const deletedCount = data?.length || 0
-    
-    logger.info('Cleaned up old sync jobs', { 
-      deletedCount, 
-      olderThanDays 
+
+    logger.info('Cleaned up old sync jobs', {
+      deletedCount,
+      olderThanDays,
     })
 
     return deletedCount
@@ -459,7 +458,7 @@ export class SyncQueueManager {
       .from('sync_queue')
       .update({
         status: 'cancelled',
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('status', 'pending')
 
@@ -474,10 +473,10 @@ export class SyncQueueManager {
     }
 
     const cancelledCount = data?.length || 0
-    
-    logger.info('Cancelled sync jobs', { 
-      type: type || 'all', 
-      cancelledCount 
+
+    logger.info('Cancelled sync jobs', {
+      type: type || 'all',
+      cancelledCount,
     })
 
     return cancelledCount

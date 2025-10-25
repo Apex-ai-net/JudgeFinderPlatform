@@ -403,7 +403,7 @@ if (errorRate > 0.05) {
 
 - [CourtListener API Audit Report](../../../COURTLISTENER_API_AUDIT.md)
 - [JudgeFinder API Documentation](../../../docs/api/README.md)
-- [Platform Integration Guide](../../../docs/ai/CLAUDE.md)
+- [Platform Integration Guide](../../../docs/ai/CLAUDE_CODE_GUIDE.md)
 
 ## Contributing
 

@@ -7,6 +7,7 @@ The `.env.local` file has been created with environment variables from your Netl
 ## Current Status
 
 ### Successfully Retrieved (Full Values)
+
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_DATABASE_URL`
@@ -49,6 +50,7 @@ The following variables are masked and need to be retrieved manually from the Ne
 17. **SESSION_SECRET** - Ends with: `RG8=`
 
 ### Not Set (Optional)
+
 - `NEXT_PUBLIC_SENTRY_DSN` - Optional for local dev
 - `SENTRY_DSN` - Optional for local dev
 
@@ -67,10 +69,12 @@ The following variables are masked and need to be retrieved manually from the Ne
 If you have access to the original API keys/secrets, you can retrieve them from:
 
 #### Supabase
+
 - Go to: https://app.supabase.com/project/xstlnicbnzdxlgfiewmg/settings/api
 - Copy `service_role` secret key for `SUPABASE_SERVICE_ROLE_KEY`
 
 #### Clerk
+
 - Go to: https://dashboard.clerk.com
 - Navigate to your JudgeFinder application
 - **API Keys** section:
@@ -78,23 +82,28 @@ If you have access to the original API keys/secrets, you can retrieve them from:
   - Copy Secret Key for `CLERK_SECRET_KEY`
 
 #### OpenAI
+
 - Go to: https://platform.openai.com/api-keys
 - Copy or regenerate key for `OPENAI_API_KEY`
 
 #### Google AI (Gemini)
+
 - Go to: https://makersuite.google.com/app/apikey
 - Copy key for `GOOGLE_AI_API_KEY`
 
 #### CourtListener
+
 - Go to: https://www.courtlistener.com/help/api/
 - Find your API key for `COURTLISTENER_API_KEY`
 
 #### Upstash Redis
+
 - Go to: https://console.upstash.com/
 - Navigate to your Redis database
 - Copy REST URL and token for `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
 
 #### Stripe
+
 - Go to: https://dashboard.stripe.com/apikeys
 - Copy keys for:
   - `STRIPE_SECRET_KEY`
@@ -104,6 +113,7 @@ If you have access to the original API keys/secrets, you can retrieve them from:
 ## Quick Fix for Most Common Issues
 
 ### If you can access Netlify dashboard:
+
 Run this helper script to identify which values still need updating:
 
 ```bash
@@ -111,9 +121,11 @@ grep -E '\*{10,}|No value set' .env.local
 ```
 
 ### NEXT_PUBLIC_SITE_URL
+
 This is likely just `https://judgefinder.io` (matches `NEXT_PUBLIC_APP_URL`)
 
 You can update it directly:
+
 ```bash
 sed -i '' 's|NEXT_PUBLIC_SITE_URL=.*|NEXT_PUBLIC_SITE_URL=https://judgefinder.io|' .env.local
 ```
@@ -140,9 +152,11 @@ node -e "require('dotenv').config({ path: '.env.local' }); console.log('CLERK_SE
 ## Backup
 
 A backup of your previous `.env.local` was created:
+
 - `.env.local.backup.TIMESTAMP`
 
 You can restore it with:
+
 ```bash
 cp .env.local.backup.TIMESTAMP .env.local
 ```
@@ -158,24 +172,29 @@ cp .env.local.backup.TIMESTAMP .env.local
 ## Troubleshooting
 
 ### Error: "Authentication not configured"
+
 - Check that `CLERK_SECRET_KEY` is set and not masked
 - Verify the key format (should start with `sk_`)
 
 ### Error: "Missing judge data"
+
 - Run `npm run sync:judges` to populate local database
 - Verify `SUPABASE_SERVICE_ROLE_KEY` is set correctly
 
 ### Error: "Rate limit errors"
+
 - Check `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
 - The app will continue with degraded rate limiting if Redis is unavailable
 
 ## Support
 
 If you encounter issues:
+
 1. Check the Netlify function logs for detailed errors
 2. Verify all critical environment variables are set (not masked)
 3. Ensure you're using the same values as production (from Netlify dashboard)
 
 For more information, see:
-- `/Users/tanner-osterkamp/JudgeFinderPlatform/CLAUDE.md` - Project documentation
+
+- `/docs/ai/CLAUDE_CODE_GUIDE.md` - Project documentation
 - `/Users/tanner-osterkamp/JudgeFinderPlatform/.env.example` - Full list of all environment variables

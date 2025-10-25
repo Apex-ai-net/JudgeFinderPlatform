@@ -70,21 +70,22 @@ npm run data:status      # Check data freshness
 
 ## Key Documentation
 
-| Topic | Location |
-|-------|----------|
-| **For AI Assistants** | [CLAUDE.md](./CLAUDE.md) - Comprehensive guide for Claude Code |
-| **Architecture** | [docs/architecture/ARCHITECTURE.md](./docs/architecture/ARCHITECTURE.md) |
-| **API Reference** | [docs/api/API_REFERENCE.md](./docs/api/API_REFERENCE.md) |
-| **Deployment** | [docs/deployment/netlify/NETLIFY_QUICK_START.md](./docs/deployment/netlify/NETLIFY_QUICK_START.md) |
-| **Security** | [docs/security/SECURITY.md](./docs/security/SECURITY.md) |
-| **Accessibility** | [docs/accessibility/CHAT_A11Y.md](./docs/accessibility/CHAT_A11Y.md) |
-| **Data Sync** | [docs/operations/SYNC_AND_CRON.md](./docs/operations/SYNC_AND_CRON.md) |
+| Topic                 | Location                                                                                             |
+| --------------------- | ---------------------------------------------------------------------------------------------------- |
+| **For AI Assistants** | [docs/ai/CLAUDE_CODE_GUIDE.md](./docs/ai/CLAUDE_CODE_GUIDE.md) - Comprehensive guide for Claude Code |
+| **Architecture**      | [docs/architecture/ARCHITECTURE.md](./docs/architecture/ARCHITECTURE.md)                             |
+| **API Reference**     | [docs/api/API_REFERENCE.md](./docs/api/API_REFERENCE.md)                                             |
+| **Deployment**        | [docs/deployment/netlify/NETLIFY_QUICK_START.md](./docs/deployment/netlify/NETLIFY_QUICK_START.md)   |
+| **Security**          | [docs/security/SECURITY.md](./docs/security/SECURITY.md)                                             |
+| **Accessibility**     | [docs/accessibility/CHAT_A11Y.md](./docs/accessibility/CHAT_A11Y.md)                                 |
+| **Data Sync**         | [docs/operations/SYNC_AND_CRON.md](./docs/operations/SYNC_AND_CRON.md)                               |
 
 ## Environment Setup
 
 See [.env.example](./.env.example) for all required environment variables.
 
 **Critical for Production:**
+
 - `CLERK_SECRET_KEY` - Authentication (REQUIRED)
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Auth frontend (REQUIRED)
 - `OPENAI_API_KEY` - AI chat functionality
@@ -92,6 +93,7 @@ See [.env.example](./.env.example) for all required environment variables.
 - `UPSTASH_REDIS_REST_URL` - Rate limiting
 
 **Tip**: Sync Netlify env to local:
+
 ```bash
 netlify link
 netlify env:pull --json > .env.local
@@ -154,7 +156,7 @@ Configure in Netlify dashboard with `CRON_SECRET` header.
 
 ## Contributing
 
-See [CLAUDE.md](./CLAUDE.md) for development guidelines and architecture overview.
+See [docs/ai/CLAUDE_CODE_GUIDE.md](./docs/ai/CLAUDE_CODE_GUIDE.md) for development guidelines and architecture overview.
 
 ### Key Principles
 

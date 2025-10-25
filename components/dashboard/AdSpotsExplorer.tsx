@@ -167,63 +167,99 @@ export default function AdSpotsExplorer({
           <div className="space-y-4">
             {/* Search Bar */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <label htmlFor="ad-spot-search" className="sr-only">
+                Search advertising spots by judge name, court, or jurisdiction
+              </label>
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground"
+                aria-hidden="true"
+              />
               <input
+                id="ad-spot-search"
                 type="text"
                 placeholder="Search by judge name, court, or jurisdiction..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                aria-label="Search advertising spots"
               />
             </div>
 
             {/* Filter Controls */}
             <div className="flex flex-wrap gap-4">
-              <select
-                value={entityType}
-                onChange={(e) => setEntityType(e.target.value as any)}
-                className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Types</option>
-                <option value="judge">Judge Profiles</option>
-                <option value="court">Court Profiles</option>
-              </select>
+              <div>
+                <label htmlFor="entity-type-filter" className="sr-only">
+                  Filter by entity type
+                </label>
+                <select
+                  id="entity-type-filter"
+                  value={entityType}
+                  onChange={(e) => setEntityType(e.target.value as any)}
+                  className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  aria-label="Filter by entity type"
+                >
+                  <option value="all">All Types</option>
+                  <option value="judge">Judge Profiles</option>
+                  <option value="court">Court Profiles</option>
+                </select>
+              </div>
 
               {entityType === 'judge' && (
-                <select
-                  value={courtLevel}
-                  onChange={(e) => setCourtLevel(e.target.value as any)}
-                  className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="all">All Court Levels</option>
-                  <option value="federal">Federal Judges ($500/mo)</option>
-                  <option value="state">State Judges ($200/mo)</option>
-                </select>
+                <div>
+                  <label htmlFor="court-level-filter" className="sr-only">
+                    Filter by court level
+                  </label>
+                  <select
+                    id="court-level-filter"
+                    value={courtLevel}
+                    onChange={(e) => setCourtLevel(e.target.value as any)}
+                    className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    aria-label="Filter by court level"
+                  >
+                    <option value="all">All Court Levels</option>
+                    <option value="federal">Federal Judges ($500/mo)</option>
+                    <option value="state">State Judges ($200/mo)</option>
+                  </select>
+                </div>
               )}
 
-              <select
-                value={priceRange}
-                onChange={(e) => setPriceRange(e.target.value as any)}
-                className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Prices</option>
-                <option value="budget">Budget (≤$200)</option>
-                <option value="standard">Standard ($201-$500)</option>
-                <option value="premium">Premium ($500+)</option>
-              </select>
+              <div>
+                <label htmlFor="price-range-filter" className="sr-only">
+                  Filter by price range
+                </label>
+                <select
+                  id="price-range-filter"
+                  value={priceRange}
+                  onChange={(e) => setPriceRange(e.target.value as any)}
+                  className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  aria-label="Filter by price range"
+                >
+                  <option value="all">All Prices</option>
+                  <option value="budget">Budget (≤$200)</option>
+                  <option value="standard">Standard ($201-$500)</option>
+                  <option value="premium">Premium ($500+)</option>
+                </select>
+              </div>
 
-              <select
-                value={jurisdiction}
-                onChange={(e) => setJurisdiction(e.target.value)}
-                className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Jurisdictions</option>
-                <option value="Orange County">Orange County</option>
-                <option value="Los Angeles County">Los Angeles County</option>
-                <option value="San Diego County">San Diego County</option>
-                <option value="Riverside County">Riverside County</option>
-                <option value="San Bernardino County">San Bernardino County</option>
-              </select>
+              <div>
+                <label htmlFor="jurisdiction-filter" className="sr-only">
+                  Filter by jurisdiction
+                </label>
+                <select
+                  id="jurisdiction-filter"
+                  value={jurisdiction}
+                  onChange={(e) => setJurisdiction(e.target.value)}
+                  className="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  aria-label="Filter by jurisdiction"
+                >
+                  <option value="all">All Jurisdictions</option>
+                  <option value="Orange County">Orange County</option>
+                  <option value="Los Angeles County">Los Angeles County</option>
+                  <option value="San Diego County">San Diego County</option>
+                  <option value="Riverside County">Riverside County</option>
+                  <option value="San Bernardino County">San Bernardino County</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>

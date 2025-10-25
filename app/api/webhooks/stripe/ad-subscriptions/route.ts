@@ -352,6 +352,97 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice): Promise<void
       attemptCount: invoice.attempt_count,
     })
 
-    // TODO: Send email notification to advertiser about failed payment
+    // Send email notification to advertiser about failed payment
+    await notifyAdvertiserPaymentFailed({
+      subscriptionId: subscription.id,
+      invoiceId: invoice.id,
+      amount: invoice.amount_due / 100,
+      attemptCount: invoice.attempt_count || 0,
+      invoiceUrl: invoice.hosted_invoice_url,
+    })
+  }
+}
+
+/**
+ * Send email notification to advertiser about failed payment
+ */
+async function notifyAdvertiserPaymentFailed(params: {
+  subscriptionId: string
+  invoiceId: string
+  amount: number
+  attemptCount: number
+  invoiceUrl?: string | null
+}): Promise<void> {
+  try {
+    // Get advertiser email from subscription
+    const stripe = getStripeClient()
+    const subscription = await stripe.subscriptions.retrieve(params.subscriptionId)
+    const customer = await stripe.customers.retrieve(subscription.customer as string)
+
+    if (customer.deleted || !customer.email) {
+      logger.warn('No email found for advertiser payment failure', {
+        subscriptionId: params.subscriptionId,
+      })
+      return
+    }
+
+    // Import email function dynamically to avoid circular dependencies
+    const { sendEmail } = await import('@/lib/email/mailer')
+
+    const judgeName = subscription.metadata?.judge_name || 'Judge'
+    const courtName = subscription.metadata?.court_name || 'Court'
+
+    await sendEmail({
+      to: customer.email,
+      subject: 'Action Required: Payment Failed for Judge Ad - JudgeFinder',
+      text: `We were unable to process your payment for the judge profile advertisement.
+
+Ad Details:
+- Judge: ${judgeName}
+- Court: ${courtName}
+- Amount Due: $${params.amount.toFixed(2)} USD
+- Attempt: ${params.attemptCount}
+
+${params.invoiceUrl ? `View Invoice: ${params.invoiceUrl}\n` : ''}
+Please update your payment method to keep your advertisement active.
+
+Visit your dashboard: ${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/advertiser
+
+If you have questions, contact our support team.
+
+Best regards,
+The JudgeFinder Team`,
+      html: `<p>We were unable to process your payment for the judge profile advertisement.</p>
+
+<h3>Ad Details:</h3>
+<ul>
+  <li><strong>Judge:</strong> ${judgeName}</li>
+  <li><strong>Court:</strong> ${courtName}</li>
+  <li><strong>Amount Due:</strong> $${params.amount.toFixed(2)} USD</li>
+  <li><strong>Attempt:</strong> ${params.attemptCount}</li>
+</ul>
+
+${params.invoiceUrl ? `<p><a href="${params.invoiceUrl}">View Invoice</a></p>` : ''}
+
+<p>Please update your payment method to keep your advertisement active.</p>
+
+<p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/advertiser">Visit your dashboard</a></p>
+
+<p>If you have questions, contact our support team.</p>
+
+<p>Best regards,<br>The JudgeFinder Team</p>`,
+      category: 'ad-payment-failed',
+    })
+
+    logger.info('Advertiser payment failed email sent', {
+      subscriptionId: params.subscriptionId,
+      email: customer.email,
+    })
+  } catch (error) {
+    logger.error(
+      'Failed to send advertiser payment failed email',
+      { subscriptionId: params.subscriptionId },
+      error instanceof Error ? error : undefined
+    )
   }
 }
