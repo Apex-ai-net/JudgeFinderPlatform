@@ -1,6 +1,7 @@
 'use client'
 
 import { CreditCard, Calendar, AlertCircle } from 'lucide-react'
+import PlanChangeWidget from './PlanChangeWidgetSimple'
 
 interface SubscriptionItem {
   id: string
@@ -109,6 +110,21 @@ export default function ActiveSubscriptionsWidget({
                   {subscription.currentPeriodEnd.toLocaleDateString()}. You'll still have access
                   until then.
                 </p>
+              </div>
+            )}
+
+            {/* Plan Change Widget - only show for active subscriptions */}
+            {subscription.status === 'active' && !subscription.cancelAtPeriodEnd && (
+              <div className="mt-3 pt-3 border-t border-border">
+                <PlanChangeWidget
+                  currentSubscription={{
+                    id: subscription.id,
+                    priceId: subscription.items[0]?.id || '',
+                    planName: subscription.items[0]?.productName || 'Current Plan',
+                    amount: subscription.items[0]?.amount || 0,
+                    interval: subscription.items[0]?.interval || 'month',
+                  }}
+                />
               </div>
             )}
           </div>

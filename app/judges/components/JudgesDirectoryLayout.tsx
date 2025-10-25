@@ -4,7 +4,6 @@ import { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 
 interface JudgesDirectoryLayoutProps {
-  header: ReactNode
   search: ReactNode
   summary: ReactNode
   results: ReactNode
@@ -13,7 +12,6 @@ interface JudgesDirectoryLayoutProps {
 }
 
 export function JudgesDirectoryLayout({
-  header,
   search,
   summary,
   results,
@@ -22,7 +20,6 @@ export function JudgesDirectoryLayout({
 }: JudgesDirectoryLayoutProps): JSX.Element {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
-      {header}
       {topbar}
 
       <motion.section

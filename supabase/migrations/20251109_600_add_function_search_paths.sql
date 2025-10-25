@@ -350,21 +350,8 @@ $$;
 
 -- Log completion
 DO $$
-DECLARE
-  function_count integer;
 BEGIN
-  -- Count functions with search_path set
-  SELECT COUNT(*) INTO function_count
-  FROM pg_proc p
-  JOIN pg_namespace n ON p.pronamespace = n.oid
-  WHERE n.nspname = 'public'
-    AND p.prosecdef = true -- SECURITY DEFINER functions
-    AND EXISTS (
-      SELECT 1 FROM pg_proc_config(p.oid) pc
-      WHERE pc.config_name = 'search_path'
-    );
-
-  RAISE NOTICE 'Updated functions with search_path. Total SECURITY DEFINER functions with search_path: %', function_count;
+  RAISE NOTICE 'Updated functions with search_path configuration';
 END $$;
 
 -- =====================================================

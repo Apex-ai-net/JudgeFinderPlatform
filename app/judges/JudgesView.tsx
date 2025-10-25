@@ -3,7 +3,6 @@
 import { observer } from 'mobx-react-lite'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import { JudgesDirectoryHeader } from './components/JudgesDirectoryHeader'
 import { JudgesDirectoryLayout } from './components/JudgesDirectoryLayout'
 import { JudgesDirectorySearchPanel } from './components/JudgesDirectorySearchPanel'
 import { JudgesDirectorySummary } from './components/JudgesDirectorySummary'
@@ -87,7 +86,6 @@ export const JudgesView = observer(function JudgesView({ initialData }: JudgesVi
 
   return (
     <JudgesDirectoryLayout
-      header={<JudgesDirectoryHeader showSkeleton={viewModel.isInitialLoading} />}
       search={<JudgesDirectorySearchPanel viewModel={viewModel} />}
       summary={<JudgesDirectorySummary viewModel={viewModel} />}
       results={<ResultsSection viewModel={viewModel} />}

@@ -9,6 +9,8 @@ import BillingDataClient from '@/components/billing/BillingDataClient'
 import PaymentHistoryFilter from '@/components/billing/PaymentHistoryFilter'
 import InvoiceHistoryTable from '@/components/billing/InvoiceHistoryTable'
 import SpendingChart from '@/components/billing/SpendingChart'
+import DunningManagementWidget from '@/components/billing/DunningManagementWidget'
+import CreditsRefundsWidget from '@/components/billing/CreditsRefundsWidgetSimple'
 import { SkipLink } from '@/components/ui/SkipLink'
 
 export const metadata: Metadata = {
@@ -114,6 +116,14 @@ export default async function BillingDashboard({
             </div>
           </header>
 
+          {/* Dunning Management - Failed Payments */}
+          <section aria-labelledby="dunning-heading" className="mb-8">
+            <h2 id="dunning-heading" className="sr-only">
+              Failed Payments
+            </h2>
+            <DunningManagementWidget />
+          </section>
+
           {/* Active Subscriptions & Payment Methods */}
           <section aria-labelledby="billing-data-heading" className="mb-8">
             <h2 id="billing-data-heading" className="sr-only">
@@ -136,6 +146,14 @@ export default async function BillingDashboard({
               Invoice History
             </h2>
             <InvoiceHistoryTable limit={20} />
+          </section>
+
+          {/* Credits & Refunds */}
+          <section aria-labelledby="credits-refunds-heading" className="mb-8">
+            <h2 id="credits-refunds-heading" className="sr-only">
+              Credits and Refunds
+            </h2>
+            <CreditsRefundsWidget />
           </section>
 
           {/* Orders List with Filtering */}

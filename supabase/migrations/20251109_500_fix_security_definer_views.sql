@@ -41,33 +41,38 @@ COMMENT ON VIEW public.onboarding_metrics_summary IS
 -- Fix: Remove SECURITY DEFINER, enforce RLS
 -- =====================================================
 
-DROP VIEW IF EXISTS public.ai_search_performance_dashboard CASCADE;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ai_search_metrics') THEN
+    DROP VIEW IF EXISTS public.ai_search_performance_dashboard CASCADE;
 
-CREATE OR REPLACE VIEW public.ai_search_performance_dashboard AS
-SELECT
-  COUNT(*) as total_searches,
-  COUNT(*) FILTER (WHERE ai_processed = true) as ai_processed_searches,
-  ROUND(
-    COUNT(*) FILTER (WHERE ai_processed = true) * 100.0 / NULLIF(COUNT(*), 0),
-    2
-  ) as ai_adoption_rate,
-  AVG(confidence) FILTER (WHERE ai_processed = true) as avg_confidence,
-  AVG(results_count) as avg_results_per_search,
-  AVG(processing_time_ms) as avg_processing_time_ms,
-  COUNT(DISTINCT intent_type) as unique_intent_types,
-  jsonb_object_agg(
-    intent_type,
-    COUNT(*) ORDER BY COUNT(*) DESC
-  ) FILTER (WHERE intent_type IS NOT NULL) as searches_by_intent
-FROM public.ai_search_metrics
-WHERE created_at >= NOW() - INTERVAL '30 days';
+    EXECUTE '
+    CREATE OR REPLACE VIEW public.ai_search_performance_dashboard AS
+    SELECT
+      COUNT(*) as total_searches,
+      COUNT(*) FILTER (WHERE ai_processed = true) as ai_processed_searches,
+      ROUND(
+        COUNT(*) FILTER (WHERE ai_processed = true) * 100.0 / NULLIF(COUNT(*), 0),
+        2
+      ) as ai_adoption_rate,
+      AVG(confidence) FILTER (WHERE ai_processed = true) as avg_confidence,
+      AVG(results_count) as avg_results_per_search,
+      AVG(processing_time_ms) as avg_processing_time_ms,
+      COUNT(DISTINCT intent_type) as unique_intent_types,
+      jsonb_object_agg(
+        intent_type,
+        COUNT(*) ORDER BY COUNT(*) DESC
+      ) FILTER (WHERE intent_type IS NOT NULL) as searches_by_intent
+    FROM public.ai_search_metrics
+    WHERE created_at >= NOW() - INTERVAL ''30 days''';
 
--- Grant appropriate permissions
-GRANT SELECT ON public.ai_search_performance_dashboard TO authenticated;
-GRANT SELECT ON public.ai_search_performance_dashboard TO service_role;
+    -- Grant appropriate permissions
+    GRANT SELECT ON public.ai_search_performance_dashboard TO authenticated;
+    GRANT SELECT ON public.ai_search_performance_dashboard TO service_role;
 
-COMMENT ON VIEW public.ai_search_performance_dashboard IS
-'Dashboard metrics for AI search performance. Uses RLS from underlying tables (no SECURITY DEFINER).';
+    EXECUTE 'COMMENT ON VIEW public.ai_search_performance_dashboard IS ''Dashboard metrics for AI search performance. Uses RLS from underlying tables (no SECURITY DEFINER).''';
+  END IF;
+END $$;
 
 -- Log completion
 DO $$

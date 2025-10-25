@@ -10,36 +10,28 @@
 BEGIN;
 
 -- =============================================================================
--- STEP 1: Update ad_spot_bookings table constraint
+-- STEP 1: Update ad_spot_bookings table constraint (if exists)
 -- =============================================================================
--- Current constraint: CHECK (position IN (1, 2))
--- New constraint: CHECK (position IN (1, 2, 3))
-
-ALTER TABLE ad_spot_bookings
-  DROP CONSTRAINT IF EXISTS ad_spot_bookings_position_check;
-
-ALTER TABLE ad_spot_bookings
-  ADD CONSTRAINT ad_spot_bookings_position_check
-    CHECK (position IN (1, 2, 3));
-
-COMMENT ON CONSTRAINT ad_spot_bookings_position_check ON ad_spot_bookings IS
-  'Allows positions 1, 2, and 3 for ad slot bookings';
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ad_spot_bookings') THEN
+    ALTER TABLE ad_spot_bookings DROP CONSTRAINT IF EXISTS ad_spot_bookings_position_check;
+    ALTER TABLE ad_spot_bookings ADD CONSTRAINT ad_spot_bookings_position_check CHECK (position IN (1, 2, 3));
+    EXECUTE 'COMMENT ON CONSTRAINT ad_spot_bookings_position_check ON ad_spot_bookings IS ''Allows positions 1, 2, and 3 for ad slot bookings''';
+  END IF;
+END $$;
 
 -- =============================================================================
--- STEP 2: Update judge_ad_products table constraint
+-- STEP 2: Update judge_ad_products table constraint (if exists)
 -- =============================================================================
--- Current constraint: CHECK (position IN (1, 2))
--- New constraint: CHECK (position IN (1, 2, 3))
-
-ALTER TABLE judge_ad_products
-  DROP CONSTRAINT IF EXISTS judge_ad_products_position_check;
-
-ALTER TABLE judge_ad_products
-  ADD CONSTRAINT judge_ad_products_position_check
-    CHECK (position IN (1, 2, 3));
-
-COMMENT ON CONSTRAINT judge_ad_products_position_check ON judge_ad_products IS
-  'Allows positions 1, 2, and 3 for judge ad products';
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'judge_ad_products') THEN
+    ALTER TABLE judge_ad_products DROP CONSTRAINT IF EXISTS judge_ad_products_position_check;
+    ALTER TABLE judge_ad_products ADD CONSTRAINT judge_ad_products_position_check CHECK (position IN (1, 2, 3));
+    EXECUTE 'COMMENT ON CONSTRAINT judge_ad_products_position_check ON judge_ad_products IS ''Allows positions 1, 2, and 3 for judge ad products''';
+  END IF;
+END $$;
 
 -- =============================================================================
 -- STEP 3: Update pending_checkouts table constraint (CONDITIONAL)
@@ -121,17 +113,23 @@ WHERE NOT EXISTS (
 ON CONFLICT (entity_type, entity_id, position) DO NOTHING;
 
 -- =============================================================================
--- STEP 7: Update documentation comments
+-- STEP 7: Update documentation comments (only if tables exist)
 -- =============================================================================
 
-COMMENT ON COLUMN ad_spot_bookings.position IS
-  'Ad rotation slot number (1, 2, or 3). Judges now support 3 positions.';
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ad_spot_bookings') THEN
+    EXECUTE 'COMMENT ON COLUMN ad_spot_bookings.position IS ''Ad rotation slot number (1, 2, or 3). Judges now support 3 positions.''';
+  END IF;
 
-COMMENT ON COLUMN judge_ad_products.position IS
-  'Rotation slot number (1, 2, or 3) for this ad spot';
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'judge_ad_products') THEN
+    EXECUTE 'COMMENT ON COLUMN judge_ad_products.position IS ''Rotation slot number (1, 2, or 3) for this ad spot''';
+  END IF;
 
-COMMENT ON COLUMN ad_spots.position IS
-  'Position number (1-3) for the ad slot. All entity types support 3 positions.';
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ad_spots') THEN
+    EXECUTE 'COMMENT ON COLUMN ad_spots.position IS ''Position number (1-3) for the ad slot. All entity types support 3 positions.''';
+  END IF;
+END $$;
 
 -- =============================================================================
 -- STEP 8: Verification Checks
@@ -179,13 +177,15 @@ BEGIN
     RAISE NOTICE 'SUCCESS: All judges have position 1, 2, and 3 ad spots';
   END IF;
 
-  -- Verify constraints were updated (using pg_get_constraintdef for modern PostgreSQL)
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint
-    WHERE conname = 'ad_spot_bookings_position_check'
-      AND pg_get_constraintdef(oid) LIKE '%1, 2, 3%'
-  ) THEN
-    RAISE NOTICE 'WARNING: Constraint ad_spot_bookings_position_check may not be updated correctly';
+  -- Verify constraints were updated (only if table exists)
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ad_spot_bookings') THEN
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_constraint
+      WHERE conname = 'ad_spot_bookings_position_check'
+        AND pg_get_constraintdef(oid) LIKE '%1, 2, 3%'
+    ) THEN
+      RAISE NOTICE 'WARNING: Constraint ad_spot_bookings_position_check may not be updated correctly';
+    END IF;
   END IF;
 
   RAISE NOTICE '========================================';

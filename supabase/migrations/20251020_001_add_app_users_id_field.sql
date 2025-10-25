@@ -176,33 +176,54 @@ BEGIN
   END IF;
 END $$;
 
--- Add foreign key constraints
-ALTER TABLE user_bookmarks
-ADD CONSTRAINT user_bookmarks_user_id_fkey
-FOREIGN KEY (user_id) REFERENCES app_users(id) ON DELETE CASCADE;
+-- Add foreign key constraints and indexes (only if tables exist)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'user_bookmarks') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'user_bookmarks_user_id_fkey') THEN
+      ALTER TABLE user_bookmarks
+      ADD CONSTRAINT user_bookmarks_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES app_users(id) ON DELETE CASCADE;
+    END IF;
+    CREATE INDEX IF NOT EXISTS user_bookmarks_user_id_idx ON user_bookmarks(user_id);
+  END IF;
 
-ALTER TABLE user_activity
-ADD CONSTRAINT user_activity_user_id_fkey
-FOREIGN KEY (user_id) REFERENCES app_users(id) ON DELETE CASCADE;
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'user_activity') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'user_activity_user_id_fkey') THEN
+      ALTER TABLE user_activity
+      ADD CONSTRAINT user_activity_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES app_users(id) ON DELETE CASCADE;
+    END IF;
+    CREATE INDEX IF NOT EXISTS user_activity_user_id_idx ON user_activity(user_id);
+  END IF;
 
-ALTER TABLE user_saved_searches
-ADD CONSTRAINT user_saved_searches_user_id_fkey
-FOREIGN KEY (user_id) REFERENCES app_users(id) ON DELETE CASCADE;
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'user_saved_searches') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'user_saved_searches_user_id_fkey') THEN
+      ALTER TABLE user_saved_searches
+      ADD CONSTRAINT user_saved_searches_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES app_users(id) ON DELETE CASCADE;
+    END IF;
+    CREATE INDEX IF NOT EXISTS user_saved_searches_user_id_idx ON user_saved_searches(user_id);
+  END IF;
 
-ALTER TABLE user_preferences
-ADD CONSTRAINT user_preferences_user_id_fkey
-FOREIGN KEY (user_id) REFERENCES app_users(id) ON DELETE CASCADE;
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'user_preferences') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'user_preferences_user_id_fkey') THEN
+      ALTER TABLE user_preferences
+      ADD CONSTRAINT user_preferences_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES app_users(id) ON DELETE CASCADE;
+    END IF;
+    CREATE INDEX IF NOT EXISTS user_preferences_user_id_idx ON user_preferences(user_id);
+  END IF;
 
-ALTER TABLE user_notifications
-ADD CONSTRAINT user_notifications_user_id_fkey
-FOREIGN KEY (user_id) REFERENCES app_users(id) ON DELETE CASCADE;
-
--- Create indexes for better query performance
-CREATE INDEX IF NOT EXISTS user_bookmarks_user_id_idx ON user_bookmarks(user_id);
-CREATE INDEX IF NOT EXISTS user_activity_user_id_idx ON user_activity(user_id);
-CREATE INDEX IF NOT EXISTS user_saved_searches_user_id_idx ON user_saved_searches(user_id);
-CREATE INDEX IF NOT EXISTS user_preferences_user_id_idx ON user_preferences(user_id);
-CREATE INDEX IF NOT EXISTS user_notifications_user_id_idx ON user_notifications(user_id);
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'user_notifications') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'user_notifications_user_id_fkey') THEN
+      ALTER TABLE user_notifications
+      ADD CONSTRAINT user_notifications_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES app_users(id) ON DELETE CASCADE;
+    END IF;
+    CREATE INDEX IF NOT EXISTS user_notifications_user_id_idx ON user_notifications(user_id);
+  END IF;
+END $$;
 
 -- Add comment to explain the change
 COMMENT ON COLUMN app_users.id IS 'UUID primary key for internal references. Use clerk_user_id for Clerk authentication mapping.';
